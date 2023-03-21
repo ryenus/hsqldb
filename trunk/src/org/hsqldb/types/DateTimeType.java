@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.2
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -2870,6 +2870,21 @@ public final class DateTimeType extends DTIType {
         return OffsetDateTime.of(lt, zone);
     }
 
+    static String convertJavaDateTimeObjectToString(Object a) {
+
+        switch(a.getClass().getName()){
+            case "java.time.LocalDate":
+            case "java.time.LocalTime":
+                return a.toString();
+            case "java.time.LocalDateTime":
+            case "java.time.OffsetDateTime":
+            case "java.time.OffsetTime":
+                return a.toString().replace('T', ' ');
+        }
+
+        return null;
+    }
+
 //#else
 /*
     public static TimestampData newCurrentTimestamp(TimeZone zone) {
@@ -2889,6 +2904,10 @@ public final class DateTimeType extends DTIType {
         int  nanos   = (int) (millis % millisInSecond * nanosInMilli);
 
         return new TimestampData(seconds, nanos);
+    }
+
+    static String convertJavaDateTimeObjectToString(Object a) {
+        return null;
     }
 */
 
