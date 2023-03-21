@@ -650,7 +650,7 @@ public class CharacterType extends Type {
         } else if (a instanceof java.util.UUID) {
             s = a.toString();
         } else {
-            s = convertJavaDateTimeObject(a);
+            s = DateTimeType.convertJavaDateTimeObjectToString(a);
 
             if (s == null) {
                 throw Error.error(ErrorCode.X_42561);
@@ -660,30 +660,6 @@ public class CharacterType extends Type {
         return s;
     }
 
-//#ifdef JAVA8
-    String convertJavaDateTimeObject(Object a) {
-
-        switch(a.getClass().getName()){
-            case "java.time.LocalDate":
-            case "java.time.LocalTime":
-                return a.toString();
-            case "java.time.LocalDateTime":
-            case "java.time.OffsetDateTime":
-            case "java.time.OffsetTime":
-                return a.toString().replace('T', ' ');
-        }
-
-        return null;
-    }
-
-//#else
-/*
-    String convertJavaDateTimeObject(Object a) {
-        return null;
-    }
-*/
-
-//#endif JAVA8
     public Object convertJavaToSQL(SessionInterface session, Object a) {
         return convertToDefaultType(session, a);
     }
