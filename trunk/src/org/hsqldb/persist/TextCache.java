@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ import org.hsqldb.rowio.RowOutputTextQuoted;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.2
  * @since 1.7.0
  */
 public class TextCache extends DataFileCache {
@@ -423,11 +423,7 @@ public class TextCache extends DataFileCache {
             byte[] buf       = null;
             String firstLine = header + TextFileSettings.NL;
 
-            try {
-                buf = firstLine.getBytes(textFileSettings.charEncoding);
-            } catch (UnsupportedEncodingException e) {
-                buf = firstLine.getBytes();
-            }
+            buf = firstLine.getBytes(textFileSettings.charEncoding);
 
             dataFile.seek(0);
             dataFile.write(buf, 0, buf.length);
