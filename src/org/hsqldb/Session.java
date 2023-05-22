@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ import org.hsqldb.types.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.1
+ * @version 2.7.2
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -102,8 +102,8 @@ public class Session implements SessionInterface {
     long                    transactionEndSCN;
     final boolean           txConflictRollback;
     final boolean           txInterruptRollback;
-    boolean                 isPreTransaction;
-    boolean                 isTransaction;
+    volatile boolean        isPreTransaction;
+    volatile boolean        isTransaction;
     boolean                 isBatch;
     volatile boolean        abortAction;
     volatile boolean        abortTransaction;
@@ -153,6 +153,7 @@ public class Session implements SessionInterface {
 
     //
     public Object special;
+    public int    sessionTxId;
 
     /**
      * Constructs a new Session object.
@@ -1310,6 +1311,7 @@ public class Session implements SessionInterface {
         }
 
         sessionContext.currentStatement = cs;
+        sessionContext.invalidStatement = false;
         statementStartSCN = database.txManager.getSystemChangeNumber();
 
         boolean isTX = cs.isTransactionStatement();
@@ -1329,6 +1331,7 @@ public class Session implements SessionInterface {
 
             r                               = cs.execute(this);
             sessionContext.currentStatement = null;
+            sessionContext.invalidStatement = false;
             abortAction                     = false;
 
             sessionData.persistentStoreCollection.clearStatementTables();
@@ -1348,12 +1351,6 @@ public class Session implements SessionInterface {
                 redoAction = false;
 
                 continue;
-            }
-
-            cs = sessionContext.currentStatement;
-
-            if (cs == null) {
-                return Result.newErrorResult(Error.error(ErrorCode.X_07502));
             }
 
             if (abortTransaction) {
@@ -1398,18 +1395,27 @@ public class Session implements SessionInterface {
 
             database.txManager.beginActionResume(this);
 
-            //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
-            sessionContext.setDynamicArguments(pvals);
+            // expiration check
+            cs = sessionContext.currentStatement;
 
-            r = cs.execute(this);
+            if (sessionContext.invalidStatement) {
+                r = Result.newErrorResult(Error.error(ErrorCode.X_07502));
+            } else {
 
-            if (database.logger.getSqlEventLogLevel()
-                    >= SimpleLog.LOG_NORMAL) {
-                database.logger.logStatementEvent(this, cs, pvals, r,
-                                                  SimpleLog.LOG_NORMAL);
+                // tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
+                sessionContext.setDynamicArguments(pvals);
+
+                r = cs.execute(this);
+
+                // tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
+
+                if (database.logger.getSqlEventLogLevel()
+                        >= SimpleLog.LOG_NORMAL) {
+                    database.logger.logStatementEvent(this, cs, pvals, r,
+                                                      SimpleLog.LOG_NORMAL);
+                }
             }
 
-            //        tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
             endAction(r);
 
             if (abortTransaction) {
@@ -1459,6 +1465,7 @@ public class Session implements SessionInterface {
                     }
                 } catch (Exception e) {
                     sessionContext.currentStatement = null;
+                    sessionContext.invalidStatement = false;
 
                     return Result.newErrorResult(Error.error(ErrorCode.X_40001,
                             e));
@@ -1469,6 +1476,7 @@ public class Session implements SessionInterface {
                         commit(false);
                     } catch (Exception e) {
                         sessionContext.currentStatement = null;
+                        sessionContext.invalidStatement = false;
 
                         return Result.newErrorResult(
                             Error.error(ErrorCode.X_40001, e));
@@ -1478,6 +1486,7 @@ public class Session implements SessionInterface {
         }
 
         sessionContext.currentStatement = null;
+        sessionContext.invalidStatement = false;
 
         return r;
     }
@@ -1487,6 +1496,7 @@ public class Session implements SessionInterface {
         rollbackNoCheck(false);
 
         sessionContext.currentStatement = null;
+        sessionContext.invalidStatement = false;
 
         return Result.newErrorResult(Error.error(ErrorCode.X_40001));
     }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.2
  * @since 2.0.0
  */
 public class TransactionManagerMV2PL extends TransactionManagerCommon
@@ -414,12 +414,6 @@ implements TransactionManager {
                 return;
             }
 
-            cs = updateCurrentStatement(session, cs);
-
-            if (cs == null) {
-                return;
-            }
-
             boolean canProceed = setWaitedSessionsTPL(session, cs);
 
             if (canProceed) {
@@ -449,6 +443,14 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
+            Statement cs = session.sessionContext.currentStatement;
+
+            cs = updateCurrentStatement(session, cs);
+
+            if (session.sessionContext.invalidStatement) {
+                return;
+            }
+
             if (session.isTransaction) {
                 session.actionSCN      = getNextSystemChangeNumber();
                 session.actionStartSCN = session.actionSCN;
