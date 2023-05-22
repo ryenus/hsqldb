@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.2
  * @since 2.0.0
  */
 public class TransactionManagerMVCC extends TransactionManagerCommon
@@ -219,7 +219,6 @@ implements TransactionManager {
 
             endTransactionTPL(session);
 
-            //
             session.isTransaction = false;
 
             countDownLatches(session);
@@ -666,12 +665,6 @@ implements TransactionManager {
                 return;
             }
 
-            cs = updateCurrentStatement(session, cs);
-
-            if (cs == null) {
-                return;
-            }
-
             if (session.abortTransaction) {
                 return;
             }
@@ -696,6 +689,13 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
+            Statement cs = session.sessionContext.currentStatement;
+            cs = updateCurrentStatement(session, cs);
+
+            if (session.sessionContext.invalidStatement) {
+                return;
+            }
+
             if (session.isTransaction) {
                 session.actionSCN      = getNextSystemChangeNumber();
                 session.actionStartSCN = session.actionSCN;
@@ -747,7 +747,6 @@ implements TransactionManager {
             return;
         }
 
-        //
         Session nextSession = null;
 
         for (int i = 0; i < session.waitingSessions.size(); i++) {
@@ -782,16 +781,16 @@ implements TransactionManager {
         unlockSessionId = session.getId();
     }
 
-    boolean beginActionTPL(Session session, Statement cs) {
+    void beginActionTPL(Session session, Statement cs) {
 
         if (session == catalogWriteSession) {
-            return true;
+            return;
         }
 
         session.tempSet.clear();
 
         if (cs.isCatalogLock(txModel)) {
-            if (catalogWriteSession == null) {
+            if (!isLockedMode) {
                 catalogWriteSession = session;
                 isLockedMode        = true;
                 lockTxTs            = session.actionSCN;
@@ -804,36 +803,34 @@ implements TransactionManager {
                     setWaitingSessionTPL(session);
                 }
 
-                return true;
+                return;
             }
         }
 
         if (!isLockedMode) {
-            return true;
+            return;
         }
 
         if (cs.getTableNamesForWrite().length > 0) {
             if (cs.getTableNamesForWrite()[0].schema
                     == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
-                return true;
+                return;
             }
         } else if (cs.getTableNamesForRead().length > 0) {
             if (cs.getTableNamesForRead()[0].schema
                     == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
-                return true;
+                return;
             }
         }
 
         if (session.waitingSessions.contains(catalogWriteSession)) {
-            return true;
+            return;
         }
 
         if (catalogWriteSession.waitingSessions.add(session)) {
             session.waitedSessions.add(catalogWriteSession);
             session.latch.setCount(session.waitedSessions.size());
         }
-
-        return true;
     }
 
     public void resetSession(Session session, Session targetSession,

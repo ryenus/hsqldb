@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import org.hsqldb.scriptio.StatementLineTypes;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.2
  * @since 1.7.2
  */
 public class ScriptRunner {
@@ -173,6 +173,7 @@ public class ScriptRunner {
 
                     case StatementLineTypes.INSERT_STATEMENT : {
                         current.sessionContext.currentStatement = dummy;
+                        current.sessionContext.invalidStatement = false;
 
                         current.beginAction(dummy);
 

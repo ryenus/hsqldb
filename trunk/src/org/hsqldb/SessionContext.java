@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.result.Result;
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.2
  * @since 1.9.0
  */
 public class SessionContext {
@@ -97,7 +97,8 @@ public class SessionContext {
     OrderedHashMap popSessionTables;
 
     //
-    public Statement currentStatement;
+    public volatile Statement currentStatement;
+    public volatile boolean invalidStatement;
 
     //
     public int rownum;
