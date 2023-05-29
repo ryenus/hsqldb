@@ -286,7 +286,9 @@ implements TransactionManager {
             boolean canProceed = setWaitedSessionsTPL(session, cs);
 
             if (canProceed) {
-                session.isPreTransaction = true;
+                if (!session.isTransaction) {
+                    session.isPreTransaction = true;
+                }
 
                 if (session.tempSet.isEmpty()) {
                     lockTablesTPL(session, cs);
