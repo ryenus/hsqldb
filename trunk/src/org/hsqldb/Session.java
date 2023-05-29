@@ -34,7 +34,6 @@ package org.hsqldb;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -626,7 +625,7 @@ public class Session implements SessionInterface {
             return;
         }
 
-        if (isTransaction) {
+        if (isTransaction || isPreTransaction) {
             database.txManager.rollback(this);
         }
 
@@ -662,7 +661,7 @@ public class Session implements SessionInterface {
                                               SimpleLog.LOG_ERROR);
         }
 /* debug 190
-        tempActionHistory.add("commit ends " + actionTimestamp);
+        tempActionHistory.add("transaction ends " + actionTimestamp);
         tempActionHistory.clear();
 //*/
     }
@@ -1400,6 +1399,7 @@ public class Session implements SessionInterface {
 
             if (sessionContext.invalidStatement) {
                 r = Result.newErrorResult(Error.error(ErrorCode.X_07502));
+                abortTransaction = true;
             } else {
 
                 // tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());

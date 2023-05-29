@@ -43,7 +43,6 @@ import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
-import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 
@@ -80,7 +79,11 @@ class TransactionManagerCommon {
     HashMap           tableWriteLocks = new HashMap();
     MultiValueHashMap tableReadLocks  = new MultiValueHashMap();
 
-    //
+    /**
+     * Normally false. When SET DATABASE TRANSACTION CONTROL is used to change
+     * the transaction control model, the old instance of TransactionManager
+     * is set as expired.
+     */
     volatile boolean hasExpired;
 
     TransactionManagerCommon(Database database) {
@@ -410,8 +413,6 @@ class TransactionManagerCommon {
         }
 
         if (session.sessionContext.invalidStatement) {
-
-            // after java function / proc with db access
             return;
         }
 
