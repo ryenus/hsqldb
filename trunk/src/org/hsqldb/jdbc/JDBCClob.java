@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,6 @@ import java.sql.Clob;
 import java.sql.SQLException;
 
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.java.JavaSystem;
 
 /* $Id$ */
