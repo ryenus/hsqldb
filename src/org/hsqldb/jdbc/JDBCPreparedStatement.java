@@ -65,7 +65,6 @@ import java.util.BitSet;
 import java.util.Calendar;
 import java.util.UUID;
 
-import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.SessionInterface;
@@ -90,8 +89,6 @@ import org.hsqldb.types.ClobInputStream;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.JavaObjectDataInternal;
-import org.hsqldb.types.TimeData;
-import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 

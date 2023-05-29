@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,6 @@ import java.util.Calendar;
 import java.util.Map;
 
 import org.hsqldb.ColumnBase;
-import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.ErrorCode;
@@ -88,9 +87,6 @@ import org.hsqldb.types.Types;
 import java.sql.JDBCType;
 import java.sql.SQLType;
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Period;
 //#endif JAVA8
 

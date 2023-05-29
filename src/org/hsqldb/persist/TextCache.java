@@ -31,8 +31,6 @@
 
 package org.hsqldb.persist;
 
-import java.io.UnsupportedEncodingException;
-
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseType;
 import org.hsqldb.HsqlException;
