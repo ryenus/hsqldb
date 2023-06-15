@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of PersistentStore for CACHED tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7,3
  * @since 1.9.0
  */
 public class RowStoreAVLDisk extends RowStoreAVL {
@@ -161,7 +161,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
                 return true;
             }
 
-            return action.canRead(session, mode);
+            return action.canRead(session, mode, colMap);
         }
 
         return true;
@@ -176,7 +176,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             return true;
         }
 
-        return action.canRead(session, mode);
+        return action.canRead(session, mode, colMap);
     }
 
     public CachedObject get(RowInputInterface in) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ import org.hsqldb.types.Type;
  * Base implementation of PersistentStore for different table types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public abstract class RowStoreAVL implements PersistentStore {
@@ -142,7 +142,7 @@ public abstract class RowStoreAVL implements PersistentStore {
             return true;
         }
 
-        return action.canRead(session, mode);
+        return action.canRead(session, mode, colMap);
     }
 
     public abstract CachedObject get(RowInputInterface in);

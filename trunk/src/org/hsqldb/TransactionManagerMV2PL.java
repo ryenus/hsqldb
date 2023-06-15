@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 2.0.0
  */
 public class TransactionManagerMV2PL extends TransactionManagerCommon
@@ -330,7 +330,7 @@ implements TransactionManager {
             return true;
         }
 
-        return action.canRead(session, TransactionManager.ACTION_READ);
+        return action.canRead(session, TransactionManager.ACTION_READ, colMap);
     }
 
     /**
