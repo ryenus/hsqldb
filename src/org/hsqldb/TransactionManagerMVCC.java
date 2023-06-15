@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 2.0.0
  */
 public class TransactionManagerMVCC extends TransactionManagerCommon
@@ -55,7 +55,7 @@ implements TransactionManager {
     boolean isLockedMode;
     Session catalogWriteSession;
 
-    // information
+    // these informational settings survive after the lock session has committed
     long lockTxTs;
     long lockSessionId;
     long unlockTxTs;
@@ -513,11 +513,11 @@ implements TransactionManager {
         }
 
         if (mode == TransactionManager.ACTION_READ) {
-            return action.canRead(session, TransactionManager.ACTION_READ);
+            return action.canRead(session, TransactionManager.ACTION_READ, colMap);
         }
 
         if (mode == ACTION_REF) {
-            return action.canRead(session, TransactionManager.ACTION_READ);
+            return action.canRead(session, TransactionManager.ACTION_READ, colMap);
 /*
             if (result) {
                 synchronized (row) {
@@ -574,7 +574,7 @@ implements TransactionManager {
 */
         }
 
-        return action.canRead(session, mode);
+        return action.canRead(session, mode, colMap);
     }
 
     /**

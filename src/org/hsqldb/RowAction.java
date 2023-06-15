@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Represents the chain of insert / delete / rollback / commit actions on a row.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 2.0.0
  */
 public class RowAction extends RowActionBase {
@@ -684,7 +684,8 @@ public class RowAction extends RowActionBase {
         mergeExpiredRefActions();
     }
 
-    public synchronized boolean canRead(Session session, int mode) {
+    public synchronized boolean canRead(Session session, int mode,
+                                        int[] cols) {
 
         long threshold;
         int  actionType = ACTION_NONE;
@@ -768,7 +769,11 @@ public class RowAction extends RowActionBase {
 
                         //
                     } else if (mode == TransactionManager.ACTION_REF) {
-                        actionType = ACTION_DELETE;
+                        if (changeColumnMap == null
+                                || ArrayUtil.haveCommonElement(
+                                    cols, changeColumnMap)) {
+                            actionType = ACTION_DELETE;
+                        }
                     }
                 }
 

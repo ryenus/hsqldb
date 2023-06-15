@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.types.TimestampData;
  * Base class for a database row object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.5.0
+ * @version 2.7.3
  */
 public class Row implements CachedObject {
 
@@ -100,7 +100,7 @@ public class Row implements CachedObject {
             return false;
         }
 
-        return !action.canRead(session, TransactionManager.ACTION_READ);
+        return !action.canRead(session, TransactionManager.ACTION_READ, null);
     }
 
     public TimestampData getSystemStartVersion() {
