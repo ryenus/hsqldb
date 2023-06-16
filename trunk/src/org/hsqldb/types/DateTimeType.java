@@ -65,7 +65,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -2872,14 +2872,20 @@ public final class DateTimeType extends DTIType {
 
     static String convertJavaDateTimeObjectToString(Object a) {
 
+        String s = a.toString();
+
         switch(a.getClass().getName()){
             case "java.time.LocalDate":
             case "java.time.LocalTime":
-                return a.toString();
-            case "java.time.LocalDateTime":
+                return s;
+
             case "java.time.OffsetDateTime":
             case "java.time.OffsetTime":
-                return a.toString().replace('T', ' ');
+                if (s.endsWith("Z")) {
+                    s = s.substring(0, s.length() -1);
+                }
+            case "java.time.LocalDateTime":
+                return s.replace('T', ' ');
         }
 
         return null;
