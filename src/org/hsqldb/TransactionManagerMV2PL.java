@@ -189,6 +189,8 @@ implements TransactionManager {
             session.isTransaction = false;
 
             endTransactionTPL(session);
+
+            session.sessionData.newLobFloor = SessionData.noLobFloor;
         } finally {
             writeLock.unlock();
         }

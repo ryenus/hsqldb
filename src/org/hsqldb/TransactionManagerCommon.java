@@ -50,7 +50,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -237,6 +237,8 @@ class TransactionManagerCommon {
                 lobAction.commit(session);
             }
         }
+
+        session.sessionData.newLobFloor = SessionData.noLobFloor;
     }
 
     final Statement updateCurrentStatement(Session session, Statement cs) {

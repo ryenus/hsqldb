@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,6 +83,13 @@ public class SessionData {
     // SEQUENCE
     HashMap sequenceMap;
     HashMap sequenceUpdateMap;
+
+    // lobs in results
+    LongKeyLongValueHashMap resultLobs = new LongKeyLongValueHashMap();
+
+    // new lob tracking
+    long              newLobFloor;
+    static final long noLobFloor = -1;
 
     public SessionData(Database database, Session session) {
 
@@ -289,9 +296,6 @@ public class SessionData {
             }
         }
     }
-
-    // lobs in results
-    LongKeyLongValueHashMap resultLobs = new LongKeyLongValueHashMap();
 
     // lobs in transaction
     public void adjustLobUsageCount(LobData value, int adjust) {

@@ -74,7 +74,7 @@ import org.hsqldb.types.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -663,7 +663,7 @@ public class Session implements SessionInterface {
 /* debug 190
         tempActionHistory.add("transaction ends " + actionTimestamp);
         tempActionHistory.clear();
-//*/
+*/
     }
 
     /**
@@ -1408,7 +1408,6 @@ public class Session implements SessionInterface {
                 r = cs.execute(this);
 
                 // tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
-
                 if (database.logger.getSqlEventLogLevel()
                         >= SimpleLog.LOG_NORMAL) {
                     database.logger.logStatementEvent(this, cs, pvals, r,
@@ -1983,6 +1982,10 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_0F502);
         }
 
+        if (sessionData.newLobFloor == SessionData.noLobFloor) {
+            sessionData.newLobFloor = lobID;
+        }
+
         return new BlobDataID(lobID);
     }
 
@@ -1992,6 +1995,10 @@ public class Session implements SessionInterface {
 
         if (lobID == 0) {
             throw Error.error(ErrorCode.X_0F502);
+        }
+
+        if (sessionData.newLobFloor == SessionData.noLobFloor) {
+            sessionData.newLobFloor = lobID;
         }
 
         return new ClobDataID(lobID);
