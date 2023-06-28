@@ -39,7 +39,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 2.0.0
  */
 public class TransactionManager2PL extends TransactionManagerCommon
@@ -146,6 +146,8 @@ implements TransactionManager {
             session.isTransaction = false;
 
             endTransactionTPL(session);
+
+            session.sessionData.newLobFloor = SessionData.noLobFloor;
         } finally {
             writeLock.unlock();
         }
@@ -269,8 +271,8 @@ implements TransactionManager {
     }
 
     /**
-     * add session to the end of queue when a transaction starts
-     * (depending on isolation mode)
+     * allow session to execute the statement or put in in wait for
+     * other sessions to commit (depending on isolation mode)
      */
     public void beginAction(Session session, Statement cs) {
 

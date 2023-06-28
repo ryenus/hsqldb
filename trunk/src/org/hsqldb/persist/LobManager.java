@@ -116,7 +116,6 @@ public class LobManager {
 
     //
     long usageChanged;
-    long lastUpdatedID;
 
     //
     ReadWriteLock lock      = new ReentrantReadWriteLock();
@@ -560,11 +559,12 @@ public class LobManager {
                 return Result.updateZeroResult;
             }
 
+            long limitLobID = database.sessionManager.resetNewLobIDs();
             ResultMetaData meta = deleteUnusedLobs.getParametersMetaData();
             Object[]       params      = new Object[meta.getColumnCount()];
             int            deleteCount = 0;
 
-            params[0] = Long.valueOf(lastUpdatedID + 1);
+            params[0] = Long.valueOf(limitLobID);
 
             Result result =
                 sysLobSession.executeCompiledStatement(deleteUnusedLobs,
@@ -1754,10 +1754,6 @@ public class LobManager {
         }
 
         session.sessionContext.pop();
-
-        if (lobID > lastUpdatedID) {
-            lastUpdatedID = lobID;
-        }
 
         return result;
     }

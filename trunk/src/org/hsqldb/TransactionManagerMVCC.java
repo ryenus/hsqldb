@@ -247,6 +247,8 @@ implements TransactionManager {
             session.isTransaction = false;
 
             countDownLatches(session);
+
+            session.sessionData.newLobFloor = SessionData.noLobFloor;
         } finally {
             writeLock.unlock();
         }
@@ -714,7 +716,7 @@ implements TransactionManager {
      * that are no longer required. remove transactions ended before the first
      * timestamp in liveTransactionsSession queue
      */
-    void endTransaction(Session session) {
+    private void endTransaction(Session session) {
 
         long timestamp = session.transactionSCN;
         int  index     = liveTransactionSCNs.indexOf(timestamp);

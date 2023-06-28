@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import java.util.TimeZone;
  * Responsible for managing opening and closing of sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class SessionManager {
@@ -306,5 +306,25 @@ public class SessionManager {
         }
 
         this.sysLobSession.loggedSchema = null;
+    }
+
+    public synchronized long resetNewLobIDs() {
+
+        Iterator it          = sessionMap.values().iterator();
+        long     newLobFloor = Long.MAX_VALUE;
+
+        for (int i = 0; it.hasNext(); i++) {
+            Session session      = (Session) it.next();
+            long    currentFloor = session.sessionData.newLobFloor;
+
+            if (currentFloor != SessionData.noLobFloor
+                    && currentFloor < newLobFloor) {
+                newLobFloor = currentFloor;
+            }
+
+            session.sessionData.newLobFloor = SessionData.noLobFloor;
+        }
+
+        return newLobFloor;
     }
 }
