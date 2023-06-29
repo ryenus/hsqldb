@@ -88,8 +88,8 @@ public class SessionData {
     LongKeyLongValueHashMap resultLobs = new LongKeyLongValueHashMap();
 
     // new lob tracking
-    long              newLobFloor;
     static final long noLobFloor = -1;
+    long              newLobFloor = noLobFloor;
 
     public SessionData(Database database, Session session) {
 
