@@ -548,6 +548,10 @@ public class Session implements SessionInterface {
      * Explicit start of transaction by user
      */
     public void startTransaction() {
+        if (isInMidTransaction()) {
+            throw Error.error(ErrorCode.X_25001);
+        }
+
         database.txManager.beginTransaction(this);
     }
 
