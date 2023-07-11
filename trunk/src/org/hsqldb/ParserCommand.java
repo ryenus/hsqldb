@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -802,7 +802,7 @@ public class ParserCommand extends ParserDDL {
                 return compileSessionSettings();
             }
             case Tokens.TRANSACTION : {
-                read();
+                readAny(Tokens.READ, Tokens.ISOLATION, 0, 0);
 
                 Object[] args = processTransactionCharacteristics();
 
@@ -1880,8 +1880,6 @@ public class ParserCommand extends ParserDDL {
         boolean  readonly = false;
         Object[] args     = new Object[2];
 
-        checkIsAny(Tokens.READ, Tokens.ISOLATION, 0, 0);
-
         outerloop:
         while (true) {
             switch (token.tokenType) {
@@ -2191,6 +2189,7 @@ public class ParserCommand extends ParserDDL {
                 read();
                 readThis(Tokens.AS);
                 readThis(Tokens.TRANSACTION);
+                checkIsAny(Tokens.READ, Tokens.ISOLATION, 0, 0);
 
                 Object[] args = processTransactionCharacteristics();
 
