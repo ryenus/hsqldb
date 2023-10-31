@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ import org.hsqldb.types.Types;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -2340,10 +2340,6 @@ public class FunctionCustom extends FunctionSQL {
                 }
             }
             case FUNC_POSITION_ARRAY : {
-                if (data[0] == null) {
-                    return null;
-                }
-
                 if (data[1] == null) {
                     return null;
                 }
