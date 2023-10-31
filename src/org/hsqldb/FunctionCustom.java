@@ -1268,11 +1268,13 @@ public class FunctionCustom extends FunctionSQL {
 
                     case Tokens.QUARTER :
                     case Tokens.SQL_TSI_QUARTER :
+                        DateTimeType type = (DateTimeType) nodes[1].getDataType();
+                        a = (TimestampData) type.truncate(session, a, Types.DTI_QUARTER);
+                        b = (TimestampData) type.truncate(session, b, Types.DTI_QUARTER);
                         t = Type.SQL_INTERVAL_MONTH_MAX_PRECISION;
                         ret = t.convertToLongEndUnits(t.subtract(session, a,
                                 b, null));
-                        ret = ret < 0 ? (ret - 2) / 3
-                                      : (ret + 2) / 3;
+                        ret /= 3;
 
                         return Long.valueOf(ret);
 
@@ -2821,13 +2823,25 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 if (nodes[1].dataType.isCharacterType()) {
-                    nodes[1] = new ExpressionOp(
-                        nodes[1], Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
+                    if (nodes[1].opType == OpTypes.VALUE && nodes[1].valueData != null) {
+                        TimestampData datetime = session.getScanner().newTimestamp((String) nodes[1].valueData);
+                        nodes[1].valueData = datetime;
+                        nodes[1].dataType  = session.getScanner().dateTimeType;
+                    } else {
+                        nodes[1] = new ExpressionOp(
+                                nodes[1], Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
+                    }
                 }
 
                 if (nodes[2].dataType.isCharacterType()) {
-                    nodes[2] = new ExpressionOp(
-                        nodes[2], Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
+                    if (nodes[2].opType == OpTypes.VALUE && nodes[2].valueData != null) {
+                        TimestampData datetime = session.getScanner().newTimestamp((String) nodes[2].valueData);
+                        nodes[2].valueData = datetime;
+                        nodes[2].dataType  = session.getScanner().dateTimeType;
+                    } else {
+                        nodes[2] = new ExpressionOp(
+                                nodes[2], Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
+                    }
                 }
 
                 switch (nodes[1].dataType.typeCode) {

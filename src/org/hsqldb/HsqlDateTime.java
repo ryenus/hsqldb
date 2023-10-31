@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.1
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -321,6 +321,15 @@ public class HsqlDateTime {
 
                     break;
                 }
+                case Types.DTI_QUARTER: {
+                    int month = calendar.get(Calendar.MONTH);
+                    month = (month / 3) * 3;
+                    zeroFromPart(calendar, Types.SQL_INTERVAL_MONTH);
+                    calendar.set(Calendar.MONTH, month);
+
+                    break;
+                }
+
                 default : {
                     zeroFromPart(calendar, part);
 
