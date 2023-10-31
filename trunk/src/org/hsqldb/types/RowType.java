@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,14 +43,12 @@ import org.hsqldb.error.ErrorCode;
  * Class for ROW type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 2.0.0
  */
 public class RowType extends Type {
 
-    final Type[]    dataTypes;
-    TypedComparator comparator;
-
+    final Type[] dataTypes;
     public RowType(Type[] dataTypes) {
 
         super(Types.SQL_ROW, Types.SQL_ROW, 0, 0);
@@ -385,6 +383,11 @@ public class RowType extends Type {
 
     public int compare(Session session, Object a, Object b,
                        SortAndSlice sort) {
+        return compare(session, a, b, sort, dataTypes);
+    }
+
+    public static int compare(Session session, Object a, Object b,
+                              SortAndSlice sort, Type[] dataTypes) {
 
         if (a == b) {
             return 0;
@@ -478,21 +481,6 @@ public class RowType extends Type {
         }
 
         return hash;
-    }
-
-    synchronized TypedComparator getComparator(Session session) {
-
-        if (comparator == null) {
-            TypedComparator c    = new TypedComparator(session);
-            SortAndSlice    sort = new SortAndSlice();
-
-            sort.prepareMultiColumn(dataTypes.length);
-            c.setType(this, sort);
-
-            comparator = c;
-        }
-
-        return comparator;
     }
 
     public static String convertToSQLString(Object[] array, Type[] types,
