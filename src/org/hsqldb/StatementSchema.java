@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1628,7 +1628,8 @@ public class StatementSchema extends Statement {
                     case SchemaObject.TRIGGER :
                     case SchemaObject.SEQUENCE :
                     case SchemaObject.ROUTINE :
-                    case SchemaObject.TABLE : {
+                    case SchemaObject.TABLE :
+                    case SchemaObject.VIEW : {
                         SchemaObject object =
                             schemaManager.getSchemaObject(name.name,
                                                           name.schema.name,
