@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Collection of SQL schema objects of a specific type in a schema
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class SchemaObjectSet {
@@ -597,6 +597,18 @@ public class SchemaObjectSet {
 
                     break;
                 }
+                case SchemaObject.VIEW : {
+                    list.add(object.getSQL());
+
+                    String comment =
+                            object.getName().getCommentSQL(Tokens.T_TABLE);
+
+                    if (comment != null) {
+                        list.add(comment);
+                    }
+
+                    break;
+                }
                 case SchemaObject.FUNCTION :
                 case SchemaObject.PROCEDURE : {
                     Routine routine = ((Routine) object);
@@ -618,8 +630,6 @@ public class SchemaObjectSet {
                     break;
                 }
                 case SchemaObject.TRIGGER : {
-                    TriggerDef trigger = ((TriggerDef) object);
-
                     list.add(object.getSQL());
 
                     String comment =
