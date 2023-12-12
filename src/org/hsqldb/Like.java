@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2021, The HSQL Development Group
+ * Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,7 @@ import org.hsqldb.types.Type;
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.6.2
  */
 
@@ -169,14 +169,11 @@ class Like implements Cloneable {
             o = ((CharacterType) dataType).upper(session, o);
         }
 
-        int length = getLength(session, o);
+        long length = getLength(session, o);
 
-        if (o instanceof ClobData) {
-            o = ((ClobData) o).getChars(session, 0,
-                                        (int) ((ClobData) o).length(session));
-        }
+        boolean isString = o instanceof String;
 
-        if (!isBinary && prefix.length() > 0) {
+        if (isString && prefix.length() > 0) {
             if (length < prefix.length()) {
                 return false;
             }
@@ -188,24 +185,22 @@ class Like implements Cloneable {
             return compare == 0;
         }
 
-        return compareAt(session, o, 0, 0, iLen, length, cLike, wildCardType)
-               ? Boolean.TRUE
-               : Boolean.FALSE;
+        return compareAt(session, o, 0, 0, iLen, length, cLike, wildCardType);
     }
 
-    char getChar(Session session, Object o, int i) {
+    char getChar(Session session, Object o, long i) {
 
         char c;
 
         if (isBinary) {
-            c = (char) ((BlobData) o).getBytes()[i];
+            c = (char) ((BlobData) o).getBytes()[(int) i];
         } else {
-            if (o instanceof char[]) {
-                c = ((char[]) o)[i];
+            if (o instanceof String) {
+                c = ((String) o).charAt((int) i);
             } else if (o instanceof ClobData) {
                 c = ((ClobData) o).getChars(session, i, 1)[0];
             } else {
-                c = ((String) o).charAt(i);
+                c = ((char[]) o)[(int) i];
             }
         }
 
@@ -225,8 +220,8 @@ class Like implements Cloneable {
         return l;
     }
 
-    private boolean compareAt(Session session, Object o, int i, int j,
-                              int iLen, int jLen, char[] cLike,
+    private boolean compareAt(Session session, Object o, int i, long j,
+                              int iLen, long jLen, char[] cLike,
                               int[] wildCardType) {
 
         for (; i < iLen; i++) {
@@ -448,8 +443,6 @@ class Like implements Cloneable {
         sb.append(super.toString()).append("[\n");
         sb.append("escapeChar=").append(escapeChar).append('\n');
         sb.append("isNull=").append(isNull).append('\n');
-
-//        sb.append("optimised=").append(optimised).append('\n');
         sb.append("isIgnoreCase=").append(isIgnoreCase).append('\n');
         sb.append("iLen=").append(iLen).append('\n');
         sb.append("iFirstWildCard=").append(iFirstWildCard).append('\n');
