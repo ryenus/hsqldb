@@ -60,7 +60,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -966,7 +966,7 @@ public class StatementCommand extends Statement {
 
                     if (source.length() > 0) {
                         props = HsqlProperties.delimitedArgPairsToProps(source,
-                                "=", ";", null);
+                                "=", ";", "textdb");
 
                         if (props.getErrorKeys().length > 0) {
                             throw Error.error(ErrorCode.TEXT_TABLE_SOURCE,
