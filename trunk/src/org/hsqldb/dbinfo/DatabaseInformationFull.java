@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -113,7 +113,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.1
+ * @version 2.7.3
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -867,9 +867,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         boolean  restrict   = !session.isAdmin();
         Iterator it = HsqlDatabaseProperties.getUserDefinedProperties();
         HashMap  nameToProp = database.logger.getPropertyValueMap(session);
+        HsqlDatabaseProperties dbProps = database.getProperties();
 
         while (it.hasNext()) {
             PropertyMeta metaData = (PropertyMeta) it.next();
+            String propValue;
 
             if (restrict
                     && metaData.propType != HsqlDatabaseProperties.SQL_PROP) {
@@ -903,13 +905,20 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[iscope] = scope;
             row[ins]    = nameSpace;
             row[iname]  = metaData.propName;
-            row[ivalue] = nameToProp.get(metaData.propName);
+            propValue   = (String) nameToProp.get(metaData.propName);
 
-            if (row[ivalue] == null
-                    && metaData.propType
+            if (metaData.propType
                        != HsqlDatabaseProperties.SYSTEM_PROP) {
-                row[ivalue] = String.valueOf(metaData.propDefaultValue);
+                if (propValue == null) {
+                    propValue = dbProps.getProperty(metaData.propName);
+                }
+
+                if (propValue == null) {
+                    propValue = String.valueOf(metaData.propDefaultValue);
+                }
             }
+
+            row[ivalue] = propValue;
 
             row[iclass] = metaData.propClass;
 
@@ -1458,7 +1467,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[ifile_path] =
                     FileUtil.getFileUtil().canonicalOrAbsolutePath(
                         cache.getFileName());
-                row[ifile_enc] = textFileSettings.stringEncoding;
+                row[ifile_enc] = textFileSettings.charEncoding;
                 row[ifs]       = textFileSettings.fs;
                 row[ivfs]      = textFileSettings.vs;
                 row[ilvfs]     = textFileSettings.lvs;

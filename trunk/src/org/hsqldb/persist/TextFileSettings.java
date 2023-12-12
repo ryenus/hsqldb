@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,10 +41,10 @@ import org.hsqldb.error.ErrorCode;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 2.2.6
  */
-public class TextFileSettings {
+public final class TextFileSettings {
 
     //state of Cache
     public static final String NL = System.getProperty("line.separator");
@@ -53,7 +53,6 @@ public class TextFileSettings {
     public String              lvs;
     public String              qc;
     public char                quoteChar;
-    public String              stringEncoding;
     public boolean             isQuoted;
     public boolean             isAllQuoted;
     public boolean             isIgnoreFirst;
@@ -86,7 +85,7 @@ public class TextFileSettings {
      *  The source string for a cached table is evaluated and the parameters
      *  are used to open the source file.<p>
      *
-     *  Settings are used in this order: (1) settings specified in the
+     *  Settings are used in this order of precedence: (1) settings specified in the
      *  source string for the table (2) global database settings
      *  (3) program defaults
      */
@@ -171,31 +170,28 @@ public class TextFileSettings {
         isNullDef =
             tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_null_def,
                                       isNullDef);
-
-        //-- get string
-        stringEncoding =
+        charEncoding =
             dbProps.getStringProperty(HsqlDatabaseProperties.textdb_encoding);
-        stringEncoding =
+        charEncoding =
             tableprops.getProperty(HsqlDatabaseProperties.textdb_encoding,
-                                   stringEncoding);
-        charEncoding = stringEncoding;
+                                   charEncoding);
 
         // UTF-8 files can begin with BOM 3-byte sequence
         // UTF-16 files can begin with BOM 2-byte sequence for big-endian
         // UTF-16BE files (big-endian) have no BOM
         // UTF-16LE files (little-endian) have no BOM
-        if ("UTF8".equals(stringEncoding)) {
+        if ("UTF8".equals(charEncoding)) {
             isUTF8 = true;
-        } else if ("UTF-8".equals(stringEncoding)) {
+        } else if ("UTF-8".equals(charEncoding)) {
             isUTF8 = true;
-        } else if ("UTF-16".equals(stringEncoding)) {
+        } else if ("UTF-16".equals(charEncoding)) {
 
             // avoid repeating the BOM in each encoded string
             charEncoding = "UTF-16BE";
             isUTF16      = true;
-        } else if ("UTF-16BE".equals(stringEncoding)) {
+        } else if ("UTF-16BE".equals(charEncoding)) {
             isUTF16 = true;
-        } else if ("UTF-16LE".equals(stringEncoding)) {
+        } else if ("UTF-16LE".equals(charEncoding)) {
             isUTF16        = true;
             isLittleEndian = true;
         }
@@ -256,7 +252,7 @@ public class TextFileSettings {
      */
     void setLittleEndianByteOrderMark() {
 
-        if ("UTF-16".equals(stringEncoding)) {
+        if (charEncoding.startsWith("UTF-16")) {
             charEncoding   = "UTF-16LE";
             isLittleEndian = true;
             hasUTF16BOM    = true;
@@ -269,7 +265,7 @@ public class TextFileSettings {
         }
     }
 
-    void setSpaceAndLineEnd() {
+    private void setSpaceAndLineEnd() {
 
         try {
             if (isUTF16) {
