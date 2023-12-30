@@ -1732,6 +1732,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "ALLOCATED_SPACE", CARDINAL_NUMBER);
             addColumn(t, "SPACE_ID", CARDINAL_NUMBER);
             addColumn(t, "BASE_SPACE", CARDINAL_NUMBER);
+            addColumn(t, "VERSION", CARDINAL_NUMBER);
 
             // order: NON_UNIQUE, TYPE, INDEX_NAME, and ORDINAL_POSITION.
             // added for unique: INDEX_QUALIFIER, TABLE_NAME

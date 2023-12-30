@@ -40,6 +40,7 @@ import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BinaryType;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -49,7 +50,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class ExpressionOp extends Expression {
@@ -974,9 +975,7 @@ public class ExpressionOp extends Expression {
                     }
                 }
 
-                long zoneSeconds =
-                    ((IntervalType) nodes[RIGHT].dataType).getSeconds(
-                        rightValue);
+                long zoneSeconds = ((IntervalSecondData) rightValue).getSeconds();
 
                 return ((DateTimeType) dataType).changeZone(session,
                         leftValue, nodes[LEFT].dataType, (int) zoneSeconds,
