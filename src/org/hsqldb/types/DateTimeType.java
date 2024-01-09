@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@ package org.hsqldb.types;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 
-//#ifdef JAVA8
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,12 +44,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 
-//#endif JAVA8
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
@@ -62,7 +59,7 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.StringConverter;
 
 /**
- * Type subclass for DATE, TIME and TIMESTAMP.<p>
+ * Type subclass for DATE, TIME and TIMESTAMP.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.3
@@ -153,23 +150,12 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP :
                 return java.sql.Timestamp.class;
 
-//#ifdef JAVA8
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 return OffsetTime.class;
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return OffsetDateTime.class;
 
-//#else
-/*
-            case Types.SQL_TIME_WITH_TIME_ZONE :
-                return java.sql.Time.class;
-
-            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                return java.sql.Timestamp.class;
-*/
-
-//#endif JAVA8
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
         }
@@ -188,23 +174,12 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP :
                 return "java.sql.Timestamp";
 
-//#ifdef JAVA8
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 return "java.time.OffsetTime";
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return "java.time.OffsetDateTime";
 
-//#else
-/*
-            case Types.SQL_TIME_WITH_TIME_ZONE :
-                return "java.sql.Time";
-
-            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                return "java.sql.Timestamp";
-*/
-
-//#endif JAVA8
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
         }
@@ -842,8 +817,6 @@ public final class DateTimeType extends DTIType {
 
             seconds     = millis / millisInSecond;
             zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
-
-//#ifdef JAVA8
         } else if (a instanceof java.time.LocalDate) {
             LocalDate ld = (LocalDate) a;
 
@@ -897,8 +870,6 @@ public final class DateTimeType extends DTIType {
             zoneSeconds  = getZoneSeconds(seconds, calendar.getTimeZone());
             nanos        = lt.getNano();
             isTimeObject = true;
-
-//#endif JAVA8
         } else {
             throw Error.error(ErrorCode.X_42561);
         }
@@ -980,9 +951,6 @@ public final class DateTimeType extends DTIType {
     }
 
     public Object convertSQLToJava(SessionInterface session, Object a) {
-
-        Calendar cal = session.getCalendar();
-
         return convertSQLToJava(session, a, null);
     }
 
@@ -1010,7 +978,6 @@ public final class DateTimeType extends DTIType {
             }
             case Types.SQL_TIME_WITH_TIME_ZONE : {
 
-//#ifdef JAVA8
                 TimeData   ts      = (TimeData) a;
                 ZoneOffset zone    = ZoneOffset.ofTotalSeconds(ts.zone);
                 int        seconds = toTimeSeconds(ts.seconds + ts.zone);
@@ -1018,15 +985,6 @@ public final class DateTimeType extends DTIType {
                 LocalTime  ldt     = LocalTime.ofNanoOfDay(nanos + ts.nanos);
 
                 return OffsetTime.of(ldt, zone);
-
-//#else
-/*
-                long millis = ((TimeData) a).getMillis();
-
-                return new java.sql.Time(millis);
-*/
-
-//#endif JAVA8
             }
             case Types.SQL_DATE : {
                 Calendar calGMT = session.getCalendarGMT();
@@ -1054,25 +1012,12 @@ public final class DateTimeType extends DTIType {
             }
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
 
-//#ifdef JAVA8
                 TimestampData ts   = (TimestampData) a;
                 ZoneOffset    zone = ZoneOffset.ofTotalSeconds(ts.zone);
                 LocalDateTime ldt = LocalDateTime.ofEpochSecond(ts.seconds,
                     ts.nanos, zone);
 
                 return OffsetDateTime.of(ldt, zone);
-
-//#else
-/*
-                long               millis = ((TimestampData) a).getMillis();
-                java.sql.Timestamp value  = new java.sql.Timestamp(millis);
-
-                value.setNanos(((TimestampData) a).nanos);
-
-                return value;
-*/
-
-//#endif JAVA8
             }
             default :
                 throw Error.error(ErrorCode.X_42561);
@@ -1081,9 +1026,7 @@ public final class DateTimeType extends DTIType {
 
     public String convertToString(Object a) {
 
-        boolean       zone = false;
         String        s;
-        StringBuilder sb;
 
         if (a == null) {
             return null;
@@ -1519,21 +1462,6 @@ public final class DateTimeType extends DTIType {
         return calendar.get(calendarPart) / divisor + increment;
     }
 
-    /**
-     * Returns the indicated part of the given millisecond date object.
-     * @param m the millisecond time value from which to extract the indicated part
-     * @param part an integer code corresponding to the desired date part
-     * @return the indicated part of the given <code>java.util.Date</code> object
-     */
-    public static int getDateTimePart(Calendar calendar, long m, int part) {
-
-        synchronized (calendar) {
-            calendar.setTimeInMillis(m);
-
-            return calendar.get(part);
-        }
-    }
-
     public Object addMonthsSpecial(Session session, Object dateTime,
                                    int months) {
 
@@ -1542,14 +1470,14 @@ public final class DateTimeType extends DTIType {
         long          millis = (ts.seconds + ts.zone) * millisInSecond;
         boolean       lastDay;
 
-        HsqlDateTime.setTimeInMillis(cal, millis);
+        cal.setTimeInMillis(millis);
         cal.set(Calendar.DAY_OF_MONTH, 1);
         cal.add(Calendar.MONTH, 1);
         cal.add(Calendar.DAY_OF_MONTH, -1);
 
         lastDay = millis == cal.getTimeInMillis();
 
-        HsqlDateTime.setTimeInMillis(cal, millis);
+        cal.setTimeInMillis(millis);
         cal.add(Calendar.MONTH, months);
 
         if (lastDay) {
@@ -1569,7 +1497,7 @@ public final class DateTimeType extends DTIType {
         Calendar      cal    = session.getCalendarGMT();
         long          millis = (ts.seconds + ts.zone) * millisInSecond;
 
-        HsqlDateTime.setTimeInMillis(cal, millis);
+        cal.setTimeInMillis(millis);
         cal.set(Calendar.DAY_OF_MONTH, 1);
         cal.add(Calendar.MONTH, 1);
         cal.add(Calendar.DAY_OF_MONTH, -1);
@@ -1925,7 +1853,6 @@ public final class DateTimeType extends DTIType {
     /**
      * For temporal predicate operations on periods, we need to make sure we
      * compare data of the same types.
-     * <p>
      *
      * @param session The session
      * @param a First period to compare
@@ -2081,7 +2008,6 @@ public final class DateTimeType extends DTIType {
      * This predicate returns True if the two periods have at least one time
      * point in common, i.e, if {@code a[0] < b[1] && a[1] > b[0]}. This predicate is commutative: "a OVERLAPS B" must return
      * the same result of "b OVERLAPS a"
-     * <p>
      *
      * @param session The session
      * @param a First period to compare
@@ -2161,7 +2087,6 @@ public final class DateTimeType extends DTIType {
      * names or period constructors.
      * In this case, the predicate returns True if the end value of a is less
      * than or equal to the start value of b, i.e., if {@code ae <= as}.
-     * <p>
      *
      * @param session  The session
      * @param a First period to compare
@@ -2192,7 +2117,6 @@ public final class DateTimeType extends DTIType {
      * The predicate "x IMMEDIATELY PRECEDES y" applies when both x and y are either period names or
      * period constructors. In this case, the predicate returns True if the end value of x is equal to the start value
      * of y, i.e., if xe = ys.
-     * <p>
      *
      * @param session The session
      * @param a First period to compare
@@ -2223,7 +2147,6 @@ public final class DateTimeType extends DTIType {
      * The predicate "x IMMEDIATELY SUCCEEDS y" applies when both x and y are either period names or
      * period constructors. In this case, the predicate returns True if the start value of x is equal to the end value
      * of y, i.e., if xs = ye.
-     * <p>
      *
      * @param session The session
      * @param a First period to compare
@@ -2254,7 +2177,6 @@ public final class DateTimeType extends DTIType {
      * The predicate "x SUCCEEDS y" applies when both x and y are either period names or period constructors.
      * In this case, the predicate returns True if the start value of x is greater than or equal to the end value of y,
      * i.e., if {@code xs >= ye}.
-     * <p>
      *
      * @param session The session
      * @param a First period to compare
@@ -2284,7 +2206,6 @@ public final class DateTimeType extends DTIType {
     /**
      * The predicate "x EQUALS y" applies when both x and y are either period names or period constructors.
      * This predicate returns True if the two periods have every time point in common, i.e., if xs = ys and xe = ye.
-     * <p>
      *
      * @param session The session
      * @param a First period to compare
@@ -2321,7 +2242,6 @@ public final class DateTimeType extends DTIType {
      * <p>
      * The <i>b</i> part of this definition is not supported yet. In order to get the same result, one have to specify
      * a period with the same date time value for the period start and end.
-     * <p>
      *
      * @param session The session
      * @param a First period to compare
@@ -2510,7 +2430,7 @@ public final class DateTimeType extends DTIType {
         int      n   = source.nanos;
         Calendar cal = session.getCalendarGMT();
 
-        HsqlDateTime.setTimeInMillis(cal, source.seconds * millisInSecond);
+        cal.setTimeInMillis(source.seconds * millisInSecond);
         cal.add(Calendar.MONTH, months);
 
         return new TimestampData(cal.getTimeInMillis() / millisInSecond, n,
@@ -2575,9 +2495,7 @@ public final class DateTimeType extends DTIType {
                         }
                     }
 
-                    SimpleDateFormat format = session.getSimpleDateFormatGMT();
-
-                    return HsqlDateTime.toDate(s, pattern, format, true);
+                    return HsqlDateTime.toDate(Type.SQL_TIMESTAMP, s, pattern);
                 }
 
             // fall through
@@ -2720,7 +2638,6 @@ public final class DateTimeType extends DTIType {
         calendar.set(Calendar.SECOND, seconds % 60);
     }
 
-//#ifdef JAVA8
     public static TimestampData newCurrentTimestamp(TimeZone zone) {
 
         Instant instant = Instant.now();
@@ -2759,17 +2676,6 @@ public final class DateTimeType extends DTIType {
         calendar.set(Calendar.YEAR, ldt.getYear());
         calendar.set(Calendar.MONTH, ldt.getMonthValue() - 1);
         calendar.set(Calendar.DAY_OF_MONTH, ldt.getDayOfMonth());
-    }
-
-    public static void setTimeComponents(Calendar calendar, LocalTime ldt) {
-
-        calendar.clear();
-        calendar.set(Calendar.YEAR, 1970);
-        calendar.set(Calendar.MONTH, 0);
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.set(Calendar.HOUR_OF_DAY, ldt.getHour());
-        calendar.set(Calendar.MINUTE, ldt.getMinute());
-        calendar.set(Calendar.SECOND, ldt.getSecond());
     }
 
     public Instant toInstant(SessionInterface session, TimestampData v) {
@@ -2890,32 +2796,4 @@ public final class DateTimeType extends DTIType {
 
         return null;
     }
-
-//#else
-/*
-    public static TimestampData newCurrentTimestamp(TimeZone zone) {
-
-        long millis      = System.currentTimeMillis();
-        long seconds     = millis / millisInSecond;
-        int  nanos       = (int) (millis % millisInSecond * nanosInMilli);
-        int  zoneSeconds = zone.getOffset(millis) / (int) millisInSecond;
-
-        return new TimestampData(seconds, nanos, zoneSeconds);
-    }
-
-    public static TimestampData newSystemTimestampUTC() {
-
-        long millis  = System.currentTimeMillis();
-        long seconds = millis / millisInSecond;
-        int  nanos   = (int) (millis % millisInSecond * nanosInMilli);
-
-        return new TimestampData(seconds, nanos);
-    }
-
-    static String convertJavaDateTimeObjectToString(Object a) {
-        return null;
-    }
-*/
-
-//#endif JAVA8
 }

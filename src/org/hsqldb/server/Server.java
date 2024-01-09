@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,6 @@ import java.util.StringTokenizer;
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.HsqlDateTime.SystemTimeString;
 import org.hsqldb.HsqlException;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -62,6 +61,7 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.resources.ResourceBundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
+import org.hsqldb.types.HsqlDateTime.SystemTimeString;
 
 // fredt@users 20020215 - patch 1.7.0
 // methods reorganised to use new HsqlProperties class

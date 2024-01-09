@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@ import org.hsqldb.types.BitType;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.HsqlDateTime;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,7 @@ import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.server.HsqlSocketFactory;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
+import org.hsqldb.types.HsqlDateTime;
 
 /**
  * Base remote session proxy implementation. Uses instances of Result to
