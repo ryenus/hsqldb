@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,10 +40,10 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 
 /**
- * Common elements for Type instances for DATETIME and INTERVAL.<p>
+ * Common elements for Type instances for DATETIME and INTERVAL.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public abstract class DTIType extends Type {
@@ -180,16 +180,7 @@ public abstract class DTIType extends Type {
             int  factor = DTIType.yearToSecondFactors[i];
             long part   = seconds / factor;
 
-            if (i == startPartIndex) {
-                int startDigits = precision == 0 ? 2
-                                                 : (int) precision;
-                int zeros       = startDigits - getPrecisionExponent(part);
-/*
-                for (int j = 0; j < zeros; j++) {
-                    buffer.append('0');
-                }
-*/
-            } else if (part < 10) {
+            if (i != startPartIndex && part < 10) {
                 sb.append('0');
             }
 

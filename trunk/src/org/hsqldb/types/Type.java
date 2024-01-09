@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.rights.Grantee;
  * Base class for type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {
@@ -1169,12 +1169,12 @@ public abstract class Type implements SchemaObject, Cloneable {
         return existing.getAggregateType(add);
     }
 
-    public static final IntValueHashMap typeAliases;
-    public static final IntValueHashMap typeNames;
-    public static final IntKeyHashMap   jdbcConvertTypes;
+    public static final IntValueHashMap<String> typeAliases;
+    public static final IntValueHashMap<String> typeNames;
+    public static final IntKeyHashMap<Type>   jdbcConvertTypes;
 
     static {
-        typeNames = new IntValueHashMap();
+        typeNames = new IntValueHashMap<>();
 
         typeNames.put(Tokens.T_CHARACTER, Types.SQL_CHAR);
         typeNames.put(Tokens.T_VARCHAR, Types.SQL_VARCHAR);
@@ -1205,7 +1205,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         typeNames.put("TIMESTAMP WITH TIME ZONE", Types.SQL_TIMESTAMP_WITH_TIME_ZONE);
 
         //
-        typeAliases = new IntValueHashMap(64);
+        typeAliases = new IntValueHashMap<>(64);
 
         typeAliases.put(Tokens.T_CHAR, Types.SQL_CHAR);
         typeAliases.put(Tokens.T_INT, Types.SQL_INTEGER);
@@ -1216,7 +1216,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         typeAliases.put(Tokens.T_OBJECT, Types.OTHER);
 
         //
-        jdbcConvertTypes = new IntKeyHashMap(37);
+        jdbcConvertTypes = new IntKeyHashMap<>(37);
 
         jdbcConvertTypes.put(Tokens.SQL_CHAR, Type.SQL_CHAR_DEFAULT);
         jdbcConvertTypes.put(Tokens.SQL_VARCHAR, Type.SQL_VARCHAR_DEFAULT);
@@ -1256,7 +1256,7 @@ public abstract class Type implements SchemaObject, Cloneable {
     }
 
     public static Type getTypeForJDBCConvertToken(int name) {
-        return (Type) jdbcConvertTypes.get(name);
+        return jdbcConvertTypes.get(name);
     }
 
     public static boolean isSupportedSQLType(int typeNumber) {

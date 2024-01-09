@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,12 +33,9 @@ package org.hsqldb.types;
 
 import java.math.BigDecimal;
 
-//#ifdef JAVA8
 import java.time.Duration;
 import java.time.Period;
 
-//#endif JAVA8
-import org.hsqldb.HsqlDateTime;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
@@ -51,7 +48,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Type subclass for various types of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public final class IntervalType extends DTIType {
@@ -152,16 +149,8 @@ public final class IntervalType extends DTIType {
             case Types.SQL_INTERVAL_YEAR :
             case Types.SQL_INTERVAL_YEAR_TO_MONTH :
             case Types.SQL_INTERVAL_MONTH :
-
-//#ifdef JAVA8
                 return java.time.Period.class;
 
-//#else
-/*
-                return IntervalMonthData.class;
-*/
-
-//#endif JAVA8
             case Types.SQL_INTERVAL_DAY :
             case Types.SQL_INTERVAL_DAY_TO_HOUR :
             case Types.SQL_INTERVAL_DAY_TO_MINUTE :
@@ -172,16 +161,8 @@ public final class IntervalType extends DTIType {
             case Types.SQL_INTERVAL_MINUTE :
             case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
             case Types.SQL_INTERVAL_SECOND :
-
-//#ifdef JAVA8
                 return java.time.Duration.class;
 
-//#else
-/*
-                return IntervalSecondData.class;
-*/
-
-//#endif JAVA8
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "IntervalType");
         }
@@ -656,7 +637,6 @@ public final class IntervalType extends DTIType {
         return convertToDefaultType(session, a);
     }
 
-//#ifdef JAVA8
     Object convertJavaTimeObject(SessionInterface session, Object a) {
 
         if (this.isIntervalYearMonthType()) {
@@ -704,14 +684,6 @@ public final class IntervalType extends DTIType {
         }
     }
 
-//#else
-/*
-    TimestampData convertJavaTimeObject(SessionInterface session, Object a) {
-        return null;
-    }
-*/
-
-//#endif JAVA8
     public String convertToString(Object a) {
 
         if (a == null) {

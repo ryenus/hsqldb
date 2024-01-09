@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,7 @@
 package org.hsqldb;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -60,6 +58,7 @@ import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.HsqlDateTime;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
@@ -1395,7 +1394,6 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_FROM_BASE64 : {
 
-//#ifdef JAVA8
                 String val = (String) data[0];
 
                 if (val == null) {
@@ -1407,17 +1405,9 @@ public class FunctionCustom extends FunctionSQL {
                 byte[] bytes = java.util.Base64.getDecoder().decode(val);
 
                 return new BinaryData(bytes, false);
-
-//#else
-/*
-                throw Error.error(ErrorCode.X_0A501);
-*/
-
-//#endif JAVA8
             }
             case FUNC_TO_BASE64 : {
 
-//#ifdef JAVA8
                 BinaryData val = (BinaryData) data[0];
 
                 if (val == null) {
@@ -1426,13 +1416,6 @@ public class FunctionCustom extends FunctionSQL {
 
                 return java.util.Base64.getEncoder().encodeToString(
                     val.getBytes());
-
-//#else
-/*
-                throw Error.error(ErrorCode.X_0A501);
-*/
-
-//#endif JAVA8
             }
             case FUNC_TO_CHAR : {
                 if (nodes[1] == null) {
@@ -1443,14 +1426,8 @@ public class FunctionCustom extends FunctionSQL {
                         return null;
                     }
 
-                    SimpleDateFormat format = session.getSimpleDateFormatGMT();
-                    Date date =
-                        (Date) ((DateTimeType) nodes[0].dataType)
-                            .convertSQLToJavaGMT(session, data[0]);
-
-                    return HsqlDateTime.toFormattedDate(date,
-                                                        (String) data[1],
-                                                        format);
+                    return HsqlDateTime.toFormattedDate((DateTimeType) nodes[0].dataType, data[0],
+                                                        (String) data[1]);
                 }
             }
             case FUNC_TO_NUMBER : {
@@ -1472,10 +1449,8 @@ public class FunctionCustom extends FunctionSQL {
                                                   nodes[0].dataType);
                 }
 
-                boolean          fraction = funcType == FUNC_TO_TIMESTAMP;
-                SimpleDateFormat format   = session.getSimpleDateFormatGMT();
-                TimestampData value = HsqlDateTime.toDate((String) data[0],
-                    (String) data[1], format, fraction);
+                TimestampData value = HsqlDateTime.toDate((DateTimeType) dataType, (String) data[0],
+                    (String) data[1]);
 
                 return value;
             }
