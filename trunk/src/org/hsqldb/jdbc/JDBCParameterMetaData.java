@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,22 +40,10 @@ import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 
-/* $Id$ */
-
-/* @todo 1.9.0 - implement internal support for INOUT, OUT return parameter */
-
-// fredt@users 20040412 - removed DITypeInfo dependencies
-// fredt@users 1.9.0 - utilise the new type support
-// campbell-burnet@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
-// campbell-burnet@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
-// Revision 1.14  2006/07/12 12:20:49  boucherb
-// - remove unused imports
-// - full synch up to Mustang b90
-
 /**
  * An object that can be used to get information about the types
  * and properties for each parameter marker in a
- * {@code PreparedStatement} object. (JDBC4 Clarification:) For some queries and driver
+ * {@code PreparedStatement} object. For some queries and driver
  * implementations, the data that would be returned by a {@code ParameterMetaData}
  * object may not be available until the {@code PreparedStatement} has
  * been executed.
@@ -65,19 +53,19 @@ import org.hsqldb.types.Type;
  * object.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since JDK 1.4, HSQLDB 1.7.2
  */
 public class JDBCParameterMetaData implements ParameterMetaData,
         java.sql.Wrapper {
 
     /**
-     * Retrieves the number of parameters in the <code>PreparedStatement</code>
-     * object for which this <code>ParameterMetaData</code> object contains
+     * Retrieves the number of parameters in the {@code PreparedStatement}
+     * object for which this {@code ParameterMetaData} object contains
      * information.
      *
      * @return the number of parameters
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public int getParameterCount() throws SQLException {
@@ -89,10 +77,10 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      *
      * @param param the first parameter is 1, the second is 2, ...
      * @return the nullability status of the given parameter; one of
-     *        <code>ParameterMetaData.parameterNoNulls</code>,
-     *        <code>ParameterMetaData.parameterNullable</code>, or
-     *        <code>ParameterMetaData.parameterNullableUnknown</code>
-     * @exception SQLException if a database access error occurs
+     *        {@code ParameterMetaData.parameterNoNulls},
+     *        {@code ParameterMetaData.parameterNullable}, or
+     *        {@code ParameterMetaData.parameterNullableUnknown}
+     * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public int isNullable(int param) throws SQLException {
@@ -106,8 +94,8 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      * Retrieves whether values for the designated parameter can be signed numbers.
      *
      * @param param the first parameter is 1, the second is 2, ...
-     * @return <code>true</code> if so; <code>false</code> otherwise
-     * @exception SQLException if a database access error occurs
+     * @return {@code true} if so; {@code false} otherwise
+     * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public boolean isSigned(int param) throws SQLException {
@@ -131,7 +119,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      *
      * @param param the first parameter is 1, the second is 2, ...
      * @return precision
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public int getPrecision(int param) throws SQLException {
@@ -159,7 +147,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      *
      * @param param the first parameter is 1, the second is 2, ...
      * @return scale
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public int getScale(int param) throws SQLException {
@@ -175,8 +163,8 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      * Retrieves the designated parameter's SQL type.
      *
      * @param param the first parameter is 1, the second is 2, ...
-     * @return SQL type from <code>java.sql.Types</code>
-     * @exception SQLException if a database access error occurs
+     * @return SQL type from {@code java.sql.Types}
+     * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7.2
      * @see java.sql.Types
      */
@@ -195,7 +183,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      * @param param the first parameter is 1, the second is 2, ...
      * @return type the name used by the database. If the parameter type is
      * a user-defined type, then a fully-qualified type name is returned.
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public String getParameterTypeName(int param) throws SQLException {
@@ -209,15 +197,15 @@ public class JDBCParameterMetaData implements ParameterMetaData,
 
     /**
      * Retrieves the fully-qualified name of the Java class whose instances
-     * should be passed to the method <code>PreparedStatement.setObject</code>.
+     * should be passed to the method {@code PreparedStatement.setObject}.
      *
      * @param param the first parameter is 1, the second is 2, ...
      * @return the fully-qualified name of the class in the Java programming
      *         language that would be used by the method
-     *         <code>PreparedStatement.setObject</code> to set the value
+     *         {@code PreparedStatement.setObject} to set the value
      *         in the specified parameter. This is the class name used
      *         for custom mapping.
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public String getParameterClassName(int param) throws SQLException {
@@ -234,11 +222,11 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      *
      * @param param the first parameter is 1, the second is 2, ...
      * @return mode of the parameter; one of
-     *        <code>ParameterMetaData.parameterModeIn</code>,
-     *        <code>ParameterMetaData.parameterModeOut</code>, or
-     *        <code>ParameterMetaData.parameterModeInOut</code>
-     *        <code>ParameterMetaData.parameterModeUnknown</code>.
-     * @exception SQLException if a database access error occurs
+     *        {@code ParameterMetaData.parameterModeIn},
+     *        {@code ParameterMetaData.parameterModeOut}, or
+     *        {@code ParameterMetaData.parameterModeInOut}
+     *        {@code ParameterMetaData.parameterModeUnknown}.
+     * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public int getParameterMode(int param) throws SQLException {
@@ -259,9 +247,9 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      * or a proxy for the receiver. If the receiver is a wrapper
      * and the wrapped object implements the interface then the result is the
      * wrapped object or a proxy for the wrapped object. Otherwise return
-     * the result of calling <code>unwrap</code> recursively on the wrapped object
+     * the result of calling {@code unwrap} recursively on the wrapped object
      * or a proxy for that result. If the receiver is not a
-     * wrapper and does not implement the interface, then an <code>SQLException</code> is thrown.
+     * wrapper and does not implement the interface, then an {@code SQLException} is thrown.
      *
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
@@ -281,11 +269,11 @@ public class JDBCParameterMetaData implements ParameterMetaData,
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
      * for an object that does. Returns false otherwise. If this implements the interface then return true,
-     * else if this is a wrapper then return the result of recursively calling <code>isWrapperFor</code> on the wrapped
+     * else if this is a wrapper then return the result of recursively calling {@code isWrapperFor} on the wrapped
      * object. If this does not implement the interface and is not a wrapper, return false.
-     * This method should be implemented as a low-cost operation compared to <code>unwrap</code> so that
-     * callers can use this method to avoid expensive <code>unwrap</code> calls that may fail. If this method
-     * returns true then calling <code>unwrap</code> with the same argument should succeed.
+     * This method should be implemented as a low-cost operation compared to {@code unwrap} so that
+     * callers can use this method to avoid expensive {@code unwrap} calls that may fail. If this method
+     * returns true then calling {@code unwrap} with the same argument should succeed.
      *
      * @param iface a Class defining an interface.
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
@@ -308,7 +296,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
     private boolean translateTTIType;
 
     /**
-     * Creates a new instance of JDBCParameterMetaData. <p>
+     * Creates a new instance of JDBCParameterMetaData.
      *
      * @param metaData A ResultMetaData object describing the statement parameters
      */
@@ -338,7 +326,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
 
     /**
      * Checks if the value of the param argument is a valid parameter
-     * position. <p>
+     * position.
      *
      * @param param position to check
      * @throws SQLException if the value of the param argument is not a
@@ -354,7 +342,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
     }
 
     /**
-     * Retrieves a String representation of this object. <p>
+     * Retrieves a String representation of this object.
      *
      * @return a String representation of this object
      */
@@ -368,7 +356,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
     }
 
     /**
-     * Provides the implementation of the toString() method. <p>
+     * Provides the implementation of the toString() method.
      *
      * @return a String representation of this object
      * @throws Exception if a reflection error occurs

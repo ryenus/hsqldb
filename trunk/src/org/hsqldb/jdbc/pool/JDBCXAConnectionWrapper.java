@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import java.sql.Savepoint;
  * <P>
  * The new implementation extends JDBCConnection. A new object is created
  * based on the session / session proxy of the JDBCXAConnection object in the
- * constructor. (fredt)<p>
+ * constructor. (fredt)
  *
  * @version 2.2.9
  * @since 2.0.0
@@ -151,7 +151,7 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * See section 1.2.4 of the JDBC 3.0 spec.<p>
      *
      * HSQLDB does not allow changing the isolation level inside a transaction
-     * of any kind.<p>
+     * of any kind.
      *
      * @param level isolation level
      */

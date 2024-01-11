@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,58 +44,58 @@ import javax.sql.DataSource;
 
 /**
  * <p>A factory for connections to the physical data source that this
- * <code>DataSource</code> object represents.  An alternative to the
- * <code>DriverManager</code> facility, a <code>DataSource</code> object
+ * {@code DataSource} object represents.  An alternative to the
+ * {@code DriverManager} facility, a {@code DataSource} object
  * is the preferred means of getting a connection. An object that implements
- * the <code>DataSource</code> interface will typically be
+ * the {@code DataSource} interface will typically be
  * registered with a naming service based on the
  * Java&trade; Naming and Directory (JNDI) API.
  * <P>
- * The <code>DataSource</code> interface is implemented by a driver vendor.
+ * The {@code DataSource} interface is implemented by a driver vendor.
  * There are three types of implementations:
  * <OL>
- *   <LI>Basic implementation -- produces a standard <code>Connection</code>
+ *   <LI>Basic implementation -- produces a standard {@code Connection}
  *       object
- *   <LI>Connection pooling implementation -- produces a <code>Connection</code>
+ *   <LI>Connection pooling implementation -- produces a {@code Connection}
  *       object that will automatically participate in connection pooling.  This
  *       implementation works with a middle-tier connection pooling manager.
  *   <LI>Distributed transaction implementation -- produces a
- *       <code>Connection</code> object that may be used for distributed
+ *       {@code Connection} object that may be used for distributed
  *       transactions and almost always participates in connection pooling.
  *       This implementation works with a middle-tier
  *       transaction manager and almost always with a connection
  *       pooling manager.
  * </OL>
  * <P>
- * A <code>DataSource</code> object has properties that can be modified
+ * A {@code DataSource} object has properties that can be modified
  * when necessary.  For example, if the data source is moved to a different
  * server, the property for the server can be changed.  The benefit is that
  * because the data source's properties can be changed, any code accessing
  * that data source does not need to be changed.
  * <P>
- * A driver that is accessed via a <code>DataSource</code> object does not
- * register itself with the <code>DriverManager</code>.  Rather, a
- * <code>DataSource</code> object is retrieved though a lookup operation
- * and then used to create a <code>Connection</code> object.  With a basic
- * implementation, the connection obtained through a <code>DataSource</code>
+ * A driver that is accessed via a {@code DataSource} object does not
+ * register itself with the {@code DriverManager}.  Rather, a
+ * {@code DataSource} object is retrieved though a lookup operation
+ * and then used to create a {@code Connection} object.  With a basic
+ * implementation, the connection obtained through a {@code DataSource}
  * object is identical to a connection obtained through the
- * <code>DriverManager</code> facility.
+ * {@code DriverManager} facility.
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h1>HSQLDB-Specific Information:</h1> <p>
+ * <p class="rshead">HSQLDB-Specific Information:</p>
  *
  * This implementation of data source is a basic implementation and does not
  * perform connection pooling.<p>
  *
  * The getter and setter methods of the parent class, {@link JDBCCommonDataSource},
- * can be used.<p>
+ * can be used.
  * </div>
  * <!-- end Release-specific documentation -->
  * @since JDK 1.4
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.7.3
  * @since 1.7.2
  */
 
@@ -108,7 +108,7 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      * set.
      *
      * @return  a connection to the data source
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      */
     public Connection getConnection() throws SQLException {
 
@@ -140,7 +140,7 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      *  being made
      * @param password the user's password
      * @return  a connection to the data source
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      */
     public Connection getConnection(String username,
                                     String password) throws SQLException {
@@ -183,9 +183,9 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      * or a proxy for the receiver. If the receiver is a wrapper
      * and the wrapped object implements the interface then the result is the
      * wrapped object or a proxy for the wrapped object. Otherwise return
-     * the result of calling <code>unwrap</code> recursively on the wrapped object
+     * the result of calling {@code unwrap} recursively on the wrapped object
      * or a proxy for that result. If the receiver is not a
-     * wrapper and does not implement the interface, then an <code>SQLException</code> is thrown.
+     * wrapper and does not implement the interface, then an {@code SQLException} is thrown.
      *
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
@@ -205,11 +205,11 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
      * for an object that does. Returns false otherwise. If this implements the interface then return true,
-     * else if this is a wrapper then return the result of recursively calling <code>isWrapperFor</code> on the wrapped
+     * else if this is a wrapper then return the result of recursively calling {@code isWrapperFor} on the wrapped
      * object. If this does not implement the interface and is not a wrapper, return false.
-     * This method should be implemented as a low-cost operation compared to <code>unwrap</code> so that
-     * callers can use this method to avoid expensive <code>unwrap</code> calls that may fail. If this method
-     * returns true then calling <code>unwrap</code> with the same argument should succeed.
+     * This method should be implemented as a low-cost operation compared to {@code unwrap} so that
+     * callers can use this method to avoid expensive {@code unwrap} calls that may fail. If this method
+     * returns true then calling {@code unwrap} with the same argument should succeed.
      *
      * @param iface a Class defining an interface.
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
@@ -226,7 +226,7 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      * Retrieves the Reference of this object.
      *
      * @return The non-null Reference of this object.
-     * @exception NamingException If a naming exception was encountered
+     * @throws NamingException If a naming exception was encountered
      *          while retrieving the reference.
      */
     public Reference getReference() throws NamingException {

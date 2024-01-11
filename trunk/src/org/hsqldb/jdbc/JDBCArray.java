@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,18 +45,18 @@ import org.hsqldb.types.Type;
 
 /**
  * The mapping in the Java programming language for the SQL type
- * <code>ARRAY</code>.
- * By default, an <code>Array</code> value is a transaction-duration
- * reference to an SQL <code>ARRAY</code> value.  By default, an <code>Array</code>
+ * {@code ARRAY}.
+ * By default, an {@code Array} value is a transaction-duration
+ * reference to an SQL {@code ARRAY} value.  By default, an {@code Array}
  * object is implemented using an SQL LOCATOR(array) internally, which
- * means that an <code>Array</code> object contains a logical pointer
- * to the data in the SQL <code>ARRAY</code> value rather
- * than containing the <code>ARRAY</code> value's data.
+ * means that an {@code Array} object contains a logical pointer
+ * to the data in the SQL {@code ARRAY} value rather
+ * than containing the {@code ARRAY} value's data.
  * <p>
- * The <code>Array</code> interface provides methods for bringing an SQL
- * <code>ARRAY</code> value's data to the client as either an array or a
- * <code>ResultSet</code> object.
- * If the elements of the SQL <code>ARRAY</code>
+ * The {@code Array} interface provides methods for bringing an SQL
+ * {@code ARRAY} value's data to the client as either an array or a
+ * {@code ResultSet} object.
+ * If the elements of the SQL {@code ARRAY}
  * are a UDT, they may be custom mapped.  To create a custom mapping,
  * a programmer must do two things:
  * <ul>
@@ -65,41 +65,41 @@ import org.hsqldb.types.Type;
  * <li>make an entry in a type map that contains
  *   <ul>
  *   <li>the fully-qualified SQL type name of the UDT
- *   <li>the <code>Class</code> object for the class implementing
- *       <code>SQLData</code>
+ *   <li>the {@code Class} object for the class implementing
+ *       {@code SQLData}
  *   </ul>
  * </ul>
  * <p>
  * When a type map with an entry for
- * the base type is supplied to the methods <code>getArray</code>
- * and <code>getResultSet</code>, the mapping
- * it contains will be used to map the elements of the <code>ARRAY</code> value.
+ * the base type is supplied to the methods {@code getArray}
+ * and {@code getResultSet}, the mapping
+ * it contains will be used to map the elements of the {@code ARRAY} value.
  * If no type map is supplied, which would typically be the case,
  * the connection's type map is used by default.
  * If the connection's type map or a type map supplied to a method has no entry
  * for the base type, the elements are mapped according to the standard mapping.
  * <p>
- * All methods on the <code>Array</code> interface must be fully implemented if the
+ * All methods on the {@code Array} interface must be fully implemented if the
  * JDBC driver supports the data type.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.7.3
  * @since JDK 1.2, HSQLDB 2.0
  */
 public class JDBCArray implements Array {
 
     /**
      * Retrieves the SQL type name of the elements in
-     * the array designated by this <code>Array</code> object.
+     * the array designated by this {@code Array} object.
      * If the elements are a built-in type, it returns
      * the database-specific type name of the elements.
      * If the elements are a user-defined type (UDT),
      * this method returns the fully-qualified SQL type name.
      *
-     * @return a <code>String</code> that is the database-specific
+     * @return a {@code String} that is the database-specific
      * name for a built-in base type; or the fully-qualified SQL type
      * name for a base type that is a UDT
-     * @exception SQLException if an error occurs while attempting
+     * @throws SQLException if an error occurs while attempting
      * to access the type name
      * @since JDK 1.2
      */
@@ -112,13 +112,15 @@ public class JDBCArray implements Array {
 
     /**
      * Retrieves the JDBC type of the elements in the array designated
-     * by this <code>Array</code> object.
+     * by this {@code Array} object.
      *
      * @return a constant from the class {@link java.sql.Types} that is
      * the type code for the elements in the array designated by this
-     * <code>Array</code> object
-     * @exception SQLException if an error occurs while attempting
+     * {@code Array} object
+     * @throws SQLException if an error occurs while attempting
      * to access the base type
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
      * @since JDK 1.2
      */
     public int getBaseType() throws SQLException {
@@ -129,34 +131,34 @@ public class JDBCArray implements Array {
     }
 
     /**
-     * <!-- start generic documentation -->
-     * Retrieves the contents of the SQL <code>ARRAY</code> value designated
+     * Retrieves the contents of the SQL {@code ARRAY} value designated
      * by this
-     * <code>Array</code> object in the form of an array in the Java
-     * programming language. This version of the method <code>getArray</code>
+     * {@code Array} object in the form of an array in the Java
+     * programming language. This version of the method {@code getArray}
      * uses the type map associated with the connection for customizations of
      * the type mappings.
      * <p>
-     * <strong>Note:</strong> When <code>getArray</code> is used to materialize
+     * <strong>Note:</strong> When {@code getArray} is used to materialize
      * a base type that maps to a primitive data type, then it is
      * implementation-defined whether the array returned is an array of
-     * that primitive data type or an array of <code>Object</code>.
+     * that primitive data type or an array of {@code Object}.
      *
-     * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h1>HSQLDB-Specific Information:</h1> <p>
+     * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * HSQLDB always returns an array of <code>Object</code>.
+     * HSQLDB always returns an array of {@code Object}.
      *
      * </div>
      * <!-- end release-specific documentation -->
      *
      * @return an array in the Java programming language that contains
-     * the ordered elements of the SQL <code>ARRAY</code> value
-     * designated by this <code>Array</code> object
-     * @exception SQLException if an error occurs while attempting to
+     * the ordered elements of the SQL {@code ARRAY} value
+     * designated by this {@code Array} object
+     * @throws SQLException if an error occurs while attempting to
      * access the array
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
      * @since JDK 1.2
      */
     public Object getArray() throws SQLException {
@@ -173,38 +175,38 @@ public class JDBCArray implements Array {
     }
 
     /**
-     * <!-- start generic documentation -->
-     * Retrieves the contents of the SQL <code>ARRAY</code> value designated by this
-     * <code>Array</code> object.
+     * Retrieves the contents of the SQL {@code ARRAY} value designated by this
+     * {@code Array} object.
      * This method uses
-     * the specified <code>map</code> for type map customizations
+     * the specified {@code map} for type map customizations
      * unless the base type of the array does not match a user-defined
-     * type in <code>map</code>, in which case it
+     * type in {@code map}, in which case it
      * uses the standard mapping. This version of the method
-     * <code>getArray</code> uses either the given type map or the standard mapping;
+     * {@code getArray} uses either the given type map or the standard mapping;
      * it never uses the type map associated with the connection.
      * <p>
-     * <strong>Note:</strong> When <code>getArray</code> is used to materialize
+     * <strong>Note:</strong> When {@code getArray} is used to materialize
      * a base type that maps to a primitive data type, then it is
      * implementation-defined whether the array returned is an array of
-     * that primitive data type or an array of <code>Object</code>.
+     * that primitive data type or an array of {@code Object}.
      *
-     * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h1>HSQLDB-Specific Information:</h1> <p>
+     * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * HSQLDB always returns an array of <code>Object</code>.
+     * HSQLDB always returns an array of {@code Object}.
      *
      * </div>
      * <!-- end release-specific documentation -->
      *
-     * @param map a <code>java.util.Map</code> object that contains mappings
+     * @param map a {@code java.util.Map} object that contains mappings
      *            of SQL type names to classes in the Java programming language
      * @return an array in the Java programming language that contains the ordered
      *         elements of the SQL array designated by this object
-     * @exception SQLException if an error occurs while attempting to
+     * @throws SQLException if an error occurs while attempting to
      *                         access the array
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
      * @since JDK 1.2
      */
     public Object getArray(java.util.Map<String,
@@ -213,24 +215,22 @@ public class JDBCArray implements Array {
     }
 
     /**
-     * <!-- start generic documentation -->
-     * Retrieves a slice of the SQL <code>ARRAY</code>
-     * value designated by this <code>Array</code> object, beginning with the
-     * specified <code>index</code> and containing up to <code>count</code>
+     * Retrieves a slice of the SQL {@code ARRAY}
+     * value designated by this {@code Array} object, beginning with the
+     * specified {@code index} and containing up to {@code count}
      * successive elements of the SQL array.  This method uses the type map
      * associated with the connection for customizations of the type mappings.
      * <p>
-     * <strong>Note:</strong> When <code>getArray</code> is used to materialize
+     * <strong>Note:</strong> When {@code getArray} is used to materialize
      * a base type that maps to a primitive data type, then it is
      * implementation-defined whether the array returned is an array of
-     * that primitive data type or an array of <code>Object</code>.
+     * that primitive data type or an array of {@code Object}.
      *
-     * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h1>HSQLDB-Specific Information:</h1> <p>
+     * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * HSQLDB always returns an array of <code>Object</code>.
+     * HSQLDB always returns an array of {@code Object}.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -238,10 +238,12 @@ public class JDBCArray implements Array {
      * @param index the array index of the first element to retrieve;
      *              the first element is at index 1
      * @param count the number of successive SQL array elements to retrieve
-     * @return an array containing up to <code>count</code> consecutive elements
-     * of the SQL array, beginning with element <code>index</code>
-     * @exception SQLException if an error occurs while attempting to
+     * @return an array containing up to {@code count} consecutive elements
+     * of the SQL array, beginning with element {@code index}
+     * @throws SQLException if an error occurs while attempting to
      * access the array
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
      * @since JDK 1.2
      */
     public Object getArray(long index, int count) throws SQLException {
@@ -263,31 +265,29 @@ public class JDBCArray implements Array {
     }
 
     /**
-     * <!-- start generic documentation -->
-     * Retrieves a slice of the SQL <code>ARRAY</code> value
-     * designated by this <code>Array</code> object, beginning with the specified
-     * <code>index</code> and containing up to <code>count</code>
+     * Retrieves a slice of the SQL {@code ARRAY} value
+     * designated by this {@code Array} object, beginning with the specified
+     * {@code index} and containing up to {@code count}
      * successive elements of the SQL array.
      * <P>
      * This method uses
-     * the specified <code>map</code> for type map customizations
+     * the specified {@code map} for type map customizations
      * unless the base type of the array does not match a user-defined
-     * type in <code>map</code>, in which case it
+     * type in {@code map}, in which case it
      * uses the standard mapping. This version of the method
-     * <code>getArray</code> uses either the given type map or the standard mapping;
+     * {@code getArray} uses either the given type map or the standard mapping;
      * it never uses the type map associated with the connection.
      * <p>
-     * <strong>Note:</strong> When <code>getArray</code> is used to materialize
+     * <strong>Note:</strong> When {@code getArray} is used to materialize
      * a base type that maps to a primitive data type, then it is
      * implementation-defined whether the array returned is an array of
-     * that primitive data type or an array of <code>Object</code>.
+     * that primitive data type or an array of {@code Object}.
      *
-     * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h1>HSQLDB-Specific Information:</h1> <p>
+     * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * HSQLDB always returns an array of <code>Object</code>.
+     * HSQLDB always returns an array of {@code Object}.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -296,15 +296,17 @@ public class JDBCArray implements Array {
      *              the first element is at index 1
      * @param count the number of successive SQL array elements to
      * retrieve
-     * @param map a <code>java.util.Map</code> object
+     * @param map a {@code java.util.Map} object
      * that contains SQL type names and the classes in
      * the Java programming language to which they are mapped
-     * @return an array containing up to <code>count</code>
-     * consecutive elements of the SQL <code>ARRAY</code> value designated by this
-     * <code>Array</code> object, beginning with element
-     * <code>index</code>
-     * @exception SQLException if an error occurs while attempting to
+     * @return an array containing up to {@code count}
+     * consecutive elements of the SQL {@code ARRAY} value designated by this
+     * {@code Array} object, beginning with element
+     * {@code index}
+     * @throws SQLException if an error occurs while attempting to
      * access the array
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
      * @since JDK 1.2
      */
     public Object getArray(long index, int count,
@@ -315,8 +317,8 @@ public class JDBCArray implements Array {
 
     /**
      * Retrieves a result set that contains the elements of the SQL
-     * <code>ARRAY</code> value
-     * designated by this <code>Array</code> object.  If appropriate,
+     * {@code ARRAY} value
+     * designated by this {@code Array} object.  If appropriate,
      * the elements of the array are mapped using the connection's type
      * map; otherwise, the standard mapping is used.
      * <p>
@@ -328,10 +330,12 @@ public class JDBCArray implements Array {
      * the order of the indices.
      *
      * @return a {@link ResultSet} object containing one row for each
-     * of the elements in the array designated by this <code>Array</code>
+     * of the elements in the array designated by this {@code Array}
      * object, with the rows in ascending order based on the indices.
-     * @exception SQLException if an error occurs while attempting to
+     * @throws SQLException if an error occurs while attempting to
      * access the array
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
      * @since JDK 1.2
      */
     public ResultSet getResultSet() throws SQLException {
@@ -345,13 +349,13 @@ public class JDBCArray implements Array {
 
     /**
      * Retrieves a result set that contains the elements of the SQL
-     * <code>ARRAY</code> value designated by this <code>Array</code> object.
+     * {@code ARRAY} value designated by this {@code Array} object.
      * This method uses
-     * the specified <code>map</code> for type map customizations
+     * the specified {@code map} for type map customizations
      * unless the base type of the array does not match a user-defined
-     * type in <code>map</code>, in which case it
+     * type in {@code map}, in which case it
      * uses the standard mapping. This version of the method
-     * <code>getResultSet</code> uses either the given type map or the standard mapping;
+     * {@code getResultSet} uses either the given type map or the standard mapping;
      * it never uses the type map associated with the connection.
      * <p>
      * The result set contains one row for each array element, with
@@ -363,11 +367,13 @@ public class JDBCArray implements Array {
      *
      * @param map contains the mapping of SQL user-defined types to
      * classes in the Java programming language
-     * @return a <code>ResultSet</code> object containing one row for each
-     * of the elements in the array designated by this <code>Array</code>
+     * @return a {@code ResultSet} object containing one row for each
+     * of the elements in the array designated by this {@code Array}
      * object, with the rows in ascending order based on the indices.
-     * @exception SQLException if an error occurs while attempting to
+     * @throws SQLException if an error occurs while attempting to
      * access the array
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
      * @since JDK 1.2
      */
     public ResultSet getResultSet(java.util.Map<String,
@@ -377,16 +383,16 @@ public class JDBCArray implements Array {
 
     /**
      * Retrieves a result set holding the elements of the subarray that
-     * starts at index <code>index</code> and contains up to
-     * <code>count</code> successive elements.  This method uses
+     * starts at index {@code index} and contains up to
+     * {@code count} successive elements.  This method uses
      * the connection's type map to map the elements of the array if
      * the map contains an entry for the base type. Otherwise, the
      * standard mapping is used.
      * <P>
      * The result set has one row for each element of the SQL array
      * designated by this object, with the first row containing the
-     * element at index <code>index</code>.  The result set has
-     * up to <code>count</code> rows in ascending order based on the
+     * element at index {@code index}.  The result set has
+     * up to {@code count} rows in ascending order based on the
      * indices.  Each row has two columns:  The second column stores
      * the element value; the first column stores the index into the
      * array for that element.
@@ -394,12 +400,14 @@ public class JDBCArray implements Array {
      * @param index the array index of the first element to retrieve;
      *              the first element is at index 1
      * @param count the number of successive SQL array elements to retrieve
-     * @return a <code>ResultSet</code> object containing up to
-     * <code>count</code> consecutive elements of the SQL array
-     * designated by this <code>Array</code> object, starting at
-     * index <code>index</code>.
-     * @exception SQLException if an error occurs while attempting to
+     * @return a {@code ResultSet} object containing up to
+     * {@code count} consecutive elements of the SQL array
+     * designated by this {@code Array} object, starting at
+     * index {@code index}.
+     * @throws SQLException if an error occurs while attempting to
      * access the array
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
      * @since JDK 1.2
      */
     public ResultSet getResultSet(long index, int count) throws SQLException {
@@ -413,20 +421,20 @@ public class JDBCArray implements Array {
 
     /**
      * Retrieves a result set holding the elements of the subarray that
-     * starts at index <code>index</code> and contains up to
-     * <code>count</code> successive elements.
+     * starts at index {@code index} and contains up to
+     * {@code count} successive elements.
      * This method uses
-     * the specified <code>map</code> for type map customizations
+     * the specified {@code map} for type map customizations
      * unless the base type of the array does not match a user-defined
-     * type in <code>map</code>, in which case it
+     * type in {@code map}, in which case it
      * uses the standard mapping. This version of the method
-     * <code>getResultSet</code> uses either the given type map or the standard mapping;
+     * {@code getResultSet} uses either the given type map or the standard mapping;
      * it never uses the type map associated with the connection.
      * <P>
      * The result set has one row for each element of the SQL array
      * designated by this object, with the first row containing the
-     * element at index <code>index</code>.  The result set has
-     * up to <code>count</code> rows in ascending order based on the
+     * element at index {@code index}.  The result set has
+     * up to {@code count} rows in ascending order based on the
      * indices.  Each row has two columns:  The second column stores
      * the element value; the first column stores the index into the
      * array for that element.
@@ -434,14 +442,16 @@ public class JDBCArray implements Array {
      * @param index the array index of the first element to retrieve;
      *              the first element is at index 1
      * @param count the number of successive SQL array elements to retrieve
-     * @param map the <code>Map</code> object that contains the mapping
+     * @param map the {@code Map} object that contains the mapping
      * of SQL type names to classes in the Java(tm) programming language
-     * @return a <code>ResultSet</code> object containing up to
-     * <code>count</code> consecutive elements of the SQL array
-     * designated by this <code>Array</code> object, starting at
-     * index <code>index</code>.
-     * @exception SQLException if an error occurs while attempting to
+     * @return a {@code ResultSet} object containing up to
+     * {@code count} consecutive elements of the SQL array
+     * designated by this {@code Array} object, starting at
+     * index {@code index}.
+     * @throws SQLException if an error occurs while attempting to
      * access the array
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
      * @since JDK 1.2
      */
     public ResultSet getResultSet(long index, int count,
@@ -451,7 +461,7 @@ public class JDBCArray implements Array {
     }
 
     /**
-     * Returns a string representation in the form <code>ARRAY[..., ...]</code>
+     * Returns a string representation in the form {@code ARRAY[..., ...]}
      */
     public String toString() {
 
@@ -463,18 +473,19 @@ public class JDBCArray implements Array {
     }
 
     /**
-     * This method frees the <code>Array</code> object and releases the resources that
-     * it holds. The object is invalid once the <code>free</code>
+     * This method frees the {@code Array} object and releases the resources that
+     * it holds. The object is invalid once the {@code free}
      * method is called.
      * <p>
-     * After <code>free</code> has been called, any attempt to invoke a
-     * method other than <code>free</code> will result in a <code>SQLException</code>
-     * being thrown.  If <code>free</code> is called multiple times, the subsequent
-     * calls to <code>free</code> are treated as a no-op.
-     * <p>
+     * After {@code free} has been called, any attempt to invoke a
+     * method other than {@code free} will result in a {@code SQLException}
+     * being thrown.  If {@code free} is called multiple times, the subsequent
+     * calls to {@code free} are treated as a no-op.
      *
      * @throws SQLException if an error occurs releasing
      * the Array's resources
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
      * @since JDK 1.6
      */
     public void free() throws SQLException {

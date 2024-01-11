@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * The ConnectionEventLister objects that have been registered with this
  * PooledConnection are notified when each lease expires, or an unrecoverable
- * error occurs on the connection to the database.<p>
+ * error occurs on the connection to the database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.1

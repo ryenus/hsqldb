@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,14 +58,14 @@ import javax.sql.CommonDataSource;
  * call made to setProperties() before or after calling setXXX().
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.7.3
  * @since JDK 1.2, HSQLDB 2.0
  */
 public abstract class JDBCCommonDataSource
 implements CommonDataSource, Serializable {
 
     /**
-     * <p>Retrieves the log writer for this <code>DataSource</code>
+     * <p>Retrieves the log writer for this {@code DataSource}
      * object.
      *
      * <p>The log writer is a character output stream to which all logging
@@ -74,14 +74,14 @@ implements CommonDataSource, Serializable {
      * object, messages printed by methods of other objects manufactured
      * by this object, and so on.  Messages printed to a data source
      * specific log writer are not printed to the log writer associated
-     * with the <code>java.sql.DriverManager</code> class.  When a
-     * <code>DataSource</code> object is
+     * with the {@code java.sql.DriverManager} class.  When a
+     * {@code DataSource} object is
      * created, the log writer is initially null; in other words, the
      * default is for logging to be disabled.
      *
      * @return the log writer for this data source or null if
      *        logging is disabled
-     * @exception java.sql.SQLException if a database access error occurs
+     * @throws java.sql.SQLException if a database access error occurs
      * @see #setLogWriter
      * @since 1.4
      */
@@ -90,8 +90,8 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * <p>Sets the log writer for this <code>DataSource</code>
-     * object to the given <code>java.io.PrintWriter</code> object.
+     * <p>Sets the log writer for this {@code DataSource}
+     * object to the given {@code java.io.PrintWriter} object.
      *
      * <p>The log writer is a character output stream to which all logging
      * and tracing messages for this data source will be
@@ -99,13 +99,13 @@ implements CommonDataSource, Serializable {
      * object, messages printed by methods of other objects manufactured
      * by this object, and so on.  Messages printed to a data source-
      * specific log writer are not printed to the log writer associated
-     * with the <code>java.sql.DriverManager</code> class. When a
-     * <code>DataSource</code> object is created the log writer is
+     * with the {@code java.sql.DriverManager} class. When a
+     * {@code DataSource} object is created the log writer is
      * initially null; in other words, the default is for logging to be
      * disabled.
      *
      * @param out the new log writer; to disable logging, set to null
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      * @see #getLogWriter
      * @since 1.4
      */
@@ -118,11 +118,11 @@ implements CommonDataSource, Serializable {
      * while attempting to connect to a database.  A value of zero
      * specifies that the timeout is the default system timeout
      * if there is one; otherwise, it specifies that there is no timeout.
-     * When a <code>DataSource</code> object is created, the login timeout is
+     * When a {@code DataSource} object is created, the login timeout is
      * initially zero.
      *
      * @param seconds the data source login time limit
-     * @exception SQLException if a database access error occurs.
+     * @throws SQLException if a database access error occurs.
      * @see #getLoginTimeout
      * @since 1.4
      */
@@ -139,11 +139,11 @@ implements CommonDataSource, Serializable {
      * while attempting to connect to a database.  A value of zero
      * means that the timeout is the default system timeout
      * if there is one; otherwise, it means that there is no timeout.
-     * When a <code>DataSource</code> object is created, the login timeout is
+     * When a {@code DataSource} object is created, the login timeout is
      * initially zero.
      *
      * @return the data source login time limit
-     * @exception SQLException if a database access error occurs.
+     * @throws SQLException if a database access error occurs.
      * @see #setLoginTimeout
      * @since 1.4
      */
@@ -154,7 +154,7 @@ implements CommonDataSource, Serializable {
     // ------------------------ custom public methods ------------------------
 
     /**
-     * Retrieves the description of the data source. <p>
+     * Retrieves the description of the data source.
      *
      * @return the description
      */
@@ -163,7 +163,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Retrieves the name of the data source. <p>
+     * Retrieves the name of the data source.
      *
      * @return the description
      */
@@ -172,7 +172,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Retrieves the network protocol of the data source. <p>
+     * Retrieves the network protocol of the data source.
      *
      * @return the network protocol
      */
@@ -181,7 +181,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Retrieves the server name attribute. <p>
+     * Retrieves the server name attribute.
      *
      * @return the server name attribute
      */
@@ -208,7 +208,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Retrieves the jdbc database connection url attribute. <p>
+     * Retrieves the jdbc database connection url attribute.
      *
      * @return the jdbc database connection url attribute
      */
@@ -217,7 +217,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Retrieves the jdbc database connection url attribute. <p>
+     * Retrieves the jdbc database connection url attribute.
      *
      * @return the jdbc database connection url attribute
      */
@@ -226,7 +226,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Retrieves the user name for the connection. <p>
+     * Retrieves the user name for the connection.
      *
      * @return the username for the connection
      */
@@ -235,7 +235,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Synonym for setUrl(String). <p>
+     * Synonym for setUrl(String).
      *
      * @param databaseName the new value for the attribute
      */
@@ -244,7 +244,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Synonym for setUrl(String). <p>
+     * Synonym for setUrl(String).
      *
      * @param database the new value for the attribute
      */
@@ -253,7 +253,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Sets the jdbc database URL. <p>
+     * Sets the jdbc database URL.
      *
      * @param url the new value of this object's jdbc database connection
      *      url attribute
@@ -263,7 +263,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Sets the jdbc database URL. <p>
+     * Sets the jdbc database URL.
      *
      * @param url the new value of this object's jdbc database connection
      *      url attribute
@@ -273,7 +273,7 @@ implements CommonDataSource, Serializable {
     }
 
     /**
-     * Sets the password for the user name.
+     * Sets the password for the username.
      *
      * @param password the password
      */
@@ -333,8 +333,8 @@ implements CommonDataSource, Serializable {
      * In the worst case, this may be the root Logger.
      *
      * @return the parent Logger for this data source
-     * @throws SQLFeatureNotSupportedException if the data source does not use <code>java.util.logging</code>.
-     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
+     * @throws SQLFeatureNotSupportedException if the data source does not use {@code java.util.logging}.
+     * @since JDK 1.7, HSQLDB 2.0.1
      */
     public java.util.logging.Logger getParentLogger()
     throws java.sql.SQLFeatureNotSupportedException {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -137,7 +137,7 @@ import org.hsqldb.types.Types;
  * rebuilt. <p>
  *
  * For the rest of the tables, if the table has not been built for the Session
- * object or it is out of date, the table contents are cleared and rebuilt. <p>
+ * object, or it is out of date, the table contents are cleared and rebuilt. <p>
  *
  * (fredt@users) <p>
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
@@ -211,7 +211,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * longer recorded in the checkpoint script, obsoleting this issue.
      * Checkpointing of system-generated grants and aliases was removed
      * because their existence is very close to a core requirement for correct
-     * operation and they are reintroduced to the system at each startup.
+     * operation, and they are reintroduced to the system at each startup.
      * In a future release, it may even be an exception condition to attempt
      * to remove or alter system-generated grants and aliases,
      * respectively. <p>
@@ -240,11 +240,11 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves an enumeration over all of the tables in this database.
+     * Retrieves an enumeration over all the tables in this database.
      * This means all user tables, views, system tables, system views,
      * including temporary and text tables. <p>
      *
-     * @return an enumeration over all of the tables in this database
+     * @return an enumeration over all the tables in this database
      */
     protected final Iterator allTables() {
 
@@ -270,7 +270,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 //        this class produces only an empty table for each, as per previous
 //        DatabaseInformation implementations, whereas
 //        DatabaseInformationFull produces comprehensive content for
-//        them).
+//        them.
 //
 //        This break down of inheritance allows DatabaseInformation and
 //        DatabaseInformationMain (this class) to be made as small as possible
@@ -408,7 +408,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves whether any form of SQL access is allowed against the
+     * Retrieves whether any form of SQL access is allowed against
      * the specified table w.r.t the database access rights
      * assigned to current Session object's User. <p>
      *
@@ -534,7 +534,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * making overly complex dependency on features that will almost certainly
      * change significantly in the near future, the current implementation,
      * while perfectly adequate for all but the most demanding or exacting
-     * purposes, is actually sub-optimal in the strictest sense. <p>
+     * purposes, is actually suboptimal in the strictest sense. <p>
      *
      * A description of the current implementation follows: <p>
      *
@@ -597,7 +597,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *      then no column set is reported for the table under consideration.
      * </OL> <p>
      *
-     * The scope reported for a best row identifier column set is determined
+     * The scope reported for a best-row-identifier column set is determined
      * thus:
      *
      * <OL>
@@ -1169,7 +1169,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             }
         }
 
-        // Now that we have all of the desired constraints, we need to
+        // Now that we have all the desired constraints, we need to
         // process them, generating one row in our ouput table for each
         // imported/exported column pair of each constraint.
         // Do it.
@@ -1357,7 +1357,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             indexQualifier = tableCatalog;
             indexCount     = table.getIndexCount();
 
-            // process all of the visible indices for this table
+            // process all the visible indices for this table
             for (int i = 0; i < indexCount; i++) {
                 Index index = table.getIndex(i);
 
@@ -1800,7 +1800,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * </pre> <p>
      *
      * @return a <code>Table</code> object describing the accessible
-     *        routines defined within the this database
+     *        routines defined within this database
      */
     Table SYSTEM_PROCEDURES(Session session, PersistentStore store) {
 
@@ -2678,7 +2678,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *                            For other DATA_TYPE values:  NULL
      * </pre>
      *
-     * <B>Note:</B> Currently, neither the HSQLDB engine or the JDBC driver
+     * <B>Note:</B> Currently, neither the HSQLDB engine nor the JDBC driver
      * support UDTs, so an empty table is returned. <p>
      * @return a <code>Table</code> object describing the accessible
      *        attrubutes of the accessible user-defined type

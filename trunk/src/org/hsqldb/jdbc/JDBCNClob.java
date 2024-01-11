@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,26 +35,26 @@ import java.sql.NClob;
 
 /**
  * The mapping in the Java&trade; programming language
- * for the SQL <code>NCLOB</code> type.
- * An SQL <code>NCLOB</code> is a built-in type
+ * for the SQL {@code NCLOB} type.
+ * An SQL {@code NCLOB} is a built-in type
  * that stores a Character Large Object using the National Character Set
  *  as a column value in a row of  a database table.
- * <P>The <code>NClob</code> interface extends the <code>Clob</code> interface
+ * <P>The {@code NClob} interface extends the {@code Clob} interface
  * which provides methods for getting the
- * length of an SQL <code>NCLOB</code> value,
- * for materializing a <code>NCLOB</code> value on the client, and for
- * searching for a substring or <code>NCLOB</code> object within a
- * <code>NCLOB</code> value. A <code>NClob</code> object, just like a <code>Clob</code> object, is valid for the duration
+ * length of an SQL {@code NCLOB} value,
+ * for materializing a {@code NCLOB} value on the client, and for
+ * searching for a substring or {@code NCLOB} object within a
+ * {@code NCLOB} value. A {@code NClob} object, just like a {@code Clob} object, is valid for the duration
  * of the transaction in which it was created.
  * Methods in the interfaces {@link java.sql.ResultSet},
  * {@link java.sql.CallableStatement}, and {@link java.sql.PreparedStatement}, such as
- * <code>getNClob</code> and <code>setNClob</code> allow a programmer to
- * access an SQL <code>NCLOB</code> value.  In addition, this interface
- * has methods for updating a <code>NCLOB</code> value.
+ * {@code getNClob} and {@code setNClob} allow a programmer to
+ * access an SQL {@code NCLOB} value.  In addition, this interface
+ * has methods for updating a {@code NCLOB} value.
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h1>HSQLDB-Specific Information:</h1> <p>
+ * <p class="rshead">HSQLDB-Specific Information:</p>
  *
  * First, it should be noted that since HSQLDB represents all character data
  * internally as Java UNICODE (UTF16) String objects, there is not currently any
@@ -66,7 +66,7 @@ import java.sql.NClob;
  * </div>
  * <!-- end Release-specific documentation -->
  *
- * @since JDK 1.6, HSQLDB 2.0
+ * @since JDK 1.6, HSQLDB 2.7.3
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @see JDBCClob
  * @see JDBCClobClient

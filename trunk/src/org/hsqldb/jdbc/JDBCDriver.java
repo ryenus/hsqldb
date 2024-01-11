@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,11 +40,6 @@ import java.util.Properties;
 
 import java.sql.SQLFeatureNotSupportedException;
 
-//#ifdef JAVA8
-import java.sql.DriverAction;
-
-//#endif JAVA8
-
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -57,28 +52,40 @@ import org.hsqldb.persist.HsqlProperties;
 // campbell-burnet@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
 
 /**
- * Provides the java.sql.Driver interface implementation required by
- * the JDBC specification. <p>
+ * The interface that every driver class must implement.
+ * <P>The Java SQL framework allows for multiple database drivers.
  *
- *  The Java SQL framework allows for multiple database drivers. <p>
+ * <P>Each driver should supply a class that implements
+ * the Driver interface.
+  *
+ * <P>The DriverManager will try to load as many drivers as it can
+ * find and then for any given connection request, it will ask each
+ * driver in turn to try to connect to the target URL.
  *
- *  The DriverManager will try to load as many drivers as it can find and
- *  then for any given connection request, it will ask each driver in turn
- *  to try to connect to the target URL. <p>
+ * <P>It is strongly recommended that each Driver class should be
+ * small and standalone so that the Driver class can be loaded and
+ * queried without bringing in vast quantities of supporting code.
  *
- *  The application developer will normally not need to call any function of
- *  the Driver directly. All required calls are made by the DriverManager.
+ * <P>When a Driver class is loaded, it should create an instance of
+ * itself and register it with the DriverManager. This means that a
+ * user can load and register a driver by calling:
+ * <p>
+ * {@code Class.forName("foo.bah.Driver")}
+ * <p>
+ * A JDBC driver may create a {@linkplain DriverAction} implementation in order
+ * to receive notifications when {@linkplain DriverManager#deregisterDriver} has
+ * been called.
  *
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h1>HSQLDB-Specific Information:</h1> <p>
+ * <p class="rshead">HSQLDB-Specific Information:</p>
  *
  *  When the HSQL Database Engine Driver class is loaded, it creates an
  *  instance of itself and register it with the DriverManager. This means
  *  that a user can load and register the HSQL Database Engine driver by
  *  calling:
  *  <pre>
- *  <code>Class.forName("org.hsqldb.jdbc.JDBCDriver")</code>
+ *  {@code Class.forName("org.hsqldb.jdbc.JDBCDriver")}
  *  </pre>
  *
  *  For detailed information about how to obtain HSQLDB JDBC Connections,
@@ -88,30 +95,32 @@ import org.hsqldb.persist.HsqlProperties;
  *
  * <b>JDBC 4.0 notes:</b><p>
  *
- * Starting with JDBC 4.0 (JDK 1.6), the <code>DriverManager</code> methods
- * <code>getConnection</code> and <code>getDrivers</code> have been
+ * Starting with JDBC 4.0 (JDK 1.6), the {@code DriverManager} methods
+ * {@code getConnection} and {@code getDrivers} have been
  * enhanced to support the Java Standard Edition Service Provider mechanism.
  * When built under a Java runtime that supports JDBC 4.0, HSQLDB distribution
  * jars containing the Driver implementation also include the file
- * <code>META-INF/services/java.sql.Driver</code>. This file contains the fully
+ * {@code META-INF/services/java.sql.Driver}. This file contains the fully
  * qualified class name ('org.hsqldb.jdbc.JDBCDriver') of the HSQLDB implementation
- * of <code>java.sql.Driver</code>. <p>
+ * of {@code java.sql.Driver}. <p>
  *
  * Hence, under JDBC 4.0 or greater, applications no longer need to explicitly
- * load the HSQLDB JDBC driver using <code>Class.forName()</code>. Of course,
+ * load the HSQLDB JDBC driver using {@code Class.forName()}. Of course,
  * existing programs which do load JDBC drivers using
- * <code>Class.forName()</code> will continue to work without modification. <p>
+ * {@code Class.forName()} will continue to work without modification. <p>
  *
- * JDBC 4.2 methods added in Java 8 are generally supported when the HSQLDB jar
- * is compiled with JDK 8
- * <hr>
+ * JDBC 4.2 methods added in Java 8 are generally supported.
+ * </div> <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since HSQLDB 1.9.0
- * </div> <!-- end release-specific documentation -->
  *
- * @see org.hsqldb.jdbc.JDBCConnection
+ *
+ * @see java.sql.DriverManager
+ * @see java.sql.Connection
+ * @see java.sql.DriverAction
+ * @since 1.1
  */
 public class JDBCDriver implements Driver {
 
@@ -127,25 +136,29 @@ public class JDBCDriver implements Driver {
     }
 
     /**
-     * Attempts to make a database connection to the given URL.<p>
+     * Attempts to make a database connection to the given URL.
+     * The driver should return "null" if it realizes it is the wrong kind
+     * of driver to connect to the given URL.  This will be common, as when
+     * the JDBC driver manager is asked to connect to a given URL it passes
+     * the URL to each loaded driver in turn.
      *
-     * Returns "null" if this is the wrong kind of driver to connect to the
-     * given URL.  This will be common, as when the JDBC driver manager is asked
-     * to connect to a given URL it passes the URL to each loaded driver in
-     * turn.
-     *
-     * <P>The driver throws an <code>SQLException</code> if it is the right
+     * <P>The driver should throw an {@code SQLException} if it is the right
      * driver to connect to the given URL but has trouble connecting to
      * the database.
      *
-     * <P>The <code>java.util.Properties</code> argument can be used to pass
+     * <P>The {@code java.util.Properties} argument can be used to pass
      * arbitrary string tag/value pairs as connection arguments.
      * Normally at least "user" and "password" properties should be
-     * included in the <code>Properties</code> object.
+     * included in the {@code Properties} object.
+     * <p>
+     * <B>Note:</B> If a property is specified as part of the {@code url} and
+     * is also specified in the {@code Properties} object, it is
+     * implementation-defined as to which value will take precedence. For
+     * maximum portability, an application should only specify a property once.
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h1>HSQLDB-Specific Information:</h1> <p>
+     * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      *  For the HSQL Database Engine, at least "user" and
      *  "password" properties should be included in the Properties.<p>
@@ -153,7 +166,7 @@ public class JDBCDriver implements Driver {
      *  From version 1.7.1, two optional properties are supported:
      *
      *  <ul>
-     *      <li><code>get_column_name</code> (default true) -  if set to false,
+     *      <li>{@code get_column_name} (default true) -  if set to false,
      *          a ResultSetMetaData.getColumnName() call will return the user
      *          defined label (getColumnLabel()) instead of the column
      *          name.<br>
@@ -162,17 +175,17 @@ public class JDBCDriver implements Driver {
      *          compatibility with certain non-HSQLDB JDBC driver
      *          implementations.</li>
      *
-     *      <li><code>strict_md</code> if set to true, some ResultSetMetaData
+     *      <li>{@code strict_md} if set to true, some ResultSetMetaData
      *          methods return more strict values for compatibility
      *          reasons.</li>
      *  </ul> <p>
      *
-     *  From version 1.8.0.x, <code>strict_md</code> is deprecated (ignored)
+     *  From version 1.8.0.x, {@code strict_md} is deprecated (ignored)
      *  because metadata reporting is always strict (JDBC-compliant), and
      *  three new optional properties are supported:
      *
      *  <ul>
-     *      <li><code>ifexits</code> (default false) - when true, an exception
+     *      <li>{@code ifexits} (default false) - when true, an exception
      *          is raised when attempting to connect to an in-process
      *          file: or mem: scheme database instance if it has not yet been
      *          created.  When false, an in-process file: or mem: scheme
@@ -180,7 +193,7 @@ public class JDBCDriver implements Driver {
      *          been created. This property does not apply to requests for
      *          network or res: (i.e. files_in_jar) scheme connections. <li>
      *
-     *      <li><code>shutdown</code> (default false) - when true, the
+     *      <li>{@code shutdown} (default false) - when true, the
      *          the target database mimics the behaviour of 1.7.1 and older
      *          versions. When the last connection to a database is closed,
      *          the database is automatically shut down. The property takes
@@ -197,7 +210,7 @@ public class JDBCDriver implements Driver {
      *          connection coincides with the web application being shut down.
      *          </li>
      *
-     *      <li><code>default_schema</code> - backwards compatibility feature.
+     *      <li>{@code default_schema} - backwards compatibility feature.
      *          To be used for clients written before HSQLDB schema support.
      *          Denotes whether to use the default schema when a schema
      *          qualifier is not included in a database object's SQL identifier
@@ -209,12 +222,13 @@ public class JDBCDriver implements Driver {
      *
      * </div> <!-- end release-specific documentation -->
      * @param url the URL of the database to which to connect
-     * @param info a list of arbitrary string tag/value pairs as connection
-     *      arguments. Normally at least a "user" and "password" property
-     *      should be included.
-     * @return a <code>Connection</code> object that represents a
+     * @param info a list of arbitrary string tag/value pairs as
+     * connection arguments. Normally at least a "user" and
+     * "password" property should be included.
+     * @return a {@code Connection} object that represents a
      *      connection to the URL
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs or the url is
+     * {@code null}
      */
     public Connection connect(String url,
                               Properties info) throws SQLException {
@@ -230,14 +244,14 @@ public class JDBCDriver implements Driver {
     }
 
     /**
-     * The static equivalent of the <code>connect(String,Properties)</code>
-     * method. <p>
+     * The static equivalent of the {@code connect(String,Properties)}
+     * method.
      *
      * @param url the URL of the database to which to connect
      * @param info a list of arbitrary string tag/value pairs as connection
      *      arguments including at least at a "user" and a "password" property
      * @throws java.sql.SQLException if a database access error occurs
-     * @return a <code>Connection</code> object that represents a
+     * @return a {@code Connection} object that represents a
      *      connection to the URL
      */
 
@@ -318,15 +332,17 @@ public class JDBCDriver implements Driver {
     }
 
     /**
-     *  Returns true if the driver thinks that it can open a connection to
-     *  the given URL. Typically drivers will return true if they understand
-     *  the subprotocol specified in the URL and false if they don't.
+     * Retrieves whether the driver thinks that it can open a connection
+     * to the given URL.  Typically drivers will return {@code true} if they
+     * understand the sub-protocol specified in the URL and {@code false} if
+     * they do not.
      *
      * @param  url the URL of the database
-     * @return  true if this driver can connect to the given URL
+     * @return {@code true} if this driver understands the given URL;
+     *         {@code false} otherwise
+     * @throws SQLException if a database access error occurs or the url is
+     * {@code null}
      */
-
-// fredt@users - patch 1.7.0 - allow mixedcase url's
     public boolean acceptsURL(String url) {
 
         if (url == null) {
@@ -347,31 +363,33 @@ public class JDBCDriver implements Driver {
     }
 
     /**
-     *  Gets information about the possible properties for this driver. <p>
-     *
-     *  The getPropertyInfo method is intended to allow a generic GUI tool
-     *  to discover what properties it should prompt a human for in order to
-     *  get enough information to connect to a database. Note that depending
-     *  on the values the human has supplied so far, additional values may
-     *  become necessary, so it may be necessary to iterate though several
-     *  calls to getPropertyInfo.
+     * Gets information about the possible properties for this driver.
+     * <P>
+     * The {@code getPropertyInfo} method is intended to allow a generic
+     * GUI tool to discover what properties it should prompt
+     * a human for in order to get
+     * enough information to connect to a database.  Note that depending on
+     * the values the human has supplied so far, additional values may become
+     * necessary, so it may be necessary to iterate though several calls
+     * to the {@code getPropertyInfo} method.
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h1>HSQLDB-Specific Information:</h1> <p>
+     * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      * HSQLDB uses the values submitted in info to set the value for
      * each DriverPropertyInfo object returned. It does not use the default
-     * value that it would use for the property if the value is null. <p>
+     * value that it would use for the property if the value is null.
      *
      * </div> <!-- end release-specific documentation -->
      *
      * @param  url the URL of the database to which to connect
      * @param  info a proposed list of tag/value pairs that will be sent on
      *      connect open
-     * @return  an array of DriverPropertyInfo objects describing possible
-     *      properties. This array may be an empty array if no properties
-     *      are required.
+     * @return an array of {@code DriverPropertyInfo} objects describing
+     *          possible properties.  This array may be an empty array if
+     *          no properties are required.
+     * @throws SQLException if a database access error occurs
      */
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) {
 
@@ -421,7 +439,7 @@ public class JDBCDriver implements Driver {
     }
 
     /**
-     *  Gets the driver's major version number.
+     * Retrieves the driver's major version number. Initially this should be 1.
      *
      * @return  this driver's major version number
      */
@@ -430,8 +448,7 @@ public class JDBCDriver implements Driver {
     }
 
     /**
-     *  Gets the driver's minor version number.
-     *
+     * Gets the driver's minor version number. Initially this should be 0.
      * @return  this driver's minor version number
      */
     public int getMinorVersion() {
@@ -439,31 +456,23 @@ public class JDBCDriver implements Driver {
     }
 
     /**
-     * Reports whether this driver is a genuine JDBC Compliant&trade; driver.
-     * A driver may only report
-     * <code>true</code> here if it passes the JDBC compliance tests; otherwise
-     * it is required to return <code>false</code>. <p>
-     *
+     * Reports whether this driver is a genuine JDBC
+     * Compliant driver.
+     * A driver may only report {@code true} here if it passes the JDBC
+     * compliance tests; otherwise it is required to return {@code false}.
+     * <P>
      * JDBC compliance requires full support for the JDBC API and full support
-     * for SQL 92 Entry Level.
-     *
-     * <!-- start release-specific documentation -->
-     * <div class="ReleaseSpecificDocumentation">
-     * <h1>HSQLDB-Specific Information:</h1> <p>
-     *
-     *  HSQLDB 2.0 is aimed to be compliant with JDBC 4.2 specification.
-     *  It supports SQL 92 Entry Level and beyond.
-     * </div> <!-- end release-specific documentation -->
-     *
+     * for SQL 92 Entry Level.  It is expected that JDBC compliant drivers will
+     * be available for all the major commercial databases.
+     * <P>
      * This method is not intended to encourage the development of non-JDBC
      * compliant drivers, but is a recognition of the fact that some vendors
      * are interested in using the JDBC API and framework for lightweight
      * databases that do not support full database functionality, or for
      * special databases such as document information retrieval where a SQL
      * implementation may not be feasible.
-     *
-     * @return <code>true</code> if this driver is JDBC Compliant;
-     *         <code>false</code> otherwise
+     * @return {@code true} if this driver is JDBC Compliant; {@code false}
+     *         otherwise
      */
     public boolean jdbcCompliant() {
         return true;
@@ -479,8 +488,9 @@ public class JDBCDriver implements Driver {
      * In the worst case, this may be the root Logger.
      *
      * @return the parent Logger for this driver
-     * @throws SQLFeatureNotSupportedException if the driver does not use <code>java.util.logging</code>.
-     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
+     * @throws SQLFeatureNotSupportedException if the driver does not use
+     * {@code java.util.logging}.
+     * @since JDK 1.7, HSQLDB 2.0.1
      */
     public java.util.logging
             .Logger getParentLogger() throws java.sql
@@ -492,16 +502,7 @@ public class JDBCDriver implements Driver {
 
     static {
         try {
-
-//#ifdef JAVA8
             DriverManager.registerDriver(driverInstance, new EmptyDiverAction());
-//#else
-/*
-            DriverManager.registerDriver(driverInstance);
-*/
-
-//#endif JAVA8
-
         } catch (Exception e) {
         }
     }
@@ -518,12 +519,8 @@ public class JDBCDriver implements Driver {
 
     //------------------------- JDBC 4.2 -----------------------------------
 
-//#ifdef JAVA8
-
     private static class EmptyDiverAction implements java.sql.DriverAction {
         public void deregister() {}
 
     }
-//#endif JAVA8
-
 }

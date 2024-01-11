@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,10 @@ package org.hsqldb.jdbc;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 
-/* $Id$ */
-
-// Revision 1.10  2006/07/12 12:38:22  boucherb
-// - full synch up to Mustang b90
-
 /**
  * The representation of a savepoint, which is a point within
  * the current transaction that can be referenced from the
- * <code>Connection.rollback</code> method. When a transaction
+ * {@code Connection.rollback} method. When a transaction
  * is rolled back to a savepoint all changes made after that
  * savepoint are undone.
  * <p>
@@ -51,14 +46,14 @@ import java.sql.Savepoint;
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h1>HSQLDB-Specific Information:</h1> <p>
+ * <p class="rshead">HSQLDB-Specific Information:</p>
  *
  * SQL 2003 standard does not support unnamed savepoints. However, this
  * feature is supported from version 2.0.<p>
  *
  * If the connection is autoCommit, setting savepoints has no effect as any
  * such savepoint is cleared upon the execution of the first transactional
- * statement. <p>
+ * statement.
  *
  * </div>
  * <!-- end release-specific documentation -->
@@ -101,9 +96,9 @@ public class JDBCSavepoint implements Savepoint {
 
     /**
      * Retrieves the generated ID for the savepoint that this
-     * <code>Savepoint</code> object represents.
+     * {@code Savepoint} object represents.
      * @return the numeric ID of this savepoint
-     * @exception SQLException if this is a named savepoint
+     * @throws SQLException if this is a named savepoint
      * @since 1.4
      */
     public int getSavepointId() throws SQLException {
@@ -116,11 +111,10 @@ public class JDBCSavepoint implements Savepoint {
     }
 
     /**
-     * Retrieves the name of the savepoint that this <code>Savepoint</code>
+     * Retrieves the name of the savepoint that this {@code Savepoint}
      * object represents.
-     *
      * @return the name of this savepoint
-     * @exception SQLException if this is an un-named savepoint
+     * @throws SQLException if this is an un-named savepoint
      * @since 1.4
      */
     public String getSavepointName() throws SQLException {

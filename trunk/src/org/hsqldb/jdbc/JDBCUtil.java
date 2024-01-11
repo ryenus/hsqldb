@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,12 +46,6 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.result.Result;
-
-/* $Id$ */
-
-// campbell-burnet@users - 20060523 - patch 1.9.0 - removed some unused imports
-// Revision 1.16  2006/07/12 11:53:53  boucherb
-//  - merging back remaining material overwritten by Fred's type-system upgrades
 
 /**
  * Provides driver constants and a gateway from internal HsqlExceptions to

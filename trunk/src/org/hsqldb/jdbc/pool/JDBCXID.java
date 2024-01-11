@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -201,11 +201,11 @@ public class JDBCXID implements Xid {
 
     /**
      * Retrieves a randomly generated JDBCXID.
-     *
+     * <p>
      * The newly generated object is based on the local IP address, the given
-     * <code>threadId</code> and a randomly generated number using the current time
+     * {@code threadId} and a randomly generated number using the current time
      * in milliseconds as the random seed.
-     *
+     * <p>
      * Note that java.util.Random is used, not java.security.SecureRandom.
      *
      * @param threadId can be a real thread id or just some convenient
