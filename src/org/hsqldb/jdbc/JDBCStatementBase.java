@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -327,7 +327,7 @@ class JDBCStatementBase {
      *
      * @throws SQLException if this method is called on a closed
      * {@code Statement}
-     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
+     * @since JDK 1.7, HSQLDB 2.0.1
      */
     public void closeOnCompletion() throws SQLException {
         checkClosed();
@@ -340,7 +340,7 @@ class JDBCStatementBase {
      * of its dependent result sets are closed; {@code false} otherwise
      * @throws SQLException if this method is called on a closed
      * {@code Statement}
-     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
+     * @since JDK 1.7, HSQLDB 2.0.1
      */
     public boolean isCloseOnCompletion() throws SQLException {
 

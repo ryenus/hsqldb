@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1822,9 +1822,9 @@ public class FunctionSQL extends Expression {
             return null;
         }
 
-        int part = ((Number) nodes[0].valueData).intValue();
+        int token = ((Number) nodes[0].valueData).intValue();
 
-        part = DTIType.getFieldNameTypeForToken(part);
+        int part = DTIType.getFieldNameTypeForToken(token);
 
         switch (part) {
 

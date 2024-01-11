@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import org.hsqldb.jdbc.JDBCUtil;
  * instances of this class.<p>
  *
  * The methods of the superclass, {@link org.hsqldb.jdbc.JDBCCommonDataSource},
- * are used for settings the HyperSQL server and user.<p>
+ * are used for settings the HyperSQL server and user.
  *
  * @version 2.3.3
  * @since 2.0.0
@@ -126,7 +126,7 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
      * Retrieves the Reference of this object.
      *
      * @return The non-null javax.naming.Reference of this object.
-     * @exception NamingException If a naming exception was encountered
+     * @throws NamingException If a naming exception was encountered
      *          while retrieving the reference.
      */
     public Reference getReference() throws NamingException {

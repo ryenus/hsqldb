@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import org.hsqldb.jdbc.pool.JDBCPooledDataSource;
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h1>HSQLDB-Specific Information:</h1> <p>
+ * <p class="rshead">HSQLDB-Specific Information:</p>
  *
  * A connection pool for HyperSQL connections. This implementation of
  * {@link javax.sql.DataSource DataSource} is dedicated to HyperSQL and
@@ -68,12 +68,12 @@ import org.hsqldb.jdbc.pool.JDBCPooledDataSource;
  *
  * The methods of the parent class,
  * {@link JDBCCommonDataSource} are used to specify the database URL, user,
- * password, and / or connection properties.<p>
+ * password, and / or connection properties.
  *
  * </div>
  * <!-- end Release-specific documentation -->
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.7.3
  * @since 2.2.9
  */
 @SuppressWarnings("serial")
@@ -86,7 +86,7 @@ public class JDBCPool implements DataSource,
      * set.
      *
      * @return  a connection to the data source
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      */
     public Connection getConnection() throws SQLException {
 
@@ -145,7 +145,7 @@ public class JDBCPool implements DataSource,
      *  being made
      * @param password the user's password
      * @return  a connection to the data source
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      */
     public Connection getConnection(String username, String password)
             throws SQLException {
@@ -177,9 +177,9 @@ public class JDBCPool implements DataSource,
      * or a proxy for the receiver. If the receiver is a wrapper
      * and the wrapped object implements the interface then the result is the
      * wrapped object or a proxy for the wrapped object. Otherwise return the
-     * result of calling <code>unwrap</code> recursively on the wrapped object
+     * result of calling {@code unwrap} recursively on the wrapped object
      * or a proxy for that result. If the receiver is not a
-     * wrapper and does not implement the interface, then an <code>SQLException</code> is thrown.
+     * wrapper and does not implement the interface, then an {@code SQLException} is thrown.
      *
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
@@ -198,11 +198,11 @@ public class JDBCPool implements DataSource,
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
      * for an object that does. Returns false otherwise. If this implements the interface then return true,
-     * else if this is a wrapper then return the result of recursively calling <code>isWrapperFor</code> on the wrapped
+     * else if this is a wrapper then return the result of recursively calling {@code isWrapperFor} on the wrapped
      * object. If this does not implement the interface and is not a wrapper, return false.
-     * This method should be implemented as a low-cost operation compared to <code>unwrap</code> so that
-     * callers can use this method to avoid expensive <code>unwrap</code> calls that may fail. If this method
-     * returns true then calling <code>unwrap</code> with the same argument should succeed.
+     * This method should be implemented as a low-cost operation compared to {@code unwrap} so that
+     * callers can use this method to avoid expensive {@code unwrap} calls that may fail. If this method
+     * returns true then calling {@code unwrap} with the same argument should succeed.
      *
      * @param iface a Class defining an interface.
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
@@ -219,7 +219,7 @@ public class JDBCPool implements DataSource,
      * Retrieves the Reference of this object.
      *
      * @return The non-null Reference of this object.
-     * @exception NamingException If a naming exception was encountered
+     * @throws NamingException If a naming exception was encountered
      *          while retrieving the reference.
      */
     public Reference getReference() throws NamingException {
@@ -269,7 +269,7 @@ public class JDBCPool implements DataSource,
 
     // ------------------------ event listener ------------------------
     /**
-     * <p>Retrieves the log writer for this <code>DataSource</code>
+     * <p>Retrieves the log writer for this {@code DataSource}
      * object.
      *
      * <p>The log writer is a character output stream to which all logging
@@ -278,14 +278,14 @@ public class JDBCPool implements DataSource,
      * object, messages printed by methods of other objects manufactured
      * by this object, and so on.  Messages printed to a data source
      * specific log writer are not printed to the log writer associated
-     * with the <code>java.sql.DriverManager</code> class.  When a
-     * <code>DataSource</code> object is
+     * with the {@code java.sql.DriverManager} class.  When a
+     * {@code DataSource} object is
      * created, the log writer is initially null; in other words, the
      * default is for logging to be disabled.
      *
      * @return the log writer for this data source or null if
      *        logging is disabled
-     * @exception java.sql.SQLException if a database access error occurs
+     * @throws java.sql.SQLException if a database access error occurs
      * @see #setLogWriter
      * @since 1.4
      */
@@ -294,8 +294,8 @@ public class JDBCPool implements DataSource,
     }
 
     /**
-     * <p>Sets the log writer for this <code>DataSource</code>
-     * object to the given <code>java.io.PrintWriter</code> object.
+     * <p>Sets the log writer for this {@code DataSource}
+     * object to the given {@code java.io.PrintWriter} object.
      *
      * <p>The log writer is a character output stream to which all logging
      * and tracing messages for this data source will be
@@ -303,13 +303,13 @@ public class JDBCPool implements DataSource,
      * object, messages printed by methods of other objects manufactured
      * by this object, and so on.  Messages printed to a data source-
      * specific log writer are not printed to the log writer associated
-     * with the <code>java.sql.DriverManager</code> class. When a
-     * <code>DataSource</code> object is created the log writer is
+     * with the {@code java.sql.DriverManager} class. When a
+     * {@code DataSource} object is created the log writer is
      * initially null; in other words, the default is for logging to be
      * disabled.
      *
      * @param out the new log writer; to disable logging, set to null
-     * @exception SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs
      * @see #getLogWriter
      * @since 1.4
      */
@@ -322,11 +322,11 @@ public class JDBCPool implements DataSource,
      * while attempting to connect to a database.  A value of zero
      * specifies that the timeout is the default system timeout
      * if there is one; otherwise, it specifies that there is no timeout.
-     * When a <code>DataSource</code> object is created, the login timeout is
+     * When a {@code DataSource} object is created, the login timeout is
      * initially zero.
      *
      * @param seconds the data source login time limit
-     * @exception SQLException if a database access error occurs.
+     * @throws SQLException if a database access error occurs.
      * @see #getLoginTimeout
      * @since 1.4
      */
@@ -339,11 +339,11 @@ public class JDBCPool implements DataSource,
      * while attempting to connect to a database.  A value of zero
      * means that the timeout is the default system timeout
      * if there is one; otherwise, it means that there is no timeout.
-     * When a <code>DataSource</code> object is created, the login timeout is
+     * When a {@code DataSource} object is created, the login timeout is
      * initially zero.
      *
      * @return the data source login time limit
-     * @exception SQLException if a database access error occurs.
+     * @throws SQLException if a database access error occurs.
      * @see #setLoginTimeout
      * @since 1.4
      */
@@ -354,7 +354,7 @@ public class JDBCPool implements DataSource,
     // ------------------------ custom public methods ------------------------
 
     /**
-     * Retrieves the description of the data source. <p>
+     * Retrieves the description of the data source.
      *
      * @return the description
      */
@@ -363,7 +363,7 @@ public class JDBCPool implements DataSource,
     }
 
     /**
-     * Retrieves the name of the data source. <p>
+     * Retrieves the name of the data source.
      *
      * @return the description
      */
@@ -390,7 +390,7 @@ public class JDBCPool implements DataSource,
     }
 
     /**
-     * Retrieves the jdbc database connection url attribute. <p>
+     * Retrieves the jdbc database connection url attribute.
      *
      * @return the jdbc database connection url attribute
      */
@@ -399,7 +399,7 @@ public class JDBCPool implements DataSource,
     }
 
     /**
-     * Retrieves the jdbc database connection url attribute. <p>
+     * Retrieves the jdbc database connection url attribute.
      *
      * @return the jdbc database connection url attribute
      */
@@ -408,7 +408,7 @@ public class JDBCPool implements DataSource,
     }
 
     /**
-     * Retrieves the user name for the connection. <p>
+     * Retrieves the user name for the connection.
      *
      * @return the username for the connection
      */
@@ -417,7 +417,7 @@ public class JDBCPool implements DataSource,
     }
 
     /**
-     * Synonym for setUrl(String). <p>
+     * Synonym for setUrl(String).
      *
      * @param databaseName the new value for the attribute
      */
@@ -426,7 +426,7 @@ public class JDBCPool implements DataSource,
     }
 
     /**
-     * Synonym for setUrl(String). <p>
+     * Synonym for setUrl(String).
      *
      * @param database the new value for the attribute
      */
@@ -435,7 +435,7 @@ public class JDBCPool implements DataSource,
     }
 
     /**
-     * Sets the jdbc database URL. <p>
+     * Sets the jdbc database URL.
      *
      * @param url the new value of this object's jdbc database connection
      *      url attribute
@@ -445,7 +445,7 @@ public class JDBCPool implements DataSource,
     }
 
     /**
-     * Sets the jdbc database URL. <p>
+     * Sets the jdbc database URL.
      *
      * @param url the new value of this object's jdbc database connection
      *      url attribute
@@ -455,7 +455,7 @@ public class JDBCPool implements DataSource,
     }
 
     /**
-     * Sets the password for the user name.
+     * Sets the password for the username.
      *
      * @param password the password
      */
@@ -494,8 +494,8 @@ public class JDBCPool implements DataSource,
      * In the worst case, this may be the root Logger.
      *
      * @return the parent Logger for this data source
-     * @throws SQLFeatureNotSupportedException if the data source does not use <code>java.util.logging</code>.
-     * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.2.9
+     * @throws SQLFeatureNotSupportedException if the data source does not use {@code java.util.logging}.
+     * @since JDK 1.7, HSQLDB 2.2.9
      */
     public java.util.logging.Logger getParentLogger()
     throws java.sql.SQLFeatureNotSupportedException {

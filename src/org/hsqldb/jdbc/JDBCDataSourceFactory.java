@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import javax.sql.DataSource;
  *
  * @author Darin DeForest (deforest@users dot sourceforge.net) original version
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  * @version 2.0.0
  */
 public class JDBCDataSourceFactory implements ObjectFactory {
@@ -121,7 +121,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
      * as factories used by a connection pooling DataSource.<p>
      * JDBCDataSource is a factory for normal connections and can be accessed
      * directly by user applications.<p>
-     * JDBCPool is a connection pool accessed directly by user applications.<p>
+     * JDBCPool is a connection pool accessed directly by user applications.
      *
      * @param obj The reference information used in creating a
      *      Datasource object.
@@ -130,7 +130,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
      * @param environment ignored
      * @return A newly created JDBCDataSource object; null if an object
      *      cannot be created.
-     * @exception Exception is thrown if database or user is null or invalid
+     * @throws Exception is thrown if database or user is null or invalid
      */
     public Object getObjectInstance(Object obj, Name name, Context nameCtx,
                                     Hashtable environment) throws Exception {

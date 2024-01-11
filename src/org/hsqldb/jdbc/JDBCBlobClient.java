@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,18 +48,18 @@ import org.hsqldb.types.BlobInputStream;
  * Instances of this class are returned by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class JDBCBlobClient implements Blob {
 
     /**
-     * Returns the number of bytes in the <code>BLOB</code> value designated
-     * by this <code>Blob</code> object.
+     * Returns the number of bytes in the {@code BLOB} value designated
+     * by this {@code Blob} object.
      *
-     * @return length of the <code>BLOB</code> in bytes
+     * @return length of the {@code BLOB} in bytes
      * @throws SQLException if there is an error accessing the length of the
-     *   <code>BLOB</code>
+     *   {@code BLOB}
      */
     public synchronized long length() throws SQLException {
 
@@ -73,19 +73,19 @@ public class JDBCBlobClient implements Blob {
     }
 
     /**
-     * Retrieves all or part of the <code>BLOB</code> value that this
-     * <code>Blob</code> object represents, as an array of bytes.
+     * Retrieves all or part of the {@code BLOB} value that this
+     * {@code Blob} object represents, as an array of bytes.
      *
      * @param pos the ordinal position of the first byte in the
-     *   <code>BLOB</code> value to be extracted; the first byte is at
+     *   {@code BLOB} value to be extracted; the first byte is at
      *   position 1
      * @param length the number of consecutive bytes to be copied
-     * @return a byte array containing up to <code>length</code> consecutive
-     *   bytes from the <code>BLOB</code> value designated by this
-     *   <code>Blob</code> object, starting with the byte at position
-     *   <code>pos</code>
+     * @return a byte array containing up to {@code length} consecutive
+     *   bytes from the {@code BLOB} value designated by this
+     *   {@code Blob} object, starting with the byte at position
+     *   {@code pos}
      * @throws SQLException if there is an error accessing the
-     *   <code>BLOB</code> value
+     *   {@code BLOB} value
      */
     public synchronized byte[] getBytes(long pos,
                                         int length) throws SQLException {
@@ -104,12 +104,12 @@ public class JDBCBlobClient implements Blob {
     }
 
     /**
-     * Retrieves the <code>BLOB</code> value designated by this
-     * <code>Blob</code> instance as a stream.
+     * Retrieves the {@code BLOB} value designated by this
+     * {@code Blob} instance as a stream.
      *
-     * @return a stream containing the <code>BLOB</code> data
+     * @return a stream containing the {@code BLOB} data
      * @throws SQLException if there is an error accessing the
-     *   <code>BLOB</code> value
+     *   {@code BLOB} value
      */
     public synchronized InputStream getBinaryStream() throws SQLException {
 
@@ -120,15 +120,15 @@ public class JDBCBlobClient implements Blob {
 
     /**
      * Retrieves the byte position at which the specified byte array
-     * <code>pattern</code> begins within the <code>BLOB</code> value that
-     * this <code>Blob</code> object represents.
+     * {@code pattern} begins within the {@code BLOB} value that
+     * this {@code Blob} object represents.
      *
      * @param pattern the byte array for which to search
      * @param start the position at which to begin searching; the first
      *   position is 1
      * @return the position at which the pattern appears, else -1
      * @throws SQLException if there is an error accessing the
-     *   <code>BLOB</code>
+     *   {@code BLOB}
      */
     public synchronized long position(byte[] pattern,
                                       long start) throws SQLException {
@@ -153,16 +153,16 @@ public class JDBCBlobClient implements Blob {
     }
 
     /**
-     * Retrieves the byte position in the <code>BLOB</code> value designated
-     * by this <code>Blob</code> object at which <code>pattern</code> begins.
+     * Retrieves the byte position in the {@code BLOB} value designated
+     * by this {@code Blob} object at which {@code pattern} begins.
      *
-     * @param pattern the <code>Blob</code> object designating the
-     *   <code>BLOB</code> value for which to search
-     * @param start the position in the <code>BLOB</code> value at which to
+     * @param pattern the {@code Blob} object designating the
+     *   {@code BLOB} value for which to search
+     * @param start the position in the {@code BLOB} value at which to
      *   begin searching; the first position is 1
      * @return the position at which the pattern begins, else -1
      * @throws SQLException if there is an error accessing the
-     *   <code>BLOB</code> value
+     *   {@code BLOB} value
      */
     public synchronized long position(Blob pattern,
                                       long start) throws SQLException {
@@ -199,18 +199,18 @@ public class JDBCBlobClient implements Blob {
     }
 
     /**
-     * Writes the given array of bytes to the <code>BLOB</code> value that
-     * this <code>Blob</code> object represents, starting at position
-     * <code>pos</code>, and returns the number of bytes written.
+     * Writes the given array of bytes to the {@code BLOB} value that
+     * this {@code Blob} object represents, starting at position
+     * {@code pos}, and returns the number of bytes written.
      *
-     * @param pos the position in the <code>BLOB</code> object at which to
+     * @param pos the position in the {@code BLOB} object at which to
      *   start writing
      * @param bytes the array of bytes to be written to the
-     *   <code>BLOB</code> value that this <code>Blob</code> object
+     *   {@code BLOB} value that this {@code Blob} object
      *   represents
      * @return the number of bytes written
      * @throws SQLException if there is an error accessing the
-     *   <code>BLOB</code> value
+     *   {@code BLOB} value
      */
     public synchronized int setBytes(long pos,
                                      byte[] bytes) throws SQLException {
@@ -218,21 +218,21 @@ public class JDBCBlobClient implements Blob {
     }
 
     /**
-     * Writes all or part of the given <code>byte</code> array to the
-     * <code>BLOB</code> value that this <code>Blob</code> object represents
+     * Writes all or part of the given {@code byte} array to the
+     * {@code BLOB} value that this {@code Blob} object represents
      * and returns the number of bytes written.
      *
-     * @param pos the position in the <code>BLOB</code> object at which to
+     * @param pos the position in the {@code BLOB} object at which to
      *   start writing
      * @param bytes the array of bytes to be written to this
-     *   <code>BLOB</code> object
-     * @param offset the offset into the array <code>bytes</code> at which
+     *   {@code BLOB} object
+     * @param offset the offset into the array {@code bytes} at which
      *   to start reading the bytes to be set
-     * @param len the number of bytes to be written to the <code>BLOB</code>
-     *   value from the array of bytes <code>bytes</code>
+     * @param len the number of bytes to be written to the {@code BLOB}
+     *   value from the array of bytes {@code bytes}
      * @return the number of bytes written
      * @throws SQLException if there is an error accessing the
-     *   <code>BLOB</code> value
+     *   {@code BLOB} value
      */
     public synchronized int setBytes(long pos, byte[] bytes, int offset,
                                      int len) throws SQLException {
@@ -263,15 +263,15 @@ public class JDBCBlobClient implements Blob {
     }
 
     /**
-     * Retrieves a stream that can be used to write to the <code>BLOB</code>
-     * value that this <code>Blob</code> object represents.
+     * Retrieves a stream that can be used to write to the {@code BLOB}
+     * value that this {@code Blob} object represents.
      *
-     * @param pos the position in the <code>BLOB</code> value at which to
+     * @param pos the position in the {@code BLOB} value at which to
      *   start writing
-     * @return a <code>java.io.OutputStream</code> object to which data can
+     * @return a {@code java.io.OutputStream} object to which data can
      *   be written
      * @throws SQLException if there is an error accessing the
-     *   <code>BLOB</code> value
+     *   {@code BLOB} value
      */
     public synchronized OutputStream setBinaryStream(long pos)
     throws SQLException {
@@ -279,13 +279,13 @@ public class JDBCBlobClient implements Blob {
     }
 
     /**
-     * Truncates the <code>BLOB</code> value that this <code>Blob</code>
-     * object represents to be <code>len</code> bytes in length.
+     * Truncates the {@code BLOB} value that this {@code Blob}
+     * object represents to be {@code len} bytes in length.
      *
-     * @param len the length, in bytes, to which the <code>BLOB</code> value
-     *   that this <code>Blob</code> object represents should be truncated
+     * @param len the length, in bytes, to which the {@code BLOB} value
+     *   that this {@code Blob} object represents should be truncated
      * @throws SQLException if there is an error accessing the
-     *   <code>BLOB</code> value
+     *   {@code BLOB} value
      */
     public synchronized void truncate(long len) throws SQLException {
 
@@ -303,15 +303,14 @@ public class JDBCBlobClient implements Blob {
     }
 
     /**
-     * This method frees the <code>Blob</code> object and releases the resources that
-     * it holds. The object is invalid once the <code>free</code>
+     * This method frees the {@code Blob} object and releases the resources that
+     * it holds. The object is invalid once the {@code free}
      * method is called.
      * <p>
-     * After <code>free</code> has been called, any attempt to invoke a
-     * method other than <code>free</code> will result in a <code>SQLException</code>
-     * being thrown.  If <code>free</code> is called multiple times, the subsequent
-     * calls to <code>free</code> are treated as a no-op.
-     * <p>
+     * After {@code free} has been called, any attempt to invoke a
+     * method other than {@code free} will result in a {@code SQLException}
+     * being thrown.  If {@code free} is called multiple times, the subsequent
+     * calls to {@code free} are treated as a no-op.
      *
      * @throws SQLException if an error occurs releasing
      * the Blob's resources
@@ -322,16 +321,16 @@ public class JDBCBlobClient implements Blob {
     }
 
     /**
-     * Returns an <code>InputStream</code> object that contains a partial <code>Blob</code> value,
+     * Returns an {@code InputStream} object that contains a partial {@code Blob} value,
      * starting  with the byte specified by pos, which is length bytes in length.
      *
      * @param pos the offset to the first byte of the partial value to be retrieved.
-     *  The first byte in the <code>Blob</code> is at position 1
+     *  The first byte in the {@code Blob} is at position 1
      * @param length the length in bytes of the partial value to be retrieved
-     * @return <code>InputStream</code> through which the partial <code>Blob</code> value can be read.
+     * @return {@code InputStream} through which the partial {@code Blob} value can be read.
      * @throws SQLException if pos is less than 1 or if pos is greater than the number of bytes
-     * in the <code>Blob</code> or if pos + length is greater than the number of bytes
-     * in the <code>Blob</code>
+     * in the {@code Blob} or if pos + length is greater than the number of bytes
+     * in the {@code Blob}
      *
      * @since JDK 1.6, HSQLDB 2.0
      */

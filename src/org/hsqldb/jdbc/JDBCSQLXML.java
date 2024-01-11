@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,14 +102,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-/* $Id$ */
-
 /**
- * <!-- start generic documentation -->
+
  * The mapping in the JavaTM programming language for the SQL XML type.
  * XML is a built-in type that stores an XML value
  * as a column value in a row of a database table.
- * By default drivers implement an SQLXML object as
+ * By default, drivers implement an SQLXML object as
  * a logical pointer to the XML data
  * rather than the data itself.
  * An SQLXML object is valid for the duration of the transaction in which it was created.
@@ -182,7 +180,7 @@ import org.xml.sax.SAXException;
  * </pre>
  * or, to set the result value from StAX events:
  * <pre>
- *   StAXResult staxResult = sqlxml.getResult(StAXResult.class);
+ *   StAXResult staxResult = sqlxml.setResult(StAXResult.class);
  *   XMLStreamWriter streamWriter = staxResult.getXMLStreamWriter();
  * </pre>
  * or, to perform XSLT transformations on the XML value using the XSLT in xsltFile
@@ -246,17 +244,17 @@ import org.xml.sax.SAXException;
  * reading APIs are called: getBinaryStream(), getCharacterStream(), getSource(), and getString().
  * Implementations may also change the state to not writable when this occurs.
  * <p>
- * The state moves from writable to not writeable once free() or any of the
+ * The state moves from writable to not writable once free() or any of the
  * writing APIs are called: setBinaryStream(), setCharacterStream(), setResult(), and setString().
  * Implementations may also change the state to not readable when this occurs.
  * <p>
- * All methods on the <code>SQLXML</code> interface must be fully implemented if the
+ * All methods on the {@code SQLXML} interface must be fully implemented if the
  * JDBC driver supports the data type.
- * <!-- end generic documentation -->
+
  *
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h1>HSQLDB-Specific Information:</h1> <p>
+ * <p class="rshead">HSQLDB-Specific Information:</p>
  *
  * Starting with HSQLDB 2.0, a rudimentary client-side SQLXML interface
  * implementation (this class) is supported for local use when the product is
@@ -282,7 +280,7 @@ import org.xml.sax.SAXException;
  *
  * <TABLE>
  *     <CAPTION> Lifecycle</CAPTION>
- *     <THEAD valign="bottom">
+ *     <THEAD>
  *         <TR>
  *             <TH>
  *                 Origin
@@ -644,12 +642,12 @@ public class JDBCSQLXML implements SQLXML {
      * The SQL XML object becomes invalid and neither readable nor writable
      * when this method is called.<p>
      *
-     * After <code>free</code> has been called, any attempt to invoke a
-     * method other than <code>free</code> will result in a <code>SQLException</code>
-     * being thrown.  If <code>free</code> is called multiple times, the subsequent
-     * calls to <code>free</code> are treated as a no-op.
+     * After {@code free} has been called, any attempt to invoke a
+     * method other than {@code free} will result in a {@code SQLException}
+     * being thrown.  If {@code free} is called multiple times, the subsequent
+     * calls to {@code free} are treated as a no-op.
      * @throws SQLException if there is an error freeing the XML value.
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.6
      */
@@ -669,7 +667,7 @@ public class JDBCSQLXML implements SQLXML {
      * @return a stream containing the XML data.
      * @throws SQLException if there is an error processing the XML value.
      *   An exception is thrown if the state is not readable.
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.6
      */
@@ -699,7 +697,7 @@ public class JDBCSQLXML implements SQLXML {
      * @return a stream to which data can be written.
      * @throws SQLException if there is an error processing the XML value.
      *   An exception is thrown if the state is not writable.
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.6
      */
@@ -734,7 +732,7 @@ public class JDBCSQLXML implements SQLXML {
      *   The getCause() method of the exception may provide a more detailed exception, for example,
      *   if the stream does not contain valid characters.
      *   An exception is thrown if the state is not readable.
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.6
      */
@@ -769,7 +767,7 @@ public class JDBCSQLXML implements SQLXML {
      *   The getCause() method of the exception may provide a more detailed exception, for example,
      *   if the stream does not contain valid characters.
      *   An exception is thrown if the state is not writable.
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.6 Build 79
      */
@@ -804,7 +802,7 @@ public class JDBCSQLXML implements SQLXML {
      *   The getCause() method of the exception may provide a more detailed exception, for example,
      *   if the stream does not contain valid characters.
      *   An exception is thrown if the state is not readable.
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.6
      */
@@ -839,7 +837,7 @@ public class JDBCSQLXML implements SQLXML {
      *   The getCause() method of the exception may provide a more detailed exception, for example,
      *   if the stream does not contain valid characters.
      *   An exception is thrown if the state is not writable.
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.6
      */
@@ -890,7 +888,7 @@ public class JDBCSQLXML implements SQLXML {
      *   The getCause() method of the exception may provide a more detailed exception, for example,
      *   if an XML parser exception occurs.
      *   An exception is thrown if the state is not readable.
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.6 Build 79
      */
@@ -944,7 +942,7 @@ public class JDBCSQLXML implements SQLXML {
      *   The getCause() method of the exception may provide a more detailed exception, for example,
      *   if an XML parser exception occurs.
      *   An exception is thrown if the state is not writable.
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.6 Build 79
      */
@@ -1568,7 +1566,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Retrieves a new SAXSource for reading the XML value designated by this
-     * SQLXML instance. <p>
+     * SQLXML instance.
      *
      * @param sourceClass The class of the source
      * @throws java.sql.SQLException if there is an error processing the XML
@@ -2118,7 +2116,7 @@ public class JDBCSQLXML implements SQLXML {
         }
 
         /**
-         * Retrieves the Locator. <p>
+         * Retrieves the Locator.
          * @return the Locator
          */
         public Locator getDocumentLocator() {
@@ -2268,12 +2266,12 @@ public class JDBCSQLXML implements SQLXML {
          * #IMPLIED attributes will be omitted.  The attribute list
          * will contain attributes used for Namespace declarations
          * (xmlns* attributes) only if the
-         * <code>http://xml.org/sax/features/namespace-prefixes</code>
+         * {@code http://xml.org/sax/features/namespace-prefixes}
          * property is true (it is false by default, and support for a
          * true value is optional).</p>
          *
          * <p>Like {@link #characters characters()}, attribute values may have
-         * characters that need more than one <code>char</code> value.  </p>
+         * characters that need more than one {@code char} value.  </p>
          *
          * @param uri the Namespace URI, or the empty string if the
          *        element has no Namespace URI or if Namespace
@@ -2368,7 +2366,7 @@ public class JDBCSQLXML implements SQLXML {
          * outside of the specified range.</p>
          *
          * <p>Individual characters may consist of more than one Java
-         * <code>char</code> value.  There are two important cases where this
+         * {@code char} value.  There are two important cases where this
          * happens, because characters can't be represented in just sixteen bits.
          * In one case, characters are represented in a <em>Surrogate Pair</em>,
          * using two special Unicode values. Such characters are in the so-called
@@ -2377,7 +2375,7 @@ public class JDBCSQLXML implements SQLXML {
          * more accent characters. </p>
          *
          * <p> Your code should not assume that algorithms using
-         * <code>char</code>-at-a-time idioms will be working in character
+         * {@code char}-at-a-time idioms will be working in character
          * units; in some cases they will split characters.  This is relevant
          * wherever XML permits arbitrary characters, such as attribute values,
          * processing instruction data, and comments as well as in data reported
@@ -2456,7 +2454,7 @@ public class JDBCSQLXML implements SQLXML {
          * using this method.</p>
          *
          * <p>Like {@link #characters characters()}, processing instruction
-         * data may have characters that need more than one <code>char</code>
+         * data may have characters that need more than one {@code char}
          * value. </p>
          *
          * @param target the processing instruction target
@@ -2492,9 +2490,9 @@ public class JDBCSQLXML implements SQLXML {
          * have not seen the declarations (because, for example, the
          * entity was declared in an external DTD subset).  All processors
          * may skip external entities, depending on the values of the
-         * <code>http://xml.org/sax/features/external-general-entities</code>
+         * {@code http://xml.org/sax/features/external-general-entities}
          * and the
-         * <code>http://xml.org/sax/features/external-parameter-entities</code>
+         * {@code http://xml.org/sax/features/external-parameter-entities}
          * properties.</p>
          *
          * @param name the name of the skipped entity.  If it is a
@@ -2587,7 +2585,7 @@ public class JDBCSQLXML implements SQLXML {
         }
 
         /**
-         * Assigns the current node. <p>
+         * Assigns the current node.
          * @param node the node
          */
         protected void setCurrentNode(Node node) {
@@ -2706,7 +2704,7 @@ public class JDBCSQLXML implements SQLXML {
          * outside of the specified range.</p>
          *
          * <p>Individual characters may consist of more than one Java
-         * <code>char</code> value.  There are two important cases where this
+         * {@code char} value.  There are two important cases where this
          * happens, because characters can't be represented in just sixteen bits.
          * In one case, characters are represented in a <em>Surrogate Pair</em>,
          * using two special Unicode values. Such characters are in the so-called
@@ -2715,7 +2713,7 @@ public class JDBCSQLXML implements SQLXML {
          * more accent characters. </p>
          *
          * <p> Your code should not assume that algorithms using
-         * <code>char</code>-at-a-time idioms will be working in character
+         * {@code char}-at-a-time idioms will be working in character
          * units; in some cases they will split characters.  This is relevant
          * wherever XML permits arbitrary characters, such as attribute values,
          * processing instruction data, and comments as well as in data reported
@@ -2786,12 +2784,12 @@ public class JDBCSQLXML implements SQLXML {
          * #IMPLIED attributes will be omitted.  The attribute list
          * will contain attributes used for Namespace declarations
          * (xmlns* attributes) only if the
-         * <code>http://xml.org/sax/features/namespace-prefixes</code>
+         * {@code http://xml.org/sax/features/namespace-prefixes}
          * property is true (it is false by default, and support for a
          * true value is optional).</p>
          *
          * <p>Like {@link #characters characters()}, attribute values may have
-         * characters that need more than one <code>char</code> value.  </p>
+         * characters that need more than one {@code char} value.  </p>
          *
          * @param namespaceURI the Namespace URI, or the empty string if the
          *        element has no Namespace URI or if Namespace
@@ -2883,7 +2881,7 @@ public class JDBCSQLXML implements SQLXML {
          * <p>The information from this event is not necessary for
          * normal Namespace processing: the SAX XML reader will
          * automatically replace prefixes for element and attribute
-         * names when the <code>http://xml.org/sax/features/namespaces</code>
+         * names when the {@code http://xml.org/sax/features/namespaces}
          * feature is <var>true</var> (the default).</p>
          *
          * <p>There are cases, however, when applications need to
@@ -2993,7 +2991,7 @@ public class JDBCSQLXML implements SQLXML {
          * using this method.</p>
          *
          * <p>Like {@link #characters characters()}, processing instruction
-         * data may have characters that need more than one <code>char</code>
+         * data may have characters that need more than one {@code char}
          * value. </p>
          *
          * @param target the processing instruction target
@@ -3047,7 +3045,7 @@ public class JDBCSQLXML implements SQLXML {
         }
 
         /**
-         * Retrieves the Locator. <p>
+         * Retrieves the Locator.
          * @return the Locator
          */
         public Locator getDocumentLocator() {
@@ -3067,9 +3065,9 @@ public class JDBCSQLXML implements SQLXML {
          * have not seen the declarations (because, for example, the
          * entity was declared in an external DTD subset).  All processors
          * may skip external entities, depending on the values of the
-         * <code>http://xml.org/sax/features/external-general-entities</code>
+         * {@code http://xml.org/sax/features/external-general-entities}
          * and the
-         * <code>http://xml.org/sax/features/external-parameter-entities</code>
+         * {@code http://xml.org/sax/features/external-parameter-entities}
          * properties.</p>
          *
          * @param name the name of the skipped entity.  If it is a
