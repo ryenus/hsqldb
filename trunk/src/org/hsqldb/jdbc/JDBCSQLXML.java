@@ -769,7 +769,7 @@ public class JDBCSQLXML implements SQLXML {
      *   An exception is thrown if the state is not writable.
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 Build 79
+     * @since JDK 1.6
      */
     public synchronized Writer setCharacterStream() throws SQLException {
 
@@ -890,7 +890,7 @@ public class JDBCSQLXML implements SQLXML {
      *   An exception is thrown if the state is not readable.
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 Build 79
+     * @since JDK 1.6
      */
     @SuppressWarnings("unchecked")
     public synchronized <T extends Source>T getSource(
@@ -944,7 +944,7 @@ public class JDBCSQLXML implements SQLXML {
      *   An exception is thrown if the state is not writable.
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 Build 79
+     * @since JDK 1.6
      */
     public synchronized <T extends Result>T setResult(
             Class<T> resultClass) throws SQLException {
@@ -1425,7 +1425,7 @@ public class JDBCSQLXML implements SQLXML {
      *   The getCause() method of the exception may provide a more detailed exception, for example,
      *   if the stream does not contain valid characters.
      *   An exception is thrown if the state is not writable.
-     * @since JDK 1.6 Build 79
+     * @since JDK 1.6
      */
     protected Writer setCharacterStreamImpl() throws SQLException {
         return new OutputStreamWriter(setBinaryStreamImpl());

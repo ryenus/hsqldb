@@ -34,6 +34,7 @@ package org.hsqldb.jdbc;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 import org.hsqldb.ColumnBase;
 import org.hsqldb.SessionInterface;

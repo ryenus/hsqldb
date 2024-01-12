@@ -74,7 +74,7 @@ import org.hsqldb.jdbc.pool.JDBCPooledDataSource;
  * <!-- end Release-specific documentation -->
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.3
- * @since 2.2.9
+ * @since HSQLDB 2.2.9
  */
 @SuppressWarnings("serial")
 public class JDBCPool implements DataSource,
