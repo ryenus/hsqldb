@@ -51,7 +51,7 @@ import java.sql.Savepoint;
  * constructor. (fredt)
  *
  * @version 2.2.9
- * @since 2.0.0
+ * @since HSQLDB 2.0.0
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see org.hsqldb.jdbc.JDBCConnection
  */

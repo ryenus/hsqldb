@@ -54,7 +54,7 @@ import org.hsqldb.result.Result;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.5.0
- * @since 1.7.2
+ * @since HSQLDB 1.7.2
  */
 public final class JDBCUtil {
 

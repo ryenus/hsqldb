@@ -220,7 +220,7 @@ import org.hsqldb.types.Types;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.3
- * @since 1.9.0
+ * @since JDK 1.1, HSQLDB 1.9.0
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
  */
@@ -2661,7 +2661,7 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
-     *   @since 1.6
+     * @since 1.6
      */
     public synchronized void setAsciiStream(int parameterIndex,
             java.io.InputStream x) throws SQLException {

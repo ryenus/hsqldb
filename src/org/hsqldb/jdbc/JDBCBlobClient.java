@@ -49,7 +49,7 @@ import org.hsqldb.types.BlobInputStream;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.3
- * @since 1.9.0
+ * @since JDK 1.2, HSQLDB 2.0
  */
 public class JDBCBlobClient implements Blob {
 

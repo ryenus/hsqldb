@@ -38,6 +38,7 @@ import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import java.sql.DriverAction;
 import java.sql.SQLFeatureNotSupportedException;
 
 import org.hsqldb.DatabaseURL;
@@ -114,13 +115,12 @@ import org.hsqldb.persist.HsqlProperties;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.3
- * @since HSQLDB 1.9.0
+ * @since JDK 1.1, HSQLDB 1.9.0
  *
  *
  * @see java.sql.DriverManager
  * @see java.sql.Connection
  * @see java.sql.DriverAction
- * @since 1.1
  */
 public class JDBCDriver implements Driver {
 

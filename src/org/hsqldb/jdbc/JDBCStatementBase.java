@@ -46,7 +46,7 @@ import org.hsqldb.result.ResultConstants;
  *
  * @author fredt@usrs
  * @version 2.4.0
- * @since 1.9.0
+ * @since HSQLDB 1.9.0
  */
 
 /*

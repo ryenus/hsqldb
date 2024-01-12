@@ -67,7 +67,7 @@ import org.hsqldb.jdbc.JDBCUtil;
  * are used for settings the HyperSQL server and user.
  *
  * @version 2.3.3
- * @since 2.0.0
+ * @since HSQLDB 2.0.0
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.sql.XADataSource
  * @see org.hsqldb.jdbc.pool.JDBCXAConnection

@@ -125,8 +125,6 @@ import org.hsqldb.types.Types;
  * update counts should be processed prior to getting the values of output
  * parameters.
  *
-
- *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
  * <p class="rshead">HSQLDB-Specific Information:</p>
@@ -186,7 +184,6 @@ import org.hsqldb.types.Types;
  *          <span class="JavaKeyWord">return</span> ctx.<b>getConnection</b>().<b>createStatement</b>().<b>executeQuery</b>(<span class="JavaStringLiteral">"select * from my_table"</span>);
  *      }
  * }
- *
  * </pre>
  *
  * (campbell-burnet@users)
@@ -196,7 +193,7 @@ import org.hsqldb.types.Types;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.3
- * @since 1.9.0
+ * @since JDK 1.1, HSQLDB 1.9.0
  * @see JDBCConnection#prepareCall
  * @see JDBCResultSet
  */
