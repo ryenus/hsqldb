@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,10 +38,12 @@ import java.io.OutputStream;
 import java.net.URL;
 
 /**
-* @author Fred Toussi (fredt@users dot sourceforge.net)
-* @version 2.7.0
-* @since 1.8.0
-*/
+ * Implementation of FileAccess for resources.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.7.0
+ * @since 1.8.0
+ */
 public class FileAccessRes implements FileAccess {
 
     public boolean isStreamElement(String fileName) {

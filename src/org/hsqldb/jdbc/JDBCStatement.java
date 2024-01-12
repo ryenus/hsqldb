@@ -1588,7 +1588,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * Retrieves whether this {@code Statement} object has been closed. A {@code Statement} is closed if the
      * method close has been called on it, or if it is automatically closed.
      * @return true if this {@code Statement} object is closed; false if it is still open
-     * @throws SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized boolean isClosed() {

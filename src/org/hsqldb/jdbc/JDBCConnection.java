@@ -3098,8 +3098,6 @@ public class JDBCConnection implements Connection {
     }
 
     //--------------------------JDBC 4.3 -----------------------------
-    // @todo can reset the session when beginRequest and endRequest
-
      /**
      * Hints to the driver that a request, an independent unit of work, is beginning
      * on this connection. Each request is independent of all other requests
@@ -3135,10 +3133,10 @@ public class JDBCConnection implements Connection {
      * the request and no dependency on local state that crosses request
      * boundaries. Committed database state is not local.
      *
-     * @implSpec
+     * <p>
      * The default implementation is a no-op.
      *
-     * @apiNote
+     * <p>
      * This method is to be used by Connection pooling managers.
      * <p>
      * The pooling manager should call {@code beginRequest} on the underlying connection
@@ -3155,7 +3153,6 @@ public class JDBCConnection implements Connection {
      * </ul>
      * @throws SQLException if an error occurs
      * @since 9
-     * @see endRequest
      * @see javax.sql.PooledConnection
      */
     public void beginRequest() throws SQLException {
@@ -3171,16 +3168,16 @@ public class JDBCConnection implements Connection {
      * marks the request completed and subsequent calls are treated as
      * a no-op. If {@code endRequest} is called without an initial call to
      * {@code beginRequest} is a no-op.
-     *<p>
+     * <p>
      * The exact behavior of this method is vendor specific. In particular
      * implementations may detect conditions that indicate dependence on
      * other work such as an open transaction. It is recommended though not
      * required that implementations throw a {@code SQLException} if there is an active
      * transaction and {@code endRequest} is called.
      *
-     * @implSpec
+     * <p>
      * The default implementation is a no-op.
-     * @apiNote
+     * <p>
      *
      * This method is to be used by Connection pooling managers.
      * <p>
@@ -3200,14 +3197,17 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * HSQLDB resets the session when
+     * HSQLDB resets the SQL session of this connection.<p>
      *
+     * The user of an SQL session may declare session variables and
+     * session-based temporary tables that keep their data at commit time.
+     * A session reset removes these tables and variables and resets all
+     * session settings to their defaults.
      *
      * </div> <!-- end release-specific documentation -->
      *
      * @throws SQLException if an error occurs
      * @since 9
-     * @see beginRequest
      * @see javax.sql.PooledConnection
      */
     public void endRequest() throws SQLException {
@@ -3532,8 +3532,8 @@ public class JDBCConnection implements Connection {
     }
 
     /**
-     * Resets this connection so it can be used again. Used when connections are
-     * returned to a connection pool.
+     * Resets the SQL session of this connection, so it can be used again.
+     * Used when connections are returned to a connection pool.
      *
      * @throws SQLException if a database access error occurs
      */

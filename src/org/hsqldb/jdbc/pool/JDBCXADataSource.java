@@ -54,8 +54,6 @@ import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.hsqldb.jdbc.JDBCUtil;
 
-// @(#)$Id$
-
 /**
  * Connection factory for JDBCXAConnections.
  * For use by XA data source factories, not by end users.<p>

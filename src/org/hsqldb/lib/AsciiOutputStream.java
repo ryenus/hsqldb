@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
 package org.hsqldb.lib;
 
 import java.io.IOException;
@@ -38,7 +40,7 @@ import java.util.Objects;
  * An OutputStream that writes 7-bit US-ASCII values to a Writer, in compliance
  * with the Java US_ASCII Charset decoder.
  * <p>
- * In particular, values greater than {@link #ASCII_MAX) are written as
+ * In particular, values greater than {@link #ASCII_MAX} are written as
  * {@link #NON_ASCII_REPLACEMENT}.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
@@ -65,8 +67,7 @@ public class AsciiOutputStream extends OutputStream {
     public static final int NON_ASCII_MIN = 128;
     /**
      * is '\uFFFD' (65533), the Unicode replacement character.
-     *
-     * @see https://www.fileformat.info/info/unicode/char/fffd/index.htm
+     * see https://www.fileformat.info/info/unicode/char/fffd/index.htm
      */
     public static final int NON_ASCII_REPLACEMENT = '\uFFFD';
 

@@ -45,8 +45,6 @@ import java.sql.SQLException;
 
 import org.hsqldb.HsqlException;
 
-// @(#)$Id$
-
 /**
  * Used by a global transaction service to control HSQLDB transactions.
  * Not for use by end-users.

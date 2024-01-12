@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,8 @@
 package org.hsqldb.lib;
 
 /**
+ * Interface for logging events.
+ *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.0
  * @since 1.9.0
