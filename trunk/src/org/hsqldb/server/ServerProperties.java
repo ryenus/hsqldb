@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import org.hsqldb.persist.HsqlProperties;
  * against the range.<p>
  *
  * If a set of values specified in the Meta record, then the value is checked
- * against the set.<p>
+ * against the set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.0

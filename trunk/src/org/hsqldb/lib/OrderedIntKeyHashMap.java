@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ package org.hsqldb.lib;
 /**
  * A Map of int primitives to Object values which maintains the insertion order
  * of the key/value pairs and allows access by index. Iterators return the keys
- * or values in the index order.<p>
+ * or values in the index order.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.6.0

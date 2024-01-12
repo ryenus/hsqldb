@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,8 @@
 package org.hsqldb.auth;
 
 /**
+ * Exception raised when authentication is denied.
+ *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @since 2.0.1
  */

@@ -184,7 +184,7 @@ import org.hsqldb.types.HsqlDateTime.SystemTimeString;
  *
  *   <li>If the same database is connected to via two different
  *       aliases, and then one of the is closed with the SHUTDOWN command, the
- *       other is also closed.<p>
+ *       other is also closed.
  * </ul>
  *
  * From the 'server.properties' file, options can be set similarly, using a
@@ -225,13 +225,13 @@ import org.hsqldb.types.HsqlDateTime.SystemTimeString;
  *
  *    <li><b>false</b> when a Server is started from the main(String[])
  *         method.
- * </ol> <p>
+ * </ol>
  *
  * These values are natural to their context because the first case allows
  * the JVM to exit by default on Server shutdown when a Server instance is
  * started from a command line environment, whereas the second case prevents
  * a typically unwanted JVM exit on Server shutdown when a Server instance
- * is started as part of a larger framework. <p>
+ * is started as part of a larger framework.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.2

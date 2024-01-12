@@ -340,7 +340,6 @@ public class JDBCDriver implements Driver {
      * @param  url the URL of the database
      * @return {@code true} if this driver understands the given URL;
      *         {@code false} otherwise
-     * @throws SQLException if a database access error occurs or the url is
      * {@code null}
      */
     public boolean acceptsURL(String url) {
@@ -378,8 +377,10 @@ public class JDBCDriver implements Driver {
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      * HSQLDB uses the values submitted in info to set the value for
-     * each DriverPropertyInfo object returned. It does not use the default
-     * value that it would use for the property if the value is null.
+     * each DriverPropertyInfo object returned.<p>
+     *
+     * Only the connection properties are considered. General database
+     * properties are ignored.
      *
      * </div> <!-- end release-specific documentation -->
      *
@@ -389,7 +390,6 @@ public class JDBCDriver implements Driver {
      * @return an array of {@code DriverPropertyInfo} objects describing
      *          possible properties.  This array may be an empty array if
      *          no properties are required.
-     * @throws SQLException if a database access error occurs
      */
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) {
 

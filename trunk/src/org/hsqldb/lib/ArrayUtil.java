@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1323,7 +1323,7 @@ public final class ArrayUtil {
     }
 
     /**
-     * Fills the int array with a value
+     * Fills the int array with a value.
      *
      * @param array int[]
      * @param value int
@@ -1338,7 +1338,7 @@ public final class ArrayUtil {
     }
 
     /**
-     * Fills the double array with a value
+     * Fills the double array with a value.
      *
      * @param array double[]
      * @param value double
@@ -1482,7 +1482,8 @@ public final class ArrayUtil {
     }
 
     /**
-     * Copies elements of source to dest. If adjust is -1 the element at
+     * For arrays of Objects or primitives.
+     * Copies array elements of source to dest. If adjust is -1 the element at
      * colindex is not copied. If adjust is +1 that element is filled with the
      * Object addition. All the rest of the elements in source are shifted left
      * or right accordingly when they are copied. If adjust is 0 the addition is
@@ -1540,8 +1541,8 @@ public final class ArrayUtil {
 
     /**
      * Similar to single slot adjusted copy, with multiple slots added or
-     * removed. The colindex array is the ordered lists the slots to be added or
-     * removed. The adjust argument can be {-1, +1) for remove or add. No checks
+     * removed. The colindex array is the ordered list of the slots to be added or
+     * removed. The adjust argument can be {-1, +1} for remove or add. No checks
      * are performed on array sizes and no exception is thrown if they are not
      * consistent with the other arguments.
      *
@@ -1692,7 +1693,7 @@ public final class ArrayUtil {
      *  the list of indexes into row. <p>
      *
      *  columnMap and newRow are of equal length and are normally
-     *  shorter than row. <p>
+     *  shorter than row.
      *
      *  @param row the source array
      *  @param columnMap the list of indexes into row
@@ -1714,7 +1715,7 @@ public final class ArrayUtil {
     }
 
     /**
-     *  As above but copies in reverse direction. <p>
+     *  As above but copies in reverse direction.
      *
      *  @param row the target array
      *  @param columnMap the list of indexes into row
