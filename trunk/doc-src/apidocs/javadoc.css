@@ -584,20 +584,6 @@ DIV.ReleaseSpecificDocumentation {
     padding-left:       10px;
 }
 
-DIV.ReleaseSpecificDocumentation h1 {
-	margin-top:         0px;
-	margin-left:        0px;
-	margin-right:       0px;
-    padding-top:        14px;
-    padding-right:      0px;
-    padding-bottom:     15px;
-    padding-left:       50px;
-    background:         url(hsqldbs.png) #E6E6FF no-repeat left center;
-	border:             none;
-    font-size:          14px;
-		
-}
-
 DIV.ReleaseSpecificDocumentation p.rshead {
 	margin-top:         0px;
 	margin-left:        0px;
