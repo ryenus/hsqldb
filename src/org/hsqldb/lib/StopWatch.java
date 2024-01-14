@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -152,9 +152,9 @@ public class StopWatch {
 
     /**
      * Ensures that this object is in the running state.  If this object is not
-     * running, then the call has the effect of setting the <code>startTime</code>
+     * running, then the call has the effect of setting the {@code startTime}
      * attribute to the current value of System.nanoTime() and setting
-     * the <code>running</code> attribute to <code>true</code>.
+     * the {@code running} attribute to {@code true}.
      */
     public void start() {
         startTime = System.nanoTime();
@@ -164,8 +164,8 @@ public class StopWatch {
     /**
      * Ensures that this object is in the stopped state.  If this object is
      * in the running state, then this has the effect of adding to the
-     * <code>total</code> attribute the elapsed time since the last transition
-     * from stopped to running state and sets the <code>running</code> attribute
+     * {@code total} attribute the elapsed time since the last transition
+     * from stopped to running state and sets the {@code running} attribute
      * to false. If this object is not in the running state, this call has no
      * effect.
      */

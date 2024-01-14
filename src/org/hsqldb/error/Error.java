@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -125,7 +125,7 @@ public final class Error {
      * @param subCode   sub error code (if 0 then no subMessage!)
      * @param   add     optional parameters
      *
-     * @return an <code>HsqlException</code>
+     * @return an {@code HsqlException}
      */
     public static HsqlException error(Throwable t, int code, int subCode,
                                       final String[] add) {
@@ -167,7 +167,7 @@ public final class Error {
     /**
      * For SIGNAL and RESIGNAL
      * @see HsqlException#HsqlException(Throwable,String, String, int)
-     * @return an <code>HsqlException</code>
+     * @return an {@code HsqlException}
      */
     public static HsqlException error(String message, String sqlState) {
 
@@ -193,7 +193,7 @@ public final class Error {
      * @param message  message string
      * @param add      optional parameters
      *
-     * @return an <code>HsqlException</code>
+     * @return an {@code HsqlException}
      */
     private static String insertStrings(String message, String[] add) {
 
@@ -229,7 +229,7 @@ public final class Error {
     /**
      * Returns the error message given the error code.<p>
      * This method is be used when throwing exception other
-     * than <code>HsqlException</code>.
+     * than {@code HsqlException}.
      *
      * @param errorCode    the error code associated to the error message
      * @return  the error message associated with the error code
@@ -252,7 +252,7 @@ public final class Error {
     /**
      * Returns the error message given the error code.<p>
      * This method is used
-     * when throwing exception other than <code>HsqlException</code>.
+     * when throwing exception other than {@code HsqlException}.
      *
      * @param code the code for the error message
      * @param subCode the code for the addon message

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.io.IOException;
  * Atomic transmission packet from HyperSQL server to ODBC client.
  *
  * Sample usage
- * <CODE>
+ * {@code 
  *     outPacket = OdbcPacketOutputStream.newOdbcPacketOutputStream();
  *     ...
  *     // For each packet you need to transmit:
@@ -47,7 +47,7 @@ import java.io.IOException;
  *     outPacket.write(this);
  *     outPacket.write(that);
  *     outPacket.xmit('X', hsqlDataOutputStream);
- * </CODE>
+ * }
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @since 1.9.0

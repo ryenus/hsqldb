@@ -4339,16 +4339,16 @@ public class FunctionCustom extends FunctionSQL {
 
     /**
      * Returns a four character code representing the sound of the given
-     * <code>String</code>. Non-ASCCI characters in the
-     * input <code>String</code> are ignored. <p>
+     * {@code String}. Non-ASCCI characters in the
+     * input {@code String} are ignored. <p>
      *
      * This method was rewritten for HSQLDB to comply with the description at
      * <a href="http://www.archives.gov/research/census/soundex.html">
      * http://www.archives.gov/research/census/soundex.html </a>.<p>
-     * @param s the <code>String</code> for which to calculate the 4 character
-     *      <code>SOUNDEX</code> value
-     * @return the 4 character <code>SOUNDEX</code> value for the given
-     *      <code>String</code>
+     * @param s the {@code String} for which to calculate the 4 character
+     *      {@code SOUNDEX} value
+     * @return the 4 character {@code SOUNDEX} value for the given
+     *      {@code String}
      */
     private static char[] soundex(String s) {
 

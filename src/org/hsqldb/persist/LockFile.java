@@ -591,13 +591,13 @@ public class LockFile {
      *         construction of the canonical path name may require native file
      *         system queries
      * @throws FileSecurityException if a required system property value cannot
-     *         be accessed, or if a security manager exists and its <code>{@link
-     *         java.lang.SecurityManager#checkRead}</code> method denies read
-     *         access to the file; or if its <code>{@link
-     *         java.lang.SecurityManager#checkRead(java.lang.String)}</code>
+     *         be accessed, or if a security manager exists and its {@code {@link
+     *         java.lang.SecurityManager#checkRead}} method denies read
+     *         access to the file; or if its {@code {@link
+     *         java.lang.SecurityManager#checkRead(java.lang.String)}}
      *         method does not permit verification of the existence of all
-     *         necessary parent directories; or if the <code>{@link
-     *         java.lang.SecurityManager#checkWrite(java.lang.String)}</code>
+     *         necessary parent directories; or if the {@code {@link
+     *         java.lang.SecurityManager#checkWrite(java.lang.String)}}
      *         method does not permit all necessary parent directories to be
      *         created
      */
@@ -1011,13 +1011,13 @@ public class LockFile {
      *         native file system queries
      * @throws FileSecurityException if a required system property value cannot
      *         be accessed, or if a Java security manager exists and its
-     *        <code>{@link java.lang.SecurityManager#checkRead}</code> method denies
-     *         read access to the file; or if its <code>{@link
-     *         java.lang.SecurityManager#checkRead(java.lang.String)}</code>
+     *        {@code {@link java.lang.SecurityManager#checkRead}} method denies
+     *         read access to the file; or if its {@code {@link
+     *         java.lang.SecurityManager#checkRead(java.lang.String)}}
      *         method does not permit verification of the existence of
      *         all necessary parent directories; or if
-     *         its <code>{@link
-     *         java.lang.SecurityManager#checkWrite(java.lang.String)}</code>
+     *         its {@code {@link
+     *         java.lang.SecurityManager#checkWrite(java.lang.String)}}
      *         method does not permit all necessary parent directories to be
      *         created
      */
@@ -1055,9 +1055,9 @@ public class LockFile {
      *         constructing the {@code RandomAccessFile} object.
      * @throws FileSecurityException if a required system property value cannot
      *         be accessed, or if a Java security manager exists and its
-     *         <code>{@link java.lang.SecurityManager#checkRead}</code> method
-     *         denies read access to the file; or if its <code>{@link
-     *         java.lang.SecurityManager#checkWrite(java.lang.String)}</code>
+     *         {@code {@link java.lang.SecurityManager#checkRead}} method
+     *         denies read access to the file; or if its {@code {@link
+     *         java.lang.SecurityManager#checkWrite(java.lang.String)}}
      *         method denies write access to the file
      */
     private void openRAF()
@@ -1080,7 +1080,7 @@ public class LockFile {
      * @param  dis the stream to check
      * @throws FileSecurityException if a required system property value cannot
      *         be accessed, or if a Java security manager exists and its
-     *         <code>{@link java.lang.SecurityManager#checkRead}</code> method
+     *         {@code {@link java.lang.SecurityManager#checkRead}} method
      *         denies read access to the file
      * @throws UnexpectedEndOfFileException if an {@code EOFException} is
      *         thrown while reading the {@code DataInputStream}
@@ -1131,7 +1131,7 @@ public class LockFile {
      *         representable as a {@code long} in Java.
      * @throws FileSecurityException if a required system property value cannot
      *         be accessed, or if a Java security manager exists and its
-     *         <code>{@link java.lang.SecurityManager#checkRead}</code> method
+     *         {@code {@link java.lang.SecurityManager#checkRead}} method
      *         denies read access to the file
      * @throws UnexpectedEndOfFileException if an {@code EOFException} is
      *         thrown while attempting to read the target file's {@code MAGIC}
@@ -1221,8 +1221,8 @@ public class LockFile {
      *      throw {@code SecurityException}. In this case, a
      *      {@code SecurityException} might be thrown if a required system
      *      property value cannot be accessed, or if a security manager exists
-     *      and its <code>{@link
-     *      java.lang.SecurityManager#checkWrite(java.io.FileDescriptor)}</code>
+     *      and its {@code {@link
+     *      java.lang.SecurityManager#checkWrite(java.io.FileDescriptor)}}
      *      method denies write access to the file
      * @throws UnexpectedEndOfFileException if an end of file exception is
      *      thrown while attempting to write the {@code MAGIC} value to the
@@ -1260,8 +1260,8 @@ public class LockFile {
      *      {@code SecurityException}. In this case, a
      *      {@code SecurityException} might be thrown if a required system
      *      property value cannot be accessed, or if a security manager exists
-     *      and its <code>{@link
-     *      java.lang.SecurityManager#checkWrite(java.io.FileDescriptor)}</code>
+     *      and its {@code {@link
+     *      java.lang.SecurityManager#checkWrite(java.io.FileDescriptor)}}
      *      method denies write access to the file
      * @throws UnexpectedEndOfFileException if an end of file exception is
      *      thrown while attempting to write the heartbeat timestamp value to
@@ -1449,8 +1449,8 @@ public class LockFile {
      * @return a String representation of this object.
      * @see #toStringImpl
      * @throws SecurityException if a required system property value cannot
-     *         be accessed, or if a security manager exists and its <code>{@link
-     *         java.lang.SecurityManager#checkRead}</code> method denies
+     *         be accessed, or if a security manager exists and its {@code {@link
+     *         java.lang.SecurityManager#checkRead}} method denies
      *         read access to the lock file;
      */
     public String toString() {
@@ -2025,13 +2025,13 @@ public class LockFile {
      * Java {@code SecurityException}. <p>
      *
      * This can occur if a required system property value cannot be accessed, or
-     * if a security manager exists and its <code>{@link
-     * java.lang.SecurityManager#checkRead}</code> method denies read access to a
-     * file; or if its <code>{@link
-     * java.lang.SecurityManager#checkRead(java.lang.String)}</code>
+     * if a security manager exists and its {@code {@link
+     * java.lang.SecurityManager#checkRead}} method denies read access to a
+     * file; or if its {@code {@link
+     * java.lang.SecurityManager#checkRead(java.lang.String)}}
      * method does not permit verification of the existence of all necessary
-     * parent directories; or if its <code>{@link
-     * java.lang.SecurityManager#checkWrite(java.lang.String)}</code>
+     * parent directories; or if its {@code {@link
+     * java.lang.SecurityManager#checkWrite(java.lang.String)}}
      * method does not permit all necessary parent directories to be
      * created.
      *
@@ -2177,7 +2177,7 @@ public class LockFile {
         }
 
         /**
-         * Retrieves the underlying <code>EOFException</code>.
+         * Retrieves the underlying {@code EOFException}.
          *
          * @return Value of property reason.
          */
@@ -2205,7 +2205,7 @@ public class LockFile {
         private final IOException reason;
 
         /**
-         * Constructs a new <code>UnexpectedFileIOException</code>.
+         * Constructs a new {@code UnexpectedFileIOException}.
          *
          * @param lockFile the underlying {@code LockFile} object
          * @param inMethod the name of the method in which the exception
@@ -2251,7 +2251,7 @@ public class LockFile {
         private final FileNotFoundException reason;
 
         /**
-         * Constructs a new <code>UnexpectedFileNotFoundException</code>.
+         * Constructs a new {@code UnexpectedFileNotFoundException}.
          *
          * @param lockFile the underlying {@code LockFile} object
          * @param inMethod the name of the method in which the exception

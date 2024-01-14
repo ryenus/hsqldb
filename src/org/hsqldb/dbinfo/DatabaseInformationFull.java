@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -403,15 +403,15 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * Retrieves a <code>Table</code> object describing the current
+     * Retrieves a {@code Table} object describing the current
      * state of all row caching objects for the accessible
      * tables defined within this database. <p>
      *
      * Currently, the row caching objects for which state is reported are:
      *
      * <OL>
-     * <LI> the system-wide <code>Cache</code> object used by CACHED tables.
-     * <LI> any <code>TextCache</code> objects in use by [TEMP] TEXT tables.
+     * <LI> the system-wide {@code Cache} object used by CACHED tables.
+     * <LI> any {@code TextCache} objects in use by [TEMP] TEXT tables.
      * </OL> <p>
      *
      * Each row is a cache object state description with the following
@@ -430,11 +430,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * <b>Notes:</b> <p>
      *
-     * <code>TextCache</code> objects do not maintain a free list because
+     * {@code TextCache} objects do not maintain a free list because
      * deleted rows are only marked deleted and never reused. As such, the
      * columns FREE_BYTES, SMALLEST_FREE_ITEM, LARGEST_FREE_ITEM, and
      * FREE_COUNT are always reported as zero for rows reporting on
-     * <code>TextCache</code> objects. <p>
+     * {@code TextCache} objects. <p>
      *
      * Currently, CACHE_SIZE, FREE_BYTES, SMALLEST_FREE_ITEM, LARGEST_FREE_ITEM,
      * FREE_COUNT and FREE_POS are the only dynamically changing values.
@@ -811,7 +811,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the operating properties
+     * Retrieves a {@code Table} object describing the operating properties
      * for this database, as well as their scope.<p>
      *
      * The properties cover those that were set via the JDBC connection
@@ -929,7 +929,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing attributes
+     * Retrieves a {@code Table} object describing attributes
      * for the calling session context.<p>
      *
      * The rows report the following {key,value} pairs:
@@ -956,7 +956,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * reported in the newer SYSTEM_SESSIONS and SYSTEM_PROPERTIES
      * tables. <p>
      *
-     * @return a <code>Table</code> object describing the
+     * @return a {@code Table} object describing the
      *        attributes of the connection associated
      *        with the current execution context
      */
@@ -1090,7 +1090,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing all visible
+     * Retrieves a {@code Table} object describing all visible
      * sessions. ADMIN users see *all* sessions
      * while non-admin users see only their own session.<p>
      *
@@ -1113,7 +1113,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * LATCH_COUNT        BIGINT    latch count for session
      * </pre> <p>
      *
-     * @return a <code>Table</code> object describing all visible
+     * @return a {@code Table} object describing all visible
      *      sessions
      */
     Table SYSTEM_SESSIONS(Session session, PersistentStore store) {
@@ -1352,7 +1352,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the TEXT TABLE objects
+     * Retrieves a {@code Table} object describing the TEXT TABLE objects
      * defined within this database. The table contains one row for each row
      * in the SYSTEM_TABLES table with a HSQLDB_TYPE of  TEXT . <p>
      *
@@ -1376,7 +1376,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * IS_DESC                   BOOLEAN   read rows starting at end of file?
      * </pre> <p>
      *
-     * @return a <code>Table</code> object describing the text attributes
+     * @return a {@code Table} object describing the text attributes
      * of the accessible text tables defined within this database
      *
      */
@@ -1691,8 +1691,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the visible
-     * <code>Index</code> objects for each accessible table defined
+     * Retrieves a {@code Table} object describing the visible
+     * {@code Index} objects for each accessible table defined
      * within this database.<p>
      *
      * Each row is an index column description with the following
@@ -1709,8 +1709,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * USED_SPACE       BIGINT    used bytes
      * </pre> <p>
      *
-     * @return a <code>Table</code> object describing the visible
-     *        <code>Index</code> objects for each accessible
+     * @return a {@code Table} object describing the visible
+     *        {@code Index} objects for each accessible
      *        table defined within this database.
      */
     Table SYSTEM_INDEXSTATS(Session session, PersistentStore store) {
@@ -4700,7 +4700,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * A column is included in this view if the user has some privilege on al
      * the columns of the constraint.<p>
      *
-     * @return a <code>Table</code> object describing the visible
+     * @return a {@code Table} object describing the visible
      *        primary key and unique columns of each accessible table
      *        defined within this database.
      */
@@ -4852,7 +4852,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * A period is included in this view if the user has privileges on the table.
      * <p>
      *
-     * @return a <code>Table</code> object describing the visible periods
+     * @return a {@code Table} object describing the visible periods
      *        referenced in primary key and unique constraints in accessible
      *        tables defined within this database.
      */
@@ -9618,7 +9618,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * </pre> <p>
      *
      * @return a tabular description of the text source of all
-     *        <code>View</code> objects accessible to
+     *        {@code View} objects accessible to
      *        the user.
      */
     Table VIEWS(Session session, PersistentStore store) {

@@ -58,6 +58,7 @@ import java.util.regex.Pattern;
  * @see <A href="../../../../util-guide/sqltool-chapt.html#sqltool_auth-sect"
  *      target="guide">
  *     The RC File section of the HyperSQL Utilities Guide</A>
+ * @see org.hsqldb.sample.SqlFileEmbedder
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class RCData {
@@ -73,7 +74,7 @@ public class RCData {
         return defaultJdbcDriverName;
     }
 
-    /**
+    /*
      * DISABLED DUE TO SECURITY CONCERNS.
      * Just for testing and debugging.
      *
@@ -82,7 +83,6 @@ public class RCData {
         System.err.println("urlid: " + id + ", url: " + url + ", username: "
                            + username + ", password: " + password);
     }
-     * @return string representation
      */
 
     public String toString() {
@@ -125,7 +125,7 @@ public class RCData {
         }
 
         // System.err.println("Using RC file '" + file + "'");
-        StringTokenizer tokenizer;
+        StringTokenizer tokenizer = null;
         boolean         loadingStanza   = false;
         String          s;
         String[]        tokens;

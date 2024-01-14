@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,8 @@ import org.hsqldb.result.ResultMetaData;
  * registered Statement objects to become invalidated. This is done by
  * comparing the schema change and compile timestamps. When a session
  * subsequently attempts to use an invalidated Statement via its id, it will
- * reinstantiate the Statement using its sql statement still held by this class.<p>
+ * recompiles the Statement using its sql statement still held by this class.
+ * failure to recompile invalidates and removes the Statement.<p>
  *
  * This class keeps count of the number of time each registered compiled
  * statement is linked to a session. It unregisters a compiled statement when
@@ -93,7 +94,7 @@ public final class StatementManager {
     private long next_cs_id;
 
     /**
-     * Constructs a new instance of <code>StatementManager</code>.
+     * Constructs a new instance of {@code StatementManager}.
      *
      * @param session the session instance for which this object is to
      *      manage Statement objects.
@@ -131,7 +132,8 @@ public final class StatementManager {
     }
 
     /**
-     * Returns an existing Statement object with the given
+     * Used by JDBC for a previously prepared statement. Returns an
+     * existing Statement object with the given
      * statement identifier. Returns null if the Statement object
      * has expired and cannot be recompiled
      *

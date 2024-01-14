@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,15 +71,15 @@ import java.util.logging.Logger;
  * <P>
  * Usage example:
  *
- * <pre><CODE>
+ * <pre>{@code 
  * private static FrameworkLogger logger =
  *        FrameworkLogger.getLog(SqlTool.class);
  * ...
  *   logger.finer("Doing something log-worthy");
- * </CODE></pre>
+ * }</pre>
  *
  * <p>
- * The system level property <code>hsqldb.reconfig_logging=false</code> is
+ * The system level property {@code hsqldb.reconfig_logging=false} is
  * required to avoid configuration of java.util.logging. Otherwise
  * configuration takes place.
  *

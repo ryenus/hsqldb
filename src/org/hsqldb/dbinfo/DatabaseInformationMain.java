@@ -198,7 +198,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
     /**
      * Constructs a table producer which provides system tables
-     * for the specified <code>Database</code> object. <p>
+     * for the specified {@code Database} object. <p>
      *
      * <b>Note:</b> before 1.7.2 Alpha N, it was important to observe that
      * by specifying an instance of this class or one of its descendants to
@@ -216,7 +216,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * to remove or alter system-generated grants and aliases,
      * respectively. <p>
      *
-     * @param db the <code>Database</code> object for which this object
+     * @param db the {@code Database} object for which this object
      *      produces system tables
      */
     DatabaseInformationMain(Database db) {
@@ -431,14 +431,14 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves the system <code>Table</code> object corresponding to
-     * the given <code>name</code> and <code>session</code> arguments. <p>
+     * Retrieves the system {@code Table} object corresponding to
+     * the given {@code name} and {@code session} arguments. <p>
      *
      * @param session the Session object requesting the table
      * @param name a String identifying the desired table
      *      database access error occurs
-     * @return a system table corresponding to the <code>name</code> and
-     *      <code>session</code> arguments
+     * @return a system table corresponding to the {@code name} and
+     *      {@code session} arguments
      */
     public final Table getSystemTable(Session session, String name) {
 
@@ -492,7 +492,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the optimal
+     * Retrieves a {@code Table} object describing the optimal
      * set of visible columns that uniquely identifies a row
      * for each accessible table defined within this database. <p>
      *
@@ -518,14 +518,14 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * <b>Notes:</b><p>
      *
-     * <code>JDBCDatabaseMetaData.getBestRowIdentifier</code> uses its
+     * {@code JDBCDatabaseMetaData.getBestRowIdentifier} uses its
      * nullable parameter to filter the rows of this table in the following
      * manner: <p>
      *
-     * If the nullable parameter is <code>false</code>, then rows are reported
+     * If the nullable parameter is {@code false}, then rows are reported
      * only if, in addition to satisfying the other specified filter values,
      * the IN_KEY column value is TRUE. If the nullable parameter is
-     * <code>true</code>, then the IN_KEY column value is ignored. <p>
+     * {@code true}, then the IN_KEY column value is ignored. <p>
      *
      * There is not yet infrastructure in place to make some of the ranking
      * decisions described below, and it is anticipated that mechanisms
@@ -605,13 +605,13 @@ class DatabaseInformationMain extends DatabaseInformation {
      *      read-only mode or the table under consideration is GLOBAL TEMPORARY
      *      (a TEMP or TEMP TEXT table, in HSQLDB parlance), then the scope
      *      is reported as
-     *      <code>java.sql.DatabaseMetaData.bestRowSession</code>.
+     *      {@code java.sql.DatabaseMetaData.bestRowSession}.
      *
      * <LI> if 1.) does not hold, then the scope is reported as
-     *      <code>java.sql.DatabaseMetaData.bestRowTemporary</code>.
+     *      {@code java.sql.DatabaseMetaData.bestRowTemporary}.
      * </OL> <p>
      *
-     * @return a <code>Table</code> object describing the optimal
+     * @return a {@code Table} object describing the optimal
      * set of visible columns that uniquely identifies a row
      * for each accessible table defined within this database
      */
@@ -767,7 +767,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the
+     * Retrieves a {@code Table} object describing the
      * visible columns of all accessible tables defined
      * within this database.<p>
      *
@@ -789,7 +789,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * COLUMN_DEF        VARCHAR   default value (possibly expression) for the
      *                             column, which should be interpreted as a
      *                             string when the value is enclosed in quotes
-     *                             (may be <code>null</code>)
+     *                             (may be {@code null})
      * SQL_DATA_TYPE     VARCHAR   type code as expected in the SQL CLI SQLDA
      * SQL_DATETIME_SUB  INTEGER   the SQL CLI subtype for DATETIME types
      * CHAR_OCTET_LENGTH INTEGER   for char types, max # of chars/bytes in column
@@ -802,7 +802,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * TYPE_SUB          INTEGER   HSQLDB data subtype code
      * </pre> <p>
      *
-     * @return a <code>Table</code> object describing the
+     * @return a {@code Table} object describing the
      *        visible columns of all accessible
      *        tables defined within this database.
      */
@@ -1019,7 +1019,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing, for each
+     * Retrieves a {@code Table} object describing, for each
      * accessible referencing and referenced table, how the referencing
      * tables import, for the purposes of referential integrity,
      * the columns of the referenced tables.<p>
@@ -1047,7 +1047,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *    { initially deferred | initially immediate | not deferrable }
      * </pre> <p>
      *
-     * @return a <code>Table</code> object describing how accessible tables
+     * @return a {@code Table} object describing how accessible tables
      *      import other accessible tables' primary key and/or unique
      *      constraint columns
      */
@@ -1222,8 +1222,8 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the visible
-     * <code>Index</code> objects for each accessible table defined
+     * Retrieves a {@code Table} object describing the visible
+     * {@code Index} objects for each accessible table defined
      * within this database.<p>
      *
      * Each row is an index column description with the following
@@ -1249,8 +1249,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * CARDINALITY and PAGES columns are BIGINT instead of INT since 2.4.0
      *
-     * @return a <code>Table</code> object describing the visible
-     *        <code>Index</code> objects for each accessible
+     * @return a {@code Table} object describing the visible
+     *        {@code Index} objects for each accessible
      *        table defined within this database.
      */
     final Table SYSTEM_INDEXINFO(Session session, PersistentStore store) {
@@ -1413,7 +1413,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the visible
+     * Retrieves a {@code Table} object describing the visible
      * primary key columns of each accessible table defined within
      * this database. <p>
      *
@@ -1429,7 +1429,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * PK_NAME     VARCHAR   primary key constraint name
      * </pre> <p>
      *
-     * @return a <code>Table</code> object describing the visible
+     * @return a {@code Table} object describing the visible
      *        primary key columns of each accessible table
      *        defined within this database.
      */
@@ -1523,7 +1523,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the
+     * Retrieves a {@code Table} object describing the
      * return, parameter and result columns of the accessible
      * routines defined within this database.<p>
      *
@@ -1592,7 +1592,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *                           (n1 + 1..n1 + n2)
      * </pre> <p>
      *
-     * @return a <code>Table</code> object describing the
+     * @return a {@code Table} object describing the
      *        return, parameter and result columns
      *        of the accessible routines defined
      *        within this database.
@@ -1773,7 +1773,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the accessible
+     * Retrieves a {@code Table} object describing the accessible
      * routines (both functions and procedures) defined within this database.<p>
      *
      * Each row is a procedure description with the following
@@ -1799,7 +1799,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * </pre> <p>
      *
-     * @return a <code>Table</code> object describing the accessible
+     * @return a {@code Table} object describing the accessible
      *        routines defined within this database
      */
     Table SYSTEM_PROCEDURES(Session session, PersistentStore store) {
@@ -1950,8 +1950,8 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Inserts a set of procedure description rows into the <code>Table</code>
-     * object specified by the <code>t</code> argument. <p>
+     * Inserts a set of procedure description rows into the {@code Table}
+     * object specified by the {@code t} argument. <p>
      *
      * @param t the table into which the specified rows will eventually
      *      be inserted
@@ -2033,7 +2033,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
     /**
      * Inserts a set of procedure column description rows into the
-     * <code>Table</code> specified by the <code>t</code> argument.
+     * {@code Table} specified by the {@code t} argument.
      *
      * <p>
      *
@@ -2164,7 +2164,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the accessible schemas
+     * Retrieves a {@code Table} object describing the accessible schemas
      * defined within this database. <p>
      *
      * Each row is a schema description with the following
@@ -2229,7 +2229,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the accessible
+     * Retrieves a {@code Table} object describing the accessible
      * tables defined within this database. <p>
      *
      * Each row is a table description with the following columns:
@@ -2256,7 +2256,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *                                     else NULL
      * </pre> <p>
      *
-     * @return a <code>Table</code> object describing the accessible
+     * @return a {@code Table} object describing the accessible
      *      tables defined within this database
      */
     final Table SYSTEM_TABLES(Session session, PersistentStore store) {
@@ -2368,7 +2368,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the table types
+     * Retrieves a {@code Table} object describing the table types
      * available in this database. <p>
      *
      * In general, the range of values that may be commonly encountered across
@@ -2394,7 +2394,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *   <LI>"LOCAL TEMPORARY" (the session-declared LOCAL TEMPORARY tables)
      * </UL> <p>
      *
-     * @return a <code>Table</code> object describing the table types
+     * @return a {@code Table} object describing the table types
      *        available in this database
      */
     Table SYSTEM_TABLETYPES(Session session, PersistentStore store) {
@@ -2430,7 +2430,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the
+     * Retrieves a {@code Table} object describing the
      * result expected by the JDBC DatabaseMetaData interface implementation
      * for system-defined SQL types supported as table columns.
      *
@@ -2470,7 +2470,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *                              PRECISION column (typically 10).
      * </pre> <p>
      *
-     * @return a <code>Table</code> object describing the
+     * @return a {@code Table} object describing the
      *      system-defined SQL types supported as table columns
      */
     final Table SYSTEM_TYPEINFO(Session session, PersistentStore store) {
@@ -2637,7 +2637,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the accessible
+     * Retrieves a {@code Table} object describing the accessible
      * attributes of the accessible user-defined type (UDT) objects
      * defined within this database. <p>
      *
@@ -2680,7 +2680,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * <B>Note:</B> Currently, neither the HSQLDB engine nor the JDBC driver
      * support UDTs, so an empty table is returned. <p>
-     * @return a <code>Table</code> object describing the accessible
+     * @return a {@code Table} object describing the accessible
      *        attrubutes of the accessible user-defined type
      *        (UDT) objects defined within this database
      * @throws HsqlException if an error occurs while producing the table
@@ -2722,24 +2722,24 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the accessible
+     * Retrieves a {@code Table} object describing the accessible
      * user-defined types defined in this database. <p>
      *
      * Schema-specific UDTs may have type JAVA_OBJECT, STRUCT, or DISTINCT.
      *
      * <P>Each row is a UDT description with the following columns:
      * <OL>
-     *   <LI><B>TYPE_CAT</B> <code>VARCHAR</code>  : the type's catalog
-     *   <LI><B>TYPE_SCHEM</B> <code>VARCHAR</code>  : type's schema
-     *   <LI><B>TYPE_NAME</B> <code>VARCHAR</code>  : type name
-     *   <LI><B>CLASS_NAME</B> <code>VARCHAR</code>  : Java class name
-     *   <LI><B>DATA_TYPE</B> <code>VARCHAR</code>  :
-     *         type value defined in <code>DITypes</code>;
-     *         one of <code>JAVA_OBJECT</code>, <code>STRUCT</code>, or
-     *        <code>DISTINCT</code>
-     *   <LI><B>REMARKS</B> <code>VARCHAR</code>  :
+     *   <LI><B>TYPE_CAT</B> {@code VARCHAR}  : the type's catalog
+     *   <LI><B>TYPE_SCHEM</B> {@code VARCHAR}  : type's schema
+     *   <LI><B>TYPE_NAME</B> {@code VARCHAR}  : type name
+     *   <LI><B>CLASS_NAME</B> {@code VARCHAR}  : Java class name
+     *   <LI><B>DATA_TYPE</B> {@code VARCHAR}  :
+     *         type value defined in {@code DITypes};
+     *         one of {@code JAVA_OBJECT}, {@code STRUCT}, or
+     *        {@code DISTINCT}
+     *   <LI><B>REMARKS</B> {@code VARCHAR}  :
      *          explanatory comment on the type
-     *   <LI><B>BASE_TYPE</B><code>SMALLINT</code>  :
+     *   <LI><B>BASE_TYPE</B>{@code SMALLINT}  :
      *          type code of the source type of a DISTINCT type or the
      *          type that implements the user-generated reference type of the
      *          SELF_REFERENCING_COLUMN of a structured type as defined in
@@ -2748,7 +2748,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * </OL> <p>
      *
-     * @return a <code>Table</code> object describing the accessible
+     * @return a {@code Table} object describing the accessible
      *      user-defined types defined in this database
      */
     Table SYSTEM_UDTS(Session session, PersistentStore store) {
@@ -2820,31 +2820,31 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the accessible
+     * Retrieves a {@code Table} object describing the accessible
      * columns that are automatically updated when any value in a row
      * is updated.<P>
      *
      * Each row is a version column description with the following columns:
      *
      * <OL>
-     * <LI><B>SCOPE</B> <code>SMALLINT</code>  : is not used
-     * <LI><B>COLUMN_NAME</B> <code>VARCHAR</code>  : column name
-     * <LI><B>DATA_TYPE</B> <code>SMALLINT</code>  :
+     * <LI><B>SCOPE</B> {@code SMALLINT}  : is not used
+     * <LI><B>COLUMN_NAME</B> {@code VARCHAR}  : column name
+     * <LI><B>DATA_TYPE</B> {@code SMALLINT}  :
      *        SQL data type from java.sql.Types
-     * <LI><B>TYPE_NAME</B> <code>SMALLINT</code>  :
+     * <LI><B>TYPE_NAME</B> {@code SMALLINT}  :
      *       Data source dependent type name
-     * <LI><B>COLUMN_SIZE</B> <code>INTEGER</code>  : precision
-     * <LI><B>BUFFER_LENGTH</B> <code>INTEGER</code>  :
+     * <LI><B>COLUMN_SIZE</B> {@code INTEGER}  : precision
+     * <LI><B>BUFFER_LENGTH</B> {@code INTEGER}  :
      *        length of column value in bytes
-     * <LI><B>DECIMAL_DIGITS</B> <code>SMALLINT</code>  : scale
-     * <LI><B>PSEUDO_COLUMN</B> <code>SMALLINT</code>  :
-     *        is this a pseudo column like an Oracle <code>ROWID</code>:<BR>
-     *        (as defined in <code>java.sql.DatabaseMetadata</code>)
+     * <LI><B>DECIMAL_DIGITS</B> {@code SMALLINT}  : scale
+     * <LI><B>PSEUDO_COLUMN</B> {@code SMALLINT}  :
+     *        is this a pseudo column like an Oracle {@code ROWID}:<BR>
+     *        (as defined in {@code java.sql.DatabaseMetadata})
      * <UL>
-     *    <LI><code>versionColumnUnknown</code> - may or may not be
+     *    <LI>{@code versionColumnUnknown} - may or may not be
      *        pseudo column
-     *    <LI><code>versionColumnNotPseudo</code> - is NOT a pseudo column
-     *    <LI><code>versionColumnPseudo</code> - is a pseudo column
+     *    <LI>{@code versionColumnNotPseudo} - is NOT a pseudo column
+     *    <LI>{@code versionColumnPseudo} - is a pseudo column
      * </UL>
      * </OL> <p>
      *
@@ -2854,7 +2854,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * SEQUENCE, or an expression are not returned as they are not always
      * automatically updated when other columns in a row are updated.
      *
-     * @return a <code>Table</code> object describing the columns
+     * @return a {@code Table} object describing the columns
      *        that are automatically updated when any value
      *        in a row is updated
      */
@@ -2961,8 +2961,8 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the
-     * visible <code>Users</code> defined within this database.
+     * Retrieves a {@code Table} object describing the
+     * visible {@code Users} defined within this database.
      * @return table containing information about the users defined within
      *      this database
      */
@@ -3026,7 +3026,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 // limited to views used in JDBC DatabaseMetaData
 
     /**
-     * Retrieves a <code>Table</code> object describing the visible
+     * Retrieves a {@code Table} object describing the visible
      * access rights for all visible columns of all accessible
      * tables defined within this database.<p>
      *
@@ -3047,7 +3047,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * <b>Note:</b> From 1.9.0, HSQLDB supports column level
      * privileges. <p>
      *
-     * @return a <code>Table</code> object describing the visible
+     * @return a {@code Table} object describing the visible
      *        access rights for all visible columns of
      *        all accessible tables defined within this
      *        database
@@ -3469,7 +3469,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * WITH_HIERARCHY   { "YES" | "NO" }
      * </pre>
      *
-     * @return a <code>Table</code> object describing the visible
+     * @return a {@code Table} object describing the visible
      *        access rights for each accessible table
      *        defined within this database
      */
@@ -3697,7 +3697,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 // SQL SCHEMATA BASE TABLE
 
     /**
-     * Retrieves a <code>Table</code> object naming the accessible catalogs
+     * Retrieves a {@code Table} object naming the accessible catalogs
      * defined within this database. <p>
      *
      * Each row is a catalog name description with the following column:
@@ -3706,7 +3706,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * TABLE_CAT   VARCHAR   catalog name
      * </pre> <p>
      *
-     * @return a <code>Table</code> object naming the accessible
+     * @return a {@code Table} object naming the accessible
      *        catalogs defined within this database
      */
     final Table INFORMATION_SCHEMA_CATALOG_NAME(Session session,

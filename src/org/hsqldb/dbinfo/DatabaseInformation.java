@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -369,12 +369,12 @@ public class DatabaseInformation {
     /**
      * Retrieves a table with the specified name whose content may depend on
      * the execution context indicated by the session argument as well as the
-     * current value of <code>withContent</code>. <p>
+     * current value of {@code withContent}. <p>
      *
      * @param session the context in which to produce the table
      * @param name the name of the table to produce
      * @return a table corresponding to the name and session arguments, or
-     *      <code>null</code> if there is no such table to be produced
+     *      {@code null} if there is no such table to be produced
      */
     public Table getSystemTable(Session session, String name) {
         return null;

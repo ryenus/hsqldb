@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -335,23 +335,23 @@ public final class UserManager {
     }
 
     /**
-     * Retrieves the <code>User</code> objects representing the database
-     * users that are visible to the <code>User</code> object
-     * represented by the <code>session</code> argument. <p>
+     * Retrieves the {@code User} objects representing the database
+     * users that are visible to the {@code User} object
+     * represented by the {@code session} argument. <p>
      *
-     * If the <code>session</code> argument's <code>User</code> object
+     * If the {@code session} argument's {@code User} object
      * attribute has isAdmin() true (directly or by virtue of a Role),
      * then all of the
-     * <code>User</code> objects in this collection are considered visible.
-     * Otherwise, only this object's special <code>PUBLIC</code>
-     * <code>User</code> object attribute and the session <code>User</code>
+     * {@code User} objects in this collection are considered visible.
+     * Otherwise, only this object's special {@code PUBLIC}
+     * {@code User} object attribute and the session {@code User}
      * object, if it exists in this collection, are considered visible. <p>
      *
-     * @param session The <code>Session</code> object used to determine
+     * @param session The {@code Session} object used to determine
      *          visibility
-     * @return a list of <code>User</code> objects visible to
-     *          the <code>User</code> object contained by the
-     *         <code>session</code> argument.
+     * @return a list of {@code User} objects visible to
+     *          the {@code User} object contained by the
+     *         {@code session} argument.
      *
      */
     public HsqlArrayList listVisibleUsers(Session session) {
@@ -391,11 +391,11 @@ public final class UserManager {
 
     /**
      * Returns the specially constructed
-     * <code>SYSTEM_AUTHORIZATION_NAME</code>
-     * <code>User</code> object for the current <code>Database</code> object.
+     * {@code SYSTEM_AUTHORIZATION_NAME}
+     * {@code User} object for the current {@code Database} object.
      *
-     * @return the <code>SYS_AUTHORIZATION_NAME</code>
-     *          <code>User</code> object
+     * @return the {@code SYS_AUTHORIZATION_NAME}
+     *          {@code User} object
      *
      */
     public User getSysUser() {

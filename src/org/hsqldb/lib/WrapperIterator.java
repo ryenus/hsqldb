@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,8 +111,8 @@ public class WrapperIterator<E> implements Iterator<E> {
     /**
      * Tests if this iterator contains more elements. <p>
      *
-     * @return  <code>true</code> if this iterator contains more elements;
-     *          <code>false</code> otherwise.
+     * @return  {@code true} if this iterator contains more elements;
+     *          {@code false} otherwise.
      */
     public boolean hasNext() {
 

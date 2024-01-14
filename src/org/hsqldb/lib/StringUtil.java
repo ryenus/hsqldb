@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ package org.hsqldb.lib;
 import java.lang.reflect.Array;
 
 /** Provides a collection of convenience methods for processing and
- * creating objects with <code>String</code> value components.
+ * creating objects with {@code String} value components.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -209,16 +209,16 @@ public class StringUtil {
      * <ul>
      * <li>All arguments are assumed to be non-null.
      * <li>Separates each list element with the value of the
-     * <code>separator</code> argument.
+     * {@code separator} argument.
      * <li>Prepends and appends each element with the value of the
-     *     <code>quote</code> argument.
+     *     {@code quote} argument.
      * <li> No attempt is made to escape the quote character sequence if it is
      *      found internal to a list element.
      * </ul>
      * @return a CSV list
-     * @param separator the <code>String</code> to use as the list element separator
-     * @param quote the <code>String</code> with which to quote the list elements
-     * @param s array of <code>String</code> objects
+     * @param separator the {@code String} to use as the list element separator
+     * @param quote the {@code String} with which to quote the list elements
+     * @param s array of {@code String} objects
      */
     public static String getList(String[] s, String separator, String quote) {
 
@@ -245,14 +245,14 @@ public class StringUtil {
      * <ul>
      * <li>All arguments are assumed to be non-null.
      * <li>Separates each list element with the value of the
-     * <code>separator</code> argument.
+     * {@code separator} argument.
      * <li>Prepends and appends each element with the value of the
-     *     <code>quote</code> argument.
+     *     {@code quote} argument.
      * </ul>
      * @return a CSV list
      * @param s the array of int values
-     * @param separator the <code>String</code> to use as the separator
-     * @param quote the <code>String</code> with which to quote the list elements
+     * @param separator the {@code String} to use as the separator
+     * @param quote the {@code String} with which to quote the list elements
      */
     public static String getList(int[] s, String separator, String quote) {
 
@@ -298,16 +298,16 @@ public class StringUtil {
      * <li>All arguments are assumed to be non-null.
      * <li>Uses only the first element in each subarray.
      * <li>Separates each list element with the value of the
-     * <code>separator</code> argument.
+     * {@code separator} argument.
      * <li>Prepends and appends each element with the value of the
-     *     <code>quote</code> argument.
+     *     {@code quote} argument.
      * <li> No attempt is made to escape the quote character sequence if it is
      *      found internal to a list element.
      * </ul>
      * @return a CSV list
-     * @param separator the <code>String</code> to use as the list element separator
-     * @param quote the <code>String</code> with which to quote the list elements
-     * @param s the array of <code>String</code> array objects
+     * @param separator the {@code String} to use as the list element separator
+     * @param quote the {@code String} with which to quote the list elements
+     * @param s the array of {@code String} array objects
      */
     public static String getList(String[][] s, String separator,
                                  String quote) {
