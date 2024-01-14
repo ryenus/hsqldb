@@ -2207,17 +2207,19 @@ C1
       functions. These names are valid for use only when calling these two
       functions. With <literal>TIMESTAMPDIFF</literal>, the names indicate the
       unit of time used to compute the difference between two datetime fields.
-      With TIMESTAMPADD they represent the unit of time used for the
-      &lt;numeric value expression&gt;. The unit of time for each name is
-      self-explanatory. In the case of SQL_TSI_FRAC_SECOND, the unit is
-      nanosecond.</para>
+      With <literal>TIMESTAMPADD</literal> they represent the unit of time
+      used for the &lt;numeric value expression&gt;. The unit of time for each
+      name is self-explanatory. In the case of SQL_TSI_FRAC_SECOND, the unit
+      is nanosecond.</para>
 
-      <para>The return value for TIMESTAMPADD is of the same type as the
-      datetime argument used. The return type for
-      <literal>TIMESTAMPDIFF</literal> is always BIGINT, regardless of the
-      type of arguments. The two datetime arguments of
-      <literal>TIMESTAMPDIFF</literal> should be of the same type. The TIME
-      type is not supported for the arguments to these functions.</para>
+      <para>The type of the return value for <literal>TIMESTAMPADD</literal>
+      is the same as the type of the datetime argument used, except when the
+      argument type is DATE and a unit smaller than DAY is added the return
+      type is TIMESTAMP. The return type for <literal>TIMESTAMPDIFF</literal>
+      is always BIGINT, regardless of the type of arguments. The two datetime
+      arguments of <literal>TIMESTAMPDIFF</literal> should be of the same
+      type. The TIME type is not supported for the arguments to these
+      functions.</para>
 
       <para><literal>TIMESTAMPDIFF</literal> is evaluated as &lt;datetime
       value expr 2&gt; - &lt;datetime value expr 1&gt;. (JDBC)</para>
@@ -2248,12 +2250,13 @@ C1
       value expr&gt; )</literal></para>
 
       <para>These functions are equivalent to arithmetic addition and
-      subtraction, &lt;datetime value expr&gt; + &lt;interval value expr&gt;
-      and &lt;datetime value expr&gt; - &lt;interval value expr&gt;. The
-      functions are provided for compatibility with other databases. The
-      supported interval units are the standard SQL interval unit listed in
-      other chapters of this guide. The TIME type is supported for the
-      argument to these functions. (HyperSQL)</para>
+      subtraction, <literal>&lt;datetime value expr&gt; + &lt;interval value
+      expr&gt;</literal> and <literal>&lt;datetime value expr&gt; -
+      &lt;interval value expr&gt;</literal>. The functions are provided for
+      compatibility with other databases. The supported interval units are the
+      standard SQL interval unit listed in other chapters of this guide. The
+      TIME type is supported for the argument to these functions.
+      (HyperSQL)</para>
 
       <informalexample>
         <programlisting> DATE_ADD ( DATE '2008-11-22', INTERVAL 3 MONTH )
@@ -2280,20 +2283,23 @@ C1
       <para><literal>DATEDIFF ( &lt;field&gt;, &lt;datetime value expr 1&gt;,
       &lt;datetime value expr 2&gt; )</literal></para>
 
-      <para><literal>&lt;field&gt; ::= 'yy' | 'year' | 'mm' | 'month' | 'dd' |
-      'day' | 'hh' | 'hour' | 'mi' | 'minute' | 'ss' | 'second' | 'ms' |
-      'millisecond'</literal></para>
+      <para><literal>&lt;field&gt; ::= 'yy' | 'year' | 'qq' | 'quarter' |'mm'
+      | 'month' | 'dd' | 'day' | 'hh' | 'hour' | 'mi' | 'minute' | 'ss' |
+      'second' | 'ms' | 'millisecond' | 'mcs' | 'microsecond' | 'ns' |
+      'nanosecond' </literal></para>
 
-      <para><literal>&lt;field&gt; ::= YY | YEAR | MM | MONTH | DD | DAY | HH
-      | HOUR | MI | MINUTE | SS | SECOND | MS | MILLISECOND</literal></para>
+      <para><literal>&lt;field&gt; ::= YY | YEAR | QQ | QUARTER | MM | MONTH |
+      DD | DAY | HH | HOUR | MI | MINUTE | SS | SECOND | MS | MILLISECOND |
+      MCS | MICROSECOND | NS | NANOSECOND</literal></para>
 
       <para>The <literal>DATEADD</literal> and <literal>DATEDIFF</literal>
       functions are alternatives to <literal>TIMESTAMPADD</literal> and
-      <literal>TIMESTAMPDIFF</literal>, with fewer available field options.
-      The field names are specified as strings or as keywords. The short field
-      names translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND and
-      MILLISECOND. <literal>DATEDIFF</literal> is evaluated as &lt;datetime
-      value expr 2&gt; - &lt;datetime value expr 1&gt;. (HyperSQL}</para>
+      <literal>TIMESTAMPDIFF</literal>, with similar field options. The field
+      names are specified as strings or as keywords. The short field names
+      translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MILLISECOND,
+      MICROSECOND and NANOSECOND. <literal>DATEDIFF</literal> is evaluated as
+      <literal>&lt;datetime value expr 2&gt; - &lt;datetime value expr
+      1&gt;</literal>. (HyperSQL}</para>
 
       <para><literal>DATEDIFF ( &lt;datetime value expr 1&gt;, &lt;datetime
       value expr 2&gt; )</literal></para>
@@ -2324,15 +2330,17 @@ C1
 
       <para>The <literal>&lt;datetime value expr&gt; </literal>is of DATE,
       TIME or TIMESTAMP type. The <literal>&lt;char value expr&gt;</literal>
-      is a format string for YEAR, MONTH, WEEK OF YEAR, DAY, HOUR, MINUTE or
-      SECOND as listed in the table for TO_CHAR and TO_DATE format elements
-      (see below). The datetime value is rounded up or down after the
-      specified field and the rest of the fields to the right are set to one
-      for MONTH and DAY, or zero, for the rest of the fields. For example,
-      rounding a timestamp value on the DAY field results in midnight the same
-      date or midnight the next day if the time is at or after 12 noon. If the
-      second argument is omitted, the datetime value is rounded to the nearest
-      day. (HyperSQL)</para>
+      is one of the format strings: 'YYYY', 'YY', 'MONTH', 'MM', 'WW', 'IW',
+      'DDD', 'DD', 'HH24', 'HH12', 'HH', 'MI', 'SS'; represeting YEAR, MONTH,
+      WEEK OF YEAR, ISO WEEK, DAY, HOUR, MINUTE or SECOND as listed in the
+      table for TO_CHAR and TO_DATE format elements (see below). The datetime
+      value is rounded up or down after the specified field and the rest of
+      the fields to the right are set to the minimum value (one for MONTH and
+      DAY, or zero, for the rest of the fields). For example, rounding a
+      timestamp value on the DAY field results in midnight the same date or
+      midnight the next day if the time is at or after 12 noon. If the second
+      argument is omitted, the datetime value is rounded to the nearest day.
+      (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TRUNC function datetime</primary>
@@ -2343,14 +2351,10 @@ C1
       <para><literal>TRUNC ( &lt;datetime value expr&gt; [ , &lt;char value
       expr&gt; ] ) </literal></para>
 
-      <para>Similar to the ROUND function, the <literal>&lt;num value expr&gt;
-      </literal>is of DATE, TIME or TIMESTAMP type. The <literal>&lt;char
-      value expr&gt;</literal> is a format string (such as 'YY' or 'MM') for
-      YEAR, MONTH, WEEK OF YEAR, DAY, HOUR, MINUTE or SECOND as listed in the
-      table for TO_CHAR and TO_DATE format elements (see below). The datetime
-      value is truncated after the specified field and the rest of the fields
-      to the right are set to one for MONTH and DAY, or zero, for the rest of
-      the fields. For example, applying <literal>TRUNC</literal> to a
+      <para>Similar to the ROUND function, the datetime value is truncated
+      after the specified field and the rest of the fields to the right are
+      set to the minimum value (one for MONTH and DAY, or zero, for the rest
+      of the fields). For example, applying <literal>TRUNC</literal> to a
       timestamp value on the DAY field results in midnight the same date.
       Examples of <literal>ROUND</literal> and <literal>TRUNC</literal>
       functions are given below. If the second argument is omitted, the
@@ -2497,29 +2501,25 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
       <para><literal>TO_CHAR ( &lt;datetime value expr&gt;, &lt;char value
       expr&gt; )</literal></para>
 
-      <para>This function formats a datetime or numeric value to the format
-      given in the second argument. The format string can contain pattern
-      elements from the list given below, plus punctuation and space
-      characters. An example, including the result, is given below:</para>
+      <para>This function formats a datetime value to the format given in the
+      second argument. See TO_TIMESTAMP below for the details of the format
+      string. Format elements such as DAY or HH12 are used in the examples
+      below, with the result included:</para>
 
       <informalexample>
-        <programlisting> TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH' )
+        <programlisting> TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC DAY DD MONTH HH12 AM' )
+ 2008 AD Friday 01 February 08 pm 
 
- 2008 AD February, Friday 8
-
- TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', '"The Date is" YYYY BC MONTH, DAY HH' )
-
- The Date is 2008 AD February, Friday 8
+ TO_CHAR ( DATE'2018-03-01', '"in" YYYY", on" DD MONTH' )
+ in 2018, on 01 March
 </programlisting>
       </informalexample>
 
-      <para>The format is internally translated to a
-      <classname>java.text.SimpleDateFormat</classname> format string.
-      Separator characters (space, comma, period, hyphen, colon, semicolon,
-      forward slash) can be included between the pattern elements. Unsupported
-      format strings should not be used. You can include a string literal
-      inside the format string by enclosing it in double quotes (see the
-      second example above). (HyperSQL)</para>
+      <para>Separator characters (space, comma, period, hyphen, colon,
+      semicolon, forward slash) can be included between the pattern elements.
+      You can include a string literal inside the format string by enclosing
+      it in double quotes (see the second example above). Unsupported format
+      characters should not be used. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TO_DATE function</primary>
@@ -2530,10 +2530,6 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
       <para><literal>TO_DATE ( &lt;char value expr&gt;, &lt;char value
       expr&gt; )</literal></para>
 
-      <para>This function translates a formatted datetime sting to a
-      TIMESTAMP(0) according to the format given in the second argument. See
-      TO_TIMESTAMP below for further details.</para>
-
       <indexterm significance="preferred" type="sql">
         <primary>TO_TIMESTAMP function</primary>
       </indexterm>
@@ -2543,17 +2539,28 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
       <para><literal>TO_TIMESTAMP ( &lt;char value expr&gt;, &lt;char value
       expr&gt; )</literal></para>
 
-      <para>This function translates a formatted datetime sting to a
-      TIMESTAMP(6) according to the format given in the second argument. The
-      format string can contain pattern elements from the list given below,
-      plus punctuation and space characters. The pattern should contain all
-      the necessary fields to construct a date, including, year, month, day of
-      month, etc. The returned timestamp can then be cast into DATE or TIME
-      types if necessary. An example, including the result, is given
-      below:</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>TO_TIMESTAMP_TZ function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">TO_TIMESTAMP_TZ</emphasis></simpara>
+
+      <para><literal>TO_TIMESTAMP ( &lt;char value expr&gt;, &lt;char value
+      expr&gt; )</literal></para>
+
+      <para>Thesse functions translate a formatted datetime string to a
+      TIMESTAMP. TO_DATE returns a TIMESTAMP(0) value with no sub-second
+      fraction. TO_TIMESTAMP returns a TIMESTAMP(6). TO_TIEMSTAMP_TZ returns a
+      TIMESTAMP(6) WITH TIME ZONE value. The format string can contain pattern
+      elements from the list given below, plus punctuation and space
+      characters. The pattern should contain all the necessary fields to
+      construct a date, including, year, month, day of month, etc. The
+      returned timestamp can then be cast into DATE if necessary. Two examples
+      together with the result are given below:</para>
 
       <informalexample>
         <programlisting> TO_TIMESTAMP ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
+ TO_TIMESTAMP ( '22/11/2008 20:30:40', 'JAVA:dd/MM/uuuu HH:mm:ss' ) // Java format
 
  TIMESTAMP '2008-11-22 20:30:40.000000'
 </programlisting>
@@ -2562,14 +2569,21 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
       <para>The format strings that can be used for TO_DATE and TO_TIMESTAMP
       are more restrictive than those used for TO_CHAR, because the format
       string must contain the elements needed to build a full DATE or
-      TIMESTAMP value. For example, you cannot use the 'WW', 'W', 'HH' or
-      'HH12' format elements with TO_DATE or TO_TIMESTAMP</para>
+      TIMESTAMP value. For example, you cannot use the 'WW', 'W', 'HH12'
+      format elements.</para>
 
       <para>The format is internally translated to a
-      <classname>java.text.SimpleDateFormat</classname> format string.
+      <classname>java.time.format.DateTimeFormatter</classname> format string.
       Unsupported format strings should not be used. With TO_CHAR, you can
       include a string literal inside the format string by enclosing it in
-      double quotes. (HyperSQL)</para>
+      double quotes.</para>
+
+      <para>From version 2.7.3 Java format strings as defined by
+      <literal>java.time.format.DateTimeFormatter</literal> can be used
+      directly as an alternative. These format strings must have the
+      <literal>'JAVA:'</literal> prefix as in the second example above, and
+      the literals inside the format string must be enclosed in double single
+      quotes.(HyperSQL)</para>
 
       <para>The supported format components are all uppercase as
       follows:</para>
@@ -2586,8 +2600,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
             <row>
               <entry><literal>BC | B.C. | AD | A.D.</literal></entry>
 
-              <entry>Returns <literal>AD</literal> for common era and
-              <literal>BC</literal> for before common era</entry>
+              <entry>Returns <literal>AD</literal> for common era.</entry>
             </row>
 
             <row>
@@ -2642,27 +2655,20 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
             </row>
 
             <row>
-              <entry><literal>WW</literal></entry>
-
-              <entry><para>Week of year (1-53) where week 1 starts on the
-              first day of the year and continues to the seventh day of the
-              year (not a calendar week).</para></entry>
-            </row>
-
-            <row>
-              <entry><literal>W</literal></entry>
-
-              <entry><para>Week of month (1-5) where week 1 starts on the
-              first day of the month and ends on the seventh (not a calendar
-              week).</para></entry>
-            </row>
-
-            <row>
               <entry><literal>IW</literal></entry>
 
               <entry><para>Week of year (1-52 or 1-53) based on the ISO
               standard. Week starts on Monday. The first week may start near
               the end of previous year.</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>W</literal></entry>
+
+              <entry><para>Week of month (0-5) where the first day of the
+              month is in week 1, or in week is 0 if the ISO week at the
+              beginning of the year starts in the previous calendar year. Week
+              starts on Monday.</para></entry>
             </row>
 
             <row>
@@ -2690,15 +2696,21 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
             </row>
 
             <row>
-              <entry><literal>HH</literal></entry>
+              <entry><literal>HH12</literal></entry>
 
-              <entry><para>Hour of day (00-11).</para></entry>
+              <entry><para>Hour of day (0-11).</para></entry>
             </row>
 
             <row>
-              <entry><literal>HH12</literal></entry>
+              <entry><literal>AM | PM | A.M. | P.M.</literal></entry>
 
-              <entry><para>Hour of day (00-11).</para></entry>
+              <entry><para>Meridian indicator.</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>HH</literal></entry>
+
+              <entry><para>Hour of day (00-23).</para></entry>
             </row>
 
             <row>
@@ -2720,10 +2732,19 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
             </row>
 
             <row>
-              <entry><literal>FF</literal></entry>
+              <entry><literal>FF[1-9]</literal></entry>
 
-              <entry><para>Fractional seconds. Use without
-              repetition.</para></entry>
+              <entry><para>Fractional seconds. With TO_CHAR, 'FF' indicates
+              six digits are written. 'FF' followed by a single digit writes
+              the indicated number of digits. For example 'FF2' means 2 digits
+              after the fraction. With TO_TIMESTAMP, 'FF' indicates a variable
+              number of up to 9 digits are read.</para></entry>
+            </row>
+
+            <row>
+              <entry><literal>TZ</literal></entry>
+
+              <entry><para>Time zone hours and minutes.</para></entry>
             </row>
           </tbody>
         </tgroup>
