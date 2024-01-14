@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -168,7 +168,7 @@ public class TestGroupByHaving extends TestCase {
     public void testAggregatedGroupBy() throws SQLException {
 
         String sql = "select avg(salary), max(id) from employee "
-                     + "group by superior_id " + "order by superior_id " + "";
+                     + "group by superior_id " + "order by superior_id ";
         Object[][] expected = new Object[][] {
             {
                 Double.valueOf(150000), Integer.valueOf(2)
@@ -196,7 +196,7 @@ public class TestGroupByHaving extends TestCase {
 
         String sql = "select avg(salary), max(id) from employee "
                      + "group by superior_id " + "having max(id) > 5 "
-                     + "order by superior_id " + "";
+                     + "order by superior_id ";
         Object[][] expected = new Object[][] {
             {
                 Double.valueOf(42500), Integer.valueOf(13)
@@ -223,7 +223,7 @@ public class TestGroupByHaving extends TestCase {
         String sql = "select avg(salary), max(id) from employee "
                      + "group by superior_id "
                      + "having superior_id is not null "
-                     + "order by superior_id " + "";
+                     + "order by superior_id ";
         Object[][] expected = new Object[][] {
             {
                 Double.valueOf(42500), Integer.valueOf(13)
@@ -247,7 +247,7 @@ public class TestGroupByHaving extends TestCase {
     public void testHavingWithoutGroupBy1() throws SQLException {
 
         String sql = "select avg(salary), max(id) from employee "
-                     + "having avg(salary) > 1000 " + "";
+                     + "having avg(salary) > 1000 ";
         Object[][] expected = new Object[][] {
             {
                 Double.valueOf(65000), Integer.valueOf(23)
@@ -269,7 +269,7 @@ public class TestGroupByHaving extends TestCase {
     public void testHavingWithoutGroupBy2() throws SQLException {
 
         String sql = "select avg(salary), max(id) from employee "
-                     + "having avg(salary) > 1000000 " + "";
+                     + "having avg(salary) > 1000000 ";
         Object[][] expected = new Object[][]{};
 
         compareResults(sql, expected, "00000");
@@ -283,7 +283,7 @@ public class TestGroupByHaving extends TestCase {
 
         String sql = "select avg(salary), max(id) from employee "
                      + "group by lastname "
-                     + "having (max(id) > 1) and (superior_id > 1) " + "";
+                     + "having (max(id) > 1) and (superior_id > 1) ";
         Object[][] expected = new Object[][]{};
 
         compareResults(sql, expected, "42573");
