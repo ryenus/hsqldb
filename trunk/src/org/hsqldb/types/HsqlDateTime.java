@@ -477,7 +477,7 @@ public class HsqlDateTime {
         { 'B', 'C' }, { 'B', '.', 'C', '.' }, { 'A', 'D' }, { 'A', '.', 'D', '.' },
         { 'M', 'O', 'N' }, { 'M', 'O', 'N', 'T', 'H' },
         { 'M', 'M' },
-        { 'D', 'A', 'Y' }, { 'D', 'Y' },
+        { 'D', 'A', 'Y' }, { 'D', 'Y' }, { 'D' },
         { 'W' }, { 'I', 'W' }, { 'D', 'D' }, { 'D', 'D', 'D' },
         { 'H', 'H', '2', '4' }, { 'H', 'H', '1', '2' }, { 'H', 'H' },
         { 'M', 'I' }, { 'S', 'S' },
@@ -493,14 +493,14 @@ public class HsqlDateTime {
         "G", "G", "G", "G",
         "MMM", "MMMM",
         "MM",
-        "EEEE", "EE",
-        "F", "ww", "dd", "D",
+        "EEEE", "EE", "F",
+        "W", "ww", "dd", "D",
         "HH", "KK", "HH",
         "mm", "ss",
         "a", "a", "a", "a",
         "[S]", "[SS]", "[SSS]", "[SSSS]", "[SSSSS]", "[SSSSSS]", "[SSSSSSS]", "[SSSSSSSS]", "[SSSSSSSSS]",
         "SSSSSS",
-        "xxx"
+        "xxxxx"
     };
 
     private static final char[] fixedFraction = { 'F', 'F' };
@@ -518,7 +518,7 @@ public class HsqlDateTime {
         String javaPattern = toJavaDatePattern(pattern, true);
 
         try {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern(javaPattern);
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern(javaPattern, defaultLocale);
             dtf = dtf.withResolverStyle(ResolverStyle.LENIENT);
             ParsePosition ppos = new ParsePosition(0);
             TemporalAccessor ta = dtf.parse(string, ppos);
@@ -565,7 +565,7 @@ public class HsqlDateTime {
         String javaPattern = toJavaDatePattern(pattern, false);
         try {
 
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern(javaPattern);
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern(javaPattern, defaultLocale);
             dtf = dtf.withResolverStyle(ResolverStyle.LENIENT);
 
 
@@ -608,9 +608,9 @@ public class HsqlDateTime {
 
     /** Indicates end-of-input */
     private static final char e = 0xffff;
-
+    private static final String javaPrefix = "JAVA:";
     /**
-     * Converts the given format into a pattern accepted by <code>java.time.DateTimeFormatter</code>
+     * Converts the given format into a pattern accepted by {@code java.time.DateTimeFormatter}
      *
      * @param format date format
      * @param parse false for formatting
@@ -621,6 +621,10 @@ public class HsqlDateTime {
         char          ch;
         StringBuilder sb               = new StringBuilder(len);
         Tokenizer     tokenizer        = new Tokenizer();
+
+        if (format.startsWith(javaPrefix)) {
+            return format.substring(javaPrefix.length());
+        }
 
         for (int i = 0; i <= len; i++) {
             ch = (i == len) ? e

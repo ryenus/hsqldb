@@ -1439,7 +1439,8 @@ public class FunctionCustom extends FunctionSQL {
                                               nodes[0].dataType);
             }
             case FUNC_TO_DATE :
-            case FUNC_TO_TIMESTAMP : {
+            case FUNC_TO_TIMESTAMP :
+            case FUNC_TO_TIMESTAMP_TZ : {
                 if (data[0] == null || data[1] == null) {
                     return null;
                 }
@@ -2545,11 +2546,6 @@ public class FunctionCustom extends FunctionSQL {
                 return Type.SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION
                     .convertToType(session, data[0], Type.SQL_VARCHAR);
             }
-            case FUNC_TO_TIMESTAMP_TZ : {
-                if (data[0] == null || data[1] == null) {
-                    return null;
-                }
-            }
             case FUNC_TRANSLATE : {
                 if (data[0] == null || data[1] == null || data[2] == null) {
                     return null;
@@ -3137,16 +3133,20 @@ public class FunctionCustom extends FunctionSQL {
                 return;
             }
             case FUNC_TO_DATE :
-            case FUNC_TO_TIMESTAMP : {
+            case FUNC_TO_TIMESTAMP :
+            case FUNC_TO_TIMESTAMP_TZ : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
 
                 if (nodes[1] == null) {
-                    String format = "DD-MON-YYYY HH24:MI:SS";
-
-                    if (funcType == FUNC_TO_TIMESTAMP) {
+                    String format;
+                    if (funcType == FUNC_TO_DATE) {
+                        format = "DD-MON-YYYY HH24:MI:SS";
+                    } else if (funcType == FUNC_TO_TIMESTAMP) {
                         format = "DD-MON-YYYY HH24:MI:SS.FF";
+                    } else {
+                        format = "DD-MON-YYYY HH24:MI:SS:FFTZ";
                     }
 
                     nodes[1] = new ExpressionValue(format, Type.SQL_VARCHAR);
@@ -3165,12 +3165,17 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                dataType = funcType == FUNC_TO_DATE
-                           ? Type.SQL_TIMESTAMP_NO_FRACTION
-                           : Type.SQL_TIMESTAMP;
+                if (funcType == FUNC_TO_DATE) {
+                    dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
+                } else if (funcType == FUNC_TO_TIMESTAMP) {
+                    dataType = Type.SQL_TIMESTAMP;
+                } else {
+                    dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                }
 
                 return;
             }
+
             case FUNC_TIMESTAMP : {
                 Type argType = nodes[0].dataType;
 
@@ -4034,29 +4039,6 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 dataType = Type.SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION;
-                break;
-
-            case FUNC_TO_TIMESTAMP_TZ :
-                if (nodes[0].dataType == null) {
-                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
-                }
-
-                if (nodes[1] == null) {
-                    String format = "DD-MON-YYYY HH24:MI:SS:FF TZH:TZM";
-
-                    nodes[1] = new ExpressionValue(format, Type.SQL_VARCHAR);
-                }
-
-                if (nodes[1].dataType == null) {
-                    nodes[1].dataType = Type.SQL_VARCHAR;
-                }
-
-                if (!nodes[0].dataType.isCharacterType()
-                        || !nodes[1].dataType.isCharacterType()) {
-                    throw Error.error(ErrorCode.X_42567);
-                }
-
-                dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
                 break;
 
             case FUNC_TRANSACTION_UTC :
