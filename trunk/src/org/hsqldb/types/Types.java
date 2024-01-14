@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -176,7 +176,7 @@ public class Types {
     /**
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
-     * <code>ARRAY</code>.
+     * {@code ARRAY}.
      *
      * @since JDK 1.2
      */
@@ -185,28 +185,28 @@ public class Types {
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>BIGINT</code>.
+     * {@code BIGINT}.
      */
     public static final int BIGINT = -5;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>BINARY</code>.
+     * {@code BINARY}.
      */
     public static final int BINARY = -2;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>BIT</code>.
+     * {@code BIT}.
      */
     public static final int BIT = -7;
 
     /**
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
-     * <code>BLOB</code>.
+     * {@code BLOB}.
      *
      * @since JDK 1.2
      */
@@ -215,7 +215,7 @@ public class Types {
     /**
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
-     * <code>BOOLEAN</code>.
+     * {@code BOOLEAN}.
      *
      * @since JDK 1.4
      */
@@ -224,14 +224,14 @@ public class Types {
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>CHAR</code>.
+     * {@code CHAR}.
      */
     public static final int CHAR = SQL_CHAR;
 
     /**
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
-     * <code>CLOB</code>
+     * {@code CLOB}
      *
      * @since JDK 1.2
      */
@@ -239,7 +239,7 @@ public class Types {
 
     /**
      * The constant in the Java programming language, sometimes referred to
-     * as a type code, that identifies the generic SQL type <code>DATALINK</code>.
+     * as a type code, that identifies the generic SQL type {@code DATALINK}.
      *
      * @since JDK 1.4
      */
@@ -248,21 +248,21 @@ public class Types {
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>DATE</code>.
+     * {@code DATE}.
      */
     public static final int DATE = SQL_DATE;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>DECIMAL</code>.
+     * {@code DECIMAL}.
      */
     public static final int DECIMAL = SQL_DECIMAL;
 
     /**
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
-     * <code>DISTINCT</code>.
+     * {@code DISTINCT}.
      *
      * @since JDK 1.2
      */
@@ -271,28 +271,28 @@ public class Types {
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>DOUBLE</code>.
+     * {@code DOUBLE}.
      */
     public static final int DOUBLE = SQL_DOUBLE;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>FLOAT</code>.
+     * {@code FLOAT}.
      */
     public static final int FLOAT = SQL_FLOAT;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>INTEGER</code>.
+     * {@code INTEGER}.
      */
     public static final int INTEGER = SQL_INTEGER;
 
     /**
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
-     * <code>JAVA_OBJECT</code>.
+     * {@code JAVA_OBJECT}.
      *
      * @since JDK 1.2
      */
@@ -301,35 +301,35 @@ public class Types {
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>LONGVARBINARY</code>.
+     * {@code LONGVARBINARY}.
      */
     public static final int LONGVARBINARY = -4;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>LONGVARCHAR</code>.
+     * {@code LONGVARCHAR}.
      */
     public static final int LONGVARCHAR = -1;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>MULTISET</code>.
+     * {@code MULTISET}.
      */
     public static final int MULTISET = 0;                           // no java.sql.Types definition
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>NULL</code>.
+     * {@code NULL}.
      */
     public static final int NULL = 0;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>NUMERIC</code>.
+     * {@code NUMERIC}.
      */
     public static final int NUMERIC = SQL_NUMERIC;
 
@@ -337,21 +337,21 @@ public class Types {
      * The constant in the Java programming language that indicates
      * that the SQL type is database-specific and
      * gets mapped to a Java object that can be accessed via
-     * the methods <code>getObject</code> and <code>setObject</code>.
+     * the methods {@code getObject} and {@code setObject}.
      */
     public static final int OTHER = 1111;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>REAL</code>.
+     * {@code REAL}.
      */
     public static final int REAL = SQL_REAL;
 
     /**
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
-     * <code>REF</code>.
+     * {@code REF}.
      *
      * @since JDK 1.2
      */
@@ -360,7 +360,7 @@ public class Types {
     /**
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
-     * <code>REF_CURSOR</code>.
+     * {@code REF_CURSOR}.
      *
      * @since JDK 1.8
      */
@@ -369,14 +369,14 @@ public class Types {
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>SMALLINT</code>.
+     * {@code SMALLINT}.
      */
     public static final int SMALLINT = SQL_SMALLINT;
 
     /**
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
-     * <code>STRUCT</code>.
+     * {@code STRUCT}.
      *
      * @since JDK 1.2
      */
@@ -385,14 +385,14 @@ public class Types {
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>TIME</code>.
+     * {@code TIME}.
      */
     public static final int TIME = SQL_TIME;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>TIME_WITH_TIMEZONE </code>.
+     * {@code TIME_WITH_TIMEZONE }.
      *
      * @since JDK 1.8
      */
@@ -401,14 +401,14 @@ public class Types {
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>TIMESTAMP</code>.
+     * {@code TIMESTAMP}.
      */
     public static final int TIMESTAMP = SQL_TIMESTAMP;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>TIMESTAMP_WITH_TIMEZONE </code>.
+     * {@code TIMESTAMP_WITH_TIMEZONE }.
      *
      * @since JDK 1.8
      */
@@ -417,28 +417,28 @@ public class Types {
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>TINYINT</code>.
+     * {@code TINYINT}.
      */
     public static final int TINYINT = -6;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>VARBINARY</code>.
+     * {@code VARBINARY}.
      */
     public static final int VARBINARY = -3;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
-     * <code>VARCHAR</code>.
+     * {@code VARCHAR}.
      */
     public static final int VARCHAR = SQL_VARCHAR;
 
 //    /**
 //     * <P>The constant in the Java programming language, sometimes referred
 //     * to as a type code, that identifies the recent SQL 2003 SQL type
-//     * <code>XML</code>.
+//     * {@code XML}.
 //     *
 //     * @since SQL 2003
 //     * @deprecated
@@ -449,7 +449,7 @@ public class Types {
 
     /**
      * The constant in the Java programming language, sometimes referred to
-     * as a type code, that identifies the generic SQL type <code>ROWID</code>
+     * as a type code, that identifies the generic SQL type {@code ROWID}
      *
      * @since JDK 1.6, HSQLDB 1.8.x
      *
@@ -458,7 +458,7 @@ public class Types {
 
     /**
      * The constant in the Java programming language, sometimes referred to
-     * as a type code, that identifies the generic SQL type <code>NCHAR</code>
+     * as a type code, that identifies the generic SQL type {@code NCHAR}
      *
      * @since JDK 1.6, HSQLDB 1.8.x
      */
@@ -466,7 +466,7 @@ public class Types {
 
     /**
      * The constant in the Java programming language, sometimes referred to
-     * as a type code, that identifies the generic SQL type <code>NVARCHAR</code>.
+     * as a type code, that identifies the generic SQL type {@code NVARCHAR}.
      *
      * @since JDK 1.6, HSQLDB 1.8.x
      */
@@ -474,7 +474,7 @@ public class Types {
 
     /**
      * The constant in the Java programming language, sometimes referred to
-     * as a type code, that identifies the generic SQL type <code>LONGNVARCHAR</code>.
+     * as a type code, that identifies the generic SQL type {@code LONGNVARCHAR}.
      *
      * @since JDK 1.6, HSQLDB 1.8.x
      */
@@ -482,7 +482,7 @@ public class Types {
 
     /**
      * The constant in the Java programming language, sometimes referred to
-     * as a type code, that identifies the generic SQL type <code>NCLOB</code>.
+     * as a type code, that identifies the generic SQL type {@code NCLOB}.
      *
      * @since JDK 1.6, HSQLDB 1.8.x
      */
@@ -490,7 +490,7 @@ public class Types {
 
     /**
      * The constant in the Java programming language, sometimes referred to
-     * as a type code, that identifies the generic SQL type <code>XML</code>.
+     * as a type code, that identifies the generic SQL type {@code XML}.
      *
      * @since JDK 1.6, HSQLDB 1.8.x
      */

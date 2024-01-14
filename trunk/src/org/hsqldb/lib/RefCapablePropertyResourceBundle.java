@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,32 +81,32 @@ import java.util.regex.Pattern;
  * <P>
  * REFERENCED FILE DIRECTORY is a directory named with the base name of the
  * properties file, and in the same parent directory.  So, the referenced
- * file directory <CODE>/a/b/c/greentea</CODE> is used to hold all reference
- * files for properties files <CODE>/a/b/c/greentea_en_us.properties</CODE>,
- * <CODE>/a/b/c/greentea_de.properties</CODE>,
- * <CODE>/a/b/c/greentea.properties</CODE>, etc.
+ * file directory {@code /a/b/c/greentea} is used to hold all reference
+ * files for properties files {@code /a/b/c/greentea_en_us.properties},
+ * {@code /a/b/c/greentea_de.properties},
+ * {@code /a/b/c/greentea.properties}, etc.
  * (BTW, according to ResourceBundle rules, this resource should be looked
  * up with name "a.b.c.greentea", not "/a/b/c..." or "a/b/c").
  * REFERENCED FILES themselves all have the base name of the property key,
  * with locale appendages exactly as the <i>referring</i> properties files
- * has, plus the suffix <CODE>.text</CODE>.
+ * has, plus the suffix {@code .text}.
  * <P>
  * So, if we have the following line in
- * <CODE>/a/b/c/greentea_de.properties</CODE>:
+ * {@code /a/b/c/greentea_de.properties}:
  * <PRE>
  *     1: eins
  * </PRE>
  * then you <b>must</b> have a reference text file
- * <CODE>/a/b/c/greentea/1_de.properties</CODE>:
+ * {@code /a/b/c/greentea/1_de.properties}:
  * <P>
  * In reference text files,
  * sequences of "\r", "\n" and "\r\n" are all translated to the line
- * delimiter for your platform (System property <CODE>line.separator</CODE>).
+ * delimiter for your platform (System property {@code line.separator}).
  * If one of those sequences exists at the very end of the file, it will be
  * eliminated (so, if you really want getString() to end with a line delimiter,
  * end your file with two of them).
  * (The file itself is never modified-- I'm talking about the value returned
- * by <CODE>getString(String)</CODE>).
+ * by {@code getString(String)}).
  * <P>
  * To prevent throwing at runtime due to unset variables, use a wrapper class
  * like SqltoolRB (use SqltoolRB.java as a template).

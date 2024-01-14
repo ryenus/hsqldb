@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public final class InOutUtil {
     }
 
     /**
-     * Retrieves the serialized form of the specified <code>Object</code> as an
+     * Retrieves the serialized form of the specified {@code Object} as an
      * array of bytes.
      *
      * @param s the Object to serialize
@@ -106,7 +106,7 @@ public final class InOutUtil {
 
     /**
      * Deserializes the specified byte array to an
-     * <code>Object</code> instance.
+     * {@code Object} instance.
      *
      * @return the Object resulting from deserializing the specified array of bytes
      * @param ba the byte array to deserialize to an Object
@@ -157,7 +157,7 @@ public final class InOutUtil {
     }
 
     /**
-     * the specified <code>amount</code> from the given input stream to the
+     * the specified {@code amount} from the given input stream to the
      * given output stream, using a buffer of the given size.
      *
      * @param inputStream from which to source bytes
@@ -237,7 +237,7 @@ public final class InOutUtil {
     }
 
     /**
-     * the specified <code>amount</code> from the given input stream to the
+     * the specified {@code amount} from the given input stream to the
      * given output stream, using a buffer of the given size.
      *
      * @param reader from which to source characters

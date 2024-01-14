@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
 package org.hsqldb.lib;
 
 import java.io.IOException;
@@ -87,9 +89,9 @@ public class AsciiInputStream extends InputStream {
 
     /**
      * Reads the next byte of data from the input stream. The value byte is
-     * returned as an <code>int</code> in the range <code>0</code> to
+     * returned as an {@code int} in the range {@code 0} to
      * {@link #ASCII_MAX}. If no byte is available because the end of the stream
-     * has been reached, the value <code>-1</code> is returned. This method
+     * has been reached, the value {@code -1} is returned. This method
      * blocks until input data is available, the end of the stream is detected,
      * or an exception is thrown.
      * <p>
@@ -99,7 +101,7 @@ public class AsciiInputStream extends InputStream {
      * Surrogate pairs are correctly counted as a single character and produce a
      * single {@link #NON_ASCII_REPLACEMENT} value when read.
      *
-     * @return the next byte of data, or <code>-1</code> if the end of the
+     * @return the next byte of data, or {@code -1} if the end of the
      *         stream is reached.
      * @exception IOException if an I/O error occurs.
      */

@@ -481,7 +481,7 @@ public final class ArrayUtil {
      *
      * @param arra int[] first column indexes
      * @param arrb int[] second column indexes
-     * @return int[] common indexes or <code>null</code> if there is no overlap.
+     * @return int[] common indexes or {@code null} if there is no overlap.
      */
     public static int[] commonElements(int[] arra, int[] arrb) {
 
@@ -519,7 +519,7 @@ public final class ArrayUtil {
      *
      * @param arrb int[] second array of column indexes
      *
-     * @return int number of elements shared by <code>arra</code> and <code>arrb</code>
+     * @return int number of elements shared by {@code arra} and {@code arrb}
      */
     public static int countCommonElements(int[] arra, int[] arrb) {
 

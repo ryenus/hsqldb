@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,25 +57,25 @@ import org.hsqldb.map.BitMap;
  * The public setup method is the constructor.
  * <P>
  * Each non-comment line in the ACL file must be a rule of the format:
- * <PRE><CODE>
+ * <PRE>{@code 
  *     {allow|deny} &lt;ip_address&gt;[/significant-bits]
- * </CODE></PRE>
+ * }</PRE>
  * For example
- * <PRE><CODE>
+ * <PRE>{@code 
  *     allow ahostname
  *     deny ahost.domain.com
  *     allow 127.0.0.1
  *     allow 2001:db8::/32
- * </CODE></PRE>
+ * }</PRE>
  *
  * <P>
  * In order to detect bit specification mistakes, we require that
  * non-significant bits be zero in the values.
  * An undesirable consequence of this is, you can't use a specification like
  * the following to mean "all of the hosts on the same network as x.admc.com":
- * <PRE><CODE>
+ * <PRE>{@code 
  *     allow x.admc.com/24
- * </CODE></PRE>
+ * }</PRE>
  *
  *
  *
