@@ -41,7 +41,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2022 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2024 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -53,15 +53,14 @@
     <title>Introduction</title>
 
     <para>HyperSQL Database (HSQLDB) is a modern relational database system.
-    Version 2.7.1 is the latest release of the all-new version 2 code. Written
+    Version 2.7.3 is the latest release of the all-new version 2 code. Written
     from ground up to follow the international ISO SQL:2016 standard, it
     supports the complete set of the classic features, together with optional
     features such as stored procedures and triggers.</para>
 
-    <para>HyperSQL version 2.7 is compatible with Java 11 or later and
+    <para>HyperSQL version 2.7.3 is compatible with Java 11 or later and
     supports the Java module system. A version of the HSQLDB jar compiled with
-    JDK 8 is also included in the download zip package. A version of the jar
-    compiled with JDK 6 is also available at hsqldb.org.</para>
+    JDK 8 is also included in the download zip package.</para>
 
     <para>HyperSQL is used for development, testing and deployment of database
     applications.</para>
