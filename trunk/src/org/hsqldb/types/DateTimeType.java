@@ -817,6 +817,12 @@ public final class DateTimeType extends DTIType {
 
             seconds     = millis / millisInSecond;
             zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
+        } else if (a instanceof java.util.Calendar) {
+            calendar = (java.util.Calendar) a;
+            long millis = calendar.getTimeInMillis();
+            seconds     = millis / millisInSecond;
+            zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
+            nanos        = (int) (millis % millisInSecond * nanosInMilli);
         } else if (a instanceof java.time.LocalDate) {
             LocalDate ld = (LocalDate) a;
 
