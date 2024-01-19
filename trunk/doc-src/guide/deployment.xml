@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2022 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2024 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -898,7 +898,7 @@
     <subtitle>Java Module Dependency and Dependency settings using Gradle,
     Ivy, Maven, Groovy</subtitle>
 
-    <simpara>HyperSQL and SqlTool version 2.7.2 jars are Java Module jars
+    <simpara>HyperSQL and SqlTool version 2.7.3 jars are Java Module jars
     compiled with JDK 11. The module name for HyperSQL is
     <literal>org.hsqldb</literal> and for SqlTool,
     <literal>org.hsqldb.sqltool</literal>. In a modular application, these
@@ -950,7 +950,7 @@
       the suggestions in the appropriate sections below. If you need to
       specify a specific version, follow the instructions in the
       range-versioning section but change the version range specifications to
-      literal versions like <literal>2.7.2</literal>.</para>
+      literal versions like <literal>2.7.3</literal>.</para>
     </section>
 
     <section xml:id="dec_maven_range_version">

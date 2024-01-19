@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2022 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2024 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -1715,16 +1715,16 @@ C1
       <para>These datetime functions return the datetime value representing
       the moment the function is called. <literal>CURRENT_DATE</literal>
       returns a value of DATE type. <literal>CURRENT_TIME</literal> returns a
-      value of TIME WITH TIME ZONE type. <literal>LOCALTIME</literal> returns
-      a value of TIME type. <literal>CURRENT_TIMESTAMP</literal> returns a
-      value of TIMESTAMP WITH TIME ZONE type.
-      <literal>LOCALTIMESTAMP</literal> returns a value of TIMESTAMP type. The
-      time zone of the SQL session is used. If the optional <literal>[ (
-      &lt;time precision&gt; ) ]</literal> or<literal> [ ( &lt;timestamp
-      precision&gt; ) ]</literal> is used, then the returned value has the
-      specified fraction of the second precision. When the functions are used
-      multiple times in a single SQL statement, the returned values represent
-      the same point of time.</para>
+      value of TIME WITH TIME ZONE type with the time zone of the SQL session.
+      <literal>LOCALTIME</literal> returns a value of TIME type.
+      <literal>CURRENT_TIMESTAMP</literal> returns a value of TIMESTAMP WITH
+      TIME ZONE type with the time zone of the SQL session.
+      <literal>LOCALTIMESTAMP</literal> returns a value of TIMESTAMP type. If
+      the optional <literal>[ ( &lt;time precision&gt; ) ]</literal>
+      or<literal> [ ( &lt;timestamp precision&gt; ) ]</literal> is used, then
+      the returned value has the specified fraction of the second precision.
+      When the functions are used multiple times in a single SQL statement,
+      the returned values represent the same point of time.</para>
 
       <para>From version 2.7.0 the functions return values with microsecond
       precision. Previous versions returned values with millisecond precision.
@@ -2504,7 +2504,13 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
       <para>This function formats a datetime value to the format given in the
       second argument. See TO_TIMESTAMP below for the details of the format
       string. Format elements such as DAY or HH12 are used in the examples
-      below, with the result included:</para>
+      below, with the result included.</para>
+
+      <para>Separator characters (space, comma, period, hyphen, colon,
+      semicolon, forward slash) can be included between the pattern elements.
+      You can include a string literal inside the format string by enclosing
+      it in double quotes (see the second example above). Unsupported format
+      characters should not be used. (HyperSQL)</para>
 
       <informalexample>
         <programlisting> TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC DAY DD MONTH HH12 AM' )
@@ -2514,12 +2520,6 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
  in 2018, on 01 March
 </programlisting>
       </informalexample>
-
-      <para>Separator characters (space, comma, period, hyphen, colon,
-      semicolon, forward slash) can be included between the pattern elements.
-      You can include a string literal inside the format string by enclosing
-      it in double quotes (see the second example above). Unsupported format
-      characters should not be used. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TO_DATE function</primary>
@@ -2548,7 +2548,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
       <para><literal>TO_TIMESTAMP ( &lt;char value expr&gt;, &lt;char value
       expr&gt; )</literal></para>
 
-      <para>Thesse functions translate a formatted datetime string to a
+      <para>These functions translate a formatted datetime string to a
       TIMESTAMP. TO_DATE returns a TIMESTAMP(0) value with no sub-second
       fraction. TO_TIMESTAMP returns a TIMESTAMP(6). TO_TIEMSTAMP_TZ returns a
       TIMESTAMP(6) WITH TIME ZONE value. The format string can contain pattern
@@ -2666,9 +2666,9 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
               <entry><literal>W</literal></entry>
 
               <entry><para>Week of month (0-5) where the first day of the
-              month is in week 1, or in week is 0 if the ISO week at the
-              beginning of the year starts in the previous calendar year. Week
-              starts on Monday.</para></entry>
+              month is in week 1, or in week 0 for an ISO week at the
+              beginning of the calendar year which starts in the previous
+              week-based year. Week starts on Monday.</para></entry>
             </row>
 
             <row>
@@ -2702,7 +2702,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
             </row>
 
             <row>
-              <entry><literal>AM | PM | A.M. | P.M.</literal></entry>
+              <entry><literal>AM | A.M. | PM | P.M.</literal></entry>
 
               <entry><para>Meridian indicator.</para></entry>
             </row>
@@ -2993,9 +2993,11 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     ...] )</literal></para>
 
     <para>The GREATEST function takes one or more arguments. It compares the
-    arguments with each other and returns the greatest argument. The return
-    type is the combined type of the arguments. Arguments can be of any type,
-    so long as they are comparable. (HyperSQL)</para>
+    arguments with each other and returns the greatest argument. Arguments can
+    be of any type, so long as they are comparable. The return type is the
+    combined type of the arguments. For example comparing an integer value
+    with a double value will return the greatest value as a DOUBLE.
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>IFNULL function</primary>
@@ -3016,7 +3018,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of the
     return value is the type of <literal>&lt;value expr 1&gt;</literal>.
     Almost equivalent to SQL Standard <literal>COALESCE(&lt;value expr 1&gt;,
-    &lt;value expr 2&gt;)</literal> function, but without type modification.
+    &lt;value expr 2&gt;)</literal> function, but without type aggregation.
     (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
@@ -3029,9 +3031,11 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     )</literal></para>
 
     <para>The LEAST function takes one or more arguments. It compares the
-    arguments with each other and returns the smallest argument. The return
-    type is the combined type of the arguments. Arguments can be of any type,
-    so long as they are comparable. (HyperSQL)</para>
+    arguments with each other and returns the smallest argument. Arguments can
+    be of any type, so long as they are comparable. The return type is the
+    combined type of the arguments. For example comparing an integer value
+    with a double value will return the smallest value as a DOUBLE.
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LOAD_FILE function</primary>
@@ -3107,7 +3111,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     <simpara><emphasis role="bold">UUID</emphasis></simpara>
 
     <para><literal>UUID ( [ { &lt;char value expr&gt; | &lt;binary value
-    expr&gt; ] } ) </literal></para>
+    expr&gt; } ] ) </literal></para>
 
     <para>With no parameter, this function returns a new UUID value as a
     16-byte binary value in the UUID type. With a UUID hexadecimal string
@@ -3144,10 +3148,10 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     <para><literal>CRYPT_KEY( &lt;value expr 1&gt;, &lt;value expr 2&gt;
     )</literal></para>
 
-    <para>Returns a binary string representation of a cryptography key for the
-    given cipher and cryptography provider. The cipher specification is
-    specified by <literal>&lt;value expr 1&gt;</literal> and the provider by
-    <literal>&lt;value expr 2&gt;</literal>. To use the default provider,
+    <para>Returns a binary string representation of a random cryptography key
+    for the given cipher and cryptography provider. The cipher specification
+    is specified by <literal>&lt;value expr 1&gt;</literal> and the provider
+    by <literal>&lt;value expr 2&gt;</literal>. To use the default provider,
     specify null for <literal>&lt;value expr 2&gt;</literal>.
     (HyperSQL)</para>
 
@@ -3220,7 +3224,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     <para><literal>DATABASE_VERSION ()</literal></para>
 
     <para>Returns the full version string for the database engine. For
-    example, 2.7.2. (JDBC)</para>
+    example, 2.7.3. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>USER function</primary>
