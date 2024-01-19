@@ -28,7 +28,7 @@ javac.bootcp.override=/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar:/usr/lib/jvm/ja
 
     <property file='build/build.properties'/>
 
-    <property name="hsqldb.version" value="2.7.2"/>
+    <property name="hsqldb.version" value="2.7.3"/>
 
     <tstamp>
       <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss" locale="en"/>
@@ -791,7 +791,7 @@ ${err.2}</fail>
            verbose="false"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2024 HSQL Development Group.&lt;/i&gt;">
            <packageset dir="${swsrc}">
               <include name='org/hsqldb/auth'/>
               <include name='org/hsqldb/jdbc'/>
@@ -829,7 +829,7 @@ ${err.2}</fail>
                 verbose="false"
                 windowtitle="${hsqldb.title} ${hsqldb.version} API"
                 doctitle="${hsqldb.title} ${hsqldb.version}"
-                bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
+                bottom="&lt;i&gt;Copyright &#169; 2001 - 2024 HSQL Development Group.&lt;/i&gt;">
             <packageset dir="${swsrctool}">
                 <include name='org/hsqldb/cmdline'/>
                 <include name='org/hsqldb/libclone'/>
@@ -867,7 +867,7 @@ ${err.2}</fail>
            failonerror="true"
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2024 HSQL Development Group.&lt;/i&gt;">
            <fileset dir="src" includes="org/**/*.java" excludes="org/hsqldb/test/**
                 org/hsqldb/sample/** org/hsqldb/cmdline/**"/>
            <!-- Fileset is really good for maintenance and control purposes,
