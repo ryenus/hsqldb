@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
  * Manages all the details we need to connect up to JDBC database(s),
  * in a declarative way.
  * <P>
- * The file <CODE>src/org/hsqldb/sample/SqlFileEmbedder.java</CODE>
+ * The file {@code src/org/hsqldb/sample/SqlFileEmbedder.java}
  * in the HSQLDB distribution provides an example of how to use RCData for your
  * own programs.
  *
@@ -251,11 +251,11 @@ public class RCData {
     }
 
     /**
-     * Creates a new <code>RCData</code> object.
+     * Creates a new {@code RCData} object.
      *
      * <P>
      * The parameters driver, charset, truststore, and libpath are optional.
-     * Setting these parameters to <code>NULL</code> will set them to their
+     * Setting these parameters to {@code NULL} will set them to their
      * default values.
      *
      * @param id The identifier for these connection settings
@@ -267,7 +267,7 @@ public class RCData {
      * @param truststore The trust store to use
      * @param libpath The JDBC library to add to CLASSPATH
      * @param ti The transaction level
-     * @throws Exception if the a non-optional parameter is set to <code>NULL</code>
+     * @throws Exception if a non-optional parameter is set to {@code NULL}
      */
     public RCData(String id, String url, String username, String password,
                   String driver, String charset, String truststore,
@@ -419,7 +419,7 @@ public class RCData {
 
     /**
      * Returns a copy of the given String with System property names in the
-     * format <code>${system.property}</code> replaced by the corresponding Java
+     * format {@code ${system.property}} replaced by the corresponding Java
      * System Properties.
      *
      * @param inString String
@@ -448,7 +448,7 @@ public class RCData {
 
             varName = outString.substring(varOffset + 2, varEnd);
 
-            if (varName.length() < 1) {
+            if (varName.isEmpty()) {
                 throw new IllegalArgumentException("Bad variable setting");
             }
 
@@ -495,7 +495,7 @@ public class RCData {
      * java.sql.Connection Transaction level.
      * <P>
      * Database implementations are free to provide their own transaction
-     * isolation levels, so you can't depend upon this method to much.
+     * isolation levels, so you can't depend upon this method too much.
      *
      * @param ti Transaction levle
      * @return The string representation

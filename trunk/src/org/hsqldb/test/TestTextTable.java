@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,7 +134,7 @@ public class TestTextTable extends TestBase {
                     }
                 }
 
-                textFile.println(buf.toString());
+                textFile.println(buf);
             }
 
             textFile.close();
@@ -246,7 +246,7 @@ public class TestTextTable extends TestBase {
             spec = results.getString(1);
         } catch (SQLException ex) {
             fail("getDataSourceSpec(" + tableName + ") failed: "
-                 + ex.toString());
+                 + ex);
         }
 
         return spec;
@@ -268,7 +268,7 @@ public class TestTextTable extends TestBase {
 
             isReadOnly = systemTables.getBoolean(1);
         } catch (SQLException ex) {
-            fail("isReadOnly(" + tableName + ") failed: " + ex.toString());
+            fail("isReadOnly(" + tableName + ") failed: " + ex);
         }
 
         return isReadOnly;
@@ -335,7 +335,7 @@ public class TestTextTable extends TestBase {
                 tempCustomersDesc.createTable(m_connection);
             } catch (Throwable t) {
                 fail("checkSeparators: separator '" + separatorSpec
-                     + "' doesn't work: " + t.toString());
+                     + "' doesn't work: " + t);
             }
 
             executeStatement("SET TABLE \"" + tableName + "\" SOURCE OFF");
@@ -381,15 +381,15 @@ public class TestTextTable extends TestBase {
             throw e;
         } catch (Throwable t) {
             fail("verifyTableContent(" + tableName + ") failed with "
-                 + t.toString());
+                 + t);
         }
     }
 
     /**
      * executes a given m_statement
      *
-     *  <p>Basically, this method calls <code>m_statement.execute(sql)</code>,
-     *  but wraps any <code>SQLException</code>s into a JUnit error.
+     *  <p>Basically, this method calls {@code m_statement.execute(sql)},
+     *  but wraps any {@code SQLException}s into a JUnit error.
      */
     private void executeStatement(String sql) {
 
@@ -555,7 +555,7 @@ public class TestTextTable extends TestBase {
             throw e;
         } catch (Throwable t) {
             fail("checkSourceConnection: unable to check invalid data sources, error: "
-                 + t.toString());
+                 + t);
         }
     }
 

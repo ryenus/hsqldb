@@ -107,8 +107,8 @@ public class TestViewAsterisks extends TestBase {
     /**
      * executes a given m_statement
      *
-     *  <p>Basically, this method calls <code>m_statement.execute(sql)</code>,
-     *  but wraps any <code>SQLException</code>s into a JUnit error.
+     *  <p>Basically, this method calls {@code m_statement.execute(sql)},
+     *  but wraps any {@code SQLException}s into a JUnit error.
      */
     private void executeStatement(String sql) {
         executeStatement(sql, 0);
@@ -140,7 +140,7 @@ public class TestViewAsterisks extends TestBase {
      *  @param viewName
      *      specifies the name of the view to create
      *  @param columnList
-     *      list of names of the columns of the view, will be specified in the CREATE VIEW statement. Might be <code>null</code>.
+     *      list of names of the columns of the view, will be specified in the CREATE VIEW statement. Might be {@code null}.
      *  @param viewStatement
      *      the statement of the view
      */
@@ -254,7 +254,7 @@ public class TestViewAsterisks extends TestBase {
      *      statement after creation does not match this expected statement, this is a failure condition which
      *      results in a AssertionFailedError being thrown.
      *  @param expectedContent
-     *      the expected content of the view. If this is <code>null</code>, it is ignored. Else, if it is a
+     *      the expected content of the view. If this is {@code null}, it is ignored. Else, if it is a
      *      string, it is interpreted as name of the table which must have the same content as a view. If
      *      it's no string either, it must be a two-dimensional Object array specifying the expected content.
      */

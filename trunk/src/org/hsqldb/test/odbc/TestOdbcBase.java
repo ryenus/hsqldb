@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -232,12 +232,12 @@ public abstract class TestOdbcBase {
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
      *
-     * Invoke like this:<PRE><CODE>
+     * Invoke like this:<PRE>{@code 
      *  public static void main(String[] sa) {
      *      staticRunner(TestOdbcService.class, sa);
      *  }
-     * </CODE></PRE>, but give your subclass name in place of
-     * <CODE>TestOdbcService</CODE>
+     * }</PRE>, but give your subclass name in place of
+     * {@code TestOdbcService}
      */
     public static void staticRunner(Class c, String[] sa) {
 

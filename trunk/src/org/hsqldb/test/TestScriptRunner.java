@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ class TestScriptRunner {
     /**
      * Executes specified SQL test scripts.
      *
-     * Run <CODE>java org.hsqldb.util.TestScriptRunner</CODE> with no
+     * Run {@code java org.hsqldb.util.TestScriptRunner} with no
      * args to display syntax help.
      *
      * The TestCacheSize database population uses the database details

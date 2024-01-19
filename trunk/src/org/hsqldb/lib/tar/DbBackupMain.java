@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,9 +59,9 @@ public class DbBackupMain {
      * Automatically calculates buffer sizes based on the largest component
      * file (for "save" mode) or tar file size (for other modes).
      * <P>
-     * Run<PRE><CODE>
+     * Run<PRE>{@code 
      *     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackupMain
-     * </CODE></PRE> for syntax help.
+     * }</PRE> for syntax help.
      *
      * @param sa The arguments
      * @throws IOException on read-write error
