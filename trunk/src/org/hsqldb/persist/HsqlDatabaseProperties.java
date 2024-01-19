@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -159,11 +159,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
     public static final String PRODUCT_NAME         = "HSQL Database Engine";
 
-    public static final String THIS_VERSION      = "2.7.2";
-    public static final String THIS_FULL_VERSION = "2.7.2";
+    public static final String THIS_VERSION      = "2.7.3";
+    public static final String THIS_FULL_VERSION = "2.7.3";
     public static final int    MAJOR             = 2,
                                MINOR             = 7,
-                               REVISION          = 2;
+                               REVISION          = 3;
 
     /**
      * system properties supported by HSQLDB
