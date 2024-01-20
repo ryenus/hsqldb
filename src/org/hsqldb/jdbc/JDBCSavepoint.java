@@ -58,7 +58,6 @@ import java.sql.Savepoint;
  * </div>
  * <!-- end release-specific documentation -->
  *
- *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @since JDK 1.4, HSQLDB 1.7.2
  */

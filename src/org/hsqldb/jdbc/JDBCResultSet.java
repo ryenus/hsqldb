@@ -202,7 +202,6 @@ import org.hsqldb.types.Types;
  * <P>The number, types and properties of a {@code ResultSet}
  * object's columns are provided by the {@code ResultSetMetaData}
  * object returned by the {@code ResultSet.getMetaData} method.
-
  *
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">

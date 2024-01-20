@@ -64,7 +64,6 @@ import org.hsqldb.types.Types;
  *     boolean b = rsmd.isSearchable(1);
  *
  * </PRE>
-
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">

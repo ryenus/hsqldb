@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,7 +122,7 @@ class GridSwing extends AbstractTableModel {
 
     /**
      * Get the current table data.
-     *  Each row is represented as a <code>String[]</code>
+     *  Each row is represented as a {@code String[]}
      *  with a single non-null value in the 0-relative
      *  column position.
      *  <p>The first row is at offset 0, the nth row at offset n etc.

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,8 +56,8 @@ import org.hsqldb.lib.FrameworkLogger;
  * <P>
  * JAAS setup is Java-implementation-specific.
  * For Sun Java, you set up a JAAS configuration file which resides at
- * <code>$HOME/.java.login.config</code> or at the location that you set with
- * Java system property <code>java.security.auth.login.config</code>.
+ * {@code $HOME/.java.login.config} or at the location that you set with
+ * Java system property {@code java.security.auth.login.config}.
  * <P>
  * You can use this bean to manage just access, or also to manage roles or
  * initial schemas.
@@ -171,14 +171,14 @@ public class JaasAuthBean implements AuthFunctionBean {
      * must match the entire candidate value strings (this is different than
      * the find operation which does not need to satisfy the entire candidate
      * value).
-     * <P>Example1 :<PRE><CODE>
+     * <P>Example1 :<PRE>{@code 
      *     cn=([^,]+),ou=dbRole,dc=admc,dc=com
-     * </CODE></PRE>
+     * }</PRE>
      *     will extract the CN value from matching attribute values.
-     * <P>Example1 :<PRE><CODE>
+     * <P>Example1 :<PRE>{@code 
      *     cn=[^,]+,ou=dbRole,dc=admc,dc=com
-     * </CODE></PRE>
-     *     will return the entire <CODE>cn...com</CODE> string for matching
+     * }</PRE>
+     *     will return the entire {@code cn...com} string for matching
      *     attribute values.
      *
      * @see Matcher#matches()

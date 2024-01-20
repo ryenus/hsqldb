@@ -161,7 +161,6 @@ import org.hsqldb.types.Types;
  *   pstmt.setInt(2, 110592);
  * }</pre>
  *
- *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
  * <p class="rshead">HSQLDB-Specific Information:</p>

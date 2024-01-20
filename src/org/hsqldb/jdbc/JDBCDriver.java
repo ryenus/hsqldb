@@ -111,7 +111,8 @@ import org.hsqldb.persist.HsqlProperties;
  * {@code Class.forName()} will continue to work without modification. <p>
  *
  * JDBC 4.2 methods added in Java 8 are generally supported.
- * </div> <!-- end release-specific documentation -->
+ * </div>
+ * <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.3
@@ -218,9 +219,8 @@ public class JDBCDriver implements Driver {
      *          DatabaseMetaData calls that supply null-valued schemaNamePattern
      *          parameter values.</li>
      *  </ul>
-     *
-     *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      * @param url the URL of the database to which to connect
      * @param info a list of arbitrary string tag/value pairs as
      * connection arguments. Normally at least a "user" and
@@ -382,7 +382,8 @@ public class JDBCDriver implements Driver {
      * Only the connection properties are considered. General database
      * properties are ignored.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param  url the URL of the database to which to connect
      * @param  info a proposed list of tag/value pairs that will be sent on

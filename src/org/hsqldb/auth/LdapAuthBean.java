@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -212,7 +212,7 @@ public class LdapAuthBean implements AuthFunctionBean {
      * the find operation which does not need to satisfy the entire candidate
      * value).
      *
-     * <P>Example1 :<PRE><CODE> TRUE </CODE></PRE> This will match true values
+     * <P>Example1 :<PRE>{@code  TRUE }</PRE> This will match true values
      * per OpenLDAP's boolean OID.
      *
      * @see Matcher#matches()
@@ -276,15 +276,15 @@ public class LdapAuthBean implements AuthFunctionBean {
      * the find operation which does not need to satisfy the entire candidate
      * value).
      *
-     * <P>Example1 :<PRE><CODE>
+     * <P>Example1 :<PRE>{@code 
      *     cn=([^,]+),ou=dbRole,dc=admc,dc=com
-     * </CODE></PRE>
+     * }</PRE>
      *     will extract the CN value from matching attribute values.
      *
-     * <P>Example1 :<PRE><CODE>
+     * <P>Example1 :<PRE>{@code 
      *     cn=[^,]+,ou=dbRole,dc=admc,dc=com
-     * </CODE></PRE>
-     *     will return the entire <CODE>cn...com</CODE> string for matching
+     * }</PRE>
+     *     will return the entire {@code cn...com} string for matching
      *     attribute values.
      *
      * @see Matcher#matches()
@@ -347,12 +347,12 @@ public class LdapAuthBean implements AuthFunctionBean {
      * <P>
      * It is common to authenticate to LDAP servers with the DN of the user's
      * LDAP entry.  In this situation, set principalTemplate to
-     * <CODE>&lt;RDN_ATTR=&gt;${username},&lt;PARENT_DN&gt;</CODE>.
+     * {@code &lt;RDN_ATTR=&gt;${username},&lt;PARENT_DN&gt;}.
      * For example if you use parentDn of
-     * <CODE>"ou=people,dc=admc,dc=com"</CODE> and rdnAttribute of
-     * <CODE>uid</CODE>, then you would set <PRE><CODE>
+     * {@code "ou=people,dc=admc,dc=com"} and rdnAttribute of
+     * {@code uid}, then you would set <PRE>{@code 
      *     "uid=${username},ou=people,dc=admc,dc=com"
-     * </CODE></PRE>
+     * }</PRE>
      * <P>
      * By default the user name will be passed exactly as it is, so don't use
      * this setter if that is what you want.  (This works great for OpenLDAP
