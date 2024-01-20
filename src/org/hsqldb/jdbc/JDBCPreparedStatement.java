@@ -1430,6 +1430,7 @@ implements PreparedStatement {
      * taking into account a custom timezone.  If no
      * {@code Calendar} object is specified, the driver uses the default
      * timezone, which is that of the virtual machine running the application.
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
@@ -1500,6 +1501,7 @@ implements PreparedStatement {
      * taking into account a custom timezone.  If no
      * {@code Calendar} object is specified, the driver uses the default
      * timezone, which is that of the virtual machine running the application.
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
