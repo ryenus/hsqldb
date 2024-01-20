@@ -4459,12 +4459,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * Retrieves whether or not a visible row update can be detected by
      * calling the method {@code ResultSet.rowUpdated}.
      *
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      * Updates made to the rows of the ResultSet are not detected by
      * calling the {@code ResultSet.rowUpdated}.
      * </div>
+     * <!-- end release-specific documentation -->
      * @param type the {@code ResultSet} type; one of
      *        {@code ResultSet.TYPE_FORWARD_ONLY},
      *        {@code ResultSet.TYPE_SCROLL_INSENSITIVE}, or
@@ -4484,12 +4486,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * {@code deletesAreDetected} returns {@code false}, it means that
      * deleted rows are removed from the result set.
      *
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      * Deletes made to the rows of the ResultSet are not detected by
      * calling the {@code ResultSet.rowDeleted}.
      * </div>
+     * <!-- end release-specific documentation -->
      *
      *
      * @param type the {@code ResultSet} type; one of
@@ -4509,12 +4513,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * Retrieves whether or not a visible row insert can be detected
      * by calling the method {@code ResultSet.rowInserted}.
      *
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      * Inserts made into the ResultSet are not visible and thus not detected by
      * calling the {@code ResultSet.rowInserted}.
      * </div>
+     * <!-- end release-specific documentation -->
      * @param type the {@code ResultSet} type; one of
      *        {@code ResultSet.TYPE_FORWARD_ONLY},
      *        {@code ResultSet.TYPE_SCROLL_INSENSITIVE}, or
@@ -4531,12 +4537,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     /**
      * Retrieves whether this database supports batch updates.
      *
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      * HSQLDB supports batch updates;
      * this method always returns {@code true}.
      * </div>
+     * <!-- end release-specific documentation -->
      * @return {@code true} if this database supports batch updates;
      *         {@code false} otherwise
      * @throws SQLException if a database access error occurs
@@ -4578,6 +4586,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * <P><B>Note:</B> If the driver does not support UDTs, an empty
      * result set is returned.
      *
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
@@ -4593,6 +4602,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * Starting with 2.0, DISTICT types are supported and are reported by this
      * method.
      * </div>
+     * <!-- end release-specific documentation -->
      * @param catalog a catalog name; must match the catalog name as it
      *        is stored in the database; "" retrieves those without a catalog;
      *        {@code null} means that the catalog name should not be used to narrow
@@ -4655,12 +4665,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     /**
      * Retrieves whether this database supports savepoints.
      *
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      * This SQL feature is supported through JDBC as well as SQL.
      *
      * </div>
+     * <!-- end release-specific documentation -->
      * @return {@code true} if savepoints are supported;
      *         {@code false} otherwise
      * @throws SQLException if a database access error occurs
@@ -4674,6 +4686,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * Retrieves whether this database supports named parameters to callable
      * statements.
      *
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
@@ -4681,6 +4694,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * callable statements; this method returns true.
      *
      * </div>
+     * <!-- end release-specific documentation -->
      * @return {@code true} if named parameters are supported;
      *         {@code false} otherwise
      * @throws SQLException if a database access error occurs
@@ -4695,6 +4709,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * returned from a {@code CallableStatement} object
      * simultaneously.
      *
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
@@ -4702,6 +4717,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * objects returned from a {@code CallableStatement};
      * this method always returns {@code true}.
      * </div>
+     * <!-- end release-specific documentation -->
      * @return {@code true} if a {@code CallableStatement} object
      *         can return multiple {@code ResultSet} objects
      *         simultaneously; {@code false} otherwise
@@ -4716,6 +4732,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * Retrieves whether auto-generated keys can be retrieved after
      * a statement has been executed
      *
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
@@ -4723,6 +4740,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * autogenerated keys through the JDBC interface;
      * this method always returns {@code true}.
      * </div>
+     * <!-- end release-specific documentation -->
      * @return {@code true} if auto-generated keys can be retrieved
      *         after a statement has executed; {@code false} otherwise
      * <p>If {@code true} is returned, the JDBC driver must support the
@@ -4763,6 +4781,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * <P><B>Note:</B> If the driver does not support type hierarchies, an
      * empty result set is returned.
      *
+     * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
@@ -4778,6 +4797,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * From 2.0, this feature is supported by default and return supertypes
      * for DOMAIN and DISTINCT types.
      * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param catalog a catalog name; "" retrieves those without a catalog;
      *        {@code null} means drop catalog name from the selection criteria
