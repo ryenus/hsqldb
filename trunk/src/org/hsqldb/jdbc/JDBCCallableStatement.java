@@ -3440,7 +3440,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * {@code NVARCHAR}
      * or {@code LONGNVARCHAR} parameter as
      * a {@code String} in the Java programming language.
-     *  <p>
+     * <p>
      * For the fixed-length type JDBC {@code NCHAR},
      * the {@code String} object
      * returned has exactly the same value the SQL

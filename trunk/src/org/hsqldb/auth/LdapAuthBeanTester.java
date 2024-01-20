@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public class LdapAuthBeanTester {
      *     <LI>trustStore.  This is the only property without a corresponding
      *         setter method.  Setting this property has the same effect as
      *         setting Java system property
-     *         <CODE>'javax.net.ssl.trustStore'</CODE>.
+     *         {@code 'javax.net.ssl.trustStore'}.
      *     <LI>startTls.  Takes a boolean value according to
      *         method java.util.Boolean.parseBoolean.
      *     <LI>roleSchemaValuePattern.  Corresponds to method

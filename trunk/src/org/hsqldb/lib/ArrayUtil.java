@@ -1958,7 +1958,7 @@ public final class ArrayUtil {
     }
 
     /**
-     * converts two longs to a byte[]
+     * converts two longs to a byte[16]
      *
      * @param hi long
      * @param lo long

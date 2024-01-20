@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,9 +43,9 @@ import java.util.regex.Pattern;
 
 /**
  * Reads a Tar file for reporting or extraction.
- * N.b. this is not a <I>Reader</I> in the <CODE>java.io.Reader</CODE> sense,
- * but in the sense of differentiating <CODE>tar x</CODE> and
- * <CODE>tar t</CODE> from <CODE>tar c</CODE>.
+ * N.b. this is not a <I>Reader</I> in the {@code java.io.Reader} sense,
+ * but in the sense of differentiating {@code tar x} and
+ * {@code tar t} from {@code tar c}.
  * <P>
  * <B>SECURITY NOTE</B>
  * Due to pitiful lack of support for file security in Java before version 1.6,
@@ -726,7 +726,7 @@ public class TarReader {
 
         /**
          * Integer as in positive whole number, which does not imply Java types
-         * of <CODE>int</CODE> or <CODE>Integer</CODE>.
+         * of {@code int} or {@code Integer}.
          *
          * @param field TarHeaderField
          * @throws TarMalformatException if malformed

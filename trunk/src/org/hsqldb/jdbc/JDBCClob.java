@@ -56,7 +56,7 @@ import org.hsqldb.lib.java.JavaSystem;
 //                              - patch 1.9.0 - setAsciiStream &
 //                                              setCharacterStream improvement
 // patch 1.9.0
-// - full synch up to (Mustang) b90
+// - full synch up to JAVA 1.6 (Mustang) b90
 // - better bounds checking
 
 /**

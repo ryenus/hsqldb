@@ -447,7 +447,8 @@ import org.hsqldb.types.Type;
  * (fredt@users)<br>
  * (campbell-burnet@users)
  *
- * </div> <!-- end release-specific documentation -->
+ * </div>
+ * <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.3
@@ -492,7 +493,8 @@ public class JDBCConnection implements Connection {
      * {@code TYPE_SCROLL_INSENSITIVE} and {@code CONCUR_READ_ONLY}
      * results.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @return a new default {@code Statement} object
      * @throws SQLException if a database access error occurs
@@ -551,7 +553,8 @@ public class JDBCConnection implements Connection {
      * JDBC standards.  Please read the introductory section
      * of the documentation for ${link JDBCParameterMetaData}.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param sql an SQL statement that may contain one or more '?' IN
      * parameter placeholders
@@ -605,7 +608,8 @@ public class JDBCConnection implements Connection {
      * CallableStatement has changed.  Please read the introductory section
      * of the documentation for org.hsqldb.jdbc.JDBCCallableStatement.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param sql an SQL statement that may contain one or more '?'
      * parameter placeholders. Typically this statement is specified using JDBC
@@ -698,7 +702,8 @@ public class JDBCConnection implements Connection {
      * <li>{ts ...}
      * </ol>
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param sql an SQL statement that may contain one or more '?'
      * parameter placeholders
@@ -876,8 +881,8 @@ public class JDBCConnection implements Connection {
      * client as a whole; the generic documentation will apply. The fetch
      * size is taken into account
      *
-     * (campbell-burnet@users) </div> <!-- end release-specific
-     * documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param autoCommit {@code true} to enable auto-commit mode;
      *         {@code false} to disable it
@@ -965,7 +970,8 @@ public class JDBCConnection implements Connection {
      * ROLLBACK TO SAVEPOINT &lt;savepoint-name&gt;
      * </pre>
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @throws SQLException if a database access error occurs,
      * this method is called while participating in a distributed transaction,
@@ -1066,7 +1072,8 @@ public class JDBCConnection implements Connection {
      * For discussion in greater detail, please follow the link to the
      * overview for JDBCDatabaseMetaData, below.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @return a {@code DatabaseMetaData} object for this
      *         {@code Connection} object
@@ -1118,7 +1125,8 @@ public class JDBCConnection implements Connection {
      * the CHECKPOINT DEFRAG command followed by SHUTDOWN to take the
      * database offline in preparation to burn the database files to CD.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param readOnly {@code true} enables read-only mode;
      *        {@code false} disables it
@@ -1180,7 +1188,8 @@ public class JDBCConnection implements Connection {
      * HSQLDB supports a single catalog per database. If the given catalog name
      * is not the same as the database catalog name, this method throws an
      * error.
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param catalog the name of a catalog (subspace in this
      *        {@code Connection} object's database) in which to work
@@ -1247,7 +1256,8 @@ public class JDBCConnection implements Connection {
      * Calling this method during a transaction always succeeds and the selected
      * isolation level is used from the next transaction.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param level one of the following {@code Connection} constants:
      *        {@code Connection.TRANSACTION_READ_UNCOMMITTED},
@@ -1298,7 +1308,8 @@ public class JDBCConnection implements Connection {
      * HSQLDB 2.0 supports all isolation levels. {@code Connection.TRANSACTION_READ_UNCOMMITED}
      * is promoted to {@code Connection.TRANSACTION_READ_COMMITED}.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @return the current transaction isolation level, which will be one
      *         of the following constants:
@@ -1352,7 +1363,8 @@ public class JDBCConnection implements Connection {
      * returned by this method. A single operation may return up to 10 chained
      * warnings.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      * @return the first {@code SQLWarning} object or {@code null}
      *         if there are none
      * @throws SQLException if a database access error occurs or
@@ -1378,7 +1390,8 @@ public class JDBCConnection implements Connection {
      *
      * The standard behaviour is implemented.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @throws SQLException if a database access error occurs
      * or this method is called on a closed connection
@@ -1418,7 +1431,8 @@ public class JDBCConnection implements Connection {
      * If an unsupported combination is requested, a SQLWarning is issued on
      * this Connection and the closest supported combination is used instead.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param resultSetType a result set type; one of
      *        {@code ResultSet.TYPE_FORWARD_ONLY},
@@ -1477,7 +1491,8 @@ public class JDBCConnection implements Connection {
      * If an unsupported combination is requested, a SQLWarning is issued on
      * this Connection and the closest supported combination is used instead.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param sql a {@code String} object that is the SQL statement to
      *            be sent to the database; may contain one or more '?' IN
@@ -1541,7 +1556,8 @@ public class JDBCConnection implements Connection {
      * If an unsupported combination is requested, a SQLWarning is issued on
      * this Connection and the closest supported combination is used instead.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param sql a {@code String} object that is the SQL statement to
      *            be sent to the database; may contain on or more '?' parameters
@@ -1600,7 +1616,8 @@ public class JDBCConnection implements Connection {
      *
      * For compatibility, HSQLDB returns an empty map.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @return the {@code java.util.Map} object associated
      *         with this {@code Connection} object
@@ -1641,7 +1658,8 @@ public class JDBCConnection implements Connection {
      * method always throws a {@code SQLException}, stating that
      * the function is not supported.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param map the {@code java.util.Map} object to install
      *        as the replacement for this {@code Connection}
@@ -1677,7 +1695,8 @@ public class JDBCConnection implements Connection {
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      * HSQLDB supports this feature.
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param holdability a {@code ResultSet} holdability constant; one of
      *        {@code ResultSet.HOLD_CURSORS_OVER_COMMIT} or
@@ -1721,7 +1740,8 @@ public class JDBCConnection implements Connection {
      *
      * The default is HOLD_CURSORS_OVER_COMMIT.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @return the holdability, one of
      *        {@code ResultSet.HOLD_CURSORS_OVER_COMMIT} or
@@ -1757,7 +1777,8 @@ public class JDBCConnection implements Connection {
      * Note: Unnamed savepoints are not part of the SQL:2003 standard.
      * Use setSavepoint(String name) instead.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @return the new {@code Savepoint} object
      * @throws SQLException if a database access error occurs,
@@ -1807,7 +1828,8 @@ public class JDBCConnection implements Connection {
      * of the next transactional statement. When built for JDBC 4, this method
      * throws an SQLException when this {@code Connection} object is currently
      * in auto-commit mode, as per the JDBC 4 standard.
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param name a {@code String} containing the name of the savepoint
      * @return the new {@code Savepoint} object
@@ -1998,7 +2020,8 @@ public class JDBCConnection implements Connection {
      * If an unsupported combination is requested, a SQLWarning is issued on
      * this Connection and the closest supported combination is used instead.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param resultSetType one of the following {@code ResultSet}
      *        constants:
@@ -2067,7 +2090,8 @@ public class JDBCConnection implements Connection {
      * If an unsupported combination is requested, a SQLWarning is issued on
      * this Connection and the closest supported combination is used instead.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param sql a {@code String} object that is the SQL statement to
      *            be sent to the database; may contain one or more '?' IN
@@ -2139,7 +2163,8 @@ public class JDBCConnection implements Connection {
      * If an unsupported combination is requested, a SQLWarning is issued on
      * this Connection and the closest supported combination is used instead.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param sql a {@code String} object that is the SQL statement to
      *            be sent to the database; may contain on or more '?' parameters
@@ -2222,7 +2247,8 @@ public class JDBCConnection implements Connection {
      * HSQLDB also supports returning primary key values from he rows by using the
      * {@code org.hsqldb.jdbc.JDBCStatement.RETURN_PRIMARY_KEYS} constant.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param sql an SQL statement that may contain one or more '?' IN
      *        parameter placeholders
@@ -2303,7 +2329,8 @@ public class JDBCConnection implements Connection {
      * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
      * The columnIndexes may specify any set of columns of the table.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param sql an SQL statement that may contain one or more '?' IN
      *        parameter placeholders
@@ -2364,6 +2391,16 @@ public class JDBCConnection implements Connection {
      * and have a concurrency level of {@code CONCUR_READ_ONLY}.
      * The holdability of the created result sets can be determined by
      * calling {@link #getHoldability}.
+     *
+     * <div class="ReleaseSpecificDocumentation">
+     * <p class="rshead">HSQLDB-Specific Information:</p>
+     *
+     * Starting with version 2.0, HSQLDB supports returning generated columns
+     * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
+     * The columnNames may specify any set of columns of the table. The names
+     * are case-sensitive, unlike column names in ResultSet methods.
+     *
+     * </div>
      *
      * @param sql an SQL statement that may contain one or more '?' IN
      *        parameter placeholders
@@ -2497,7 +2534,8 @@ public class JDBCConnection implements Connection {
      * HSQLDB uses a maximum timeout of 60 seconds if timeout has been specified
      * as zero.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param timeout The time in seconds to wait for the database operation
      *                used to validate the connection to complete.  If the
@@ -2698,11 +2736,11 @@ public class JDBCConnection implements Connection {
      * <p>
      * Applications may use the {@code DatabaseMetaData.getClientInfoProperties}
      * method to determine the client info properties supported by the driver.
-         *
+     *
      * @param name              The name of the client info property to retrieve
-         *
+     *
      * @return                  The value of the client info property specified
-         *
+     *
      * @throws SQLException             if the database server returns an error when
      *                                                  fetching the client info value from the database
      * or this method is called on a closed connection
@@ -3204,7 +3242,8 @@ public class JDBCConnection implements Connection {
      * A session reset removes these tables and variables and resets all
      * session settings to their defaults.
      *
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @throws SQLException if an error occurs
      * @since 9

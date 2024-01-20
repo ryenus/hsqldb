@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,14 +63,14 @@ public final class ResourceBundleHandler {
     /** The Locale used internally to fetch resource bundles. */
     private static Locale locale = Locale.getDefault();
 
-    /** Map:  Integer object handle maps to: <code>ResourceBundle</code> object. */
+    /** Map:  Integer object handle maps to: {@code ResourceBundle} object. */
     private static HashMap bundleHandleMap = new HashMap();
 
-    /** List whose elements are <code>ResourceBundle</code> objects */
+    /** List whose elements are {@code ResourceBundle} objects */
     private static HsqlArrayList bundleList = new HsqlArrayList();
 
     /**
-     * The resource path prefix of the <code>ResourceBundle</code> objects
+     * The resource path prefix of the {@code ResourceBundle} objects
      * handled by this class.
      */
     private static final String prefix = "org.hsqldb.resources.";
@@ -111,13 +111,13 @@ public final class ResourceBundleHandler {
     }
 
     /**
-     * Retrieves an <code>int</code> handle to the <code>ResourceBundle</code>
+     * Retrieves an {@code int} handle to the {@code ResourceBundle}
      * object corresponding to the specified name and current
-     * <code>Locale</code>, using the specified <code>ClassLoader</code>. <p>
+     * {@code Locale}, using the specified {@code ClassLoader}. <p>
      *
-     * @return <code>int</code> handle to the <code>ResourceBundle</code>
+     * @return {@code int} handle to the {@code ResourceBundle}
      *        object corresponding to the specified name and
-     *        current <code>Locale</code>, or -1 if no such bundle
+     *        current {@code Locale}, or -1 if no such bundle
      *        can be found
      * @param cl The ClassLoader to use in the search
      * @param name of the desired bundle
@@ -150,15 +150,15 @@ public final class ResourceBundleHandler {
     }
 
     /**
-     * Retrieves, from the <code>ResourceBundle</code> object corresponding
-     * to the specified handle, the <code>String</code> value corresponding
-     * to the specified key.  <code>null</code> is retrieved if either there
-     *  is no <code>ResourceBundle</code> object for the handle or there is no
-     * <code>String</code> value for the specified key. <p>
+     * Retrieves, from the {@code ResourceBundle} object corresponding
+     * to the specified handle, the {@code String} value corresponding
+     * to the specified key.  {@code null} is retrieved if either there
+     *  is no {@code ResourceBundle} object for the handle or there is no
+     * {@code String} value for the specified key. <p>
      *
-     * @param handle an <code>int</code> handle to a
-     *      <code>ResourceBundle</code> object
-     * @param key A <code>String</code> key to a <code>String</code> value
+     * @param handle an {@code int} handle to a
+     *      {@code ResourceBundle} object
+     * @param key A {@code String} key to a {@code String} value
      * @return The String value corresponding to the specified handle and key.
      */
     public static String getString(int handle, String key) {

@@ -47,7 +47,7 @@ import org.hsqldb.types.Collation;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {

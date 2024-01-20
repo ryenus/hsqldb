@@ -103,7 +103,6 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
 /**
-
  * The mapping in the JavaTM programming language for the SQL XML type.
  * XML is a built-in type that stores an XML value
  * as a column value in a row of a database table.
@@ -250,7 +249,6 @@ import org.xml.sax.SAXException;
  * <p>
  * All methods on the {@code SQLXML} interface must be fully implemented if the
  * JDBC driver supports the data type.
-
  *
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">

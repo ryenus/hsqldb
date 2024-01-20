@@ -137,7 +137,7 @@ import org.hsqldb.types.Types;
  * rebuilt. <p>
  *
  * For the rest of the tables, if the table has not been built for the Session
- * object, or it is out of date, the table contents are cleared and rebuilt. <p>
+ * object, or it is out of date, the table contents are cleared and rebuilt.<p>
  *
  * (fredt@users) <p>
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
