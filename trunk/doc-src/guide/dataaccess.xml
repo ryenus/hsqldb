@@ -289,17 +289,18 @@
     <section xml:id="dac_jdbc_parameters">
       <title>JDBC Parameters</title>
 
-      <para>When a JDBC PreparedStatement or CallableStatement is used with an
-      SQL statement that contains dynamic parameters, the data types of the
-      parameters are resolved and determined by the engine when the statement
-      is prepared. The SQL Standard has detailed rules to determine the data
-      types and imposes limits on the maximum length or precision of the
-      parameter. HyperSQL applies the standard rules with two exceptions for
-      parameters with String and BigDecimal Java types. HyperSQL ignores the
-      limits when the parameter value is set, and only enforces the necessary
-      limits for inserts and updates when the PreparedStatement is executed.
-      In all other cases, parameter type limits are checked and enforced when
-      the parameter is set.</para>
+      <para>When a JDBC <classname>PreparedStatement</classname> or
+      <classname>CallableStatement</classname> is used with an SQL statement
+      that contains dynamic parameters, the data types of the parameters are
+      resolved and determined by the engine when the statement is prepared.
+      The SQL Standard has detailed rules to determine the data types and
+      imposes limits on the maximum length or precision of the parameter.
+      HyperSQL applies the standard rules with two exceptions for parameters
+      with String and BigDecimal Java types. HyperSQL ignores the limits when
+      the parameter value is set, and only enforces the necessary limits for
+      inserts and updates when the <classname>PreparedStatement</classname> is
+      executed. In all other cases, parameter type limits are checked and
+      enforced when the parameter is set.</para>
 
       <para>In the example below the <methodname>setString()</methodname>
       calls do not raise an exception, but one of the
@@ -4147,13 +4148,14 @@ DIRECT SALES (null) (null)  3778500
       column for the last row inserted by a session can be retrieved using a
       call to the IDENTITY() function. This call returns the last value
       inserted by the calling session. When the insert statement is executed
-      with a JDBC Statement or PreparedStatement method, the
-      <methodname>getGeneratedKeys()</methodname> method of Statement can be
-      used to retrieve not only the IDENTITY column, but also any GENERATED
-      computed column, or any other column. The
-      <methodname>getGeneratedKeys()</methodname> returns a ResultSet with one
-      or more columns. This contains one row per inserted row, and can
-      therefore return all the generated columns for a multi-row
+      with a JDBC <classname>Statement</classname> or
+      <classname>PreparedStatement</classname> method, the
+      <methodname>getGeneratedKeys()</methodname> method of
+      <classname>Statement</classname> can be used to retrieve not only the
+      IDENTITY column, but also any GENERATED computed column, or any other
+      column. The <methodname>getGeneratedKeys()</methodname> returns a
+      ResultSet with one or more columns. This contains one row per inserted
+      row, and can therefore return all the generated columns for a multi-row
       insert.</para>
 
       <para>There are three methods of specifying which generated keys should
@@ -4383,9 +4385,10 @@ DIRECT SALES (null) (null)  3778500
 
       <simpara>In the third example, a new row in inserted into the table only
       when the primary key for the new row does not exist. This example uses
-      parameters and should be executed as a JDBC PreparedStatement. The
-      parameter is cast as INTEGER because the MERGE statement does not
-      determine the types of values in the USING clause.</simpara>
+      parameters and should be executed as a JDBC
+      <classname>PreparedStatement</classname>. The parameter is cast as
+      INTEGER because the MERGE statement does not determine the types of
+      values in the USING clause.</simpara>
 
       <simpara>In the fourth example, existing rows that match are
       deleted.</simpara>

@@ -3180,7 +3180,8 @@
               megabytes) that the <literal>.log</literal> file can reach
               before an automatic checkpoint occurs. A checkpoint rewrites the
               <literal>.script</literal> file and clears the
-              <literal>.log</literal> file.</para><para><programlisting>SET FILES LOG SIZE &lt;numeric value&gt;</programlisting></para></entry>
+              <literal>.log</literal> file. The special value 0 means no
+              automatic checkpoint.</para><para><programlisting>SET FILES LOG SIZE &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -3217,12 +3218,12 @@
             </row>
 
             <row>
-              <entry nameend="c3" namest="c1"><para>When a checkpoint is
-              performed, the percentage of wasted space in the
+              <entry nameend="c3" namest="c1"><para>When an automatic
+              checkpoint is performed, the percentage of wasted space in the
               <literal>.data</literal> file is calculated. If the wasted space
               is above the specified limit, a defrag operation is performed.
-              The default is 0, which means no automatic checkpoint. The
-              numeric value must be between 0 and 100 and is interpreted as a
+              The default is 0, which means no automatic defrag. The numeric
+              value must be between 0 and 100 and is interpreted as a
               percentage of the current size of the <literal>.data</literal>
               file. Positive values less than 25 are converted to
               25.</para><para><programlisting>SET FILES DEFRAG &lt;numeric value&gt;</programlisting></para></entry>

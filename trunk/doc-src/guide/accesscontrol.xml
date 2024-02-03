@@ -109,8 +109,8 @@
     tables and sequences to the PUBLIC role.</para>
 
     <para>The PUBLIC role is separate from the default PUBLIC schema. Like any
-    user-created schema, the contents of the PUBLIC is schema are not visible
-    to non-admin users unless access is granted by the DBA role.</para>
+    user-created schema, the contents of the PUBLIC schema are not visible to
+    non-admin users unless access is granted by the DBA role.</para>
 
     <para>Access to INFORMATION_SCHEMA views is automatically granted to
     PUBLIC; therefore these views are accessible to all. However, the contents
