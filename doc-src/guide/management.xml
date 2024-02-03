@@ -96,8 +96,9 @@
 
           <listitem>
             <para>To improve speed of execution for statements that are
-            executed repeatedly, reuse a parameterized PreparedStatement for
-            the lifetime of the connections.</para>
+            executed repeatedly, reuse a parameterized
+            <classname>PreparedStatement</classname> for the lifetime of the
+            connections.</para>
           </listitem>
         </itemizedlist></para>
     </section>
@@ -122,7 +123,7 @@
 
         <para>A <glossterm>file:</glossterm> catalog can be made readonly
         permanently, or it can be opened as readonly. To make the database
-        readonly, the property, value pair, <literal>readonly=true</literal>
+        readonly, the property, value pair, <property>readonly=true</property>
         can be added to the <filename>.properties</filename> file of the
         database. The SHUTDOWN command must be used to close the database
         before making this change.</para>
@@ -141,7 +142,7 @@
         <para>There is another option which allows MEMORY tables to be
         writeable, but without persisting the changes at SHUTDOWN. This option
         is activated with the property, value pair,
-        <literal>files_readonly=true</literal>, which can be added to the
+        <property>files_readonly=true</property>, which can be added to the
         <filename>.properties</filename> file of the database, or included in
         the URL of the first connection to the database.</para>
 
@@ -244,10 +245,11 @@
       database in one operation as a binary or character stream. Inside the
       database, the disk space is allocated as needed and the data is saved as
       it is being received. LOB data should be retrieved from the database
-      using a JDBC ResultSet method. When a streaming method is used to
-      retrieve a LOB, it is retrieved in large chunks in a transparent manner.
-      LOB data can also be retrieved as String or byte[], but these methods
-      use more memory and may not be practical for large objects.</para>
+      using a JDBC <classname>ResultSet</classname> method. When a streaming
+      method is used to retrieve a LOB, it is retrieved in large chunks in a
+      transparent manner. LOB data can also be retrieved as String or byte[],
+      but these methods use more memory and may not be practical for large
+      objects.</para>
 
       <para>LOB data is not duplicated in the database when a lob is copied
       from one table to another. The disk space is reused when a LOB is
@@ -462,7 +464,7 @@
       joins.</para>
 
       <para>In addition, HyperSQL will use an index (if one exists) for IN
-      conditions, whether constants, variable, or subqueries are used on the
+      conditions, whether constants, variables, or subqueries are used on the
       right-hand side of the IN predicate. Multicolumn IN conditions can also
       use an index.</para>
 
@@ -499,7 +501,7 @@
 
       <para>HyperSQL optimises simple row count queries in the form of
       <literal>SELECT COUNT(*) FROM &lt;table&gt;</literal> and returns the
-      result immediately (this optimisation does not take place in MVCC
+      result immediately (this optimisation may not always take place in MVCC
       mode).</para>
 
       <para>HyperSQL can use an index on a column for <literal>SELECT
@@ -660,13 +662,15 @@
       <para>Durability means a committed transaction is protected in case of a
       system crash. HyperSQL ensures durability according to the setting for
       WRITE DELAY MILLIS. A zero delay setting results in an
-      FileDescriptor#sync() call each time a transaction commits. A timed
-      delay means the FileDescriptor#sync() call is executed in the given
-      intervals and only the last transactions committed in the time interval
-      may be lost. The default time interval is 0.5 second. The sync() call is
-      also made at all critical points, including when a file is about to be
-      closed. Durability of files requires a reliable JVM and disk storage
-      system that stores the data safely with a sync() call. In practice, many
+      <methodname>FileDescriptor.sync()</methodname> call each time a
+      transaction commits. A timed delay means the
+      <methodname>FileDescriptor.sync()</methodname> call is executed in the
+      given intervals and only the last transactions committed in the time
+      interval may be lost. The default time interval is 0.5 second. The
+      <methodname>sync()</methodname> call is also made at all critical
+      points, including when a file is about to be closed. Durability of files
+      requires a reliable JVM and disk storage system that stores the data
+      safely with a <methodname>sync()</methodname> call. In practice, many
       systems are generally reliable in this respect.</para>
     </section>
 
@@ -761,9 +765,10 @@
     </orderedlist>
 
     <para>All DML statements that modify the table data see only the current
-    rows of the table. SELECT statements can include a FOR SYSTEM_TIME clause
-    to access historic data in a given timestamp range. This is discussed in
-    <link endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
+    rows of the table, you cannot modify the old version history of rows.
+    SELECT statements can include a FOR SYSTEM_TIME clause to access historic
+    data in a given timestamp range. This is discussed in <link
+    endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
     chapter.</para>
 
     <para>Old historic rows can be removed up to a chosen point of time with a
@@ -1164,10 +1169,11 @@
       <literal>.backup</literal> and <literal>.log</literal> files. From
       version 2.5, the <literal>.lobs</literal> file is also encrypted by
       default and the blobs and clobs are both compressed and encrypted. You
-      can override this with the property <literal>crypt_lobs=false</literal>
-      on the URL. Earlier versions of HSQLDB did not support encrypted lobs,
-      and in some versions the default for this property was false. You will
-      need to set the property to false to open those databases.</para>
+      can override this with the property
+      <property>crypt_lobs=false</property> on the URL. Earlier versions of
+      HSQLDB did not support encrypted lobs, and in some versions the default
+      for this property was false. You will need to set the property to false
+      to open those databases.</para>
 
       <para>Although the details of external tools are outside the scope of
       this document, openssl may be used to generate sufficiently random keys
@@ -1273,8 +1279,8 @@
       <para>The internally-generated, individual log for the database can be
       enabled with the <literal>SET DATABASE EVENT LOG LEVEL</literal>
       statement, described in this chapter. This method of logging is very
-      useful for desktop application deployment, as it provides an ongoing
-      record of database operations.</para>
+      useful for application deployment, as it provides an ongoing record of
+      database operations.</para>
     </section>
 
     <section xml:id="mtc_jdc_logging">
@@ -1538,10 +1544,10 @@
 
           <listitem>
             <para>Normal shutdown saves all the database files, then deletes
-            the <literal>.log</literal> file (and the .backup file in the
-            default mode). This does the same thing as CHECKPOINT, but closes
-            the database when it completes. The database opens without delay
-            on next used.</para>
+            the <literal>*.log</literal> file (and the
+            <literal>*.backup</literal> file in the default mode). This does
+            the same thing as CHECKPOINT, but closes the database when it
+            completes. The database opens without delay on next used.</para>
           </listitem>
         </varlistentry>
 
@@ -1549,11 +1555,11 @@
           <term>SHUTDOWN IMMEDIATELY</term>
 
           <listitem>
-            <para>Saves the *.log file and closes the database files. This is
-            the quickest form of shutdown. This command should not be used as
-            the routine method of closing the database, because when the
-            database is accessed next time, it may take a long time to
-            start.</para>
+            <para>Saves the <literal>*.log</literal> file and closes the
+            database files. This is the quickest form of shutdown. This
+            command should not be used as the routine method of closing the
+            database, because when the database is accessed next time, it may
+            take a long time to start.</para>
           </listitem>
         </varlistentry>
 
@@ -1981,7 +1987,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.result_max_memory_rows</literal>.</simpara>
+      <property>hsqldb.result_max_memory_rows</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE DEFAULT TABLE TYPE</primary>
@@ -2003,7 +2009,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.default_table_type</literal>.</simpara>
+      <property>hsqldb.default_table_type</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE EVENT LOG LEVEL</primary>
@@ -2037,7 +2043,7 @@
       not generate many log messages.</simpara>
 
       <simpara>This command is equivalent to the connection property
-      <literal>hsqldb.applog</literal>.</simpara>
+      <property>hsqldb.applog</property>.</simpara>
 
       <simpara>When the EXTERNAL option is used (the SQL option is not allowed
       in this case), the statement configures the level of events that are
@@ -2059,7 +2065,7 @@
       <literal>.sql.log</literal> alongside the main database files.</simpara>
 
       <simpara>This command is equivalent to the connection property
-      <literal>hsqldb.sqllog</literal>.</simpara>
+      <property>hsqldb.sqllog</property>.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2069,10 +2075,10 @@
       can be used not only for a new database, but also when opening an
       existing file database to change the event log level.</simpara>
 
-      <simpara>An extract from an .sql.log file created with log Level 3 is
-      shown below. The numbers after the timestamp (10 and 1) show the session
-      number. The values for prepared statement parameters are shown in
-      parentheses at the end of the statement.</simpara>
+      <simpara>An extract from an <literal>.sql.log</literal> file created
+      with log Level 3 is shown below. The numbers after the timestamp (10 and
+      1) show the session number. The values for prepared statement parameters
+      are shown in parentheses at the end of the statement.</simpara>
 
       <example>
         <title>SQL Log Example</title>
@@ -2097,8 +2103,8 @@
       &lt;unsigned integer literal&gt;</literal></simpara>
 
       <simpara>In previous versions, an optional property which forced calls
-      to <literal>System.gc() </literal>after the specified number of row
-      operations. This has no effect from version 2.5.</simpara>
+      to <methodname>System.gc() </methodname>after the specified number of
+      row operations. This has no effect from version 2.5.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2149,7 +2155,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.tx</literal>.</simpara>
+      <property>hsqldb.tx</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE TRANSACTION ROLLBACK ON CONFLICT</primary>
@@ -2180,7 +2186,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.tx_conflict_rollback</literal>.</simpara>
+      <property>hsqldb.tx_conflict_rollback</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE TRANSACTION ROLLBACK ON CONFLICT</primary>
@@ -2207,7 +2213,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.tx_conflict_rollback</literal>.</simpara>
+      <property>hsqldb.tx_conflict_rollback</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE DEFAULT ISOLATION LEVEL</primary>
@@ -2231,7 +2237,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.tx_level</literal>.</simpara>
+      <property>hsqldb.tx_level</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE UNIQUE NAME</primary>
@@ -2316,7 +2322,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.restrict_exec</literal>.</simpara>
+      <property>sql.restrict_exec</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SIZE</primary>
@@ -2341,7 +2347,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_size</literal>.</simpara>
+      <property>sql.enforce_size</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL NAMES</primary>
@@ -2368,7 +2374,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_names</literal>.</simpara>
+      <property>sql.enforce_names</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL REGULAR NAMES</primary>
@@ -2398,7 +2404,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.regular_names</literal>.</simpara>
+      <property>sql.regular_names</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL REFERENCES</primary>
@@ -2430,7 +2436,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_refs</literal>.</simpara>
+      <property>sql.enforce_refs</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL TYPES</primary>
@@ -2461,7 +2467,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_type</literal>.</simpara>
+      <property>sql.enforce_type</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL TDC DELETE</primary>
@@ -2495,7 +2501,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_tdc_delete</literal>.</simpara>
+      <property>sql.enforce_tdc_delete</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL TYPES</primary>
@@ -2528,7 +2534,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.enforce_tdc_update</literal>.</simpara>
+      <property>sql.enforce_tdc_update</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL TRANSLATE TTI TYPES</primary>
@@ -2546,8 +2552,9 @@
 
       <simpara>The JDBC Specification up to version 4.1 does not support some
       SQL Standard built-in types. Therefore, these types must be translated
-      to a supported type when accessed through JDBC ResultSet and
-      PreparedStatement methods.</simpara>
+      to a supported type when accessed through JDBC
+      <classname>ResultSet</classname> and
+      <classname>PreparedStatement</classname> methods.</simpara>
 
       <simpara>If the property is true, the TIME / TIMESTAMP WITH TIME ZONE
       types and INTERVAL types are represented in JDBC methods of
@@ -2564,7 +2571,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>jdbc.translate_tti_types</literal>.</simpara>
+      <property>jdbc.translate_tti_types</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL CHARACTER LITERAL</primary>
@@ -2598,7 +2605,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.char_literal</literal>.</simpara>
+      <property>sql.char_literal</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL TRUNCATE TRAILING</primary>
@@ -2631,7 +2638,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.truncate_trailing</literal>.</simpara>
+      <property>sql.truncate_trailing</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL CONCAT NULLS</primary>
@@ -2662,7 +2669,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.concat_nulls</literal>.</simpara>
+      <property>sql.concat_nulls</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL UNIQUE NULLS</primary>
@@ -2698,7 +2705,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.unique_nulls</literal>.</simpara>
+      <property>sql.unique_nulls</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL CONVERT TRUNCATE</primary>
@@ -2731,7 +2738,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.convert_trunc</literal>.</simpara>
+      <property>sql.convert_trunc</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL AVG SCALE</primary>
@@ -2762,7 +2769,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.avg_scale</literal>.</simpara>
+      <property>sql.avg_scale</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL DOUBLE NAN</primary>
@@ -2790,7 +2797,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.double_nan</literal>.</simpara>
+      <property>sql.double_nan</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL NULLS FIRST</primary>
@@ -2815,7 +2822,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.nulls_first</literal>.</simpara>
+      <property>sql.nulls_first</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL NULLS ORDER</primary>
@@ -2848,7 +2855,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.nulls_order</literal>.</simpara>
+      <property>sql.nulls_order</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL IGNORECASE</primary>
@@ -2879,7 +2886,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.ignore_case</literal>.</simpara>
+      <property>sql.ignore_case</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL LOWER CASE IDENTIFIER</primary>
@@ -2899,10 +2906,11 @@
       with MySQL or PostgreSQL is required.</simpara>
 
       <simpara>When the property is <literal>TRUE</literal>, the names of
-      column, tables and schemas are returned from JDBC ResultSetMetaData
-      methods in lowercase instead of uppercase if the database objects were
-      created as unquoted identifiers. Quoted identifier names are still
-      returned in the original case.</simpara>
+      column, tables and schemas are returned from JDBC
+      <classname>ResultSetMetaData</classname> methods in lowercase instead of
+      uppercase if the database objects were created as unquoted identifiers.
+      Quoted identifier names are still returned in the original
+      case.</simpara>
 
       <simpara>The property is <literal>FALSE</literal> by default.</simpara>
 
@@ -2910,7 +2918,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.lowercase_ident</literal>.</simpara>
+      <property>sql.lowercase_ident</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE LIVE OBJECT</primary>
@@ -2933,7 +2941,7 @@
       all.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.live_object</literal>.</simpara>
+      <property>sql.live_object</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYS INDEX NAMES</primary>
@@ -2964,7 +2972,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.sys_index_names</literal>.</simpara>
+      <property>sql.sys_index_names</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX DB2</primary>
@@ -2993,7 +3001,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.syntax_db2</literal>.</simpara>
+      <property>sql.syntax_db2</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX MSS</primary>
@@ -3020,7 +3028,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.syntax_mss</literal>.</simpara>
+      <property>sql.syntax_mss</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX MYS</primary>
@@ -3054,7 +3062,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.syntax_mys</literal>.</simpara>
+      <property>sql.syntax_mys</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX ORA</primary>
@@ -3085,7 +3093,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.syntax_ora</literal>.</simpara>
+      <property>sql.syntax_ora</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX PGS</primary>
@@ -3120,7 +3128,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>sql.syntax_pgs</literal>.</simpara>
+      <property>sql.syntax_pgs</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET REFERENTIAL INTEGRITY</primary>
@@ -3198,7 +3206,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.inc_backup</literal>.</simpara>
+      <property>hsqldb.inc_backup</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES CACHE ROWS</primary>
@@ -3219,7 +3227,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.cache_rows</literal>.</simpara>
+      <property>hsqldb.cache_rows</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES CACHE SIZE</primary>
@@ -3242,7 +3250,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.cache_size</literal>.</simpara>
+      <property>hsqldb.cache_size</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES DEFRAG</primary>
@@ -3275,7 +3283,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.defrag_limit</literal>.</simpara>
+      <property>hsqldb.defrag_limit</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES LOG</primary>
@@ -3296,7 +3304,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.log_data</literal>.</simpara>
+      <property>hsqldb.log_data</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES LOG SIZE</primary>
@@ -3319,7 +3327,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.log_size</literal>.</simpara>
+      <property>hsqldb.log_size</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES NIO</primary>
@@ -3340,7 +3348,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.nio_data_file</literal>.</simpara>
+      <property>hsqldb.nio_data_file</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES NIO SIZE</primary>
@@ -3362,7 +3370,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.nio_max_size</literal>.</simpara>
+      <property>hsqldb.nio_max_size</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES WRITE DELAY</primary>
@@ -3401,8 +3409,8 @@
       <para>Only a user with the DBA role can execute this statement.</para>
 
       <para>This is equivalent to the connection properties
-      <literal>hsqldb.write_delay</literal> and
-      <literal>hsqldb.write_delay_millis</literal>.</para>
+      <property>hsqldb.write_delay</property> and
+      <property>hsqldb.write_delay_millis</property>.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES SCALE</primary>
@@ -3425,7 +3433,7 @@
       TABLES. It can also be used when there is some data in CACHED tables but
       then it has no effect until a SHUTDOWN COMPACT or SHUTDOWN SCRIPT is
       performed. This is equivalent to the connection property
-      <literal>hsqldb.cache_file_scale</literal>.</simpara>
+      <property>hsqldb.cache_file_scale</property>.</simpara>
 
       <simpara>The scale factor indicates the size of the unit of storage of
       data in bytes. For example, with a scale factor of 128, a row containing
@@ -3440,7 +3448,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.cache_file_scale</literal>.</simpara>
+      <property>hsqldb.cache_file_scale</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES LOB SCALE</primary>
@@ -3470,7 +3478,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.lob_file_scale</literal>.</simpara>
+      <property>hsqldb.lob_file_scale</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES LOB COMPRESSED</primary>
@@ -3496,7 +3504,7 @@
       statement.</simpara>
 
       <simpara>This is equivalent to the connection property
-      <literal>hsqldb.lob_compressed</literal>.</simpara>
+      <property>hsqldb.lob_compressed</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES SCRIPT FORMAT</primary>
@@ -3660,8 +3668,8 @@
       ROLE objects that have been defined in the database.</simpara>
 
       <simpara>The Java function should return an instance of
-      org.hsqldb.jdbc.JDBCArrayBasic constructed with a String[] argument that
-      contains the role names.</simpara>
+      <classname>org.hsqldb.jdbc.JDBCArrayBasic</classname> constructed with a
+      String[] argument that contains the role names.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>

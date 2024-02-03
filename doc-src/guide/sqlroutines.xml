@@ -315,10 +315,11 @@
     <para>External name specifies the qualified name of the Java method
     associated with this routine. HyperSQL only supports Java methods within
     the classpath. The <literal>&lt;external Java reference
-    string&gt;</literal> is a quoted string which starts with CLASSPATH: and
-    is followed by the Java package, class and method names separated with
-    dots. HyperSQL does not currently support the optional <literal>&lt;Java
-    parameter declaration list&gt;</literal>.</para>
+    string&gt;</literal> is a quoted string which starts with
+    <literal>CLASSPATH:</literal> and is followed by the Java package, class
+    and method names separated with dots. HyperSQL does not currently support
+    the optional <literal>&lt;Java parameter declaration
+    list&gt;</literal>.</para>
 
     <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL NAME
     &lt;external Java reference string&gt;</literal></simpara>
@@ -834,7 +835,7 @@
       <classname>CallableStatement</classname> object that calls the
       procedure. The <methodname>getResultSet()</methodname> method of
       <classname>CallableStatement</classname> is then used to retrieve the
-      JDBC ResultSet.</para>
+      JDBC <classname>ResultSet</classname>.</para>
 
       <para>In the <literal>&lt;routine definition&gt;</literal>, the
       <literal>DYNAMIC RESULT SETS</literal> clause must be used to specify a
@@ -852,13 +853,14 @@
       <classname>CallableStatement</classname>.</para>
 
       <para>Calling <methodname>getResultSet()</methodname> will return the
-      first ResultSet. When there are multiple result sets, the
-      <methodname>getMoreResults()</methodname> method of the Callable
-      statement is called to move to the next ResultSet, before
+      first <classname>ResultSet</classname>. When there are multiple result
+      sets, the <methodname>getMoreResults()</methodname> method of the
+      Callable statement is called to move to the next
+      <classname>ResultSet</classname>, before
       <methodname>getResultSet()</methodname> is called to return the next
-      ResultSet. See the <link endterm="dataaccess-title"
-      ns6:href="#dataaccess-chapt"/> chapter on the syntax for declaring the
-      cursor.</para>
+      <classname>ResultSet</classname>. See the <link
+      endterm="dataaccess-title" ns6:href="#dataaccess-chapt"/> chapter on the
+      syntax for declaring the cursor.</para>
 
       <para>The simple example below returns a result set containing the list
       of recently added customers since the data used as argument:</para>
@@ -1159,8 +1161,8 @@
       variable must be assigned to the OUT parameter. After the procedure
       call, this variable will hold the new identity value that was generated
       inside the procedure. If the procedure is called directly, using the
-      JDBC CallableStatement interface, then the value of the first, OUT
-      argument can be retrieved with a call to
+      JDBC <classname>CallableStatement</classname> interface, then the value
+      of the first, OUT argument can be retrieved with a call to
       <literal>getInt(1)</literal>after calling the
       <literal>execute()</literal> method.</para>
 
@@ -1292,18 +1294,21 @@
       result set.</para>
 
       <para>In the example below, the procedure uses a FOR statement to
-      iterate over the rows for a customer with lastname equal to lastname_p.
-      No action is performed for the first row, but for all the subsequent
-      rows, the row is deleted from the table.</para>
+      iterate over the rows for a customer with <literal>lastname</literal>
+      equal to <literal>lastname_p</literal>. No action is performed for the
+      first row, but for all the subsequent rows, the row is deleted from the
+      table.</para>
 
       <para>Notes: The result set for the SELECT statement is built only once,
       before processing the statements inside the FOR block begins. For all
       the rows of the SELECT statement apart from the first row, the row is
       deleted from the customer table. The WHERE condition uses the automatic
-      variable id, which holds the customer.id value for the current row of
-      the result set, to delete the row. The procedure updates the val_p
-      argument and when it returns, the val_p represents the total count of
-      rows with the given lastname before the duplicates were deleted.</para>
+      variable id, which holds the <literal>customer.id</literal> value for
+      the current row of the result set, to delete the row. The procedure
+      updates the <literal>val_p</literal> argument and when it returns, the
+      <literal>val_p</literal> represents the total count of rows with the
+      given <literal>lastname</literal> before the duplicates were
+      deleted.</para>
 
       <informalexample>
         <programlisting> CREATE PROCEDURE delete_extra_customers(INOUT val_p INT, IN lastname_p VARCHAR(20)) 
@@ -1440,14 +1445,15 @@
       <para>To return a table from a SELECT statement, you should use a return
       statement such as <literal>RETURN TABLE( SELECT ...)</literal> in an
       SQL/PSM function. For an SQL/JRT function, the Java method should return
-      a JDBCResultSet instance.</para>
+      a JDBC <classname>ResultSet</classname> instance.</para>
 
       <para>To call a function from JDBC, use a
       <classname>java.sql.CallableStatement</classname> instance. The
-      <literal>getResultSet()</literal> call can be used to access the
-      ResultSet returned from a function that returns a result set. If the
-      function returns a scalar value, the returned result has a single column
-      and a single row which contains the scalar returned value.</para>
+      <methodname>getResultSet()</methodname> call can be used to access the
+      <classname>ResultSet</classname> returned from a function that returns a
+      result set. If the function returns a scalar value, the returned result
+      has a single column and a single row which contains the scalar returned
+      value.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>RETURN</primary>
@@ -1645,28 +1651,30 @@
       result sets or none at all in different invocations. The SQL Standard
       uses a mechanism called CURSORS for accessing and modifying rows of a
       result set one by one. This mechanism is necessary when the database is
-      accessed from an external application program. The JDBC ResultSet
-      interface allows this method of access from Java programs and is
-      supported by HyperSQL.</para>
+      accessed from an external application program. The JDBC
+      <classname>ResultSet</classname> interface allows this method of access
+      from Java programs and is supported by HyperSQL.</para>
 
       <para>HyperSQL supports this method of returning single or multiple
-      result sets from SQL/PSM procedures only via the JDBC CallableStatement
-      interface. Cursors are declared and opened within the body of the
-      procedure. No further operation is performed on the cursors within the
-      procedure. When the execution of the procedure is complete, the cursors
-      become available as Java ResultSet objects via the CallableStatement
-      instance that called the SQL/PSM procedure.</para>
+      result sets from SQL/PSM procedures only via the JDBC
+      <classname>CallableStatement</classname> interface. Cursors are declared
+      and opened within the body of the procedure. No further operation is
+      performed on the cursors within the procedure. When the execution of the
+      procedure is complete, the cursors become available as Java
+      <classname>ResultSet</classname> objects via the
+      <classname>CallableStatement</classname> instance that called the
+      SQL/PSM procedure.</para>
 
-      <para>The JDBC CallableStatement class is used with the SQL statement
-      <literal>CALL &lt;routine name&gt; ( &lt;argument 1&gt;, ... )</literal>
-      to call procedures (also to call functions). After the call to
-      execute(), the <literal>getXXX()</literal> methods can be used to
-      retrieve INOUT or OUT arguments after the call. The
+      <para>The JDBC <classname>CallableStatement</classname> class is used
+      with the SQL statement <literal>CALL &lt;routine name&gt; ( &lt;argument
+      1&gt;, ... )</literal> to call procedures (also to call functions).
+      After the call to execute(), the <literal>getXXX()</literal> methods can
+      be used to retrieve INOUT or OUT arguments after the call. The
       <methodname>getMoreResults()</methodname> method and the
       <methodname>getResultSet()</methodname> method can be used to access the
-      ResultSet(s) returned by a procedure that returns one or more results.
-      If the procedure returns more than one result set, the
-      <methodname>getMoreResults()</methodname> call moves to the next
+      <classname>ResultSet</classname>(s) returned by a procedure that returns
+      one or more results. If the procedure returns more than one result set,
+      the <methodname>getMoreResults()</methodname> call moves to the next
       result.</para>
 
       <para>In the example below, the procedure inserts a row into the
@@ -1731,8 +1739,8 @@
       </informalexample>
 
       <para>In the example below a procedure has one IN argument and two OUT
-      arguments. The JDBC CallableStatement is used to retrieve the values
-      returned in the OUT arguments.</para>
+      arguments. The JDBC <classname>CallableStatement</classname> is used to
+      retrieve the values returned in the OUT arguments.</para>
 
       <informalexample>
         <programlisting> CREATE PROCEDURE get_customer(IN p_id INT, OUT p_firstname VARCHAR(50), OUT p_lastname VARCHAR(50)) 
@@ -1754,20 +1762,23 @@
 
       <para>SQL/JRT procedures are discussed in the Java Language Procedures
       section below. Those routines are called exactly the same way as SQL/PSM
-      procedures, using the JDBC CallableStatement interface.</para>
+      procedures, using the JDBC <classname>CallableStatement</classname>
+      interface.</para>
 
-      <para>It is also possible to use a JDBC Statement or PreparedStatement
-      object to call a procedure if the procedure arguments are constant. If
-      the procedure returns one or more result sets, the
+      <para>It is also possible to use a JDBC <classname>Statement</classname>
+      or <classname>PreparedStatement</classname> object to call a procedure
+      if the procedure arguments are constant. If the procedure returns one or
+      more result sets, the
       <methodname>Statement.getMoreResults()</methodname> method should be
-      called before retrieving the ResultSet.</para>
+      called before retrieving the <classname>ResultSet</classname>.</para>
 
       <para>An SQL/JRT or SQL/PSM function (as opposed to procedure) returns
-      either a value or a table in a ResultSet. Functions are called from JDBC
-      similar to procedures, but with functions, the
-      <methodname>getMoreResuls()</methodname> method should not be called at
-      all. The <methodname>getResulSet()</methodname> method is called after
-      calling the <methodname>execute()</methodname> method.</para>
+      either a value or a table in a <classname>ResultSet</classname>.
+      Functions are called from JDBC similar to procedures, but with
+      functions, the <methodname>getMoreResuls()</methodname> method should
+      not be called at all. The <methodname>getResulSet()</methodname> method
+      is called after calling the <methodname>execute()</methodname>
+      method.</para>
     </section>
 
     <section xml:id="src_psm_recursive_routines">
@@ -1856,9 +1867,9 @@
     <para>The body of a Java language routine is a static method of a Java
     class, specified with a fully qualified method name in the routine
     definition. A simple CREATE FUNCTION example is given below, which defines
-    the function to call the <literal>java.lang.Math.sinh(double d)</literal>
-    Java method. The function can be called in SQL statements just like any
-    built-in function.</para>
+    the function to call the <methodname>java.lang.Math.sinh(double
+    d)</methodname> Java method. The function can be called in SQL statements
+    just like any built-in function.</para>
 
     <informalexample>
       <programlisting> CREATE FUNCTION sinh(v DOUBLE) RETURNS DOUBLE
@@ -1895,7 +1906,7 @@
       <tgroup cols="2">
         <tbody>
           <row>
-            <entry><para>SMALLINT   </para></entry>
+            <entry><para>SMALLINT </para></entry>
 
             <entry><para>short or Short</para></entry>
           </row>
@@ -1913,13 +1924,13 @@
           </row>
 
           <row>
-            <entry><para>NUMERIC  or DECIMAL</para></entry>
+            <entry><para>NUMERIC or DECIMAL</para></entry>
 
             <entry><para>BigDecimal</para></entry>
           </row>
 
           <row>
-            <entry><para>FLOAT  or DOUBLE</para></entry>
+            <entry><para>FLOAT or DOUBLE</para></entry>
 
             <entry><para>double or Double</para></entry>
           </row>
@@ -2036,9 +2047,10 @@
     <classname>org.hsqldb.jdbc.JDBCResultSet</classname> for this purpose, see
     the source code for the <classname>org.hsqldb.jdbc.JDBCArray</classname>
     class. At the time of invocation, the Java method is called and the
-    returned <literal>ResultSet</literal> is transformed into an SQL table.
-    The column types of the declared TABLE must match those of the ResultSet,
-    otherwise an exception is raised at the time of invocation.</para>
+    returned <classname>ResultSet</classname> is transformed into an SQL
+    table. The column types of the declared TABLE must match those of the
+    <classname>ResultSet</classname>, otherwise an exception is raised at the
+    time of invocation.</para>
 
     <section xml:id="src_jrt_polymorphis">
       <title>Polymorphism</title>
@@ -2102,7 +2114,7 @@
     <section xml:id="src_jrt_procedures">
       <title>Java Language Procedures</title>
 
-      <para>Java procedures are defined similarly to functions. The
+      <para>Java procedures are defined in a similar way to functions. The
       differences are:</para>
 
       <itemizedlist>
@@ -2129,24 +2141,29 @@
 
         <listitem>
           <para>A procedure can return one or more result sets. These are
-          instantiated as JDBC ResultSet objects by the Java static and
-          returned in array arguments of the method. The signature of the Java
-          method for a procedure that has N declared parameters and returns M
-          result sets has the following pattern. The N parameters
-          corresponding to the signature of the declared SQL procedure are
-          defined first, followed by M parameters as ResultSet arrays.</para>
+          instantiated as JDBC <classname>ResultSet</classname> objects by the
+          Java static method and returned in the array arguments of the
+          method. The signature of the Java method for a procedure that has N
+          declared parameters and returns M result sets has the following
+          pattern. The N parameters corresponding to the signature of the
+          declared SQL procedure come first, followed by M parameters as
+          <classname>ResultSet</classname> arrays.</para>
 
           <para>When the SQL procedure is executed, the Java method is called
-          with single element array arguments passed for OUT and INOUT SQL
-          parameters, and single element arrays of ResultSet for the returned
-          ResultSet objects. The Java method may call the
-          <methodname>execute()</methodname> or
-          <methodname>executeQuery()</methodname> methods of JDBC Statement or
-          PreparedStatement objects that are declared within the method and
-          assign the ResultSet objects to the first element of each
-          ResultSet[] argument. For the returned ResultSet objects, the Java
-          method should not call the methods of
-          <classname>java.sql.ResultSet</classname> before returning.</para>
+          with single-element array arguments passed for OUT and INOUT SQL
+          parameters, and single-element arrays of
+          <classname>ResultSet</classname> for the returned
+          <classname>ResultSet</classname> objects. The Java method may call
+          the <methodname>execute()</methodname> or
+          <methodname>executeQuery()</methodname> methods of JDBC
+          <classname>Statement</classname> or
+          <classname>PreparedStatement</classname> objects that are declared
+          within the method and assign the <classname>ResultSet</classname>
+          objects to the first element of each
+          <classname>ResultSet[]</classname> argument. For the returned
+          <classname>ResultSet</classname> objects, the Java method should not
+          call the methods of <classname>java.sql.ResultSet</classname> before
+          returning.</para>
 
           <para><literal>void methodName(&lt;arg1&gt;, ... &lt;argN&gt;,
           ResultSet[] r1, ..., ResultSet[] rM)</literal></para>
@@ -2175,8 +2192,10 @@
 
    public static void getCustomerProcedure(int id, String[] firstn, String[] lastn)
        throws java.sql.SQLException {
+       // java code here defines String variables somevalue and othervalue
+       ...
        firstn[0] = somevalue;  // parameter out value is assigned
-       lastn[0] = somevalue;   // parameter out value is assigned
+       lastn[0] = othervalue;   // parameter out value is assigned
    }
 
 </programlisting>
@@ -2184,9 +2203,10 @@
 
       <para>In the next example a procedure is defined to return a result set.
       The signature of the Java method is also given. The Java method assigns
-      a ResultSet object to the zero element of the result parameter. The
-      result parameter is always the last one and is declared after the normal
-      IN and OUT parameters.</para>
+      a <classname>ResultSet</classname> object to the zero element of the
+      <classname>ResultSet[]</classname> array parameter. The result parameter
+      is always the last one and is declared after the normal IN and OUT
+      parameters.</para>
 
       <informalexample>
         <programlisting> CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname VARCHAR(50))
@@ -2197,14 +2217,21 @@
 
    public static void newCustomerProcedure(String firstn, String lastn,
                        ResultSet[] result) throws java.sql.SQLException {
-       result[0] = someresultset;  // dynamic result set is assigned
+       // java code here creates a statement
+       Connection conn =
+           DriverManager.getConnection("jdbc:default:connection");
+       Statement statement = conn.createStatement();
+       String queryString = "select a, b from ..."; // SQL statement
+       ResultSet resultset = statement.executeQuery(queryString);
+       result[0] = resultset;  // dynamic result set is assigned
    }
 
 </programlisting>
       </informalexample>
 
-      <para>You may want to return your own data in the ResultSet that is
-      returned from an SQL/JRT procedure or function. The
+      <para>You may want to return your own data in the
+      <classname>ResultSet</classname> that is returned from an SQL/JRT
+      procedure or function. The
       <classname>org.hsqldb.jdbc.JDBCResultSet</classname> has two static
       factory methods that return instances of the
       <classname>JDBCResultSetBasic</classname> class. Refer to the source
@@ -2216,9 +2243,11 @@
 
       <para>Java language procedures SQL/JRT are used in an identical manner
       to SQL/PSM routines. See the section under SQL/PSM routines, Returning
-      Data From Procedures, on how to use the JDBC CallableStatement interface
-      to call the procedure and to get the OUT and INOUT arguments and to use
-      the ResultSet objects returned by the procedure.</para>
+      Data From Procedures, on how to use the JDBC
+      <classname>CallableStatement</classname> interface to call the procedure
+      and to get the OUT and INOUT arguments and to use the
+      <classname>ResultSet</classname> objects returned by the
+      procedure.</para>
     </section>
 
     <section xml:id="src_jrt_static_methods">
@@ -2245,8 +2274,8 @@
       modified. In all modes, it is not allowed to execute DDL statements that
       change the schema definition.</para>
 
-      <para>It is possible to use DECLARE LOCAL TEMPORARY TABLE in a Java
-      method, as this is in the session scope.</para>
+      <para>It is possible to use the SQL statement, DECLARE LOCAL TEMPORARY
+      TABLE in a Java method, as this is in the session scope.</para>
 
       <para>There are two ways to use the JDBC Connection object.</para>
 
@@ -2347,8 +2376,8 @@
       <para>The static methods of any class that is on the classpath can be
       made available to be used. From version 2.7.1 access is not allowed by
       default. The optional Java system property
-      <literal>hsqldb.method_class_names</literal> allows access to classes
-      other than <literal>java.lang.Math</literal> by specifying a
+      <property>hsqldb.method_class_names</property> allows access to classes
+      other than <property>java.lang.Math</property> by specifying a
       semicolon-separated list of allowed packages, classes, or methods. A
       property value that ends with .* is treated as a wild card and allows
       access to all class or method names formed by substitution of the *
@@ -2363,7 +2392,7 @@
       </informalexample>
 
       <para>The above example allows access to the method
-      <classname>org.me.MyClass.myMethod</classname> and all methods in the
+      <methodname>org.me.MyClass.myMethod</methodname> and all methods in the
       class <classname>org.you.YourClass</classname> together with all the
       classes in the <classname>org.you.lib</classname> package. Note that if
       the property is not defined, no access is allowed.</para>
@@ -2559,9 +2588,9 @@
 
       <para>The tables and data for the select statement below are created
       with the DatabaseManager or DatabaseManagerSwing GUI apps. (You can find
-      the SQL in the TestSelf.txt file in the zip). Part of the output is
-      shown. Each row of the output includes an array containing the values
-      for the invoices for each customer.</para>
+      the SQL in the <literal>TestSelf.txt</literal> file in the zip). Part of
+      the output is shown. Each row of the output includes an array containing
+      the values for the invoices for each customer.</para>
 
       <informalexample>
         <programlisting> SELECT ID, FIRSTNAME, LASTNAME, ARRAY_AGGREGATE(CAST(INVOICE.TOTAL AS VARCHAR(100))) 
@@ -2579,7 +2608,7 @@
 
       <para>In the example below, the function returns a string that contains
       the comma-separated list of all the values passed for the aggregated
-      column. This function is similar to the built in GROUP_CONCAT
+      column. This function is similar to the built-in GROUP_CONCAT
       function.</para>
 
       <informalexample>
@@ -2624,10 +2653,11 @@
     <section xml:id="src_jrt_aggregate_functions">
       <title>Java Aggregate Functions</title>
 
-      <para>A Java aggregate function is defined similarly to PSM functions,
-      apart from the routine body, which is defined as <literal>EXTERNAL NAME
-      ...</literal> The Java function signature must follow the rules for both
-      nullable and INOUT parameters, therefore:</para>
+      <para>A Java aggregate function is defined in a similar way to PSM
+      functions, apart from the routine body, which is defined as
+      <literal>EXTERNAL NAME ...</literal> The Java function signature must
+      follow the rules for both nullable and INOUT parameters,
+      therefore:</para>
 
       <para>No argument is defined as a primitive or primitive array type.
       This allows nulls to be passed to the function. The second and third

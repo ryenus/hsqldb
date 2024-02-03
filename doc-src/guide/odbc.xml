@@ -52,9 +52,7 @@
     <title>Overview</title>
 
     <para>Support for ODBC access to HyperSQL servers was introduced in HSQLDB
-    version 2.0. Modified versions of the PostgreSQL ODBC software (version
-    8.3) were developed and an installer for 32 bit Windows was made available
-    for download. Improvements were made to the server code for version 2.5.1
+    version 2.0. Improvements were made to the server code for version 2.5.1
     to allow an unmodified PostgreSQL ODBC driver (version 11) to be used.
     This chapter has been adapted from the original ODBC documentation and
     added to this Guide.</para>
@@ -189,7 +187,7 @@
       </varlistentry>
 
       <varlistentry>
-        <term>Cancel as FreeeStmt</term>
+        <term>Cancel as FreeStmt</term>
 
         <listitem>
           <simpara><remark>Find out what this experimental feature is
@@ -243,7 +241,7 @@
                 because the cache size may not be a good representation of the
                 longest column in the cache.</simpara>
               </listitem>
-            </itemizedlist> MS Access: Seems to handle Maximum setting ok, as
+            </itemizedlist> MS Access: Seems to handle Maximum setting OK, as
           well as all the others. Borland: If sizes are large and lots of
           columns, Borland may crash badly (it doesn't seem to handle memory
           allocation well) if using Maximum size.</para>

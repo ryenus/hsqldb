@@ -159,9 +159,10 @@
 
       <para>An UPDATE trigger can be declared to execute only when certain
       columns are the subject of an update statement. For example, a trigger
-      declared as AFTER UPDATE OF (datecolumn) will activate only when the
-      UPDATE statement that is executed includes the column, datecolumn, as
-      one of the columns specified in its SET statements.</para>
+      declared as <literal>AFTER UPDATE OF (datecolumn)</literal> will
+      activate only when the UPDATE statement that is executed includes the
+      column, datecolumn, as one of the columns specified in its SET
+      statements.</para>
     </section>
 
     <section xml:id="trc_trigger_granularity">

@@ -59,14 +59,11 @@
     <title>Purpose</title>
 
     <simpara>The <filename>hsqldb.jar</filename> file supplied in the lib
-    directory of the zip release package is tested and built with Java 11. An
-    separate jar for Java 8 is also supplied in the same directory. The code
-    is also tested extensively with Java 6-8 as well as the latest Java
-    versions. If you want to run with a Java 6 JVM, or use an alternative jar
-    (<filename>hsqldb-min.jar</filename>, etc.), you must build the desired
-    jar with a JDK or download from hsqldb.org. You can also find official
-    jars built with Java 8 and Java 11 in major maven repositories as well as
-    downloads from hsqldb.org.</simpara>
+    directory of the zip release package is built and tested with Java 11. An
+    separate jar for Java 8 is also supplied in the same directory. The jars
+    have been tested extensively with the latest Java versions. You can also
+    find the official jars in major maven repositories as well as downloads
+    from hsqldb.org.</simpara>
 
     <simpara>The Gradle task / Ant target <literal>explainjars</literal>
     reports the versions of Java and Ant actually used.</simpara>
@@ -324,9 +321,8 @@
       Environment) versions and many jar file sizes.</simpara>
 
       <simpara>A jar built with an older JRE is compatible for use with a
-      newer JRE (you can compile with Java 6 and run with 8). But the newer
-      JDBC capabilities of HyperSQL and the JRE will be not be
-      available.</simpara>
+      newer JRE. You can compile with Java 8 and run with 11 but the Java
+      module capabilities of HyperSQL will be not be available.</simpara>
 
       <simpara>The smallest engine jar (<filename>hsqldbmin.jar</filename>)
       contains the engine and the HSQLDB JDBC Driver client. The default size
@@ -370,9 +366,9 @@
       <simpara>The Ant method always builds a jar with the JDK that is used by
       Ant and specified in its JAVA_HOME environment variable.</simpara>
 
-      <para>The jars can be compiled with JDK 6 or later. Build has been
-      tested under JDK versions 6, 8, 9, 10, 11, etc. The same Ant version can
-      be used with all the tested JDKs.</para>
+      <para>The jars can be compiled with JDK 8 or later. Build has been
+      tested under JDK versions 8, 11, and 21. The same Ant version can be
+      used with all the tested JDKs.</para>
     </section>
   </section>
 
@@ -381,28 +377,23 @@
 
     <simpara>The Ant build.xml can be used with most IDEs to build the Jar
     targets. All HyperSQL source files are supplied ready to compile. It is
-    therefore possible to compile the sources without using Ant direcly. If
-    compilation with Java 6 is required, you should run the Ant switchtojdk6
-    target before compiling to modify the files that have code blocks specific
-    to Java 8 or above (these are listed in the jdkcodeswitch.list
-    file).</simpara>
+    therefore possible to compile the sources without using Ant
+    directly.</simpara>
   </section>
 
   <section xml:id="bga_codeswitcher">
     <title>HyperSQL CodeSwitcher</title>
 
-    <simpara>CodeSwitcher is a tool to manage different version of Java source
-    code. It allows to compile HyperSQL for different JDKs. It is something
-    like a precompiler in C but it works directly on the source code and does
-    not create intermediate output or extra files.</simpara>
-
-    <simpara>CodeSwitcher is used internally in the Ant build. You do not have
-    to invoke it separately to compile HyperSQL.</simpara>
+    <simpara>CodeSwitcher is a tool to manage conditional compilation of Java
+    source code. It is something like a precompiler in C but it works directly
+    on the source code and does not create intermediate output or extra
+    files.</simpara>
 
     <simpara>CodeSwitcher reads the source code of a file, removes comments
     where appropriate and comments out the blocks that are not used for a
     particular version of the file. This operation is done for all files of a
-    defined directory, and all subdirectories.</simpara>
+    defined directory, and all subdirectories. The current version (2.7.3) of
+    HSQLDB does not use the CodeSwitcher.</simpara>
 
     <example>
       <title>Example source code before CodeSwitcher is run</title>
@@ -472,6 +463,9 @@
   <section xml:id="bga_build_docs">
     <title>Building Documentation</title>
 
+    <simpara>Java 11 is the only supported JDK for building the
+    documentation.</simpara>
+
     <simpara>The JavaDoc can be built simply by invoking the javadoc
     task/target with Gradle or Ant.</simpara>
 
@@ -514,7 +508,7 @@
           <filename>build</filename> directory about where to obtain these
           things and how to hook them in. The same Gradle task
           <literal>installDbImages</literal> explained above can download and
-          install the entire stylesheet bundle (this option is offered the
+          install the entire style sheet bundle (this option is offered the
           first time that you run the <literal>installDbImages</literal>
           task).</simpara>
         </listitem>
@@ -584,7 +578,6 @@
       </itemizedlist></para>
 
     <simpara>See the file <filename>doc-src/readme-docauthors.txt</filename>
-    for details about our DocBook build system (though as I write this it is
-    somewhat out of date).</simpara>
+    for details about our DocBook build system.</simpara>
   </section>
 </appendix>

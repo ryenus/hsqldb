@@ -76,11 +76,11 @@
     calculation (<literal>SET DATABASE SQL AVG SCALE</literal>).</para>
 
     <para>Each major RDBMS supports additional functions that are not covered
-    by the Standard. Some RDBMS use non-standard syntax for some operations.
-    Although most popular RDBMS products have introduced better compatibility
-    with the Standard in their recent versions, there are still some
-    portability issues. HyperSQL overcomes the potability issues using these
-    strategies</para>
+    by the Standard. Some RDBMS use non-standard syntax for some operations
+    that are actually covered by the Standard. Although most popular RDBMS
+    products have introduced better compatibility with the Standard in their
+    recent versions, there are still some portability issues. HyperSQL
+    overcomes the potability issues using these strategies</para>
 
     <itemizedlist>
       <listitem>
@@ -121,7 +121,7 @@
       <itemizedlist>
         <listitem>
           <para>Use <literal>SET DATABASE SQL SYNTAX PGS TRUE</literal> or the
-          equivalent URL property <literal>sql.syntax_pgs=true</literal> to
+          equivalent URL property <property>sql.syntax_pgs=true</property> to
           enable the PostgreSQL's non-standard features. References to SERIAL,
           BIGSERIAL, TEXT and UUID data types, as well as sequence functions,
           are translated into HyperSQL equivalents.</para>
@@ -131,9 +131,9 @@
           <para>The case of unquoted identifiers is non-standard in
           PostgreSQL, which stores these identifiers in lowercase instead of
           uppercase. Use SET DATABASE SQL LOWER CASE IDENTIFIER or the URL
-          property <literal>sql.lowercase_ident=true</literal> to change the
+          property <property>sql.lowercase_ident=true</property> to change the
           case of unquoted identifiers (table names and column names) to
-          lowercase in ResultSetMetaData.</para>
+          lowercase in <classname>ResultSetMetaData</classname>.</para>
         </listitem>
 
         <listitem>
@@ -256,7 +256,7 @@
       <itemizedlist>
         <listitem>
           <para>Use <literal>SET DATABASE SQL SYNTAX MYS TRUE</literal> or the
-          equivalent URL property <literal>sql.syntax_mys=true</literal> to
+          equivalent URL property <property>sql.syntax_mys=true</property> to
           enable support for MySQL features.</para>
         </listitem>
 
@@ -265,9 +265,9 @@
           which stores these identifiers in the original case but compares
           them regardless of case. If you use lower-case unquoted identifiers
           in MySQL, use SET DATABASE SQL LOWER CASE IDENTIFIER or the URL
-          property <literal>sql.lowercase_ident=true</literal> to change the
+          property <property>sql.lowercase_ident=true</property> to change the
           case of unquoted identifiers (table names and column names) to
-          lowercase in ResultSetMetaData.</para>
+          lowercase in <classname>ResultSetMetaData</classname>.</para>
         </listitem>
 
         <listitem>
@@ -446,7 +446,7 @@
       <itemizedlist>
         <listitem>
           <para>Use <literal>SET DATABASE SQL SYNTAX ORA TRUE</literal> or the
-          equivalent URL property <literal>sql.syntax_ora=true</literal> to
+          equivalent URL property <property>sql.syntax_ora=true</property> to
           enable support for some non-standard syntax of Oracle.</para>
         </listitem>
 
@@ -459,7 +459,7 @@
           <para>Fine control over MVCC deadlock avoidance is provided by the
           <literal>SET DATABASE TRANSACTION ROLLBACK ON CONFLICT
           FALSE</literal> and the corresponding
-          <literal>hsqldb.tx_conflict_rollback</literal> connection
+          <property>hsqldb.tx_conflict_rollback</property> connection
           property.</para>
         </listitem>
 
@@ -471,7 +471,7 @@
 
         <listitem>
           <para>If your application relies on Oracle behaviour for ordering of
-          nulls in SELECT statements with ORDER BY, but without NULLS FIRST or
+          nulls in SELECT statements with ORDER BY, without NULLS FIRST or
           NULLS LAST, use both <literal>SET DATABASE SQL NULLS FIRST
           FALSE</literal> and <literal>SET DATABASE SQL NULLS ORDER
           FALSE</literal> to change the defaults.</para>
@@ -554,7 +554,7 @@
       <itemizedlist>
         <listitem>
           <para>Use <literal>SET DATABASE SQL SYNTAX DB2 TRUE</literal> or the
-          equivalent URL property <literal>sql.syntax_db2=true</literal> to
+          equivalent URL property <property>sql.syntax_db2=true</property> to
           enable support for some non-standard syntax of DB2.</para>
         </listitem>
 
@@ -608,7 +608,7 @@
       <itemizedlist>
         <listitem>
           <para>Use <literal>SET DATABASE SQL SYNTAX MSS TRUE</literal> or the
-          equivalent URL property <literal>sql.syntax_mss=true</literal> to
+          equivalent URL property <property>sql.syntax_mss=true</property> to
           enable support for the <literal>CONVERT(&lt;type definition&gt;,
           &lt;expression)</literal> function with switched order of
           arguments</para>

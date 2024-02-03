@@ -297,9 +297,9 @@
       parameter. HyperSQL applies the standard rules with two exceptions for
       parameters with String and BigDecimal Java types. HyperSQL ignores the
       limits when the parameter value is set, and only enforces the necessary
-      limits when the PreparedStatement is executed. In all other cases,
-      parameter type limits are checked and enforced when the parameter is
-      set.</para>
+      limits for inserts and updates when the PreparedStatement is executed.
+      In all other cases, parameter type limits are checked and enforced when
+      the parameter is set.</para>
 
       <para>In the example below the <methodname>setString()</methodname>
       calls do not raise an exception, but one of the
@@ -334,14 +334,15 @@
       <para>For array parameters, you can use a
       <classname>java.sql.Array</classname> object that contains the array
       elements before assigning to JDBC parameters. The
-      <code>Connection.createArrayOf(...)</code> method can be used to create
-      a new object, or you can use an Array returned from connections to other
-      RDBMS servers. You can also use Java arrays of primitives to assign to
-      the SQL array parameters.</para>
+      <methodname>Connection.createArrayOf(...)</methodname> method can be
+      used to create a new object, or you can use an Array returned from
+      connections to other RDBMS servers. You can also use Java arrays of
+      primitives to assign to the SQL array parameters.</para>
 
       <para>The above also applies to the methods of
       <classname>java.sql.ResultSet</classname> that are used for setting
-      values in new and updated rows in updatable ResultSet objects.</para>
+      values in new and updated rows in updatable
+      <classname>ResultSet</classname> objects.</para>
 
       <para>The setObject() methods of
       <classname>PreparedStatement</classname> and
@@ -357,10 +358,11 @@
 
       <para>Data change statements, also called data manipulation statements
       (DML) such as INSERT, UPDATE, MERGE can be called with different
-      <methodname>executeUpdate()</methodname> methods of java.sql.Statement
-      and <classname>java.sql.PreparedStatement</classname>. Some of these
-      methods allow you to specify how values for generated columns of the
-      table are returned. These methods are documented in the JavaDoc for
+      <methodname>executeUpdate()</methodname> methods of
+      <classname>java.sql.Statement</classname> and
+      <classname>java.sql.PreparedStatement</classname>. Some of these methods
+      allow you to specify how values for generated columns of the table are
+      returned. These methods are documented in the JavaDoc for
       <classname>org.hsqldb.jdbc.JDBCStatement</classname> and
       <classname>org.hsqldb.jdbc.JDBCPreparedStatement</classname>. HyperSQL
       can return not just the generated columns, but any set of columns of the
@@ -371,13 +373,13 @@
     <section xml:id="dac_jdbc_callable_statement">
       <title>JDBC Callable Statement</title>
 
-      <para>The JDBC CallableStatement interface is used to call Java or SQL
-      procedures that have been defined in the database. The SQL statement is
-      in the form of CALL procedureName ( ... ) with constant value arguments
-      or with parameter markers. Note that you must use a parameter marker for
-      OUT and INOUT arguments of the procedure you are calling. The OUT
-      arguments should not be set before executing the callable
-      statement.</para>
+      <para>The JDBC <classname>CallableStatement</classname> interface is
+      used to call Java or SQL procedures that have been defined in the
+      database. The SQL statement is in the form of <literal>CALL
+      procedureName ( ... )</literal> with constant value arguments or with
+      parameter markers. Note that you must use a parameter marker for OUT and
+      INOUT arguments of the procedure you are calling. The OUT arguments
+      should not be set before executing the callable statement.</para>
 
       <para>After executing the statement, you can retrieve the OUT and INOUT
       parameters with the appropriate getXXX() method.</para>
@@ -394,10 +396,11 @@
     <section xml:id="dac_jdbc_return_values">
       <title>JDBC Returned Values</title>
 
-      <para>The methods of the JDBC ResultSet interface are used to return
-      values and to convert value to different types as supported by the JDBC
-      specification. Methods of JDBC CallableStatement that have the same
-      signature are used to return values from procedure calls.</para>
+      <para>The methods of the JDBC <classname>ResultSet</classname> interface
+      are used to return values and to convert value to different types as
+      supported by the JDBC specification. Methods of JDBC
+      <classname>CallableStatement</classname> that have the same signature
+      are used to return values from procedure calls.</para>
 
       <para>When a CLOB and BLOB object is returned from a ResultSet, no data
       is transferred until the data is read by various methods of
@@ -408,24 +411,22 @@
       <para>Array objects are returned as instances of
       <classname>java.sql.Array</classname>.</para>
 
-      <para>When the standard version of HyperSQL jar is used, the methods
-      added in Java 8 are available and the behaviour of the
+      <para>Methods added in Java 8 are supported and the behaviour of the
       <methodname>getObject(int columnIndex)</methodname> method for
-      retrieving TIMESTAMP WITH TIME ZONE values changes. With Java 7 and
-      older, this method returns a <classname>java.sql.Timestamp</classname>
-      object. With Java 8 or later, it returns a
-      <classname>java.time.OffsetDateTime</classname> object which contains
-      the time zone offset value as well as the other fields of the
-      TIMESTAMP.</para>
+      retrieving TIMESTAMP WITH TIME ZONE has changed. In versions before
+      2.4.0, this method returned a <classname>java.sql.Timestamp</classname>
+      object. It now returns a <classname>java.time.OffsetDateTime</classname>
+      object which contains the time zone offset value as well as the other
+      fields of the TIMESTAMP.</para>
 
       <para>A new method, <methodname>getObject(int columnIndex,
-      Class&lt;T&gt; type)</methodname> is available in Java 8 and later. With
-      this method, you specify the required return type. The common types such
-      as String, Integer, byte[] are supported, as well as new types that can
-      be used for DATE, TIME, TIMESTAMP, and INTERVAL values. The table below
-      shows which Java classes are the most appropriate for the specified SQL
-      TYPES. In addition, you can use these Java types for values of SQL type
-      that are not fully matched. For example,
+      Class&lt;T&gt; type)</methodname> is available. With this method, you
+      specify the required return type. The common types such as String,
+      Integer, byte[] are supported, as well as new types that can be used for
+      DATE, TIME, TIMESTAMP, and INTERVAL values. The table below shows which
+      Java classes are the most appropriate for the specified SQL TYPES. In
+      addition, you can use these Java types for values of SQL type that are
+      not fully matched. For example,
       <classname>java.time.LocalDateTime</classname> can be used to retrieve a
       DATE value.</para>
 
@@ -930,6 +931,7 @@
 
       <informalexample>
         <programlisting> SELECT MYCATALOG.MYSCHEMA.MYTABLE.MYCOL FROM MYCATALOG.MYSCHEMA.MYTABLE
+ SELECT MYTABLE.MYCOL FROM MYSCHEMA.MYTABLE
  DROP TABLE MYCATALOG.MYSCHEMA.MYTABLE CASCADE
  ALTER SEQUENCE MYCATALOG.MYSCHEMA.MYSEQUENCE RESTART WITH 100
 </programlisting>
@@ -1668,7 +1670,7 @@
       translated to <literal>(&lt;row value predicand&gt; = &lt;row value
       predicand&gt;) OR (&lt;row value predicand&gt; &lt; &lt;row value
       predicand&gt;)</literal>. The <literal>&lt;greater than or equals
-      operator&gt;</literal> is translated similarly.</simpara>
+      operator&gt;</literal> is translated in a similar way.</simpara>
 
       <simpara>For the <literal>&lt;less than operator&gt;</literal> and
       <literal>&lt;greater than operator&gt;</literal>, if two fields at a
