@@ -4283,7 +4283,8 @@
 
         <para>SYSTEM_BESTROWIDENTIFIER</para>
 
-        <para>For DatabaseMetaData.getBestRowIdentifier</para>
+        <para>For
+        <methodname>DatabaseMetaData.getBestRowIdentifier</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_CACHEINFO</primary>
@@ -4310,8 +4311,8 @@
 
         <para>SYSTEM_COLUMNS</para>
 
-        <para>For DatabaseMetaData.getColumns, contains a row for each
-        column</para>
+        <para>For <methodname>DatabaseMetaData.getColumns</methodname>,
+        contains a row for each column</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_COMMENTS</primary>
@@ -4329,7 +4330,8 @@
 
         <para>SYSTEM_CONNECTION_PROPERTIES</para>
 
-        <para>For DatabaseMetaData.getClientInfoProperties</para>
+        <para>For
+        <methodname>DatabaseMetaData.getClientInfoProperties</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_CROSSREFERENCE</primary>
@@ -4338,8 +4340,9 @@
         <para>SYSTEM_CROSSREFERENCE</para>
 
         <para>Full list of all columns referenced by FOREIGN KEY constraints.
-        For DatabaseMetaData.getCrossReference, getExportedKeys and
-        getImportedKeys.</para>
+        For <methodname>DatabaseMetaData.getCrossReference</methodname>,
+        <methodname>getExportedKeys</methodname> and
+        <methodname>getImportedKeys</methodname>.</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_INDEXINFO</primary>
@@ -4347,7 +4350,8 @@
 
         <para>SYSTEM_INDEXINFO</para>
 
-        <para>For DatabaseMetaData.getIndexInfo</para>
+        <para>For
+        <methodname>DatabaseMetaData.getIndexInfo</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_KEY_INDEX_USAGE</primary>
@@ -4364,7 +4368,8 @@
 
         <para>SYSTEM_PRIMARYKEYS</para>
 
-        <para>For DatabaseMetaData.getPrimaryKeys</para>
+        <para>For
+        <methodname>DatabaseMetaData.getPrimaryKeys</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_PROCEDURECOLUMNS</primary>
@@ -4372,7 +4377,8 @@
 
         <para>SYSTEM_PROCEDURECOLUMNS</para>
 
-        <para>For DatabaseMetaData.getProcedureColumns</para>
+        <para>For
+        <methodname>DatabaseMetaData.getProcedureColumns</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_PROCEDURES</primary>
@@ -4380,8 +4386,10 @@
 
         <para>SYSTEM_PROCEDURES</para>
 
-        <para>For DatabaseMetaData.getFunctionColumns, getFunctions and
-        getProcedures</para>
+        <para>For
+        <methodname>DatabaseMetaData.getFunctionColumns</methodname>,
+        <methodname>getFunctions</methodname> and
+        <methodname>getProcedures</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_PROPERTIES</primary>
@@ -4403,7 +4411,7 @@
 
         <para>SYSTEM_SCHEMAS</para>
 
-        <para>For DatabaseMetaData.getSchemas</para>
+        <para>For <methodname>DatabaseMetaData.getSchemas</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_SEQUENCES</primary>
@@ -4437,7 +4445,7 @@
         <para>SYSTEM_TABLES</para>
 
         <para>Information on tables and views for
-        DatabaseMetaData.getTables</para>
+        <methodname>DatabaseMetaData.getTables</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_TABLESTATS</primary>
@@ -4454,7 +4462,8 @@
 
         <para>SYSTEM_TABLETYPES</para>
 
-        <para>For DatabaseMetaData.getTableTypes</para>
+        <para>For
+        <methodname>DatabaseMetaData.getTableTypes</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_TEXTTABLES</primary>
@@ -4470,7 +4479,7 @@
 
         <para>SYSTEM_TYPEINFO</para>
 
-        <para>For DatabaseMetaData.getTypeInfo</para>
+        <para>For <methodname>DatabaseMetaData.getTypeInfo</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_UDTS</primary>
@@ -4478,7 +4487,7 @@
 
         <para>SYSTEM_UDTS</para>
 
-        <para>For DatabaseMetaData.getUDTs</para>
+        <para>For <methodname>DatabaseMetaData.getUDTs</methodname></para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_USERS</primary>
@@ -4495,8 +4504,9 @@
 
         <para>SYSTEM_VERSIONCOLUMNS</para>
 
-        <para>For DatabaseMetaData.getVersionColumns. Contains list of columns
-        of system PERIOD and those with ON UPDATE CURRENT TIMESTAMP.</para>
+        <para>For <methodname>DatabaseMetaData.getVersionColumns</methodname>.
+        Contains list of columns of system PERIOD and those with ON UPDATE
+        CURRENT TIMESTAMP.</para>
       </section>
     </section>
   </section>

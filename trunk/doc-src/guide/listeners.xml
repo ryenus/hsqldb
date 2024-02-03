@@ -471,7 +471,7 @@
     shut it down programatically. Calling the <literal>shutdownCatalogs(int
     shutdownMode)</literal> method of
     <classname>org.hsqldb.server.Server</classname> closes all the open
-    databases, which results in server shtudown. The parameter value is
+    databases, which results in server shutdown. The parameter value is
     normally 1, which indicates normal shutdown. Other modes of shutdown, such
     as SHUTDOWN IMMEDIATELY are also supported. See the javadoc for
     <classname>org.hsqldb.server.Server</classname>. See the example

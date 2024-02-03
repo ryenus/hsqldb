@@ -48,7 +48,9 @@
           <para>Contains the entry 'modified'. If the entry 'modified' is set
           to 'yes' then the database is either running or was not closed
           correctly. When the database is properly shutdown, 'modified' is set
-          to 'no'.</para>
+          to 'no'. You can add the optional entry
+          <property>readonly=true</property> to make the database files read
+          only.</para>
         </listitem>
       </varlistentry>
 
@@ -57,8 +59,8 @@
 
         <listitem>
           <para>This file contains the SQL statements that makes up the
-          database up to the last checkpoint - it is in sync with the contents
-          of <filename>test.backup</filename>.</para>
+          database up to the last checkpoint. All the data for MEMORY tables
+          is also stored in this file.</para>
         </listitem>
       </varlistentry>
 
@@ -75,12 +77,11 @@
         <term>test.backup</term>
 
         <listitem>
-          <para>Depending on the backup mode ( SET FILES BACKUP INCREMENT
-          {TRUE | FALSE} ), this file contains either a backup of the parts of
-          the <filename>test.data</filename> that have been modified since the
-          last checkpoint (the default setting, TRUE) or the complete
-          compressed backup of the <filename>test.data</filename> file at the
-          time of last checkpoint (when FALSE).</para>
+          <para>This file contains a backup of the parts of the
+          <filename>test.data</filename> that have been modified since the
+          last checkpoint. The file is deleted at each checkpoint or shutdown.
+          The size of this file can be as large as the
+          <filename>test.data</filename> file.</para>
         </listitem>
       </varlistentry>
 
@@ -109,8 +110,14 @@
 
     <para>A CHECKPOINT is an operations that saves all the changed data and
     removes the <filename>test.log</filename> followed by the creation of an
-    empty log. A SHUTDOWN is equivalent to a CHECKPOINT followed by closing
-    the database.</para>
+    empty log. It also deletes the <filename>test.backup</filename> file. A
+    SHUTDOWN is equivalent to a CHECKPOINT followed by closing the
+    database.</para>
+
+    <para>The disk space needed for the database depends on the amount of
+    data. After the database is opened more space, up to slightly greater than
+    the size of the <filename>test.script</filename> and
+    <filename>test.data</filename> files is needed during operation.</para>
   </section>
 
   <section xml:id="dfa_file_states">
@@ -127,10 +134,7 @@
       </listitem>
 
       <listitem>
-        <para>When BACKUP INCREMENT TRUE is used, there is no
-        <filename>test.backup</filename> at all. Otherwise the
-        <filename>test.backup</filename> contains the full compressed
-        <filename>test.data</filename> file.</para>
+        <para>There is no <filename>test.backup</filename> file.</para>
       </listitem>
 
       <listitem>
@@ -157,12 +161,12 @@
 
       <listitem>
         <para>The <filename>test.data</filename> file does not exist; all
-        CACHED table data is in the <filename>test.script</filename>
+        CACHED table data is now in the <filename>test.script</filename>
         file</para>
       </listitem>
 
       <listitem>
-        <para>The <filename>test.backup</filename> does not exist.</para>
+        <para>There is no <filename>test.backup</filename> file.</para>
       </listitem>
 
       <listitem>
@@ -183,8 +187,9 @@
 
     <para>Database is aborted</para>
 
-    <para>If the database process was terminated with a SHUTDOWN, or the
-    SHUTDOWN IMMEDIATELY was used, the database is in aborted state.</para>
+    <para>If the database process was terminated without a SHUTDOWN, or the
+    SHUTDOWN IMMEDIATELY command was used, the database is in aborted
+    state.</para>
 
     <itemizedlist>
       <title>Aborted database state</title>
@@ -206,15 +211,14 @@
 
       <listitem>
         <para>The <filename>test.backup</filename> file contains just sections
-        of the original <filename>test.data</filename> file, or a full
-        snapshot of <filename>test.data</filename> that corresponds to
+        of the original <filename>test.data</filename> file that correspond to
         <filename>test.script</filename> at the time of the last
         checkpoint.</para>
       </listitem>
 
       <listitem>
         <para>The <filename>test.log</filename> file contain all data change
-        statements executed since the checkpoint. As a result of abnormal
+        statements executed since the last checkpoint. As a result of abnormal
         termination, the end of file may be incomplete.</para>
       </listitem>
     </itemizedlist>
@@ -239,12 +243,6 @@
         </step>
 
         <step>
-          <para>If backup mode is not INCREMENT, the
-          <filename>test.backup.new</filename> is created which contains the
-          compressed <filename>test.data</filename> file.</para>
-        </step>
-
-        <step>
           <para>The file <filename>test.script.new</filename> is created using
           the current state of the database.</para>
         </step>
@@ -252,7 +250,7 @@
         <step>
           <para>The entry 'modified' in the properties file is set to
           'yes-new-files' (Note: after this step, the
-          <filename>test.data.new</filename> and
+          <filename>test.data</filename> and
           <filename>test.script.new</filename> files constitute the
           database)</para>
         </step>
@@ -272,11 +270,6 @@
 
         <step>
           <para>The file <filename>test.backup</filename> is deleted</para>
-        </step>
-
-        <step>
-          <para>If the file <filename>test.backup.new</filename> exists, it is
-          renamed to <filename>test.backup</filename></para>
         </step>
 
         <step>
@@ -318,8 +311,8 @@
           <para>Otherwise, if in the <filename>test.properties</filename> file
           'modified=yes-new-files', then the (old)
           <filename>test.backup</filename> and
-          <filename>test.script</filename> files are deleted and the new
-          <filename>test.script.new</filename> file is renamed to
+          <filename>test.script</filename> files are deleted if they exist and
+          the new <filename>test.script.new</filename> file is renamed to
           <filename>test.script</filename>.</para>
         </step>
 
@@ -346,10 +339,8 @@
 
         <step>
           <para>Restore the old <filename>test.data</filename> file from the
-          backup. Depending on the backup mode, decompress the
-          <filename>test.backup</filename> and overwrite
-          <filename>test.data</filename>, or copy the original sections from
-          the <filename>test.backup</filename> file.</para>
+          backup by copying the original sections from the
+          <filename>test.backup</filename> file.</para>
         </step>
 
         <step>
@@ -368,8 +359,11 @@
         </step>
 
         <step>
-          <para>Close the database files, before opening the restored
-          database.</para>
+          <para>Close the database files.</para>
+        </step>
+
+        <step>
+          <para>Open the restored database.</para>
         </step>
       </procedure>
     </section>

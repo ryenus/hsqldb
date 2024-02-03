@@ -59,7 +59,8 @@
     and ROLE objects. These objects are collectively called
     <emphasis>authorizations</emphasis>. Each AUTHORIZATION has some access
     rights on some of the schemas and the database objects such as tables and
-    routines contained in those schemas.</para>
+    routines contained in those schemas. Only USER authorizations can be used
+    to connect to the database and start a session.</para>
 
     <para>Authorization names are stored in the database in case-normal form.
     When a user is created with the CREATE USER statement, if the user name is
@@ -90,9 +91,8 @@
     role.</para>
 
     <para>A ROLE has a name, a collection of zero or more other roles, plus
-    some privileges (access rights). A USER has a name and a password. It
-    similarly has a collection of zero or more roles plus some
-    privileges.</para>
+    some privileges (access rights). A USER has a name and a password. It also
+    has a collection of zero or more roles plus some privileges.</para>
 
     <para>USER objects existed in SQL-92, but ROLE objects were introduced in
     SQL:1999. The co-existence of ROLE and USER objects results in complexity.
@@ -105,12 +105,12 @@
     authorizations have the PUBLIC role, which cannot be removed from them.
     Therefore, any access right assigned to the PUBLIC role applies to all
     authorizations in the database. For many simple databases, it is adequate
-    to create one or more non-admin user, then assign access rights to the
+    to create one or more non-admin users, then assign access rights to the
     tables and sequences to the PUBLIC role.</para>
 
-    <para>The PUBLIC role is separate from the default PUBLIC schema. The
-    contents of this schema is not visible to non-admin users unless access is
-    granted by the DBA role.</para>
+    <para>The PUBLIC role is separate from the default PUBLIC schema. Like any
+    user-created schema, the contents of the PUBLIC is schema are not visible
+    to non-admin users unless access is granted by the DBA role.</para>
 
     <para>Access to INFORMATION_SCHEMA views is automatically granted to
     PUBLIC; therefore these views are accessible to all. However, the contents
@@ -151,11 +151,11 @@
       <para>There are some pre-defined roles in each database; some defined by
       the SQL Standard, some by HyperSQL. These roles can be assigned to users
       (directly or via other, user-defined roles). In addition, there is the
-      initial admin user created with each new database. The initial user name
-      and password is defined in the connection properties when the first
-      connection to the database is made. In older versions of HSQLDB, this
-      name was always SA. But in the latest version, the name can be defined
-      as a different string.</para>
+      initial admin user created with each new database. The initial admin
+      user name and password are defined in the connection properties when the
+      first connection to the database is made. In older versions of HSQLDB,
+      this name was always SA. But in the latest version, the name can be
+      defined as a different string.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>Admin USER</primary>
@@ -450,10 +450,27 @@ GRANT SELECT ON ALL TABLES IN SCHEMA mySchema TO auditUser;
       </indexterm>
 
       <para>A USER or ROLE that does not own a schema can be granted access to
-      individual columns of a table in the schema. HyperSQL adds a feature
-      that is not part of the SQL Standard to allow access to be granted to a
-      ROLE only for certain rows of a table, based on a FILTER
-      condition.</para>
+      individual columns of a table in the schema.</para>
+
+      <informalexample>
+        <programlisting>CREATE TABLE info(id INT PRIMARY KEY, information VARCHAR(100), region VARCHAR(32) NOT NULL, expires DATE NOT NULL)
+CREATE ROLE eu_admin
+CREATE ROLE eu_user
+// the eu_admin can insert, update and delete all rows 
+GRANT ALL PRIVILEGES ON TABLE info TO eu_admin
+// the eu_user cannot delete any rows
+// the eu_user cannot see the contents of the expires columns
+GRANT SELECT(id, information, region) ON TABLE info TO eu_user
+// the eu_user can only update the contents of the information column
+GRANT UPDATE(information) ON TABLE info TO eu_user
+GRANT eu_admin TO peter, wendy
+GRANT eu_user TO emma, john
+</programlisting>
+      </informalexample>
+
+      <para>HyperSQL adds a feature that is not part of the SQL Standard to
+      allow access to be granted to a ROLE only for certain rows of a table,
+      based on a FILTER condition.</para>
 
       <para>When the GRANT statement contains a FILTER condition, the
       condition is applied to each row of the table that a SELECT, INSERT,
@@ -471,14 +488,16 @@ GRANT SELECT ON ALL TABLES IN SCHEMA mySchema TO auditUser;
       before the expiration date.</para>
 
       <para><informalexample>
-          <programlisting>CREATE TABLE info(id INT PRIMARY KEY, info VARCHAR(100), region VARCHAR(32) NOT NULL, expires DATE NOT NULL)
+          <programlisting>CREATE TABLE info(id INT PRIMARY KEY, information VARCHAR(100), region VARCHAR(32) NOT NULL, expires DATE NOT NULL)
 -- there is also a foreign key constraint on the REGION column to reference a list of valid region names.
 INSERT INTO info VALUES 2, 'inserted data for EU current', 'European Union', CURRENT_DATE + 1 DAY
 INSERT INTO info VALUES 3, 'inserted data for SA current', 'South America', CURRENT_DATE + 1 DAY
 INSERT INTO info VALUES 4, 'inserted data for EU expired', 'European Union', CURRENT_DATE - 1 DAY
 CREATE ROLE eu_admin
 CREATE ROLE eu_user
+// the eu_admin cannot see the rows for regions other than the EU
 GRANT SELECT FILTER (WHERE region = 'European Union') ON TABLE info TO eu_admin
+// the eu_user cannot see the rows past the expires date
 GRANT SELECT FILTER (WHERE region = 'European Union' AND expires &gt; CURRENT_DATE) ON TABLE info TO eu_user
 GRANT eu_admin TO peter, wendy
 GRANT eu_user TO emma, john

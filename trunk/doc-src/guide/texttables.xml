@@ -92,8 +92,8 @@
     <section xml:id="ttc_table_definition">
       <title>Definition of Tables</title>
 
-      <para>Text Tables are defined similarly to conventional tables with the
-      added TEXT keyword.</para>
+      <para>Text Tables are defined in a similar way to conventional tables
+      with the added TEXT keyword.</para>
 
       <informalexample>
         <programlisting> CREATE TEXT TABLE &lt;tablename&gt; (&lt;column definition&gt; [&lt;constraint definition&gt;])</programlisting>
@@ -165,10 +165,10 @@
       <title>Configuration</title>
 
       <para>The default field separator is a comma (,). A different field
-      separator can be specified within the SET TABLE SOURCE statement. For
-      example, to change the field separator for the table mytable to a
-      vertical bar, place the following in the SET TABLE SOURCE statement, for
-      example:</para>
+      separator can be specified within the <literal>SET TABLE
+      SOURCE</literal> statement. For example, to change the field separator
+      for the table mytable to a vertical bar, place the following in the SET
+      TABLE SOURCE statement, for example:</para>
 
       <informalexample>
         <programlisting> SET TABLE mytable SOURCE "myfile;fs=|"</programlisting>
@@ -363,8 +363,8 @@
       </informalexample>
 
       <para>The properties used in earlier versions, namely the
-      <varname>textdb.cache_scale</varname> and the
-      <varname>textdb.cache_size_scale</varname> can still be used for
+      <property>textdb.cache_scale</property> and the
+      <property>textdb.cache_size_scale</property> can still be used for
       backward compatibility, but the new properties are preferred.</para>
 
       <variablelist>
@@ -516,7 +516,7 @@
       <listitem>
         <para>With file databases, text file locations are restricted to below
         the directory that contains the database, unless the
-        <varname>textdb.allow_full_path</varname> property is set true as a
+        <property>textdb.allow_full_path</property> property is set true as a
         Java system property. This feature is for security, otherwise an admin
         database user may be able to open random files. The specified text
         source path is interpreted differently according to this property. By
@@ -533,7 +533,7 @@
 
       <listitem>
         <para>By default, all-in-memory databases cannot use text tables. To
-        enable this capability the <varname>textdb.allow_full_path</varname>
+        enable this capability the <property>textdb.allow_full_path</property>
         property must be set <literal>true</literal> as a Java system
         property. The text file path is used as submitted and interpreted as
         an absolute path as described above, or a path relative to the Java
@@ -587,8 +587,9 @@
       <listitem>
         <para>ALTER TABLE commands that add or drop columns or constraints
         (apart from check constraints) are not supported with text tables that
-        are connected to a source. First use the SET TABLE &lt;name&gt; SOURCE
-        OFF, make the changes, then turn the source ON.</para>
+        are connected to a source. First use the <literal>SET TABLE
+        &lt;name&gt; SOURCE OFF</literal>, make the changes, then turn the
+        source ON.</para>
       </listitem>
 
       <listitem>
@@ -626,9 +627,9 @@
     <para>The database engine uses a set of defaults for text table
     properties. Each table's data source may override these defaults. It is
     also possible to override the defaults globally, so they apply to all text
-    tables. The statement SET DATABASE TEXT TABLE DEFAULTS &lt;properties
-    string&gt; can be used to override the default global properties. An
-    example is given below:</para>
+    tables. The statement <literal>SET DATABASE TEXT TABLE DEFAULTS
+    &lt;properties string&gt;</literal> can be used to override the default
+    global properties. An example is given below:</para>
 
     <para><informalexample>
         <programlisting> SET DATABASE TEXT TABLE DEFAULTS 'all_quoted=true;encoding=UTF-8;cache_rows=10000;cache_size=2000'</programlisting>

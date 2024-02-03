@@ -72,7 +72,7 @@
     <para>Over 300 words are reserved by the Standard and should not be used
     as table or column names. For example, the word POSITION is reserved as it
     is a function defined by the Standards with a similar role as
-    <methodname>String::indexOf(String)</methodname> in Java. By default,
+    <methodname>String.indexOf(String)</methodname> in Java. By default,
     HyperSQL does not prevent you from using a reserved word if it does not
     support its use or can distinguish it. For example, CUBE is a reserved
     word for a feature that is supported by HyperSQL from version 2.5.1.
@@ -480,7 +480,7 @@
       when a commit takes place.</para>
 
       <para>The rows in temporary tables are stored in memory by default. If
-      the <literal>hsqldb.result_max_memory_rows</literal> property has been
+      the <property>hsqldb.result_max_memory_rows</property> property has been
       set or the <literal>SET SESSION RESULT MEMORY ROWS &lt;row
       count&gt;</literal> has been specified, tables with row count above the
       setting are stored on disk.</para>
@@ -526,7 +526,7 @@
         performance implications. By default LONGVARCHAR is a synonym for a
         long VARCHAR and can be used without specifying the size. You can set
         LONGVARCHAR to map to CLOB, with the
-        <literal>sql.longvar_is_lob</literal> connection property or the SET
+        <property>sql.longvar_is_lob</property> connection property or the SET
         DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
       </listitem>
 
@@ -539,7 +539,7 @@
         the same considerations as with the character string types. By
         default, LONGVARBINARY is a synonym for a long VARBINARY and can be
         used without specifying the size. You can set LONGVARBINARY to map to
-        BLOB, with the <literal>sql.longvar_is_lob</literal> connection
+        BLOB, with the <property>sql.longvar_is_lob</property> connection
         property or the SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
       </listitem>
 
@@ -802,10 +802,10 @@
     compile time.</para>
 
     <para>When a statement is prepared, using a JDBC
-    <literal>PreparedStatement</literal> object, it is compiled by the engine
-    and the type of the columns of its ResultSet and / or its parameters are
-    accessible through the methods of
-    <literal>PreparedStatement</literal>.</para>
+    <classname>PreparedStatement</classname> object, it is compiled by the
+    engine and the type of the columns of its <classname>ResultSet</classname>
+    and / or its parameters are accessible through the methods of
+    <classname>PreparedStatement</classname>.</para>
 
     <section xml:id="sgc_numeric_types">
       <title>Numeric Types</title>
@@ -924,8 +924,8 @@
       synonymous) is part of an expression involving different numeric types,
       the type of the result is DOUBLE. DECIMAL values can be converted to
       DOUBLE unless they are beyond the <literal>Double.MIN_VALUE -
-      Double.MAX_VALUE</literal> range. For example, A * B, A / B, A + B, etc.
-      will return a DOUBLE value if either A or B is a DOUBLE.</para>
+      Double.MAX_VALUE</literal> range. For example, A * B, A / B, A + B,
+      etc., will return a DOUBLE value if either A or B is a DOUBLE.</para>
 
       <para>Otherwise, when no DOUBLE value exists, if a DECIMAL or NUMERIC
       value is part an expression, the type of the result is DECIMAL or
@@ -955,9 +955,10 @@
       <classname>PreparedStatement</classname> methods and are returned in
       <classname>ResultSet</classname> objects. In order to allow division by
       zero of DOUBLE values in SQL statements (which returns NaN or
-      +-Infinity) you should set the property hsqldb.double_nan as false (SET
-      DATABASE SQL DOUBLE NAN FALSE). The double values can be retrieved from
-      a <classname>ResultSet</classname> in the required type so long as they
+      +-Infinity) you should set the property
+      <property>hsqldb.double_nan</property> as false (SET DATABASE SQL DOUBLE
+      NAN FALSE). The double values can be retrieved from a
+      <classname>ResultSet</classname> in the required type so long as they
       can be represented. For setting the values, when
       <methodname>PreparedStatement.setDouble()</methodname> or
       <methodname>setFloat()</methodname> is used, the value is treated as a
@@ -1033,7 +1034,7 @@
       OBJECT are synonyms for these types. HyperSQL also supports LONGVARCHAR
       as a synonym for VARCHAR. If LONGVARCHAR is used without a length, then
       a length of 16M is assigned. You can set LONGVARCHAR to map to CLOB,
-      with the <literal>sql.longvar_is_lob</literal> connection property or
+      with the <property>sql.longvar_is_lob</property> connection property or
       the SET DATABASE SQL LONGVAR IS LOB TRUE statement..</para>
 
       <para>HyperSQL's default character set is Unicode, therefore all
@@ -1122,8 +1123,8 @@
       binary string types. VARBINARY and BINARY LARGE OBJECT are synonyms for
       BINARY VARYING and BLOB types. HyperSQL also supports LONGVARBINARY as a
       synonym for VARBINARY. You can set LONGVARBINARY to map to BLOB, with
-      the <literal>sql.longvar_is_lob</literal> connection property or the SET
-      DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
+      the <property>sql.longvar_is_lob</property> connection property or the
+      SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
 
       <para>Binary string types are used in a similar way to character string
       types. There are several built-in functions that are overloaded to
@@ -1156,9 +1157,9 @@
       '24ff182401e84dac8eb33fee32ad2b9c' are allowed. When a value of the UUID
       type is converted to a CHARACTER type, the hyphens are inserted in the
       required positions. Java UUID objects can be used with
-      <literal>java.sql.PreparedStatement</literal> to insert values of this
-      type. The <literal>getObject()</literal> method of ResultSet returns the
-      Java object for UUID column data.</para>
+      <classname>java.sql.PreparedStatement</classname> to insert values of
+      this type. The <methodname>getObject()</methodname> method of ResultSet
+      returns the Java object for UUID column data.</para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
@@ -1242,47 +1243,54 @@
       methods.</para>
 
       <para>To insert a lob into a table, or to update a column of lob type
-      with a new lob, you can use the <literal>setBinaryStream()</literal> and
-      <literal>setCharacterStream()</literal> methods of JDBC
-      <literal>java.sql.PreparedStatement</literal>. These are very efficient
-      methods for long lobs. Other methods are also supported. If the data for
-      the BLOB or CLOB is already a memory object, you can use the
-      <literal>setBytes()</literal> or <literal>setString()</literal> methods,
-      which are efficient for memory data. Another method is to obtain a lob
-      with the <literal>getBlob()</literal> and <literal>getClob()</literal>
-      methods of <literal>java.sql.Connection</literal>, populate its data,
-      then use the <literal>setBlob()</literal> or
-      <literal>setClob()</literal> methods of
-      <literal>PreparedStatement</literal>. Yet another method allows to
-      create instances of <literal>org.hsqldb.jdbc.JDBCBlobFile</literal> and
-      <literal>org.hsqldb.jdbc.JDBCClobFile</literal> and construct a large
-      lob for use with <literal>setBlob()</literal> and
-      <literal>setClob()</literal> methods.</para>
+      with a new lob, you can use the
+      <methodname>setBinaryStream()</methodname> and
+      <methodname>setCharacterStream()</methodname> methods of JDBC
+      <classname>java.sql.PreparedStatement</classname>. These are very
+      efficient methods for long lobs. Other methods are also supported. If
+      the data for the BLOB or CLOB is already a memory object, you can use
+      the <methodname>setBytes()</methodname> or
+      <methodname>setString()</methodname> methods, which are efficient for
+      memory data. Another method is to obtain a lob with the
+      <methodname>getBlob()</methodname> and
+      <methodname>getClob()</methodname> methods of
+      <classname>java.sql.Connection</classname>, populate its data, then use
+      the <methodname>setBlob()</methodname> or
+      <methodname>setClob()</methodname> methods of
+      <classname>PreparedStatement</classname>. Yet another method allows to
+      create instances of <classname>org.hsqldb.jdbc.JDBCBlobFile</classname>
+      and <classname>org.hsqldb.jdbc.JDBCClobFile</classname> and construct a
+      large lob for use with <methodname>setBlob()</methodname> and
+      <methodname>setClob()</methodname> methods.</para>
 
-      <para>A lob is retrieved from a ResultSet with the
-      <literal>getBlob()</literal> or <literal>getClob()</literal> method. The
-      steaming methods of the lob objects are then used to access the data.
-      HyperSQL also allows efficient access to chunks of lobs with
-      <literal>getBytes()</literal> or <literal>getString()</literal> methods.
-      Furthermore, parts of a BLOB or CLOB already stored in a table can be
-      modified. An updatable <literal>ResultSet</literal> is used to select
-      the row from the table. The <literal>getBlob()</literal> or
-      <literal>getClob()</literal> methods of <literal>ResultSet</literal> are
-      used to access the lob as a <literal>java.sql.Blob</literal> or
-      <literal>java.sql.Clob</literal> object. The
-      <literal>setBytes()</literal> and <literal>setString()</literal> methods
-      of these objects can be used to modify the lob. Finally the
-      <literal>updateRow()</literal> method of the
-      <literal>ResultSet</literal> is used to update the lob in the row. Note
-      these modifications are not allowed with compressed or encrypted
-      lobs.</para>
+      <para>A lob is retrieved from a <classname>ResultSet</classname> with
+      the <methodname>getBlob()</methodname> or
+      <methodname>getClob()</methodname> method. The steaming methods of the
+      lob objects are then used to access the data. HyperSQL also allows
+      efficient access to chunks of lobs with
+      <methodname>getBytes()</methodname> or
+      <methodname>getString()</methodname> methods. Furthermore, parts of a
+      BLOB or CLOB already stored in a table can be modified. An updatable
+      <classname>ResultSet</classname> is used to select the row from the
+      table. The <methodname>getBlob()</methodname> or
+      <methodname>getClob()</methodname> methods of
+      <classname>ResultSet</classname> are used to access the lob as a
+      <classname>java.sql.Blob</classname> or
+      <classname>java.sql.Clob</classname> object. The
+      <methodname>setBytes()</methodname> and
+      <methodname>setString()</methodname> methods of these objects can be
+      used to modify the lob. Finally the <methodname>updateRow()</methodname>
+      method of the <classname>ResultSet</classname> is used to update the lob
+      in the row. Note these modifications are not allowed with compressed or
+      encrypted lobs.</para>
 
       <para>Lobs are logically stored in columns of tables. Their physical
-      storage is a separate *.lobs file. This file is created as soon as a
-      BLOB or CLOB is inserted into the database. The file will grow as new
-      lobs are inserted into the database. In version 2, the *.lobs file is
-      never deleted even if all lobs are deleted from the database. In this
-      case you can delete the *.lobs file after a SHUTDOWN. When a CHECKPOINT
+      storage is a separate <filename>*.lobs</filename> file. This file is
+      created as soon as a BLOB or CLOB is inserted into the database. The
+      file will grow as new lobs are inserted into the database. In version 2,
+      the <filename>*.lobs</filename> file is never deleted even if all lobs
+      are deleted from the database. In this case you can delete the
+      <filename>*.lobs</filename> file after a SHUTDOWN. When a CHECKPOINT
       happens, the space used for deleted lobs is freed and is reused for
       future lobs. By default, clobs are stored without compression. You can
       use a database setting to enable compression of clobs. This can
@@ -1311,8 +1319,8 @@
 
       <para>The alternative Live Object option is for
       <glossterm>mem:</glossterm> databases only and is enabled when the
-      database property sql.live_object=true is appended to the connection
-      property that creates the mem database. For example
+      database property <property>sql.live_object=true</property> is appended
+      to the connection property that creates the mem database. For example
       <literal>'jdbc:hsqldb:mem:mydb;sql.live_object=true'</literal>. With
       this option, any Java object can be stored as it is not serialized. The
       SQL statement <literal>SET DATABASE SQL LIVE OBJECT TRUE</literal> can
@@ -1372,7 +1380,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
       require a size parameter and do not have a default. For compatibility
       with CREATE TABLE statements from other databases that do not have size
       parameters for VARCHAR column, the URL property
-      <literal>hsqldb.enforce_size=false</literal> or the SQL statement
+      <property>hsqldb.enforce_size=false</property> or the SQL statement
       <literal>SET DATABASE SQL SIZE FALSE</literal> can be used to allow the
       table creation and automatically apply a large value for the maximum
       size of the VARCHAR column. You should test your application to ensure
@@ -1514,7 +1522,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <para>The time zone displacement is of the type INTERVAL HOUR TO MINUTE.
     This data type is described in the next section. The legal values are
-    between '–18:00' and   '+18:00'.</para>
+    between '–18:00' and '+18:00'.</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>Datetime Operations</primary>
@@ -1583,9 +1591,9 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     '14:00:00-5:00' in the target zone.</para>
 
     <para>In the second example, the session's time zone displacement is not
-    considered. In step 1, time is converted to UTC, which is time
-    '07:00:00+0:00', In step 2, this value is expressed as time
-    '02:00:00-5:00' in the target zone.</para>
+    considered because the timestamp has a time zone. In step 1, time is
+    converted to UTC, which is time '07:00:00+0:00', In step 2, this value is
+    expressed as time '02:00:00-5:00' in the target zone.</para>
 
     <para>Example b:</para>
 
@@ -1771,10 +1779,9 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     by default as datetime types without TIME ZONE.</para>
 
     <para>JAVA 8 introduced new type codes for TIMESTAMP WITH TIME ZONE and
-    TIME WITH TIME ZONE. HyperSQL (except the jars compiled with JDK 1.6)
-    supports this in <classname>ResultSet</classname>,
-    <classname>PreparedStatement</classname> and
-    <classname>CallableStatement</classname>.</para>
+    TIME WITH TIME ZONE. HyperSQL supports this in
+    <classname>ResultSet</classname>, <classname>PreparedStatement</classname>
+    and <classname>CallableStatement</classname>.</para>
 
     <itemizedlist>
       <listitem>
@@ -2076,14 +2083,13 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     for SQL INTERVAL types. Therefore, for compatibility with database tools
     that are limited to the JDBC type codes, HyperSQL reports these types by
     default as VARCHAR. You can use the URL property
-    <literal>hsqldb.translate_dti_types=false</literal> to override the
+    <property>hsqldb.translate_dti_types=false</property> to override the
     default behaviour.</para>
 
     <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
 
     <para>JAVA 8 does not have SQL type codes for INTERVAL types. HyperSQL
-    (except the jars compiled with JDK 1.6) supports
-    <classname>java.time</classname> types for INTERVAL types in
+    supports <classname>java.time</classname> types for INTERVAL types in
     <classname>ResultSet</classname>, <classname>PreparedStatement</classname>
     and <classname>CallableStatement</classname>.</para>
 
@@ -2201,8 +2207,8 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
       </informalexample>
 
       <para>When using a PreparedStatement with an ARRAY parameter, a Java
-      array or a <literal>java.sql.Array</literal> object may be used to set
-      the parameter.</para>
+      array or a <classname>java.sql.Array</classname> object may be used to
+      set the parameter.</para>
 
       <para>In the example below prepared statements for INSERT and UPDATE
       with array parameters are used.</para>
@@ -2234,8 +2240,8 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 </programlisting>
       </informalexample>
 
-      <para>In the example below, a <literal>java.sql.Array</literal> is used
-      for the update, using the same data as above:</para>
+      <para>In the example below, a <classname>java.sql.Array</classname> is
+      used for the update, using the same data as above:</para>
 
       <informalexample>
         <programlisting>data = new Object[]{"I", "II", "III", "IV"};

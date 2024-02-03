@@ -818,8 +818,8 @@
     <simpara>Rollback part of the current SQL transaction and continue the
     transaction. The statement rolls back all the actions performed after the
     specified SAVEPOINT was created. The same effect can be achieved with the
-    <literal>rollback( Savepoint savepoint)</literal> method of the JDBC
-    <classname>Connection</classname> object.</simpara>
+    <methodname>rollback( Savepoint savepoint )</methodname> method of the
+    JDBC <classname>Connection</classname> object.</simpara>
 
     <example>
       <title>Rollback</title>
@@ -878,8 +878,8 @@
     <simpara>Set one or more characteristics for the current SQL-session. This
     command is used to set the transaction mode for the session. This endures
     for all transactions until the session is closed or the next use of this
-    command. The current read-only mode can be accessed with the ISREADONLY()
-    function.</simpara>
+    command. The current read-only mode can be accessed with the
+    <literal>ISREADONLY()</literal> function.</simpara>
 
     <example>
       <title>Setting Session Characteristics</title>
@@ -907,8 +907,9 @@
     current user. The user that executes this command must have the
     CHANGE_AUTHORIZATION role, or the DBA role. After this statement is
     executed, all SQL statements are executed with the privileges of the new
-    user. The current authorisation can be accessed with the CURRENT_USER and
-    SESSION_USER functions.</simpara>
+    user. The current authorisation can be accessed with the
+    <literal>CURRENT_USER</literal> and <literal>SESSION_USER</literal>
+    functions.</simpara>
 
     <example>
       <title>Setting Session Authorization</title>
@@ -934,9 +935,10 @@
 
     <simpara>Set the SQL-session role name and the current role name for the
     current SQL-session context. The user that executes this command must have
-    the specified role. If NONE is specified, then the previous CURRENT_ROLE
+    the specified role. If NONE is specified, then the previous CURRENT ROLE
     is eliminated. The effect of this lasts for the lifetime of the session.
-    The current role can be accessed with the CURRENT_ROLE function.</simpara>
+    The current role can be accessed with the <literal>CURRENT_ROLE</literal>
+    function.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET TIME ZONE</primary>
@@ -968,8 +970,8 @@
     sessions is for a connection to a server, this command should not
     generally be used as it only affects the server part of the session. With
     client / server connections, the only way to specify a session time zone
-    that is different from the local time zone is by setting the client JVM 
-	time zone prior to connecting to the database.</simpara>
+    that is different from the local time zone is by setting the client JVM
+    time zone prior to connecting to the database.</simpara>
 
     <example>
       <title>Setting Session Time Zone</title>
@@ -999,7 +1001,7 @@
     statements that are prepared or executed directly in the current sessions.
     As there is only one catalog in the database, only the name of this
     catalog can be used. The current catalog can be accessed with the
-    CURRENT_CATALOG function.</simpara>
+    <literal>CURRENT_CATALOG</literal> function.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET SCHEMA</primary>
@@ -1020,7 +1022,7 @@
     The effect of this lasts for the lifetime of the session. The SQL Standard
     form requires the schema name as a single-quoted string. HyperSQL also
     allows the use of the identifier for the schema. The current schema can be
-    accessed with the CURRENT_SCHEMA function.</simpara>
+    accessed with the <literal>CURRENT_SCHEMA</literal> function.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET PATH</primary>
@@ -1068,10 +1070,11 @@
     MAXROWS 0</literal> means no limit.</simpara>
 
     <simpara>It is possible to limit the number of rows returned from SELECT
-    statements with the FETCH &lt;n&gt; ROWS ONLY, or its alternative, LIMIT
-    &lt;n&gt;. Therefore, this command is not recommended for general use. The
-    only legitimate use of this command is for checking and testing queries
-    that may return very large numbers of rows.</simpara>
+    statements with the <literal>FETCH &lt;n&gt; ROWS ONLY</literal>, or its
+    alternative, <literal>LIMIT &lt;n&gt;</literal>. Therefore, this command
+    is not recommended for general use. The only legitimate use of this
+    command is for checking and testing queries that may return very large
+    numbers of rows.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET SESSION RESULT MEMORY ROWS</primary>
