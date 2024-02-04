@@ -383,13 +383,16 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    newMeta(hsqldb_files_readonly, FILES_PROP, false));
 
         // string defaults for user defined props
-        dbMeta.put(hsqldb_tx, newMeta(hsqldb_tx, SQL_PROP, "LOCKS"));
+        dbMeta.put(hsqldb_tx, newMeta(hsqldb_tx, SQL_PROP, "LOCKS",
+                new String[] {"LOCKS", "MVLOCKS", "MVCC"}));
         dbMeta.put(hsqldb_tx_level,
-                   newMeta(hsqldb_tx_level, SQL_PROP, "READ_COMMITTED"));
+                   newMeta(hsqldb_tx_level, SQL_PROP, "READ_COMMITTED",
+                           new String[] {"READ_COMMITTED", "SERIALIZABLE"}));
         dbMeta.put(hsqldb_temp_directory,
                    newMeta(hsqldb_temp_directory, DB_PROP, null));
         dbMeta.put(hsqldb_default_table_type,
-                   newMeta(hsqldb_default_table_type, SQL_PROP, "MEMORY"));
+                   newMeta(hsqldb_default_table_type, SQL_PROP, "MEMORY",
+                           new String[] {"MEMORY", "CACHED"}));
         dbMeta.put(hsqldb_digest, newMeta(hsqldb_digest, DB_PROP, "MD5"));
         dbMeta.put(sql_live_object, newMeta(sql_live_object, DB_PROP, false));
         dbMeta.put(tx_timestamp, newMeta(tx_timestamp, DB_PROP, 0));
@@ -505,15 +508,15 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    newMeta(runtime_gc_interval, DB_PROP, 0, 0, 1000000));
         dbMeta.put(hsqldb_cache_size,
                    newMeta(hsqldb_cache_size, DB_PROP, 10000, 100,
-                           4 * 1024 * 1024));
+                           16 * 1024 * 1024));
         dbMeta.put(hsqldb_cache_rows,
                    newMeta(hsqldb_cache_rows, DB_PROP, 50000, 100,
-                           4 * 1024 * 1024));
+                           16 * 1024 * 1024));
         dbMeta.put(hsqldb_cache_free_count,
                    newMeta(hsqldb_cache_free_count, DB_PROP, 512, 0, 4096));
         dbMeta.put(hsqldb_result_max_memory_rows,
                    newMeta(hsqldb_result_max_memory_rows, DB_PROP, 0, 0,
-                           4 * 1024 * 1024));
+                           16 * 1024 * 1024));
         dbMeta.put(hsqldb_nio_max_size,
                    newMeta(hsqldb_nio_max_size, DB_PROP, 256, 64, 262144));
         dbMeta.put(hsqldb_min_reuse,
@@ -683,12 +686,14 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             if (propertyName.startsWith("sql.")
                     || propertyName.startsWith("hsqldb.")
                     || propertyName.startsWith("textdb.")) {
-                if (strict && !valid) {
-                    throw Error.error(ErrorCode.X_42555, propertyName);
-                }
+                if (strict) {
+                    if (!valid) {
+                        throw Error.error(ErrorCode.X_42555, propertyName);
+                    }
 
-                if (strict && !validVal) {
-                    throw Error.error(ErrorCode.X_42556, error);
+                    if (!validVal) {
+                        throw Error.error(ErrorCode.X_42556, error);
+                    }
                 }
             }
         }

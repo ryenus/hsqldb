@@ -4206,9 +4206,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The type attributes of elements of array. <p>
-     *
-     * The ELEMENT_TYPES view is empty.<p>
+     * The type attributes of elements of array in columns of tables. <p>
      *
      * @return Table
      */
