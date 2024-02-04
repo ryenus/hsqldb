@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.map.ValuePool;
  * allow saving and loading.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class HsqlProperties {
@@ -428,6 +428,20 @@ public class HsqlProperties {
     }
 
     public static PropertyMeta newMeta(String name, int type,
+                                       String defaultValue, String[] options) {
+
+        PropertyMeta meta = new PropertyMeta();
+
+        meta.propName         = name;
+        meta.propType         = type;
+        meta.propClass        = "String";
+        meta.propDefaultValue = defaultValue;
+        meta.propOptions      = options;
+
+        return meta;
+    }
+
+    public static PropertyMeta newMeta(String name, int type,
                                        boolean defaultValue) {
 
         PropertyMeta meta = new PropertyMeta();
@@ -489,6 +503,15 @@ public class HsqlProperties {
         }
 
         if (meta.propClass.equals("String")) {
+            if (meta.propOptions != null) {
+                for (int i = 0; i < meta.propOptions.length; i++) {
+                    if (meta.propOptions[i].equalsIgnoreCase(value)) {
+                        return null;
+                    }
+                }
+
+                return "value not supported for property: " + key;
+            }
             return null;
         }
 
@@ -560,13 +583,14 @@ public class HsqlProperties {
 
     public static class PropertyMeta {
 
-        public String  propName;
-        public int     propType;
-        public String  propClass;
-        public boolean propIsRange;
-        public Object  propDefaultValue;
-        public int     propRangeLow;
-        public int     propRangeHigh;
-        public int[]   propValues;
+        public String   propName;
+        public int      propType;
+        public String   propClass;
+        public boolean  propIsRange;
+        public Object   propDefaultValue;
+        public int      propRangeLow;
+        public int      propRangeHigh;
+        public int[]    propValues;
+        public String[] propOptions;
     }
 }

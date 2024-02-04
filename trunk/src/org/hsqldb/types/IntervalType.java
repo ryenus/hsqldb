@@ -1152,14 +1152,6 @@ public final class IntervalType extends DTIType {
         return Integer.MIN_VALUE;
     }
 
-    public int getStartIntervalType() {
-        return startIntervalType;
-    }
-
-    public int getEndIntervalType() {
-        return endIntervalType;
-    }
-
     public static IntervalType newIntervalType(int type, long precision,
             int fractionPrecision) {
 
