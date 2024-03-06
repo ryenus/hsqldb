@@ -318,7 +318,7 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         System.arraycopy(elementData, 0, newArray, 0, count);
 
         if (minimizeOnClear && reserveElementData == null) {
-            Arrays.fill(elementData, 0);
+            Arrays.fill(elementData, null);
 
             reserveElementData = elementData;
         }
