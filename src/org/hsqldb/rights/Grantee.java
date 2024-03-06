@@ -434,7 +434,7 @@ public class Grantee implements SchemaObject {
         HsqlName name = object.getName();
 
         if (name.type == SchemaObject.SCHEMA) {
-            grantToAll(name, right, grantor, grantOption);
+            revokeFromAll(name, right, grantor, grantOption);
 
             return;
         }
