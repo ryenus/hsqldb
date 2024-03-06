@@ -606,11 +606,12 @@ public class ParserBase {
 
         checkIsValue();
 
-        if (minus && token.dataType.typeCode == Types.SQL_NUMERIC
-                && LONG_MAX_VALUE_INCREMENT.equals(token.tokenValue)) {
-            read();
+        if (token.dataType.typeCode == Types.SQL_NUMERIC || token.dataType.typeCode == Types.SQL_DECIMAL) {
+            if (minus && LONG_MAX_VALUE_INCREMENT.equals(token.tokenValue)) {
+                read();
 
-            return Long.MIN_VALUE;
+                return Long.MIN_VALUE;
+            }
         }
 
         if (token.dataType.typeCode != Types.SQL_INTEGER
