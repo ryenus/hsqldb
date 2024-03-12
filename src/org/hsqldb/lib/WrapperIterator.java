@@ -40,8 +40,8 @@ import java.util.NoSuchElementException;
  *
  *  Based on similar Enumerator code by campbell-burnet@users
  *
- * @author fred@users
- * @version 2.6.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.7.3
  * @since HSQLDB 1.7.2
  */
 public class WrapperIterator<E> implements Iterator<E> {
@@ -197,18 +197,6 @@ public class WrapperIterator<E> implements Iterator<E> {
             return (E) elements[i++];
         }
 
-        throw new NoSuchElementException();
-    }
-
-    public int nextInt() {
-        throw new NoSuchElementException();
-    }
-
-    public long nextLong() {
-        throw new NoSuchElementException();
-    }
-
-    public void remove() {
         throw new NoSuchElementException();
     }
 }

@@ -37,7 +37,7 @@ package org.hsqldb.lib;
  * in the index order.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class OrderedIntHashSet extends IntHashSet {
@@ -71,6 +71,18 @@ public class OrderedIntHashSet extends IntHashSet {
         addAll(elementsA);
         addAll(elementsB);
     }
+
+    public OrderedIntHashSet(int[] elementsA, int[] elementsB, int[] elementsC) {
+
+        super(elementsA.length + elementsB.length + elementsC.length);
+
+        isList = true;
+
+        addAll(elementsA);
+        addAll(elementsB);
+        addAll(elementsC);
+    }
+
 
     public boolean insert(int index,
                           int key) throws IndexOutOfBoundsException {

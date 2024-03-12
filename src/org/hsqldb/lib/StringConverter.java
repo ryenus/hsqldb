@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2022, The HSQL Development Group
+ * Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ import org.hsqldb.map.BitMap;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class StringConverter {
@@ -973,7 +973,7 @@ public class StringConverter {
             }
         }
 
-        sb.append(s.substring(0, firstQuote));
+        sb.append(s, 0, firstQuote);
 
         for (int i = firstQuote; i < length; i++) {
             char c = s.charAt(i);

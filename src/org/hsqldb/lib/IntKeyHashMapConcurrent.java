@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import org.hsqldb.map.BaseHashMap;
  * Iterators of keys or values are not thread-safe.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integer, V> {
@@ -142,7 +142,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
             throw new NullPointerException();
         }
 
-        int intKey = ((Integer) key).intValue();
+        int intKey = key.intValue();
 
         return put(intKey, value);
     }
@@ -191,7 +191,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
                 Integer key = it.next();
                 int intKey = key.intValue();
 
-                put(intKey, (V) other.get(key));
+                put(intKey, other.get(key));
             }
         } finally {
             writeLock.unlock();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.util.Comparator;
  * Intended as an asynchronous alternative to Vector.
  *
  * @author dnordahl@users
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
@@ -76,9 +76,10 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     E[]                        reserveElementData;
     private boolean            minimizeOnClear;
 
-    public HsqlArrayList(E[] data, int count) {
+    public HsqlArrayList(E[] data, int count, boolean minimize) {
         elementData  = data;
         elementCount = count;
+        minimizeOnClear = minimize;
     }
 
     /** Creates a new instance of HsqlArrayList */
@@ -373,7 +374,7 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
             return;
         }
 
-        for (; newSize > elementData.length; ) {
+        while (newSize > elementData.length) {
             increaseCapacity();
         }
 

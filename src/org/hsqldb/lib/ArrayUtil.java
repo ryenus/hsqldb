@@ -52,7 +52,8 @@ public final class ArrayUtil {
     public static final int              CLASS_CODE_OBJECT  = 'L';
     public static final int              CLASS_CODE_SHORT   = 'S';
     public static final int              CLASS_CODE_BOOLEAN = 'Z';
-    private static final IntValueHashMap classCodeMap = new IntValueHashMap(16);
+    private static final IntValueHashMap<Class> classCodeMap =
+        new IntValueHashMap<>(16);
 
     static {
         classCodeMap.put(byte.class, ArrayUtil.CLASS_CODE_BYTE);
@@ -1668,9 +1669,7 @@ public final class ArrayUtil {
         int[] intarr = new int[colarr.length];
 
         if (adjust == 0) {
-            for (int i = 0; i < colarr.length; i++) {
-                intarr[i] = colarr[i];
-            }
+            System.arraycopy(colarr, 0, intarr, 0, colarr.length);
         } else if (adjust < 0) {
             for (int i = 0; i < colarr.length; i++) {
                 int count = countSmallerElements(colindex, colarr[i]);
