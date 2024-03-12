@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -536,7 +536,7 @@ public class FileUtil implements FileAccess {
         public File[] getExistingMainFileSetList() {
 
             File[]        fileList = getCompleteMainFileSetList();
-            HsqlArrayList list     = new HsqlArrayList();
+            HsqlArrayList<File> list     = new HsqlArrayList<>();
 
             for (int i = 0; i < fileList.length; i++) {
                 if (fileList[i].exists()) {

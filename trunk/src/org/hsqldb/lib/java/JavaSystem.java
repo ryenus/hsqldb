@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,29 +37,27 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Handles invariants, runtime and methods
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.3
  */
 public final class JavaSystem {
 
-    public static final Charset CS_ISO_8859_1 = Charset.forName("ISO-8859-1");
-    public static final Charset CS_US_ASCII   = Charset.forName("US-ASCII");
-    public static final Charset CS_UTF8       = Charset.forName("UTF-8");
+    public static final Charset CS_ISO_8859_1 = StandardCharsets.ISO_8859_1;
+    public static final Charset CS_US_ASCII   = StandardCharsets.US_ASCII;
+    public static final Charset CS_UTF8       = StandardCharsets.UTF_8;
     private static int          javaVersion;
 
     static {
         try {
-            String version = System.getProperty("java.specification.version",
-                                                "6");
+            String version = System.getProperty("java.version", "6");
 
             if (version.startsWith("1.")) {
                 version = version.substring(2);
-            } else if (version.startsWith("0.")) {
-                version = "6";
             }
 
             javaVersion = Integer.parseInt(version);

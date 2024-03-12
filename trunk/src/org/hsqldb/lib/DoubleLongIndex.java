@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import java.util.NoSuchElementException;
  * Based on org.hsqldb.lib.DoubleIntIndex
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  * @since 1.8.0
  */
 public final class DoubleLongIndex implements LongLookup {
@@ -549,11 +549,7 @@ public final class DoubleLongIndex implements LongLookup {
      */
     private boolean lessThan(int i, int j) {
 
-        if (keys[i] < keys[j]) {
-            return true;
-        }
-
-        return false;
+        return keys[i] < keys[j];
     }
 
     private void moveRows(int fromIndex, int toIndex, int rows) {

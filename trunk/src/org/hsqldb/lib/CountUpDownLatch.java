@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  * as down.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  */
 public class CountUpDownLatch {
 
@@ -362,8 +362,7 @@ public class CountUpDownLatch {
 
                 // assert newCount >= 0;
                 if (compareAndSetState(c, newCount)) {
-                    return requestedZero ? releaseShared(0)
-                                         : false;
+                    return requestedZero && releaseShared(0);
                 }
             }
         }
@@ -421,8 +420,7 @@ public class CountUpDownLatch {
 
                 // assert nextc >= 0;
                 if (super.compareAndSetState(c, nextc)) {
-                    return nextc == 0 ? releaseShared(0)
-                                      : false;
+                    return nextc == 0 && releaseShared(0);
                 }
             }
         }

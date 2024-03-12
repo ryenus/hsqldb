@@ -37,7 +37,7 @@ import org.hsqldb.map.BaseHashMap;
  * A Map of int primitives to Object values.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
@@ -156,14 +156,14 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
         }
     }
 
-    public void putAll(IntKeyHashMap other) {
+    public void putAll(IntKeyHashMap<V> other) {
 
         PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
 
         while (it.hasNext()) {
             int key = it.nextInt();
 
-            put(key, (V) other.get(key));
+            put(key, other.get(key));
         }
     }
 
@@ -178,6 +178,14 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
 
     public <T> T[] valuesToArray(T[] array) {
         return toArray(array, false);
+    }
+
+    public int[] getKeyArray() {
+        return intKeyTable;
+    }
+
+    public Object[] getValueArray() {
+        return objectValueTable;
     }
 
     public Set<Integer> keySet() {

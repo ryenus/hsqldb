@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,18 +76,6 @@ public class FilteredIterator<E> implements Iterator<E> {
         }
 
         nextValue = null;
-    }
-
-    public int nextInt() throws NoSuchElementException {
-        throw new NoSuchElementException("Iterator");
-    }
-
-    public long nextLong() throws NoSuchElementException {
-        throw new NoSuchElementException("Iterator");
-    }
-
-    public void remove() throws NoSuchElementException {
-        throw new NoSuchElementException("Iterator");
     }
 
     public interface Filter<E> {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.hsqldb.lib;
  * Interface for HyperSQL iterators.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public interface Iterator<E> {
@@ -44,9 +44,15 @@ public interface Iterator<E> {
 
     E next();
 
-    int nextInt();
+    default int nextInt() {
+        throw new UnsupportedOperationException();
+    };
 
-    long nextLong();
+    default long nextLong() {
+        throw new UnsupportedOperationException();
+    };
 
-    void remove();
+    default void remove() {
+        throw new UnsupportedOperationException();
+    };
 }

@@ -40,7 +40,7 @@ import org.hsqldb.map.BaseHashMap;
  * A Map of long primitives to Object values.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
@@ -148,7 +148,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
             throw new NullPointerException();
         }
 
-        long longKey = ((Long) key).longValue();
+        long longKey = key.longValue();
 
         return put(longKey, value);
     }
@@ -233,7 +233,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
                 Long key = it.next();
                 long longKey = key.longValue();
 
-                put(longKey, (V) other.get(key));
+                put(longKey, other.get(key));
             }
         } finally {
             writeLock.unlock();

@@ -40,7 +40,7 @@ import org.hsqldb.map.BaseHashMap;
  * A Map of long primitives to int primitives.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class LongKeyIntValueHashMap extends BaseHashMap implements Map<Long, Integer> {
@@ -210,7 +210,7 @@ public class LongKeyIntValueHashMap extends BaseHashMap implements Map<Long, Int
 
         Integer value = (Integer) super.remove(key, 0, null, null, false, false);
 
-        return value == null ? false : true;
+        return value != null;
     }
 
 

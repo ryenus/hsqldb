@@ -38,7 +38,7 @@ import java.lang.reflect.Array;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class StringUtil {
@@ -138,7 +138,7 @@ public class StringUtil {
             sb.append(pad);
         }
 
-        sb.append(pad.substring(0, partLength));
+        sb.append(pad, 0, partLength);
 
         if (!trailing) {
             sb.append(source);
@@ -398,7 +398,7 @@ public class StringUtil {
      */
     public static String[] split(String s, String separator) {
 
-        HsqlArrayList list      = new HsqlArrayList();
+        HsqlArrayList<String> list      = new HsqlArrayList<>();
         int           currindex = 0;
 
         for (boolean more = true; more; ) {
@@ -414,6 +414,6 @@ public class StringUtil {
             currindex = nextindex + separator.length();
         }
 
-        return (String[]) list.toArray(new String[list.size()]);
+        return list.toArray(new String[list.size()]);
     }
 }

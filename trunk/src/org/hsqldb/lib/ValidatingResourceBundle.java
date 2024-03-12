@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -191,7 +191,7 @@ public class ValidatingResourceBundle {
         String val;
         if (validated) return;
         validated = true;
-        Set<String> resKeysFromEls = new HashSet<String>();
+        Set<String> resKeysFromEls = new HashSet<>();
         for (Enum<?> e : enumType.getEnumConstants())
             resKeysFromEls.add(e.toString());
         Enumeration<String> allKeys = wrappedRCPRB.getKeys();
@@ -218,43 +218,35 @@ public class ValidatingResourceBundle {
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {Integer.toString(i1)});
+        return getString(key, Integer.toString(i1));
     }
     public String getString(Enum<?> key, int i1, int i2) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {
-            Integer.toString(i1), Integer.toString(i2)
-        });
+        return getString(key, Integer.toString(i1), Integer.toString(i2));
     }
     public String getString(Enum<?> key, int i1, int i2, int i3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {
-            Integer.toString(i1), Integer.toString(i2), Integer.toString(i3)
-        });
+        return getString(key, Integer.toString(i1), Integer.toString(i2), Integer.toString(i3));
     }
     public String getString(Enum<?> key, int i1, String s2) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {
-            Integer.toString(i1), s2
-        });
+        return getString(key, Integer.toString(i1), s2);
     }
     public String getString(Enum<?> key, String s1, int i2) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {
-            s1, Integer.toString(i2)
-        });
+        return getString(key, s1, Integer.toString(i2));
     }
 
     public String getString(Enum<?> key, int i1, int i2, String s3) {
@@ -262,53 +254,41 @@ public class ValidatingResourceBundle {
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {
-            Integer.toString(i1), Integer.toString(i2), s3
-        });
+        return getString(key, Integer.toString(i1), Integer.toString(i2), s3);
     }
     public String getString(Enum<?> key, int i1, String s2, int i3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {
-            Integer.toString(i1), s2, Integer.toString(i3)
-        });
+        return getString(key, Integer.toString(i1), s2, Integer.toString(i3));
     }
     public String getString(Enum<?> key, String s1, int i2, int i3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {
-            s1, Integer.toString(i2), Integer.toString(i3)
-        });
+        return getString(key, s1, Integer.toString(i2), Integer.toString(i3));
     }
     public String getString(Enum<?> key, int i1, String s2, String s3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {
-            Integer.toString(i1), s2, s3
-        });
+        return getString(key, Integer.toString(i1), s2, s3);
     }
     public String getString(Enum<?> key, String s1, String s2, int i3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {
-            s1, s2, Integer.toString(i3)
-        });
+        return getString(key, s1, s2, Integer.toString(i3));
     }
     public String getString(Enum<?> key, String s1, int i2, String s3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
-        return getString(key, new String[] {
-            s1, Integer.toString(i2), s3
-        });
+        return getString(key, s1, Integer.toString(i2), s3);
     }
 }

@@ -39,7 +39,7 @@ import org.hsqldb.map.BaseHashMap;
  * A Map of int primitive keys to int primitive values.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, Integer> {
@@ -198,7 +198,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
 
         Integer value = (Integer) super.remove(key, 0, null, null, false, false);
 
-        return value == null ? false : true;
+        return value != null;
     }
 
     public void putAll(Map<? extends Integer, ? extends Integer> other) {

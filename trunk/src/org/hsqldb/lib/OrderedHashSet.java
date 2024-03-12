@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ package org.hsqldb.lib;
  * This class does not store null elements.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
@@ -61,11 +61,11 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
         this.isList = true;
     }
 
-    public OrderedHashSet(Object[] valueList) {
+    public OrderedHashSet(E[] valueList) {
         this(valueList.length);
 
         for (int i = 0; i < valueList.length; i++) {
-            add((E) valueList[i]);
+            add(valueList[i]);
         }
     }
 
@@ -206,7 +206,7 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
         int count = 0;
 
         for (int i = 0, size = size(); i < size; i++) {
-            if (other.contains((E) objectKeyTable[i])) {
+            if (other.contains(objectKeyTable[i])) {
                 count++;
             }
         }
@@ -214,6 +214,11 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
         return count;
     }
 
+    /**
+     * add all elements of second to first.
+     * if second is null return first (which can be null),
+     * else if first is null return a new set and add the elements of second
+     */
     public static <E> OrderedHashSet<E> addAll(OrderedHashSet<E> first,
                                         OrderedHashSet<E> second) {
 
@@ -222,7 +227,7 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
         }
 
         if (first == null) {
-            first = new OrderedHashSet<E>();
+            first = new OrderedHashSet<>();
         }
 
         first.addAll(second);
@@ -230,6 +235,11 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
         return first;
     }
 
+    /**
+     * add value to first.
+     * if value is null return first (which can be null),
+     * else if first is null return a new set and add the value
+     */
     public static <E> OrderedHashSet<E> add(OrderedHashSet<E> first, E value) {
 
         if (value == null) {
@@ -237,7 +247,7 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
         }
 
         if (first == null) {
-            first = new OrderedHashSet<E>();
+            first = new OrderedHashSet<>();
         }
 
         first.add(value);

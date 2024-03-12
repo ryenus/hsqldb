@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
     }
 
     public HashSet(int initialCapacity,
-                   ObjectComparator comparator)
+                   ObjectComparator<E> comparator)
                    throws IllegalArgumentException {
 
         this(initialCapacity);

@@ -34,6 +34,7 @@ package org.hsqldb.lib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -158,7 +159,7 @@ public class RefCapablePropertyResourceBundle {
     private String language, country, variant;
     static private Map<ResourceBundle, RefCapablePropertyResourceBundle>
             allBundles =
-            new HashMap<ResourceBundle, RefCapablePropertyResourceBundle>();
+            new HashMap<>();
     public static final String LS = System.getProperty("line.separator");
     private Pattern sysPropVarPattern = Pattern.compile(
             "(?s)\\Q${\\E([^}]+?)(?:\\Q:+\\E([^}]+))?\\Q}");
@@ -489,7 +490,7 @@ public class RefCapablePropertyResourceBundle {
         }
 
         try {
-            return new String(ba, Charset.forName("ISO-8859-1"));
+            return new String(ba, StandardCharsets.ISO_8859_1);
         } catch (Throwable re) {
             throw new MissingResourceException(
                 "Value for key '" + key + "' too big to convert to String.  "
