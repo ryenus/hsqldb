@@ -39,8 +39,8 @@ public class TestWrapperIterator extends junit.framework.TestCase
         assertEquals( "b", iter3.next() );
         assertFalse( iter3.hasNext() );
         
-        Iterator<String> iter4 = new HsqlArrayList<>( new String[] {"a", "b"}, 2 ).iterator();
-        Iterator<String> iter5 = new HsqlArrayList<>( new String[] {"c", "d"}, 2 ).iterator();
+        Iterator<String> iter4 = new HsqlArrayList<>( new String[] {"a", "b"}, 2, false ).iterator();
+        Iterator<String> iter5 = new HsqlArrayList<>( new String[] {"c", "d"}, 2, false).iterator();
         WrapperIterator<String> iter6 = new WrapperIterator<>(iter4, iter5);
         assertEquals( "a", iter6.next() );
         assertEquals( "b", iter6.next() );
