@@ -245,10 +245,10 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
         return entries;
     }
 
-    private class EntrySet extends AbstractReadOnlyCollection<Entry<K, V>> implements Set<Map.Entry<K, V>> {
+    private class EntrySet<K, V> extends AbstractReadOnlyCollection<Entry<K, V>> implements Set<Map.Entry<K, V>> {
 
         public Iterator<Entry<K, V>> iterator() {
-            return MultiValueHashMap.this.new EntrySetIterator();
+            return MultiValueHashMap.this.new EntrySetIterator<>();
         }
 
         public int size() {
@@ -260,7 +260,7 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
         }
     }
 
-    private class EntrySetIterator extends BaseHashIterator{
+    private class EntrySetIterator<K, V> extends BaseHashIterator{
 
         EntrySetIterator() {
             super(true);

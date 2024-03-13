@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,8 +59,7 @@ import org.hsqldb.lib.StringUtil;
 public class TarGenerator {
 
     protected TarFileOutputStream      archive;
-    protected List<TarEntrySupplicant> entryQueue =
-        new ArrayList<TarEntrySupplicant>();
+    protected List<TarEntrySupplicant> entryQueue = new ArrayList<>();
     protected long paxThreshold = 0100000000000L;
 
     // in bytes.  Value here exactly = 8GB.
@@ -278,11 +278,8 @@ public class TarGenerator {
             // Misleading, yes.  Anything better we can do?  No.
             int magicStart = TarHeaderField.magic.getStart();
 
-            for (int i = 0; i < ustarBytes.length; i++) {
-
-                // UStar magic field
-                HEADER_TEMPLATE[magicStart + i] = ustarBytes[i];
-            }
+            // UStar magic field
+            System.arraycopy(ustarBytes, 0, HEADER_TEMPLATE, magicStart + 0, ustarBytes.length);
 
             HEADER_TEMPLATE[263] = '0';
             HEADER_TEMPLATE[264] = '0';
@@ -298,16 +295,14 @@ public class TarGenerator {
             int    stop  = field.getStop();
             byte[] ba;
 
-            ba = newValue.getBytes(Charset.forName("ISO-8859-1"));
+            ba = newValue.getBytes(StandardCharsets.ISO_8859_1);
 
             if (ba.length > stop - start) {
                 throw new TarMalformatException(
                     RB.tar_field_toobig.getString(field.toString(), newValue));
             }
 
-            for (int i = 0; i < ba.length; i++) {
-                target[start + i] = ba[i];
-            }
+            System.arraycopy(ba, 0, target, start + 0, ba.length);
         }
 
         static protected void clearField(TarHeaderField field, byte[] target) {

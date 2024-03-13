@@ -883,7 +883,7 @@ public class ExpressionColumn extends Expression {
                 return sb.toString();
             }
             case OpTypes.GROUPING : {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 sb.append("GROUPING(");
 

@@ -261,7 +261,7 @@ public class LongKeyIntValueHashMap extends BaseHashMap implements Map<Long, Int
     public Collection<Integer> values() {
 
         if (values == null) {
-            values = new Values();
+            values = new Values<>();
         }
 
         return values;

@@ -286,7 +286,7 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
      */
     public String toString() {
 
-        Iterator      it = iterator();
+        Iterator<E>   it = iterator();
         StringBuilder sb = new StringBuilder();
 
         while (it.hasNext()) {

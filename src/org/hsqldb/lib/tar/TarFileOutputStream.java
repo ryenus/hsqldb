@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,8 +87,8 @@ public class TarFileOutputStream {
     protected int               blocksPerRecord;
     protected long              bytesWritten = 0;
     private OutputStream        writeStream;
-    private File                targetFile;
-    private File                writeFile;
+    private final File          targetFile;
+    private final File          writeFile;
 
     /* This is not a "Writer", but the byte "Stream" that we write() to. */
     public byte[] writeBuffer;

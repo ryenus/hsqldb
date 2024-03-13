@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,6 @@ abstract class AbstractReadOnlyCollection<V> implements Collection<V>{
         throw new UnsupportedOperationException();
     }
 
-    public boolean containsAll(Collection<?> c) {
-        throw new UnsupportedOperationException();
-    }
-
     public boolean add(V value) {
         throw new UnsupportedOperationException();
     }
@@ -58,10 +54,6 @@ abstract class AbstractReadOnlyCollection<V> implements Collection<V>{
     }
 
     public boolean removeAll(Collection<?> c) {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean retainAll(Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
