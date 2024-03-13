@@ -104,9 +104,7 @@ public class DbBackupMain {
                 if (sa.length > 2) {
                     patternStrings = new String[sa.length - 2];
 
-                    for (int i = 2; i < sa.length; i++) {
-                        patternStrings[i - 2] = sa[i];
-                    }
+                    System.arraycopy(sa, 2, patternStrings, 0, sa.length - 2);
                 }
 
                 new TarReader(new File(sa[1]), TarReader
@@ -128,9 +126,7 @@ public class DbBackupMain {
                 if (sa.length > firstPatInd) {
                     patternStrings = new String[sa.length - firstPatInd];
 
-                    for (int i = firstPatInd; i < sa.length; i++) {
-                        patternStrings[i - firstPatInd] = sa[i];
-                    }
+                    System.arraycopy(sa, firstPatInd, patternStrings, firstPatInd - firstPatInd, sa.length - firstPatInd);
                 }
 
                 File tarFile       = new File(sa[overWrite ? 2

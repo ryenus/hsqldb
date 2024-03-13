@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -54,7 +55,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
 
     protected PIFGenerator() {
 
-        writer = new OutputStreamWriter(this, Charset.forName("UTF-8"));
+        writer = new OutputStreamWriter(this, StandardCharsets.UTF_8);
 
         fakePid = (int) (new Date().getTime() % 100000L);
 

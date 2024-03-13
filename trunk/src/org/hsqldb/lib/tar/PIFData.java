@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,7 +50,7 @@ import java.util.regex.Pattern;
 public class PIFData extends HashMap<String, String> {
     static final long serialVersionUID = 3086795680582315773L;
 
-    private static Pattern pifRecordPattern =
+    private static final Pattern pifRecordPattern =
         Pattern.compile("\\d+ +([^=]+)=(.*)");
 
     /**
@@ -68,7 +69,7 @@ public class PIFData extends HashMap<String, String> {
 
         BufferedReader br = null;
         try {
-            br = new BufferedReader(new InputStreamReader(stream, Charset.forName("UTF-8")));
+            br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
             String  s, k, v;
             Matcher m;
             int     lineNum = 0;

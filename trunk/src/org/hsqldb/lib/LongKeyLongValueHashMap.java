@@ -247,7 +247,7 @@ public class LongKeyLongValueHashMap extends BaseHashMap implements Map<Long, Lo
     public Set<Long> keySet() {
 
         if (keySet == null) {
-            keySet = new KeySet();
+            keySet = new KeySet<>();
         }
 
         return keySet;
@@ -256,7 +256,7 @@ public class LongKeyLongValueHashMap extends BaseHashMap implements Map<Long, Lo
     public Collection<Long> values() {
 
         if (values == null) {
-            values = new Values();
+            values = new Values<>();
         }
 
         return values;
@@ -295,7 +295,7 @@ public class LongKeyLongValueHashMap extends BaseHashMap implements Map<Long, Lo
             Long key   = super.nextLong();
             Long value = longValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<>(key, value);
         }
     }
 

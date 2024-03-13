@@ -297,14 +297,14 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
         }
     }
 
-    public void putAll(LongKeyHashMap other) {
+    public void putAll(LongKeyHashMap<V> other) {
 
         PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
 
         while (it.hasNext()) {
             long key = it.nextLong();
 
-            put(key, (V) other.get(key));
+            put(key, other.get(key));
         }
     }
 
@@ -326,7 +326,7 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
     public Set<Long> keySet() {
 
         if (keySet == null) {
-            keySet = new KeySet();
+            keySet = new KeySet<>();
         }
 
         return keySet;
@@ -335,7 +335,7 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
     public Collection<V> values() {
 
         if (values == null) {
-            values = new Values();
+            values = new Values<>();
         }
 
         return values;
@@ -343,13 +343,13 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
 
     public Set<Entry<Long, V>> entrySet() {
         if (entries == null) {
-            entries = new EntrySet();
+            entries = new EntrySet<>();
         }
 
         return entries;
     }
 
-    private class EntrySet extends AbstractReadOnlyCollection<Entry<Long, V>> implements Set<Entry<Long, V>> {
+    private class EntrySet<V> extends AbstractReadOnlyCollection<Entry<Long, V>> implements Set<Entry<Long, V>> {
 
         public Iterator<Entry<Long, V>> iterator() {
             return OrderedLongKeyHashMap.this.new EntrySetIterator();
@@ -374,7 +374,7 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
             Long key   = super.nextLong();
             V    value = (V) objectValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<>(key, value);
         }
     }
 

@@ -470,7 +470,7 @@ public class TarReader {
 
         static protected class MissingField extends Exception {
 
-            private TarHeaderField field;
+            private final TarHeaderField field;
 
             public MissingField(TarHeaderField field) {
                 this.field = field;
@@ -632,14 +632,14 @@ public class TarReader {
             sb.append(ustar ? '*'
                             : ' ');
             sb.append(
-                " "
-                + StringUtil.toPaddedString(
+                    " "
+                    + StringUtil.toPaddedString(
                     Integer.toOctalString(fileMode), 4, ' ', false) + ' '
-                        + StringUtil.toPaddedString(
+                    + StringUtil.toPaddedString(
                             Long.toString(dataSize), 11, ' ', false) + "  ");
             sb.append(StringUtil.toPaddedString(((ownerName == null) ? "-"
-                                                                     : ownerName), 8,
-                                                                     ' ',
+                                    : ownerName), 8,
+                            ' ',
                                                                      true));
             sb.append("  " + path);
 

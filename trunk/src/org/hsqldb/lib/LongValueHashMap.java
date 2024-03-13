@@ -163,9 +163,9 @@ public class LongValueHashMap<K> extends BaseHashMap {
         return super.containsKey(key);
     }
 
-    public void putAll(LongValueHashMap t) {
+    public void putAll(LongValueHashMap<K> t) {
 
-        Iterator it = t.keySet().iterator();
+        Iterator<K> it = t.keySet().iterator();
 
         while (it.hasNext()) {
             Object key = it.next();
@@ -177,7 +177,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
     public Set<K> keySet() {
 
         if (keySet == null) {
-            keySet = new KeySet();
+            keySet = new KeySet<K>();
         }
 
         return keySet;
@@ -186,7 +186,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
     public Collection<Long> values() {
 
         if (values == null) {
-            values = new Values();
+            values = new Values<>();
         }
 
         return values;
@@ -225,7 +225,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
             K    key   = (K) super.next();
             Long value = longValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<>(key, value);
         }
     }
 
