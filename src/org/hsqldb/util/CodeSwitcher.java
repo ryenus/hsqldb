@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2022, The HSQL Development Group
+ * Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -246,10 +246,10 @@ public class CodeSwitcher {
      */
     CodeSwitcher() {
 
-        vList      = new ArrayList<String>();
-        vSwitchOn  = new ArrayList<String>();
-        vSwitchOff = new ArrayList<String>();
-        vSwitches  = new ArrayList<String>();
+        vList      = new ArrayList<>();
+        vSwitchOn  = new ArrayList<>();
+        vSwitchOff = new ArrayList<>();
+        vSwitches  = new ArrayList<>();
     }
 
     /**
@@ -317,7 +317,7 @@ public class CodeSwitcher {
 
         try {
             ArrayList<String> v  = getFileLines(f);
-            ArrayList<String> v1 = new ArrayList<String>(v.size());
+            ArrayList<String> v1 = new ArrayList<>(v.size());
 
             for (int i = 0; i < v.size(); i++) {
                 v1.add(v.get(i));
@@ -459,6 +459,8 @@ public class CodeSwitcher {
                 return true;
             }
 
+            long timestamp = f.lastModified();
+
             writeFileLines(v, fnew);
 
             File fbak = new File(name + ".bak");
@@ -469,6 +471,7 @@ public class CodeSwitcher {
             File fcopy = new File(name);
 
             fnew.renameTo(fcopy);
+            fcopy.setLastModified(timestamp);
             fbak.delete();
 
             return true;
@@ -482,7 +485,7 @@ public class CodeSwitcher {
     static ArrayList<String> getFileLines(File f) throws IOException {
 
         LineNumberReader  read = new LineNumberReader(new FileReader(f));
-        ArrayList<String> v    = new ArrayList<String>();
+        ArrayList<String> v    = new ArrayList<>();
 
         for (;;) {
             String line = read.readLine();

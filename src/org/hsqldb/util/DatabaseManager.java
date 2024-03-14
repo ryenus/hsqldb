@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,7 @@ implements ActionListener, WindowListener, KeyListener {
     private static final String ABOUT_TEXT =
         "$Revision$ of DatabaseManager\n\n"
         + "Copyright (c) 1995-2000, The Hypersonic SQL Group.\n"
-        + "Copyright (c) 2001-2021, The HSQL Development Group.\n"
+        + "Copyright c 2001-2024, The HSQL Development Group.\n"
         + "http://hsqldb.org  (User Guide available at this site).\n\n\n"
         + "You may use and redistribute according to the HSQLDB\n"
         + "license documented in the source code and at the web\n"
@@ -1288,11 +1288,11 @@ implements ActionListener, WindowListener, KeyListener {
             };
 
             // fredt@users Schema support
-            ArrayList<String> schemas = new ArrayList<String>();
-            ArrayList<String> tables  = new ArrayList<String>();
+            ArrayList<String> schemas = new ArrayList<>();
+            ArrayList<String> tables  = new ArrayList<>();
 
             // sqlbob@users Added remarks.
-            ArrayList<String> remarks = new ArrayList<String>();
+            ArrayList<String> remarks = new ArrayList<>();
             ResultSet result  = dMeta.getTables(null, null, null, usertables);
 
             try {

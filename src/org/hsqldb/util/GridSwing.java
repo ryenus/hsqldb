@@ -65,8 +65,8 @@ class GridSwing extends AbstractTableModel {
 
         super();
 
-        headers = new Object[0];              // initially empty
-        rows    = new ArrayList<Object[]>();  // initially empty
+        headers = new Object[0];      // initially empty
+        rows    = new ArrayList<>();  // initially empty
     }
 
     /**
@@ -164,9 +164,7 @@ class GridSwing extends AbstractTableModel {
         Object[] row = new Object[r.length];
 
         // System.arraycopy(r, 0, row, 0, r.length);
-        for (int i = 0; i < r.length; i++) {
-            row[i] = r[i];
-        }
+        System.arraycopy(r, 0, row, 0, r.length);
 
         rows.add(row);
     }

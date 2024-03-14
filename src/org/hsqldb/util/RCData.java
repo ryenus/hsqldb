@@ -113,7 +113,7 @@ public class RCData {
      */
     public RCData(File file, String dbKey) throws Exception {
         // This set is so we can catch duplicates.
-        Set<String> idPatterns = new HashSet<String>();
+        Set<String> idPatterns = new HashSet<>();
 
         if (file == null) {
             throw new IllegalArgumentException("RC file name not specified");

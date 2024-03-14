@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -171,7 +171,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         homedir = System.getProperty("user.home");
     }
 
-    ArrayList<JMenuItem>        localActionList = new ArrayList<JMenuItem>();
+    ArrayList<JMenuItem>        localActionList = new ArrayList<>();
     private JFrame              jframe;
     private static final String DEFAULT_RCFILE  = homedir + "/dbmanager.rc";
     private static boolean      TT_AVAILABLE    = false;
@@ -202,7 +202,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                            + "to your class path."));
     private static final String ABOUT_TEXT =
         "$Revision$ of DatabaseManagerSwing\n\n"
-        + "Copyright (c) 2001-2022, The HSQL Development Group.\n"
+        + "Copyright c 2001-2024, The HSQL Development Group.\n"
         + "http://hsqldb.org  (Utilities Guide available at this site).\n\n\n"
         + "You may use and redistribute according to the HSQLDB\n"
         + "license documented in the source code and at the web\n"
@@ -301,7 +301,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     Cursor        fMainCursor;
     Cursor        txtCommandCursor;
     Cursor        txtResultCursor;
-    HashMap<AbstractButton,String> tipMap = new HashMap<AbstractButton,String>();
+    HashMap<AbstractButton,String> tipMap = new HashMap<>();
     private final JMenu mnuSchemas = new JMenu("Schemas");
 
     /**
@@ -1986,7 +1986,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             }
 
             // handle command "SELECT".  Use table and column if set.
-            if (command.toUpperCase().equals("SELECT")) {
+            if (command.equalsIgnoreCase("SELECT")) {
                 String result = "SELECT * FROM " + quoteTableName(table);
 
                 if (column != null) {
@@ -2013,7 +2013,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             }
 
             // handle command "UPDATE".  Use table and column if set.
-            else if (command.toUpperCase().equals("UPDATE")) {
+            else if (command.equalsIgnoreCase("UPDATE")) {
                 String result = "UPDATE " + quoteTableName(table) + " SET ";
 
                 if (column != null) {
@@ -2024,7 +2024,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             }
 
             // handle command "DELETE".  Use table and column if set.
-            else if (command.toUpperCase().equals("DELETE")) {
+            else if (command.equalsIgnoreCase("DELETE")) {
                 String result = "DELETE FROM " + quoteTableName(table);
 
                 if (column != null) {
@@ -2051,7 +2051,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             }
 
             // handle command "INSERT".  Use table and column if set.
-            else if (command.toUpperCase().equals("INSERT")) {
+            else if (command.equalsIgnoreCase("INSERT")) {
                 TreeNode    tableNode;
                 Enumeration enumer;
                 String      columns = "";
@@ -2263,7 +2263,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     private static final String[] nonSystables = {
         "TABLE", "GLOBAL TEMPORARY", "VIEW"
     };
-    private static final HashSet<String> oracleSysUsers = new HashSet<String>();
+    private static final HashSet<String> oracleSysUsers = new HashSet<>();
     private static final String[] oracleSysSchemas = {
         "SYS", "SYSTEM", "OUTLN", "DBSNMP", "OUTLN", "MDSYS", "ORDSYS",
         "ORDPLUGINS", "CTXSYS", "DSSYS", "PERFSTAT", "WKPROXY", "WKSYS",
@@ -2327,11 +2327,11 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             result = dMeta.getTables(null, null, null, (showSys ? usertables
                                                                 : nonSystables));
 
-            ArrayList<String> tables  = new ArrayList<String>();
-            ArrayList<String> schemas = new ArrayList<String>();
+            ArrayList<String> tables  = new ArrayList<>();
+            ArrayList<String> schemas = new ArrayList<>();
 
             // sqlbob@users Added remarks.
-            ArrayList<String> remarks = new ArrayList<String>();
+            ArrayList<String> remarks = new ArrayList<>();
             String schema;
 
             while (result.next()) {
@@ -2701,7 +2701,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     private void updateSchemaList() {
 
         ButtonGroup       group  = new ButtonGroup();
-        ArrayList<String> list   = new ArrayList<String>();
+        ArrayList<String> list   = new ArrayList<>();
         ResultSet         result = null;
 
         try {
