@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2021, The HSQL Development Group
+ * Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -114,7 +114,8 @@ class Tree extends Panel {
     private int    iRowCount;
 
     // scrolling
-    private Scrollbar sbHoriz, sbVert;
+    private Scrollbar sbHoriz;
+    private Scrollbar sbVert;
     private int       iSbWidth, iSbHeight;
 
     static {

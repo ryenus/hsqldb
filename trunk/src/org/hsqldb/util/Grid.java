@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2021, The HSQL Development Group
+ * Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,7 +115,7 @@ class Grid extends Panel {
     // data
 // campbell-burnet@users changed access for databasemanager2
     protected String[] sColHead = new String[0];
-    protected ArrayList<String[]> vData = new ArrayList<String[]>();
+    protected ArrayList<String[]> vData = new ArrayList<>();
 
 // --------------------------------------------------
     private int[] iColWidth;
@@ -126,7 +126,8 @@ class Grid extends Panel {
 
 // --------------------------------------------------
     // scrolling
-    private Scrollbar sbHoriz, sbVert;
+    private Scrollbar sbHoriz;
+    private Scrollbar sbVert;
     private int       iSbWidth, iSbHeight;
     private boolean   bDrag;
     private int       iXDrag, iColDrag;
@@ -196,7 +197,7 @@ class Grid extends Panel {
 
         iRowCount  = 0;
         iRowHeight = 0;
-        vData      = new ArrayList<String[]>();
+        vData      = new ArrayList<>();
     }
 
     public void addRow(String[] data) {

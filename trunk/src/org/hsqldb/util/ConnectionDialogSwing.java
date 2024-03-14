@@ -289,7 +289,7 @@ implements ActionListener, ItemListener {
     // (weconsultants@users) New code
     public Vector loadRecentConnectionSettings() {
 
-        Vector<String> passSettings = new Vector<String>();
+        Vector<String> passSettings = new Vector<>();
 
         settings = new Hashtable();
 

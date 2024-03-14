@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2022, The HSQL Development Group
+ * Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -358,13 +358,13 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             if (arg.length != 1) {
                 throw new IllegalArgumentException();
             }
-            if ((arg[0].toLowerCase().equals("-r"))
-                    || (arg[0].toLowerCase().equals("--restore"))) {
-                iTransferMode = TRFM_RESTORE; } else if ((arg[0].toLowerCase().equals("-d"))
-                       || (arg[0].toLowerCase().equals("--dump"))) {
+            if ((arg[0].equalsIgnoreCase("-r"))
+                    || (arg[0].equalsIgnoreCase("--restore"))) {
+                iTransferMode = TRFM_RESTORE; } else if ((arg[0].equalsIgnoreCase("-d"))
+                       || (arg[0].equalsIgnoreCase("--dump"))) {
                 iTransferMode = TRFM_DUMP;
-            } else if ((arg[0].toLowerCase().equals("-h"))
-                       || (arg[0].toLowerCase().equals("--help"))) {
+            } else if ((arg[0].equalsIgnoreCase("-h"))
+                       || (arg[0].equalsIgnoreCase("--help"))) {
                 System.out.println(Transfer.SYNTAX_MSG);
                 return;
             } else {
