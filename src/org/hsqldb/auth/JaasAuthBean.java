@@ -261,8 +261,8 @@ public class JaasAuthBean implements AuthFunctionBean {
                 }
                 int i = 0;
                 Matcher m = null;
-                List<String> rsCandidates = new ArrayList<String>();
-                List<String> rsList = new ArrayList<String>();
+                List<String> rsCandidates = new ArrayList<>();
+                List<String> rsList = new ArrayList<>();
                 Subject s = lc.getSubject();
                 if (roleSchemaViaCredential) {
                     for (Object cred : s.getPublicCredentials()) {

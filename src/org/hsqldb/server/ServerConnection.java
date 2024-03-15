@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2022, The HSQL Development Group
+ * Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -877,15 +877,13 @@ class ServerConnection implements Runnable {
 
                         // Must use "sql" directly since name is case-sensitive
                         handle = tmpStr.substring(0, tmpStr.length() - 1);
-                        odbcPs = (OdbcPreparedStatement) sessionOdbcPsMap.get(
-                            handle);
+                        odbcPs = sessionOdbcPsMap.get(handle);
 
                         if (odbcPs != null) {
                             odbcPs.close();
                         }
 
-                        portal =
-                            (StatementPortal) sessionOdbcPortalMap.get(handle);
+                        portal = sessionOdbcPortalMap.get(handle);
 
                         if (portal != null) {
                             portal.close();
@@ -1035,11 +1033,9 @@ class ServerConnection implements Runnable {
                     portal = null;
 
                     if (c == 'S') {
-                        odbcPs = (OdbcPreparedStatement) sessionOdbcPsMap.get(
-                            handle);
+                        odbcPs = sessionOdbcPsMap.get(handle);
                     } else if (c == 'P') {
-                        portal =
-                            (StatementPortal) sessionOdbcPortalMap.get(handle);
+                        portal = sessionOdbcPortalMap.get(handle);
                     } else {
                         throw new RecoverableOdbcFailure(
                             null,
@@ -1211,8 +1207,7 @@ class ServerConnection implements Runnable {
                             + "'");
                     }
 
-                    odbcPs =
-                        (OdbcPreparedStatement) sessionOdbcPsMap.get(psHandle);
+                    odbcPs = sessionOdbcPsMap.get(psHandle);
 
                     if (odbcPs == null) {
                         throw new RecoverableOdbcFailure(
@@ -1258,8 +1253,7 @@ class ServerConnection implements Runnable {
                                                + portalHandle + "'");
                     }
 
-                    portal = (StatementPortal) sessionOdbcPortalMap.get(
-                        portalHandle);
+                    portal = sessionOdbcPortalMap.get(portalHandle);
 
                     if (portal == null) {
                         throw new RecoverableOdbcFailure(
@@ -1393,15 +1387,13 @@ class ServerConnection implements Runnable {
                     portal = null;
 
                     if (c == 'S') {
-                        odbcPs = (OdbcPreparedStatement) sessionOdbcPsMap.get(
-                            handle);
+                        odbcPs = sessionOdbcPsMap.get(handle);
 
                         if (odbcPs != null) {
                             odbcPs.close();
                         }
                     } else if (c == 'P') {
-                        portal =
-                            (StatementPortal) sessionOdbcPortalMap.get(handle);
+                        portal = sessionOdbcPortalMap.get(handle);
 
                         if (portal != null) {
                             portal.close();
@@ -1768,7 +1760,7 @@ class ServerConnection implements Runnable {
                 firstInt - 8);
 
         // - 4 for size of firstInt - 2 for major - 2 for minor
-        java.util.Map stringPairs = inPacket.readStringPairs();
+        java.util.Map<String, String>  stringPairs = inPacket.readStringPairs();
 
         if (server.isTrace()) {
             server.print("String Pairs from ODBC client: " + stringPairs);
@@ -1795,9 +1787,9 @@ class ServerConnection implements Runnable {
                                         "Target account not identified");
             }
 
-            String databaseName = (String) stringPairs.get("database");
+            String databaseName = stringPairs.get("database");
 
-            user = (String) stringPairs.get("user");
+            user = stringPairs.get("user");
 
             if (databaseName.equals("/")) {
 
@@ -1894,8 +1886,8 @@ class ServerConnection implements Runnable {
         dataOutput.flush();
     }
 
-    private java.util.Map sessionOdbcPsMap     = new java.util.HashMap();
-    private java.util.Map sessionOdbcPortalMap = new java.util.HashMap();
+    private java.util.Map<String, OdbcPreparedStatement> sessionOdbcPsMap = new java.util.HashMap<>();
+    private java.util.Map<String, StatementPortal> sessionOdbcPortalMap = new java.util.HashMap<>();
 
     /**
      * Read String directly from dataInput.

@@ -248,7 +248,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     ServerProperties serverProperties;
 
 //
-    HashSet      serverConnSet;
+    HashSet<ServerConnection> serverConnSet;
     final Object serverConnSetSync = new Object();
 
 //  As of HSQLDB 1.9.0, the following arrays are used starting from 0.
@@ -261,7 +261,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     protected long[]           dbActionSequence;
 
 // set of aliases
-    HashSet aliasSet = new HashSet();
+    HashSet<String> aliasSet = new HashSet<String>();
 
 //  Currently unused
     protected int maxConnections;
@@ -1206,9 +1206,8 @@ public class Server implements HsqlSocketRequestHandler, Notified {
             return false;
         }
 
-        return (acl == null) ? true
-                             : acl.permitAccess(
-                                 socket.getInetAddress().getAddress());
+        return acl == null || acl.permitAccess(
+                socket.getInetAddress().getAddress());
     }
 
     /**
@@ -1220,7 +1219,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         // PRE:  This method is only called from the constructor
         serverState      = ServerConstants.SERVER_STATE_SHUTDOWN;
-        serverConnSet    = new HashSet();
+        serverConnSet    = new HashSet<ServerConnection>();
         serverId         = toString();
         serverId         = serverId.substring(serverId.lastIndexOf('.') + 1);
         serverProtocol   = protocol;
@@ -1769,7 +1768,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      */
     private void setDBInfoArrays() {
 
-        IntKeyHashMap dbNumberMap  = getDBNameArray();
+        IntKeyHashMap<String> dbNumberMap  = getDBNameArray();
         int           maxDatabases = dbNumberMap.size();
 
         if (serverProperties.isPropertyTrue(
@@ -1790,7 +1789,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         dbActionSequence = new long[dbAlias.length];
         dbProps          = new HsqlProperties[dbAlias.length];
 
-        Iterator it = dbNumberMap.keySet().iterator();
+        Iterator<Integer> it = dbNumberMap.keySet().iterator();
 
         for (int i = 0; it.hasNext(); ) {
             int    dbNumber = it.nextInt();
@@ -1811,7 +1810,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
                 continue;
             }
 
-            dbAlias[i] = (String) dbNumberMap.get(dbNumber);
+            dbAlias[i] = dbNumberMap.get(dbNumber);
             dbPath[i]  = dbURL.getProperty("database");
             dbType[i]  = dbURL.getProperty("connection_type");
             dbProps[i] = dbURL;
@@ -1826,14 +1825,14 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      *
      * @return IntKeyHashMap
      */
-    private IntKeyHashMap getDBNameArray() {
+    private IntKeyHashMap<String> getDBNameArray() {
 
         final String  prefix       = ServerProperties.sc_key_dbname + ".";
         final int     prefixLen    = prefix.length();
-        IntKeyHashMap idToAliasMap = new IntKeyHashMap();
+        IntKeyHashMap<String> idToAliasMap = new IntKeyHashMap<>();
         Enumeration   en           = serverProperties.propertyNames();
 
-        for (; en.hasMoreElements(); ) {
+        while (en.hasMoreElements()) {
             String key = (String) en.nextElement();
 
             if (!key.startsWith(prefix)) {
@@ -1856,7 +1855,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
                 printWithThread("duplicate alias: " + alias);
             }
 
-            Object existing = idToAliasMap.put(dbNumber, alias);
+            String existing = idToAliasMap.put(dbNumber, alias);
 
             if (existing != null) {
                 printWithThread("duplicate database enumerator: " + key);

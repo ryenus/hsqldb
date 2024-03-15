@@ -564,7 +564,7 @@ public class LdapAuthBean implements AuthFunctionBean {
 
             // If we reach here, then we definitely need to try to return a
             // list of roles + schema.
-            List<String> returns = new ArrayList<String>();
+            List<String> returns = new ArrayList<>();
             Attribute attribute =  attrs.get(rolesSchemaAttribute);
             if (attribute != null) {
                 int valCount = attribute.size();
