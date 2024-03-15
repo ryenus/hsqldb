@@ -46,6 +46,7 @@ import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLXML;
@@ -357,18 +358,9 @@ public class JDBCSQLXML implements SQLXML {
      * Precomputed Charset to reduce octet to character sequence conversion
      * charset lookup overhead.
      */
-    private static final Charset                utf8Charset;
+    private static final Charset utf8Charset = StandardCharsets.UTF_8;
+
     private static ArrayBlockingQueue<Runnable> workQueue;
-
-    static {
-        Charset charset = null;
-
-        try {
-            charset = Charset.forName("UTF8");
-        } catch (Exception e) {
-        }
-        utf8Charset = charset;
-    }
 
     /**
      * When non-null, the SAX ContentHandler currently in use to build this
@@ -969,7 +961,7 @@ public class JDBCSQLXML implements SQLXML {
             long     keepAliveTime   = 1;
             TimeUnit unit            = TimeUnit.SECONDS;
 
-            JDBCSQLXML.workQueue = new ArrayBlockingQueue<Runnable>(10);
+            JDBCSQLXML.workQueue = new ArrayBlockingQueue<>(10);
             JDBCSQLXML.executorService = new ThreadPoolExecutor(corePoolSize,
                     maximumPoolSize, keepAliveTime, unit, workQueue);
         }
@@ -2601,8 +2593,7 @@ public class JDBCSQLXML implements SQLXML {
         /**
          * Namespace declarations for an upcoming element.
          */
-        private List<QualifiedName> namespaces =
-            new ArrayList<QualifiedName>();
+        private List<QualifiedName> namespaces = new ArrayList<>();
 
         /**
          * Whether this object is closed.
