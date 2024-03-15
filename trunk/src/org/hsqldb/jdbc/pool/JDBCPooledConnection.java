@@ -110,8 +110,7 @@ implements PooledConnection, JDBCConnectionEventListener {
         reset();
 
         for (int i = 0; i < listeners.size(); i++) {
-            ConnectionEventListener connectionEventListener =
-                (ConnectionEventListener) listeners.get(i);
+            ConnectionEventListener connectionEventListener = listeners.get(i);
 
             connectionEventListener.connectionClosed(event);
         }
@@ -124,8 +123,7 @@ implements PooledConnection, JDBCConnectionEventListener {
         reset();
 
         for (int i = 0; i < listeners.size(); i++) {
-            ConnectionEventListener connectionEventListener =
-                (ConnectionEventListener) listeners.get(i);
+            ConnectionEventListener connectionEventListener = listeners.get(i);
 
             connectionEventListener.connectionErrorOccurred(event);
         }
@@ -193,7 +191,7 @@ implements PooledConnection, JDBCConnectionEventListener {
         isInUse = false;
     }
 
-    protected OrderedHashSet listeners = new OrderedHashSet();
+    protected OrderedHashSet<ConnectionEventListener> listeners = new OrderedHashSet<>();
     protected JDBCConnection connection;
     protected JDBCConnection userConnection;
     protected boolean        isInUse;
