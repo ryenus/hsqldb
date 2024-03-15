@@ -353,12 +353,8 @@ public class JDBCDriver implements Driver {
             return true;
         }
 
-        if (url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
-                              DatabaseURL.S_URL_INTERNAL.length())) {
-            return true;
-        }
-
-        return false;
+        return url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
+                DatabaseURL.S_URL_INTERNAL.length());
     }
 
     /**
@@ -516,7 +512,7 @@ public class JDBCDriver implements Driver {
      */
 
     public final ThreadLocal<JDBCConnection> threadConnection =
-        new ThreadLocal<JDBCConnection>();
+            new ThreadLocal<>();
 
     //------------------------- JDBC 4.2 -----------------------------------
 

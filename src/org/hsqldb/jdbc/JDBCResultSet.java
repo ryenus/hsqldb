@@ -450,8 +450,7 @@ public class JDBCResultSet implements ResultSet {
 
         Object o = getColumnInType(columnIndex, Type.SQL_BOOLEAN);
 
-        return o == null ? false
-                         : ((Boolean) o).booleanValue();
+        return o != null && ((Boolean) o).booleanValue();
     }
 
     /**

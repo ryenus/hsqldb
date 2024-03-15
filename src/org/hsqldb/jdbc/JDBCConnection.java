@@ -1633,7 +1633,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        return new HashMap<String, Class<?>>();
+        return new HashMap<>();
     }
 
     /**

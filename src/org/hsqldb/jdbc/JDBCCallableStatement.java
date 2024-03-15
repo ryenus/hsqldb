@@ -407,8 +407,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         Object o = getColumnInType(parameterIndex, Type.SQL_BOOLEAN);
 
-        return o == null ? false
-                         : ((Boolean) o).booleanValue();
+        return o != null && ((Boolean) o).booleanValue();
     }
 
     /**

@@ -5772,8 +5772,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
         // PRE: is non-null and not closed
         connection       = c;
-        useSchemaDefault = c.isInternal ? false
-                                        : c.isDefaultSchema;
+        useSchemaDefault = !c.isInternal && c.isDefaultSchema;
     }
 
     /**

@@ -1255,7 +1255,7 @@ public class JDBCClobFile implements java.sql.Clob {
 
         protected WriterAdapter(final File file,
                                 final long pos)
-                                throws FileNotFoundException, IOException,
+                                throws IOException,
                                        SecurityException,
                                        NullPointerException,
                                        IllegalArgumentException {
@@ -1327,7 +1327,7 @@ public class JDBCClobFile implements java.sql.Clob {
 
         protected ReaderAdapter(final File file, final long pos,
                                 final long length)
-                                throws FileNotFoundException, IOException,
+                                throws IOException,
                                        NullPointerException,
                                        IllegalArgumentException,
                                        SecurityException {

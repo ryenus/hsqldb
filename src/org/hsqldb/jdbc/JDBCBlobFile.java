@@ -574,7 +574,7 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         m_closed = true;
 
-        final List<Object> streams = new ArrayList<Object>(m_streams);
+        final List<Object> streams = new ArrayList<>(m_streams);
 
         m_streams = null;
 
@@ -686,7 +686,7 @@ public class JDBCBlobFile implements java.sql.Blob {
     private final File m_file;
     private boolean    m_closed;
     private boolean    m_deleteOnFree;
-    private List<Object> m_streams = new ArrayList<Object>();
+    private List<Object> m_streams = new ArrayList<>();
 
 
     /**
@@ -900,7 +900,7 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         protected OutputStreamAdapter(final File file,
                                    final long pos)
-                                   throws FileNotFoundException, IOException,
+                                   throws IOException,
                                           IllegalArgumentException,
                                           NullPointerException,
                                           SecurityException {
@@ -959,7 +959,7 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         InputStreamAdapter(final File file, final long pos,
                            final long length)
-                           throws FileNotFoundException, IOException,
+                           throws IOException,
                                   SecurityException, NullPointerException,
                                   IllegalArgumentException  {
 
