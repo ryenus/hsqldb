@@ -106,16 +106,16 @@ public class ServerProperties extends HsqlProperties {
     static final String sc_default_web_root = ".";
 
     //
-    static final HashMap<String, PropertyMeta> serverMeta = new HashMap();
-    static final OrderedHashSet prefixes = new OrderedHashSet();
+    static final HashMap<String, PropertyMeta> serverMeta = new HashMap<>();
+    static final OrderedHashSet<String> prefixes = new OrderedHashSet<>();
 
     //
     final int         protocol;
     protected boolean initialised = false;
 
     //
-    IntKeyHashMap idToAliasMap = new IntKeyHashMap();
-    IntKeyHashMap idToPathMap  = new IntKeyHashMap();
+    IntKeyHashMap<String> idToAliasMap = new IntKeyHashMap<>();
+    IntKeyHashMap<String> idToPathMap  = new IntKeyHashMap<>();
 
     public ServerProperties(int protocol, File file) throws IOException {
 
@@ -222,7 +222,7 @@ public class ServerProperties extends HsqlProperties {
     PropertyMeta getPrefixedMetadata(String key) {
 
         for (int i = 0; i < prefixes.size(); i++) {
-            String prefix = (String) prefixes.get(i);
+            String prefix = prefixes.get(i);
 
             if (key.startsWith(prefix)) {
                 return serverMeta.get(prefix);

@@ -259,7 +259,7 @@ public final class ServerAcl {
         return sb.toString();
     }
 
-    private List            aclEntries;
+    private List<AclEntry> aclEntries;
     static private AclEntry PROHIBIT_ALL_IPV4;
     static private AclEntry PROHIBIT_ALL_IPV6;
 
@@ -317,8 +317,8 @@ public final class ServerAcl {
         ensureAclsUptodate();
 
         for (int i = 0; i < aclEntries.size(); i++) {
-            if (((AclEntry) aclEntries.get(i)).matches(addr)) {
-                AclEntry hit = (AclEntry) aclEntries.get(i);
+            if ((aclEntries.get(i)).matches(addr)) {
+                AclEntry hit = aclEntries.get(i);
 
                 println("Addr '" + ServerAcl.dottedNotation(addr)
                         + "' matched rule #" + (i + 1) + ":  " + hit);
@@ -362,13 +362,12 @@ public final class ServerAcl {
 
             println("ACLs reloaded from file");
 
-            return;
         } catch (Exception e) {
             println("Failed to reload ACL file.  Retaining old ACLs.  " + e);
         }
     }
 
-    List load() throws IOException, AclFormatException {
+    List<AclEntry> load() throws IOException, AclFormatException {
 
         if (!aclFile.exists()) {
             throw new IOException("File '" + aclFile.getAbsolutePath()
@@ -396,7 +395,7 @@ public final class ServerAcl {
         boolean         allow;
         int             bits;
         BufferedReader  br      = new BufferedReader(new FileReader(aclFile));
-        List<AclEntry>  newAcls = new ArrayList<AclEntry>();
+        List<AclEntry>  newAcls = new ArrayList<>();
 
         try {
             while ((line = br.readLine()) != null) {

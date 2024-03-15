@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,8 +68,7 @@ public class AuthBeanMultiplexer {
 
     private static AuthBeanMultiplexer singleton = new AuthBeanMultiplexer();
 
-    private static Map<String, List<AuthFunctionBean>> beans =
-            new HashMap<String, List<AuthFunctionBean>>();
+    private static Map<String, List<AuthFunctionBean>> beans = new HashMap<>();
 
     public static AuthBeanMultiplexer getSingleton() {
         return singleton;
@@ -170,7 +169,7 @@ public class AuthBeanMultiplexer {
         }
         List<AuthFunctionBean> dbsBeans = AuthBeanMultiplexer.beans.get(dbName);
         if (dbsBeans == null) {
-            dbsBeans = new ArrayList<AuthFunctionBean>();
+            dbsBeans = new ArrayList<>();
             AuthBeanMultiplexer.beans.put(dbName, dbsBeans);
         } else {
             if (dbsBeans.size() > 0)
