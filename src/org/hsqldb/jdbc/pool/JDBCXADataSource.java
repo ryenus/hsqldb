@@ -142,7 +142,7 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
     }
 
     // ------------------------ internal implementation ------------------------
-    private HashMap                resources = new HashMap();
+    private HashMap<Xid, JDBCXAResource> resources = new HashMap<Xid, JDBCXAResource>();
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public void addResource(Xid xid, JDBCXAResource xaResource) {
@@ -166,7 +166,7 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
         lock.writeLock().lock();
 
         try {
-            return (JDBCXAResource) resources.remove(xid);
+            return resources.remove(xid);
         } finally {
             lock.writeLock().unlock();
         }
@@ -185,14 +185,14 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
         lock.writeLock().lock();
 
         try {
-            Iterator it = resources.keySet().iterator();
+            Iterator<Xid> it = resources.keySet().iterator();
             Xid      curXid;
-            HashSet  preparedSet = new HashSet();
+            HashSet<Xid> preparedSet = new HashSet<Xid>();
 
             while (it.hasNext()) {
-                curXid = (Xid) it.next();
+                curXid = it.next();
 
-                if (((JDBCXAResource) resources.get(curXid)).state
+                if ((resources.get(curXid)).state
                         == JDBCXAResource.XA_STATE_PREPARED) {
                     preparedSet.add(curXid);
                 }
@@ -222,7 +222,7 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
         lock.readLock().lock();
 
         try {
-            return (JDBCXAResource) resources.get(xid);
+            return resources.get(xid);
         } finally {
             lock.readLock().unlock();
         }
