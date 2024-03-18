@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.lib.Map.Entry;
  * A key - value pair.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 2.6.0
  */
 public class MapEntry<K, V> implements Entry<K, V> {
@@ -65,8 +65,8 @@ public class MapEntry<K, V> implements Entry<K, V> {
 
     public boolean equals(Object o) {
         if (o instanceof Entry) {
-            Entry other = (Entry) o;
-            Object otherValue = other.getValue();
+            Entry<K, V> other = (Entry<K, V>) o;
+            V otherValue = other.getValue();
             return key.equals(other.getKey()) &&
                 (value == otherValue ||
                  (value != null && value.equals(otherValue)));

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,13 +39,13 @@ import java.util.Comparator;
  * is non-blocking, dynamically resizing and thread-safe.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class HsqlArrayHeap<E> implements HsqlHeap<E> {
 
 // --------------------------------- members -----------------------------------
-    protected Comparator oc;
+    protected Comparator<E> oc;
     protected int        count;
     protected Object[]   heap;
 
@@ -122,7 +122,7 @@ public class HsqlArrayHeap<E> implements HsqlHeap<E> {
             pi = (ci - 1) >>> 1;
 
             try {
-                if (oc.compare(o, heap[pi]) >= 0) {
+                if (oc.compare(o, (E) heap[pi]) >= 0) {
                     break;
                 }
             } catch (Exception e) {
@@ -187,10 +187,10 @@ public class HsqlArrayHeap<E> implements HsqlHeap<E> {
             }
 
             ri  = (ci << 1) + 2;
-            chi = (ri >= count || oc.compare(heap[li], heap[ri]) < 0) ? li
+            chi = (ri >= count || oc.compare((E) heap[li], (E) heap[ri]) < 0) ? li
                                                                       : ri;
 
-            if (oc.compare(co, heap[chi]) <= 0) {
+            if (oc.compare(co, (E) heap[chi]) <= 0) {
                 break;
             }
 

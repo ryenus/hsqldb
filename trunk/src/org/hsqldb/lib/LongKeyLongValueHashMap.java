@@ -225,7 +225,7 @@ public class LongKeyLongValueHashMap extends BaseHashMap implements Map<Long, Lo
 
     public void putAll(IntKeyIntValueHashMap other) {
 
-        PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
+        Iterator<Integer> it = other.keySet().iterator();
 
         while (it.hasNext()) {
 

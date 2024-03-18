@@ -37,7 +37,7 @@ import org.hsqldb.map.BaseHashMap;
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class HashSet<E> extends BaseHashMap implements Set<E> {
@@ -216,22 +216,6 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         }
 
         return result;
-    }
-
-    public boolean retainAll(Collection<?> c) {
-
-        boolean changed = false;
-
-        Iterator<?> it = iterator();
-
-        while (it.hasNext()) {
-            if (!c.contains(it.next())) {
-                it.remove();
-                changed = true;
-            }
-        }
-
-        return changed;
     }
 
     /**

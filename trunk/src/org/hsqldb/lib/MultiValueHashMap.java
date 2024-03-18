@@ -222,7 +222,7 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
     public Set<K> keySet() {
 
         if (keySet == null) {
-            keySet = new KeySet();
+            keySet = new KeySet<>();
         }
 
         return keySet;
@@ -231,7 +231,7 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
     public Collection<V> values() {
 
         if (values == null) {
-            values = new Values();
+            values = new Values<>();
         }
 
         return values;
@@ -239,7 +239,7 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
 
     public Set<Entry<K, V>> entrySet() {
         if (entries == null) {
-            entries = new EntrySet();
+            entries = new EntrySet<>();
         }
 
         return entries;
@@ -248,7 +248,7 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
     private class EntrySet<K, V> extends AbstractReadOnlyCollection<Entry<K, V>> implements Set<Map.Entry<K, V>> {
 
         public Iterator<Entry<K, V>> iterator() {
-            return MultiValueHashMap.this.new EntrySetIterator<>();
+            return MultiValueHashMap.this.new EntrySetIterator<K, V>();
         }
 
         public int size() {
@@ -270,7 +270,7 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
             K key   = (K) super.next();
             V value = (V) objectValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<K, V>(key, value);
         }
     }
 

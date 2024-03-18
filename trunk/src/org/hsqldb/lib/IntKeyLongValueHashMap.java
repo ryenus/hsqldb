@@ -219,7 +219,7 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
 
     public void putAll(IntKeyIntValueHashMap other) {
 
-        PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
+        Iterator<Integer> it = other.keySet().iterator();
 
         while (it.hasNext()) {
 
@@ -288,7 +288,7 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
             Integer key   = super.nextInt();
             Long    value = longValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<>(key, value);
         }
     }
 

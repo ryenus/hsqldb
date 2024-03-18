@@ -154,7 +154,7 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
         return objectValueTable2[index];
     }
 
-    public Object setValueAt(int index, Object value) {
+    public V setValueAt(int index, V value) {
 
         checkRange(index);
 
@@ -162,7 +162,7 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
 
         objectValueTable[index] = value;
 
-        return oldValue;
+        return (V) oldValue;
     }
 
     public Object setSecondValueAt(int index, Object value) {
@@ -299,7 +299,7 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
 
     public void putAll(LongKeyHashMap<V> other) {
 
-        PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
+        Iterator<Long> it = other.keySet().iterator();
 
         while (it.hasNext()) {
             long key = it.nextLong();
