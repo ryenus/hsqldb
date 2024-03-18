@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,8 +49,8 @@ import java.util.NoSuchElementException;
  * but does not shrink when it gets empty.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
- * @since 1.7.0, 20020130
+ * @version 2.7.3	
+ * @since 1.7.0
  */
 public class HsqlDeque<E> extends BaseList<E> implements List<E> {
 
@@ -252,7 +252,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
         return removeLast();
     }
 
-    public boolean removeFirstOccurrence(Object o) {
+    public boolean removeFirstOccurrence(E o) {
         int index = indexOf(o);
 
         if (index < 1) {
@@ -264,7 +264,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
         return true;
     }
 
-    public boolean removeLastOccurrence(Object o) {
+    public boolean removeLastOccurrence(E o) {
         int index = lastIndexOf(o);
 
         if (index < 1) {
@@ -330,7 +330,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
         Arrays.fill(list, null);
     }
 
-    public int indexOf(Object value) {
+    public int indexOf(E value) {
 
         for (int i = 0; i < elementCount; i++) {
             int index = firstindex + i;
@@ -351,7 +351,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
         return -1;
     }
 
-    public int lastIndexOf(Object value) {
+    public int lastIndexOf(E value) {
 
         for (int i = elementCount - 1; i >= 0; i--) {
             int index = firstindex + i;
@@ -487,19 +487,19 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
         throw new UnsupportedOperationException();
     }
 
-    public boolean containsAll(Collection c) {
+    public boolean containsAll(Collection<E> c) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean removeAll(Collection c) {
+    public boolean removeAll(Collection<E> c) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean retainAll(Collection c) {
+    public boolean retainAll(Collection<E> c) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean addAll(int index, Collection c) {
+    public boolean addAll(int index, Collection<E> c) {
         throw new UnsupportedOperationException();
     }
 }

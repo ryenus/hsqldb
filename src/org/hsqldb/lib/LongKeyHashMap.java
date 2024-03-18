@@ -240,17 +240,17 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
         }
     }
 
-    public void putAll(LongKeyHashMap other) {
+    public void putAll(LongKeyHashMap<V> other) {
 
         writeLock.lock();
 
         try {
-            PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
+            Iterator<Long> it = other.keySet().iterator();
 
             while (it.hasNext()) {
                 long key = it.nextLong();
 
-                put(key, (V) other.get(key));
+                put(key, other.get(key));
             }
         } finally {
             writeLock.unlock();
@@ -293,7 +293,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
     public Set<Long> keySet() {
 
         if (keySet == null) {
-            keySet = new KeySet();
+            keySet = new KeySet<>();
         }
 
         return keySet;
@@ -302,7 +302,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
     public Collection<V> values() {
 
         if (values == null) {
-            values = new Values();
+            values = new Values<>();
         }
 
         return values;
@@ -341,7 +341,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
             Long key   = super.nextLong();
             V    value = (V) objectValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<Long, V>(key, value);
         }
     }
 

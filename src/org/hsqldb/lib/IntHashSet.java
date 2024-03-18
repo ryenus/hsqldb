@@ -37,7 +37,7 @@ import org.hsqldb.map.BaseHashMap;
  * A set of int primitives.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 2.3.0
  */
 public class IntHashSet extends BaseHashMap {
@@ -94,11 +94,10 @@ public class IntHashSet extends BaseHashMap {
             throw new NullPointerException();
         }
 
-        int intKey = ((Integer) e).intValue();
+        int intKey = e.intValue();
 
         return add(intKey);
     }
-
 
     public boolean add(int key) {
         return (Boolean) super.addOrUpdate(key, 0, null, null);
@@ -152,7 +151,7 @@ public class IntHashSet extends BaseHashMap {
 
         boolean result = false;
 
-        PrimitiveIterator it      = s.iterator();
+        Iterator<Integer> it = s.iterator();
 
         while (it.hasNext()) {
             result |= add(it.nextInt());
@@ -172,9 +171,8 @@ public class IntHashSet extends BaseHashMap {
         return oldSize != size();
     }
 
-
-    public boolean containsAll(Collection<?> c) {
-        Iterator it = c.iterator();
+    public boolean containsAll(IntHashSet c) {
+        Iterator<Integer> it = c.iterator();
 
         while (it.hasNext()) {
             if (!contains(it.next())) {
@@ -185,13 +183,12 @@ public class IntHashSet extends BaseHashMap {
         return true;
     }
 
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(IntHashSet c) {
         int      oldSize = size();
 
-        PrimitiveIterator it = new BaseHashIterator(true);
+        Iterator<Integer> it = iterator();
 
         while (it.hasNext()) {
-
             if (!c.contains(it.nextInt())) {
                 it.remove();
             }
@@ -200,9 +197,9 @@ public class IntHashSet extends BaseHashMap {
         return oldSize != size();
     }
 
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(IntHashSet c) {
         int      oldSize = size();
-        Iterator it = c.iterator();
+        Iterator<?> it = c.iterator();
 
         while (it.hasNext()) {
             Object o = it.next();
@@ -226,7 +223,7 @@ public class IntHashSet extends BaseHashMap {
         return toIntArray(array, true);
     }
 
-    public PrimitiveIterator<Integer> iterator() {
+    public Iterator<Integer> iterator() {
         return new BaseHashIterator(true);
     }
 }

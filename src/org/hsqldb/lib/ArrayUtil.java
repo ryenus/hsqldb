@@ -43,15 +43,15 @@ import java.util.Arrays;
  */
 public final class ArrayUtil {
 
-    public static final int              CLASS_CODE_BYTE    = 'B';
-    public static final int              CLASS_CODE_CHAR    = 'C';
-    public static final int              CLASS_CODE_DOUBLE  = 'D';
-    public static final int              CLASS_CODE_FLOAT   = 'F';
-    public static final int              CLASS_CODE_INT     = 'I';
-    public static final int              CLASS_CODE_LONG    = 'J';
-    public static final int              CLASS_CODE_OBJECT  = 'L';
-    public static final int              CLASS_CODE_SHORT   = 'S';
-    public static final int              CLASS_CODE_BOOLEAN = 'Z';
+    public static final int CLASS_CODE_BYTE    = 'B';
+    public static final int CLASS_CODE_CHAR    = 'C';
+    public static final int CLASS_CODE_DOUBLE  = 'D';
+    public static final int CLASS_CODE_FLOAT   = 'F';
+    public static final int CLASS_CODE_INT     = 'I';
+    public static final int CLASS_CODE_LONG    = 'J';
+    public static final int CLASS_CODE_OBJECT  = 'L';
+    public static final int CLASS_CODE_SHORT   = 'S';
+    public static final int CLASS_CODE_BOOLEAN = 'Z';
     private static final IntValueHashMap<Class> classCodeMap =
         new IntValueHashMap<>(16);
 

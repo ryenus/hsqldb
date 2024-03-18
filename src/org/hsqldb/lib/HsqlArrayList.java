@@ -77,8 +77,8 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     private boolean            minimizeOnClear;
 
     public HsqlArrayList(E[] data, int count, boolean minimize) {
-        elementData  = data;
-        elementCount = count;
+        elementData     = data;
+        elementCount    = count;
         minimizeOnClear = minimize;
     }
 
@@ -208,7 +208,7 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
      * @return int
      */
     @Override
-    public int indexOf(Object o) {
+    public int indexOf(E o) {
 
         if (o == null) {
             for (int i = 0; i < elementCount; i++) {
@@ -442,7 +442,7 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         ArraySort.sort(elementData, elementCount, c);
     }
 
-    public int lastIndexOf(Object o) {
+    public int lastIndexOf(E o) {
 
         if (o == null) {
             for (int i = elementCount - 1; i >= 0; i--) {

@@ -217,7 +217,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
 
     public void putAll(IntKeyIntValueHashMap other) {
 
-        PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
+        Iterator<Integer> it = other.keySet().iterator();
 
         while (it.hasNext()) {
 
@@ -238,7 +238,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
 
     public Set<Integer> keySet() {
         if (keySet == null) {
-            keySet = new KeySet();
+            keySet = new KeySet<>();
         }
 
         return keySet;
@@ -247,7 +247,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
     public Collection<Integer> values() {
 
         if (values == null) {
-            values = new Values();
+            values = new Values<>();
         }
 
         return values;
@@ -286,7 +286,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
             Integer key   = super.nextInt();
             Integer value = intValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<>(key, value);
         }
     }
 

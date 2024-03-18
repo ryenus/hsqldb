@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ public class HashMap<K, V> extends BaseHashMap implements Map<K, V> {
               BaseHashMap.objectKeyOrValue, false);
     }
 
-    public HashMap(int initialCapacity, ObjectComparator comparator) throws IllegalArgumentException {
+    public HashMap(int initialCapacity, ObjectComparator<K> comparator) throws IllegalArgumentException {
         this(initialCapacity);
 
         this.comparator = comparator;
@@ -156,7 +156,7 @@ public class HashMap<K, V> extends BaseHashMap implements Map<K, V> {
     public Set<K> keySet() {
 
         if (keySet == null) {
-            keySet = new KeySet();
+            keySet = new KeySet<>();
         }
 
         return keySet;
@@ -165,7 +165,7 @@ public class HashMap<K, V> extends BaseHashMap implements Map<K, V> {
     public Collection<V> values() {
 
         if (values == null) {
-            values = new Values();
+            values = new Values<>();
         }
 
         return values;
@@ -204,7 +204,7 @@ public class HashMap<K, V> extends BaseHashMap implements Map<K, V> {
             K key   = (K) super.next();
             V value = (V) objectValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<K, V>(key, value);
         }
     }
 

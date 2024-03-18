@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -813,7 +813,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * Provides extensions to facilitate and simplify implementing
      * timer functionality.
      */
-    protected static class TaskQueue extends HsqlArrayHeap {
+    protected static class TaskQueue extends HsqlArrayHeap<Task> {
 
         /**
          * Constructs a new TaskQueue with the specified initial capacity and
@@ -823,7 +823,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
          * @param oc The ObjectComparator this queue uses to maintain its
          *      Heap invariant.
          */
-        TaskQueue(final int capacity, final Comparator oc) {
+        TaskQueue(final int capacity, final Comparator<Task> oc) {
             super(capacity, oc);
         }
 

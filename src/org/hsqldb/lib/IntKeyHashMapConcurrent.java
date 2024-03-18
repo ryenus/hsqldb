@@ -198,17 +198,17 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
         }
     }
 
-    public void putAll(IntKeyHashMap other) {
+    public void putAll(IntKeyHashMap<V> other) {
 
         try {
             writeLock.lock();
 
-            PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
+            Iterator<Integer> it = other.keySet().iterator();
 
             while (it.hasNext()) {
                 int intKey = it.nextInt();
 
-                put(intKey, (V) other.get(intKey));
+                put(intKey, other.get(intKey));
             }
         } finally {
             writeLock.unlock();
@@ -256,7 +256,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
 
     public Set<Integer> keySet() {
         if (keySet == null) {
-            keySet = new KeySet();
+            keySet = new KeySet<>();
         }
 
         return keySet;
@@ -264,7 +264,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
 
     public Collection<V> values() {
         if (values == null) {
-            values = new Values();
+            values = new Values<>();
         }
 
         return values;
@@ -303,7 +303,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
             Integer key   = super.nextInt();
             V value       = (V) objectValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<>(key, value);
         }
     }
 

@@ -112,7 +112,7 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
             throw new NullPointerException();
         }
 
-        int intKey = ((Integer) key).intValue();
+        int intKey = key.intValue();
 
         return put(intKey, value);
     }
@@ -152,13 +152,13 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
 
             int intKey = key.intValue();
 
-            put(intKey, (V) other.get(key));
+            put(intKey, other.get(key));
         }
     }
 
     public void putAll(IntKeyHashMap<V> other) {
 
-        PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
+        Iterator<Integer> it = other.keySet().iterator();
 
         while (it.hasNext()) {
             int key = it.nextInt();
@@ -191,7 +191,7 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
     public Set<Integer> keySet() {
 
         if (keySet == null) {
-            keySet = new KeySet();
+            keySet = new KeySet<>();
         }
 
         return keySet;
@@ -200,7 +200,7 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
     public Collection<V> values() {
 
         if (values == null) {
-            values = new Values();
+            values = new Values<>();
         }
 
         return values;
@@ -239,7 +239,7 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
             Integer key   = super.nextInt();
             V value       = (V) objectValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<>(key, value);
         }
     }
 

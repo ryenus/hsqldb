@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import org.hsqldb.map.BaseHashMap;
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class IntValueHashMap<K> extends BaseHashMap {
@@ -185,12 +185,12 @@ public class IntValueHashMap<K> extends BaseHashMap {
         }
     }
 
-    public void putAll(IntValueHashMap other) {
+    public void putAll(IntValueHashMap<K> other) {
 
-        Iterator it = other.keySet().iterator();
+        Iterator<K> it = other.keySet().iterator();
 
         while (it.hasNext()) {
-            Object key = it.next();
+            K key = it.next();
 
             put(key, other.get(key));
         }
@@ -243,11 +243,11 @@ public class IntValueHashMap<K> extends BaseHashMap {
             super(true);
         }
 
-        public Entry<K, Long> next() {
+        public Entry<K, Integer> next() {
             K       key   = (K) super.next();
             Integer value = intValueTable[lookup];
 
-            return new MapEntry(key, value);
+            return new MapEntry<K, Integer>(key, value);
         }
     }
 
