@@ -217,16 +217,16 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
         }
     }
 
-    public void putAll(IntKeyIntValueHashMap other) {
+    public void putAll(IntKeyLongValueHashMap other) {
 
         Iterator<Integer> it = other.keySet().iterator();
 
         while (it.hasNext()) {
 
-            int intKey = it.nextInt();
-            int intValue = other.get(intKey);
+            int intKey     = it.nextInt();
+            long longValue = other.get(intKey);
 
-            put(intKey, intValue);
+            put(intKey, longValue);
         }
     }
 
