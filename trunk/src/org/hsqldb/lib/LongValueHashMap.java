@@ -163,6 +163,19 @@ public class LongValueHashMap<K> extends BaseHashMap {
         return super.containsKey(key);
     }
 
+    public void putAll(Map<? extends K, ? extends Long> other) {
+
+        Iterator<? extends K> it = other.keySet().iterator();
+
+        while (it.hasNext()) {
+            K        key  = it.next();
+            Long     value = other.get(key);
+            long     longValue = value.longValue();
+
+            put(key, longValue);
+        }
+    }
+
     public void putAll(LongValueHashMap<K> t) {
 
         Iterator<K> it = t.keySet().iterator();

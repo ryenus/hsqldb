@@ -103,21 +103,6 @@ public class IntHashSet extends BaseHashMap {
         return (Boolean) super.addOrUpdate(key, 0, null, null);
     }
 
-    public boolean remove(Object o) {
-        if (o instanceof Integer) {
-
-            int intKey = ((Integer) o).intValue();
-
-            return remove(intKey);
-        }
-
-        if (o == null) {
-            throw new NullPointerException();
-        }
-
-        return false;
-    }
-
     public boolean remove(int key) {
         return (Boolean) super.remove(key, 0, null, null, false, false);
     }
@@ -135,10 +120,10 @@ public class IntHashSet extends BaseHashMap {
         return i;
     }
 
-    public boolean addAll(Collection<? extends Integer> col) {
+    public boolean addAll(Collection<Integer> col) {
 
         int      oldSize = size();
-        Iterator<? extends Integer> it = col.iterator();
+        Iterator<Integer> it = col.iterator();
 
         while (it.hasNext()) {
             add(it.next());
@@ -199,14 +184,12 @@ public class IntHashSet extends BaseHashMap {
 
     public boolean removeAll(IntHashSet c) {
         int      oldSize = size();
-        Iterator<?> it = c.iterator();
+        Iterator<Integer> it = c.iterator();
 
         while (it.hasNext()) {
-            Object o = it.next();
+            int value = it.nextInt();
 
-            if (o instanceof Integer) {
-                remove(o);
-            }
+            remove(value);
         }
 
         return oldSize != size();

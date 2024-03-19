@@ -223,14 +223,14 @@ public class LongKeyLongValueHashMap extends BaseHashMap implements Map<Long, Lo
         }
     }
 
-    public void putAll(IntKeyIntValueHashMap other) {
+    public void putAll(LongKeyLongValueHashMap other) {
 
-        Iterator<Integer> it = other.keySet().iterator();
+        Iterator<Long> it = other.keySet().iterator();
 
         while (it.hasNext()) {
 
             long longKey   = it.nextLong();
-            int  longValue = other.get(longKey);
+            long longValue = other.get(longKey);
 
             put(longKey, longValue);
         }
