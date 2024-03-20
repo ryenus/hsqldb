@@ -940,7 +940,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         Task removeTask() {
 
             // System.out.println("removing task...");
-            return (Task) super.remove();
+            return super.remove();
         }
 
         /**
