@@ -1104,9 +1104,9 @@ class WaitSection extends ParsedSection {
 
         linesArray.toArray(lines);
 
+        lines[0] = lines[0].substring(3);
         int    closeCmd = lines[0].indexOf("*/");
         String cmd      = lines[0].substring(0, closeCmd);
-
         lines[0] = lines[0].substring(closeCmd + 2).trim();
 
         String trimmed = cmd.trim();

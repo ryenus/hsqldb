@@ -281,7 +281,7 @@ public class TestAcl extends TestCase {
         ServerAcl acl;
 
         for (int i = 0; i < aclDenyAlls.length; i++) {
-            acl = (ServerAcl) aclDenyAlls[i];
+            acl = aclDenyAlls[i];
 
             assertFalse("Permitting access from localhost with deny-all ACL",
                         acl.permitAccess(localhostByAddr.getAddress()));
@@ -295,7 +295,7 @@ public class TestAcl extends TestCase {
         ServerAcl acl;
 
         for (int i = 0; i < aclPermitLocalhosts.length; i++) {
-            acl = (ServerAcl) aclPermitLocalhosts[i];
+            acl = aclPermitLocalhosts[i];
 
             assertTrue(
                 "Denying access from localhost with localhost-permit ACL",
@@ -308,7 +308,7 @@ public class TestAcl extends TestCase {
         ServerAcl acl;
 
         for (int i = 0; i < aclPermitLocalhosts.length; i++) {
-            acl = (ServerAcl) aclPermitLocalhosts[i];
+            acl = aclPermitLocalhosts[i];
 
             assertTrue(
                 "Denying access from localhost with localhost-permit ACL",
@@ -324,7 +324,7 @@ public class TestAcl extends TestCase {
         ServerAcl acl;
 
         for (int i = 0; i < aclDenyLocalhosts.length; i++) {
-            acl = (ServerAcl) aclDenyLocalhosts[i];
+            acl = aclDenyLocalhosts[i];
 
             assertFalse(
                 "Permitting access from localhost with localhost-deny ACL",
@@ -337,7 +337,7 @@ public class TestAcl extends TestCase {
         ServerAcl acl;
 
         for (int i = 0; i < aclDenyLocalhosts.length; i++) {
-            acl = (ServerAcl) aclDenyLocalhosts[i];
+            acl = aclDenyLocalhosts[i];
 
             assertFalse(
                 "Permitting access from localhost with localhost-deny ACL",
@@ -353,7 +353,7 @@ public class TestAcl extends TestCase {
         ServerAcl acl;
 
         for (int i = 0; i < aclPermitLocalNets.length; i++) {
-            acl = (ServerAcl) aclPermitLocalNets[i];
+            acl = aclPermitLocalNets[i];
 
             assertTrue("Denying access from localNet with localNet-permit ACL",
                        acl.permitAccess(localhostByName.getAddress()));
@@ -365,7 +365,7 @@ public class TestAcl extends TestCase {
         ServerAcl acl;
 
         for (int i = 0; i < aclPermitLocalNets.length; i++) {
-            acl = (ServerAcl) aclPermitLocalNets[i];
+            acl = aclPermitLocalNets[i];
 
             assertTrue("Denying access from localNet with localNet-permit ACL",
                        acl.permitAccess(localhostByAddr.getAddress()));
@@ -380,7 +380,7 @@ public class TestAcl extends TestCase {
         ServerAcl acl;
 
         for (int i = 0; i < aclDenyLocalNets.length; i++) {
-            acl = (ServerAcl) aclDenyLocalNets[i];
+            acl = aclDenyLocalNets[i];
 
             assertFalse(
                 "Permitting access from localNet with localNet-deny ACL",
@@ -393,7 +393,7 @@ public class TestAcl extends TestCase {
         ServerAcl acl;
 
         for (int i = 0; i < aclDenyLocalNets.length; i++) {
-            acl = (ServerAcl) aclDenyLocalNets[i];
+            acl = aclDenyLocalNets[i];
 
             assertFalse(
                 "Permitting access from localNet with localNet-deny ACL",
