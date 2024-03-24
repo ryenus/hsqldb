@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@ package org.hsqldb.types;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
-import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
 import org.hsqldb.lib.OrderedHashSet;
@@ -44,7 +43,7 @@ import org.hsqldb.rights.Grantee;
  * Implementation of CHARACTER SET objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class Charset implements SchemaObject {
@@ -187,9 +186,9 @@ public class Charset implements SchemaObject {
         return name.schema.owner;
     }
 
-    public OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         if (base != null) {
             set.add(base);
@@ -197,12 +196,6 @@ public class Charset implements SchemaObject {
 
         return set;
     }
-
-    public OrderedHashSet getComponents() {
-        return null;
-    }
-
-    public void compile(Session session, SchemaObject parentObject) {}
 
     public String getSQL() {
 
@@ -271,11 +264,7 @@ public class Charset implements SchemaObject {
                 continue;
             }
 
-            if (ch < ranges[i][0]) {
-                return false;
-            }
-
-            return true;
+            return ch >= ranges[i][0];
         }
 
         return false;

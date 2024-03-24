@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.types.Type;
  * Token created by Scanner.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class Token {
@@ -139,7 +139,11 @@ public class Token {
         return fullString;
     }
 
-    public void setExpression(Object expression) {
+    public void setExpression(SchemaObject expression) {
+        this.expression = expression;
+    }
+
+    public void setExpression(Expression expression) {
         this.expression = expression;
     }
 

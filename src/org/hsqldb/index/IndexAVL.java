@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2021, The HSQL Development Group
+ * Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.3
  * @since Hypersonic SQL
  */
 public class IndexAVL implements Index {
@@ -216,16 +216,6 @@ public class IndexAVL implements Index {
     public Grantee getOwner() {
         return name.schema.owner;
     }
-
-    public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
-    }
-
-    public OrderedHashSet getComponents() {
-        return null;
-    }
-
-    public void compile(Session session, SchemaObject parentObject) {}
 
     public String getSQL() {
 

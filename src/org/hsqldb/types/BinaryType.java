@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -642,7 +642,7 @@ public class BinaryType extends Type {
 
             return new BinaryData(bytes, false);
         } else if (data instanceof BlobData) {
-            BlobData blob = ((BlobData) data).getBlob(session, offset, length);
+            BlobData blob = data.getBlob(session, offset, length);
 
             return blob;
         } else {

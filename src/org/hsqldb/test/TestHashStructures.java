@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -526,7 +526,7 @@ public class TestHashStructures extends TestCase {
         for (int i = 0; uIt.hasNext(); i++) {
             Object uKey = uIt.next();
             Object oU   = uMap.get(uKey);
-            Object hU   = hMap.get(uKey);
+            Object hU   = hMap.get((Integer) uKey);
 
             if (!oU.equals(hU)) {
                 throw new Exception("HashMap value mismatch");

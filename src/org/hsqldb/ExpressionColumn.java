@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -354,8 +354,6 @@ public class ExpressionColumn extends Expression {
             case OpTypes.ASTERISK :
             case OpTypes.SIMPLE_COLUMN :
             case OpTypes.COALESCE :
-                break;
-
             case OpTypes.PARAMETER :
             case OpTypes.VARIABLE :
                 break;

@@ -174,7 +174,7 @@ public class Session implements SessionInterface {
         this.timeZone         = zone;
         this.currentTimeZone  = zone;
         this.zoneString       = zone.getID();
-        rowActionList         = new HsqlArrayList(128, true);
+        rowActionList         = new HsqlArrayList(new RowAction[128], 0, true);
         waitedSessions        = new OrderedHashSet();
         waitingSessions       = new OrderedHashSet();
         tempSet               = new OrderedHashSet();

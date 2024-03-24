@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -296,17 +296,17 @@ public final class Constraint implements SchemaObject {
         return name.schema.owner;
     }
 
-    public OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
 
         switch (constType) {
 
             case SchemaObject.ConstraintTypes.CHECK :
-                OrderedHashSet refs = new OrderedHashSet();
+                OrderedHashSet<HsqlName> refs = new OrderedHashSet<>();
 
                 check.collectObjectNames(refs);
 
                 for (int j = refs.size() - 1; j >= 0; j--) {
-                    HsqlName name = (HsqlName) refs.get(j);
+                    HsqlName name = refs.get(j);
 
                     if (name.type == SchemaObject.COLUMN
                             || name.type == SchemaObject.TABLE) {
@@ -317,21 +317,15 @@ public final class Constraint implements SchemaObject {
                 return refs;
 
             case SchemaObject.ConstraintTypes.FOREIGN_KEY :
-                OrderedHashSet set = new OrderedHashSet();
+                OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
                 set.add(core.uniqueName);
 
                 return set;
         }
 
-        return new OrderedHashSet();
+        return new OrderedHashSet<>();
     }
-
-    public OrderedHashSet getComponents() {
-        return null;
-    }
-
-    public void compile(Session session, SchemaObject parentObject) {}
 
     public String getSQL() {
 
@@ -945,7 +939,7 @@ public final class Constraint implements SchemaObject {
      * child table). If ON DELETE CASCADE is specified for this constraint, then
      * the method finds the first row among the rows of the table ordered by the
      * index and doesn't throw. Without ON DELETE CASCADE, the method attempts
-     * to finds any row that exists. If no
+     * to find any row that exists. If no
      * row is found, null is returned. (fredt@users)
      *
      * @param session Session

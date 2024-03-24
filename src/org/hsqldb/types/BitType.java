@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.hsqldb.map.BitMap;
  * string<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public final class BitType extends BinaryType {
@@ -363,7 +363,7 @@ public final class BitType extends BinaryType {
     public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a == null) {
-            return a;
+            return null;
         }
 
         if (a instanceof byte[]) {

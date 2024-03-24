@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -852,7 +852,6 @@ public class ParserDML extends ParserDQL {
                                   RangeGroup[] rangeGroups,
                                   RangeVariable valuesRange) {
 
-        List unresolved           = null;
         int  enforcedDefaultIndex = -1;
 
         if (targetTable.hasIdentityColumn()
@@ -888,7 +887,7 @@ public class ParserDML extends ParserDQL {
 
                         //
                     } else {
-                        unresolved = expr.resolveColumnReferences(session,
+                        List unresolved = expr.resolveColumnReferences(session,
                                 rangeGroup, rangeGroups, null);
 
                         ExpressionColumn.checkColumnsResolved(unresolved);
@@ -899,7 +898,7 @@ public class ParserDML extends ParserDQL {
                     }
                 }
             } else if (expr.getType() == OpTypes.ROW_SUBQUERY) {
-                unresolved = expr.resolveColumnReferences(session, rangeGroup,
+                List unresolved = expr.resolveColumnReferences(session, rangeGroup,
                         rangeGroups, null);
 
                 ExpressionColumn.checkColumnsResolved(unresolved);
@@ -936,7 +935,7 @@ public class ParserDML extends ParserDQL {
 
                     //
                 } else {
-                    unresolved = expr.resolveColumnReferences(session,
+                    List unresolved = expr.resolveColumnReferences(session,
                             rangeGroup, rangeGroups, null);
 
                     if (valuesRange != null && unresolved != null) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -442,8 +442,7 @@ public class Expression implements Cloneable {
             return true;
         }
 
-        return (o1 == null) ? false
-                            : o1.equals(o2);
+        return o1 != null && o1.equals(o2);
     }
 
     static boolean equals(Expression[] row1, Expression[] row2) {
@@ -461,8 +460,7 @@ public class Expression implements Cloneable {
         for (int i = 0; i < len; i++) {
             Expression e1     = row1[i];
             Expression e2     = row2[i];
-            boolean    equals = (e1 == null) ? e2 == null
-                                             : e1.equals(e2);
+            boolean    equals = equals(e1, e2);
 
             if (!equals) {
                 return false;
@@ -501,8 +499,6 @@ public class Expression implements Cloneable {
         switch (opType) {
 
             case OpTypes.COLUMN :
-                return false;
-
             case OpTypes.LIKE :
             case OpTypes.MATCH_SIMPLE :
             case OpTypes.MATCH_PARTIAL :
@@ -1253,9 +1249,8 @@ public class Expression implements Cloneable {
             Type    type                  = row == null ? null
                                                         : row.nodes[j]
                                                             .dataType;
-            boolean hasUresolvedParameter = row == null ? false
-                                                        : row.nodes[j]
-                                                            .isUnresolvedParam();
+            boolean hasUresolvedParameter = row != null && row.nodes[j]
+                    .isUnresolvedParam();
 
             for (int i = 0; i < nodes.length; i++) {
                 type = Type.getAggregateType(nodes[i].nodes[j].dataType, type);
@@ -2078,7 +2073,7 @@ public class Expression implements Cloneable {
 
     public Expression duplicate() {
 
-        Expression e = null;
+        Expression e;
 
         try {
             e       = (Expression) super.clone();

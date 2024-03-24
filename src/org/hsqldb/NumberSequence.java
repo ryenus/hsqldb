@@ -36,8 +36,6 @@ import java.math.BigDecimal;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.map.ValuePool;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -160,16 +158,6 @@ public final class NumberSequence implements SchemaObject {
         return name.schema.owner;
     }
 
-    public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
-    }
-
-    public OrderedHashSet getComponents() {
-        return null;
-    }
-
-    public void compile(Session session, SchemaObject parentObject) {}
-
     public String getSQL() {
 
         StringBuilder sb = new StringBuilder(128);
@@ -247,9 +235,7 @@ public final class NumberSequence implements SchemaObject {
                 sb.append(' ').append(Tokens.T_CYCLE);
             }
 
-            if (name == null) {
-                sb.append(Tokens.T_CLOSEBRACKET);
-            }
+            sb.append(Tokens.T_CLOSEBRACKET);
         } else {
             sb.append(Tokens.T_BY).append(' ').append(Tokens.T_DEFAULT);
             sb.append(' ').append(Tokens.T_AS).append(' ');
@@ -632,10 +618,10 @@ public final class NumberSequence implements SchemaObject {
         return value;
     }
 
-    synchronized Object getValueObject() {
+    synchronized Number getValueObject() {
 
         long   value = getValue();
-        Object result;
+        Number result;
 
         switch (dataType.typeCode) {
 

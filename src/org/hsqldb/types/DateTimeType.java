@@ -78,8 +78,8 @@ public final class DateTimeType extends DTIType {
 
     // this is used for the lifetime of the JVM - it should not be altered
     public final static TimeZone systemTimeZone = TimeZone.getDefault();
-    public final static HashSet zoneIDs =
-        new HashSet(TimeZone.getAvailableIDs());
+    public final static HashSet<String> zoneIDs =
+        new HashSet<>(TimeZone.getAvailableIDs());
     public final boolean withTimeZone;
     private final String nameString;
 

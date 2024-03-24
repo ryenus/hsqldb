@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -249,19 +249,18 @@ public class Database {
             checkpointRunner = new CheckpointRunner();
             timeoutRunner    = new TimeoutRunner();
         } catch (Throwable e) {
+            logger.logSevereEvent("could not reopen database", e);
             logger.close(Database.CLOSEMODE_IMMEDIATELY);
             logger.releaseLock();
             setState(DATABASE_SHUTDOWN);
             clearStructures();
             DatabaseManager.removeDatabase(this);
 
-            if (!(e instanceof HsqlException)) {
-                e = Error.error(ErrorCode.GENERAL_ERROR, e);
+            if (e instanceof HsqlException) {
+                throw(e);
+            } else {
+                throw(Error.error(ErrorCode.GENERAL_ERROR, e));
             }
-
-            logger.logSevereEvent("could not reopen database", e);
-
-            throw (HsqlException) e;
         }
 
         setState(DATABASE_ONLINE);

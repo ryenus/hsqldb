@@ -110,7 +110,7 @@ class TransferCommon {
             for (int i = 0; i < tTable.size(); i++) {
                 t          = (TransferTable) tTable.elementAt(i);
                 t.tracer   = tracer;
-                t.sourceDb = (TransferDb) sourceDb;
+                t.sourceDb = sourceDb;
                 t.destDb   = targetDb;
             }
         } catch (IOException e) {
@@ -135,7 +135,7 @@ class TransferCommon {
             for (int i = 0; i < tTable.size(); i++) {
                 t          = (TransferTable) tTable.elementAt(i);
                 t.tracer   = tracer;
-                t.sourceDb = (TransferDb) sourceDb;
+                t.sourceDb = sourceDb;
                 t.destDb   = targetDb;
             }
         } catch (ClassNotFoundException e) {

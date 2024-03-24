@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -271,7 +271,7 @@ implements TransactionManager {
     }
 
     /**
-     * allow session to execute the statement or put in in wait for
+     * allow session to execute the statement or put it in wait for
      * other sessions to commit (depending on isolation mode)
      */
     public void beginAction(Session session, Statement cs) {
@@ -295,8 +295,8 @@ implements TransactionManager {
                 if (session.tempSet.isEmpty()) {
                     lockTablesTPL(session, cs);
 
-                    // we don't set other sessions that would now be waiting for this one too
-                    // next lock release will do it
+                    // we don't set other sessions that would now be waiting for this one too,
+                    // the next lock release will do it
                 } else {
                     setWaitingSessionTPL(session);
                 }

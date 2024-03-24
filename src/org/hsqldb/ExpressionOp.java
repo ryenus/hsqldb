@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,6 @@ import org.hsqldb.types.BinaryType;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalSecondData;
-import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -833,9 +832,7 @@ public class ExpressionOp extends Expression {
                     }
 
                     CharacterType type = (CharacterType) nodes[RIGHT].dataType;
-                    long length =
-                        ((CharacterType) nodes[RIGHT].dataType).size(session,
-                            value);
+                    long length = type.size(session, value);
 
                     type  = (CharacterType) nodes[LEFT].dataType;
                     value = nodes[LEFT].getValue(session);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class Routine implements SchemaObject, RangeGroup, Cloneable {
@@ -112,15 +112,15 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
     private boolean isLibraryRoutine;
 
     //
-    OrderedHashMap  parameterList = new OrderedHashMap();
-    RangeVariable[] ranges        = RangeVariable.emptyArray;
+    OrderedHashMap<String, ColumnSchema> parameterList = new OrderedHashMap<>();
+    RangeVariable[] ranges = RangeVariable.emptyArray;
 
     //
     int variableCount;
     int cursorCount;
 
     //
-    OrderedHashSet references;
+    OrderedHashSet<HsqlName> references;
 
     //
     Table triggerTable;
@@ -173,12 +173,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         return name.schema.owner;
     }
 
-    public OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
         return references;
-    }
-
-    public OrderedHashSet getComponents() {
-        return null;
     }
 
     public void compile(Session session, SchemaObject parentObject) {
@@ -251,7 +247,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                 sb.append(',');
             }
 
-            ColumnSchema param = (ColumnSchema) parameterList.get(i);
+            ColumnSchema param = parameterList.get(i);
 
             // in - out
             sb.append(param.getSQL());
@@ -564,7 +560,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         typeGroups     = 0;
 
         for (int i = 0; i < parameterTypes.length; i++) {
-            ColumnSchema param = (ColumnSchema) parameterList.get(i);
+            ColumnSchema param = parameterList.get(i);
 
             parameterTypes[i] = param.dataType;
 
@@ -584,17 +580,17 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             boolean check = parameterTypes[1].typeCode == Types.BOOLEAN;
 
             //
-            ColumnSchema param = (ColumnSchema) parameterList.get(0);
+            ColumnSchema param = parameterList.get(0);
 
             check &= param.getParameterMode()
                      == SchemaObject.ParameterModes.PARAM_IN;
-            param = (ColumnSchema) parameterList.get(1);
+            param = parameterList.get(1);
             check &= param.getParameterMode()
                      == SchemaObject.ParameterModes.PARAM_IN;
-            param = (ColumnSchema) parameterList.get(2);
+            param = parameterList.get(2);
             check &= param.getParameterMode()
                      == SchemaObject.ParameterModes.PARAM_INOUT;
-            param = (ColumnSchema) parameterList.get(3);
+            param = parameterList.get(3);
             check &= param.getParameterMode()
                      == SchemaObject.ParameterModes.PARAM_INOUT;
 
@@ -637,11 +633,11 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     private void setReferences() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         for (int i = 0; i < parameterTypes.length; i++) {
-            ColumnSchema   param = (ColumnSchema) parameterList.get(i);
-            OrderedHashSet refs  = param.getReferences();
+            ColumnSchema   param = parameterList.get(i);
+            OrderedHashSet<HsqlName> refs  = param.getReferences();
 
             if (refs != null) {
                 set.addAll(refs);
@@ -665,10 +661,10 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     void checkSQLData(Session session) {
 
-        OrderedHashSet set = statement.getReferences();
+        OrderedHashSet<HsqlName> set = statement.getReferences();
 
         for (int i = 0; i < set.size(); i++) {
-            HsqlName name = (HsqlName) set.get(i);
+            HsqlName name = set.get(i);
 
             if (name.type == SchemaObject.SPECIFIC_ROUTINE) {
                 Routine routine =
@@ -732,7 +728,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
     }
 
     public ColumnSchema getParameter(int i) {
-        return (ColumnSchema) parameterList.get(i);
+        return parameterList.get(i);
     }
 
     Type[] getParameterTypes() {
@@ -752,7 +748,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         int count = 0;
 
         for (int i = 0; i < parameterList.size(); i++) {
-            ColumnSchema col = (ColumnSchema) parameterList.get(i);
+            ColumnSchema col = parameterList.get(i);
 
             if (col.getParameterMode() == type) {
                 count++;
@@ -1022,9 +1018,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                 result = statement.execute(session);
 
                 if (aggregateData != null) {
-                    for (int i = 0; i < aggregateData.length; i++) {
-                        aggregateData[i] = data[i + 1];
-                    }
+                    System.arraycopy(data, 1, aggregateData, 0, aggregateData.length);
                 }
             } catch (Throwable e) {
                 result = Result.newErrorResult(e);
@@ -1041,9 +1035,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
                 convertArgsToSQL(session, callResult, data);
 
-                for (int i = 0; i < aggregateData.length; i++) {
-                    aggregateData[i] = callResult[i + 1];
-                }
+                System.arraycopy(callResult, 1, aggregateData, 0, aggregateData.length);
             }
         }
 
@@ -1263,7 +1255,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             });
         }
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Method> list = new HsqlArrayList<>();
 
         for (i = 0; i < methods.length; i++) {
             int    offset    = 0;
@@ -1373,20 +1365,22 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
     public static Routine newRoutine(Session session, Method method) {
 
         Routine       routine   = new Routine(SchemaObject.FUNCTION);
-        int           offset    = 0;
         Class[]       params    = method.getParameterTypes();
         String        className = method.getDeclaringClass().getName();
-        StringBuilder sb        = new StringBuilder();
-
-        sb.append("CLASSPATH:");
-        sb.append(method.getDeclaringClass().getName()).append('.');
-        sb.append(method.getName());
+        String        name;
+        int           offset;
 
         if (params.length > 0 && params[0].equals(java.sql.Connection.class)) {
             offset = 1;
+	    } else {
+            offset = 0;
         }
-
-        String name = sb.toString();
+        
+        StringBuilder sb        = new StringBuilder();
+        sb.append("CLASSPATH:");
+        sb.append(method.getDeclaringClass().getName()).append('.');
+        sb.append(method.getName());
+        name = sb.toString();
 
         if (className.equals("java.lang.Math")) {
             routine.isLibraryRoutine = true;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -792,7 +792,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         if (ifExists && token.tokenType != Tokens.RENAME) {
-            unexpectedToken(Tokens.IF);
+            throw unexpectedToken(Tokens.IF);
         }
 
         switch (token.tokenType) {

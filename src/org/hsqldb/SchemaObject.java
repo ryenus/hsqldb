@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import org.hsqldb.rights.Grantee;
  * SQL schema object interface
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.3
  * @since 1.9.0
  */
 public interface SchemaObject {
@@ -91,11 +91,15 @@ public interface SchemaObject {
 
     Grantee getOwner();
 
-    OrderedHashSet getReferences();
+    default OrderedHashSet<HsqlName> getReferences() {
+        return new OrderedHashSet<>();
+    }
 
-    OrderedHashSet getComponents();
+    default OrderedHashSet<SchemaObject> getComponents() {
+        return new OrderedHashSet<>();
+    }
 
-    void compile(Session session, SchemaObject parentObject);
+    default void compile(Session session, SchemaObject parentObject) {}
 
     String getSQL();
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,8 @@ import org.hsqldb.persist.PersistentStore;
  */
 public class RowAction extends RowActionBase {
 
+    public static final RowAction[] emptyArray = new RowAction[]{};
+    
     //
     final TableBase       table;
     final PersistentStore store;
@@ -698,6 +700,7 @@ public class RowAction extends RowActionBase {
             return true;
         }
 
+        RowAction     baseAction = this;
         RowActionBase action = this;
 
         if (session == null) {
@@ -769,9 +772,9 @@ public class RowAction extends RowActionBase {
 
                         //
                     } else if (mode == TransactionManager.ACTION_REF) {
-                        if (changeColumnMap == null
-                                || ArrayUtil.haveCommonElement(
-                                    cols, changeColumnMap)) {
+                        if (changeColumnMap == null) {
+                            actionType = ACTION_DELETE;
+                        } else if (ArrayUtil.haveCommonElement(cols, changeColumnMap)) {
                             actionType = ACTION_DELETE;
                         }
                     }
@@ -804,11 +807,7 @@ public class RowAction extends RowActionBase {
             action = action.next;
         } while (action != null);
 
-        if (actionType == ACTION_NONE || actionType == ACTION_INSERT) {
-            return true;
-        }
-
-        return false;
+        return actionType == ACTION_NONE || actionType == ACTION_INSERT;
     }
 
     public boolean hasCurrentRefAction() {

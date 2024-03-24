@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,6 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
-import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
@@ -54,7 +53,7 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Frand Schoenheit (frank.schoenheit@sun dot com)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.8.0
  */
 public class Collation implements SchemaObject {
@@ -491,20 +490,14 @@ public class Collation implements SchemaObject {
         return name.schema.owner;
     }
 
-    public OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
 
         if (charset == null) {
-            return new OrderedHashSet();
+            return new OrderedHashSet<>();
         } else {
             return charset.getReferences();
         }
     }
-
-    public OrderedHashSet getComponents() {
-        return null;
-    }
-
-    public void compile(Session session, SchemaObject parentObject) {}
 
     public String getSQL() {
 

@@ -314,8 +314,6 @@ public class ClientConnection implements SessionInterface, Cloneable {
         switch (id) {
 
             case SessionInterface.INFO_AUTOCOMMIT :
-                return data[SessionInterface.INFO_BOOLEAN];
-
             case SessionInterface.INFO_CONNECTION_READONLY :
                 return data[SessionInterface.INFO_BOOLEAN];
 
