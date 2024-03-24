@@ -72,14 +72,17 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
 */
     private static final int   DEFAULT_INITIAL_CAPACITY = 8;
     private static final float DEFAULT_RESIZE_FACTOR    = 2.0f;
-    E[]                        elementData;
-    E[]                        reserveElementData;
-    private boolean            minimizeOnClear;
+    Object[]                   elementData;
+    Object[]                   reserveElementData;
+    private final boolean      minimizeOnClear;
+
+    private final boolean      typedArray;
 
     public HsqlArrayList(E[] data, int count, boolean minimize) {
         elementData     = data;
         elementCount    = count;
         minimizeOnClear = minimize;
+        typedArray      = true;
     }
 
     /** Creates a new instance of HsqlArrayList */
@@ -87,7 +90,10 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     public HsqlArrayList() {
 
 //        reporter.initCounter++;
-        elementData = (E[]) new Object[DEFAULT_INITIAL_CAPACITY];
+        elementData = new Object[DEFAULT_INITIAL_CAPACITY];
+
+        minimizeOnClear = false;
+        typedArray      = false;
     }
 
     /**
@@ -104,8 +110,9 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
             initialCapacity = DEFAULT_INITIAL_CAPACITY;
         }
 
-        elementData     = (E[]) new Object[initialCapacity];
+        elementData     = new Object[initialCapacity];
         minimizeOnClear = minimize;
+        typedArray      = false;
     }
 
     /**
@@ -126,7 +133,9 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
             initialCapacity = DEFAULT_INITIAL_CAPACITY;
         }
 
-        elementData = (E[]) new Object[initialCapacity];
+        elementData     = new Object[initialCapacity];
+        minimizeOnClear = false;
+        typedArray      = false;
     }
 
     /**
@@ -198,7 +207,7 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
                                                 + elementCount);
         }
 
-        return elementData[index];
+        return (E) elementData[index];
     }
 
     /**
@@ -221,12 +230,29 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         }
 
         for (int i = 0; i < elementCount; i++) {
-            if (comparator.equals(o, elementData[i])) {
+            if (comparator.equals(o, (E) elementData[i])) {
                 return i;
             }
         }
 
         return -1;
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        return indexOf((E)o) >= 0;
+    }
+
+    @Override
+    public boolean remove(E o) {
+        int index = indexOf(o);
+
+        if (index >= 0) {
+            remove(index);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -244,7 +270,7 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
                                                 + elementCount);
         }
 
-        E removedObj = elementData[index];
+        E removedObj = (E) elementData[index];
 
         if (index < elementCount - 1) {
             System.arraycopy(elementData, index + 1, elementData, index,
@@ -277,7 +303,7 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
                                                 + elementCount);
         }
 
-        E replacedObj = elementData[index];
+        E replacedObj = (E) elementData[index];
 
         elementData[index] = element;
 
@@ -311,7 +337,7 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         }
 
         @SuppressWarnings( "unchecked" )
-        E[] newArray = (E[]) Array.newInstance(
+        Object[] newArray = (Object[]) Array.newInstance(
             elementData.getClass().getComponentType(), baseSize);
         int count = elementData.length > newArray.length ? newArray.length
                                                          : elementData.length;
@@ -383,8 +409,8 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
 
     public Object[] toArray() {
 
-        Object[] newArray = new Object[elementCount];
-
+        Object[] newArray = (Object[]) Array.newInstance(elementData.getClass().getComponentType(),
+                elementCount);
         System.arraycopy(elementData, 0, newArray, 0, elementCount);
 
         return newArray;
@@ -430,7 +456,11 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     }
 
     public E[] getArray() {
-        return elementData;
+        if (typedArray) {
+            return (E[]) elementData;
+        }
+
+        throw new UnsupportedOperationException();
     }
 
     public void sort(Comparator<? super E> c) {
@@ -455,7 +485,7 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         }
 
         for (int i = elementCount - 1; i >= 0; i--) {
-            if (comparator.equals(o, elementData[i])) {
+            if (comparator.equals(o, (E) elementData[i])) {
                 return i;
             }
         }

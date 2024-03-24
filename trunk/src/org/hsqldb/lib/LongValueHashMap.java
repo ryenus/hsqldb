@@ -129,7 +129,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
         return null;
     }
 
-    public boolean put(Object key, long value) {
+    public boolean put(K key, long value) {
 
         if (key == null) {
             throw new NullPointerException();
@@ -160,20 +160,11 @@ public class LongValueHashMap<K> extends BaseHashMap {
             throw new NullPointerException();
         }
 
-        return super.containsKey(key);
+        return super.containsObjectKey(key);
     }
 
-    public void putAll(Map<? extends K, ? extends Long> other) {
-
-        Iterator<? extends K> it = other.keySet().iterator();
-
-        while (it.hasNext()) {
-            K        key  = it.next();
-            Long     value = other.get(key);
-            long     longValue = value.longValue();
-
-            put(key, longValue);
-        }
+    public boolean containsValue(long value) {
+        return super.containsValue(value);
     }
 
     public void putAll(LongValueHashMap<K> t) {
@@ -181,7 +172,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
         Iterator<K> it = t.keySet().iterator();
 
         while (it.hasNext()) {
-            Object key = it.next();
+            K key = it.next();
 
             put(key, t.get(key));
         }
@@ -190,7 +181,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
     public Set<K> keySet() {
 
         if (keySet == null) {
-            keySet = new KeySet<K>();
+            keySet = new KeySet();
         }
 
         return keySet;
@@ -199,7 +190,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
     public Collection<Long> values() {
 
         if (values == null) {
-            values = new Values<>();
+            values = new Values();
         }
 
         return values;
@@ -242,7 +233,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
         }
     }
 
-    private class KeySet<K> extends AbstractReadOnlyCollection<K> implements Set<K> {
+    private class KeySet extends AbstractReadOnlyCollection<K> implements Set<K> {
 
         public Iterator<K> iterator() {
             return LongValueHashMap.this.new BaseHashIterator(true);
@@ -252,24 +243,12 @@ public class LongValueHashMap<K> extends BaseHashMap {
             return LongValueHashMap.this.size();
         }
 
-        public boolean contains(Object key) {
-            return containsKey(key);
-        }
-
         public boolean isEmpty() {
             return size() == 0;
         }
-
-        public Object[] toArray() {
-            return LongValueHashMap.this.toArray(true);
-        }
-
-        public <T> T[] toArray(T[] array) {
-            return LongValueHashMap.this.toArray(array, true);
-        }
     }
 
-    private class Values<Long> extends AbstractReadOnlyCollection<Long> {
+    private class Values extends AbstractReadOnlyCollection<Long> {
 
         public PrimitiveIterator<Long> iterator() {
             return LongValueHashMap.this.new BaseHashIterator(false);

@@ -33,36 +33,23 @@ package org.hsqldb.lib;
 
 abstract class AbstractReadOnlyCollection<V> implements Collection<V>{
 
-    public boolean contains(Object o) {
+    public final boolean contains(Object o) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean add(V value) {
+    public final boolean add(V value) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean addAll(Collection<? extends V> c) {
+    public final boolean addAll(Collection<? extends V> c) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean remove(Object o) {
+    public final boolean remove(V o) {
         throw new UnsupportedOperationException();
     }
 
-    public void clear() {
+    public final void clear() {
         throw new UnsupportedOperationException();
     }
-
-    public boolean removeAll(Collection<?> c) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Object[] toArray() {
-        throw new UnsupportedOperationException();
-    }
-
-    public <T> T[] toArray(T[] a) {
-        throw new UnsupportedOperationException();
-    }
-
 }

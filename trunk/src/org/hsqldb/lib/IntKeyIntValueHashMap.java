@@ -63,7 +63,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
 
             int intKey = ((Integer) key).intValue();
 
-            return super.containsKey(intKey);
+            return super.containsIntKey(intKey);
         }
 
         if (key == null) {
@@ -74,7 +74,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
     }
 
     public boolean containsKey(int key) {
-        return super.containsKey(key);
+        return super.containsIntKey(key);
     }
 
     public boolean containsValue(Object value) {
@@ -96,23 +96,19 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
         return super.containsValue(value);
     }
 
-    public Integer get(Object key) {
-
-        if (key instanceof Integer) {
-
-            int intKey = ((Integer) key).intValue();
-
-            try {
-                int intVal = get(intKey);
-
-                return Integer.valueOf(intVal);
-            } catch (NoSuchElementException e) {
-                return null;
-            }
-        }
+    public Integer get(Integer key) {
 
         if (key == null) {
             throw new NullPointerException();
+        }
+
+        int intKey = key.intValue();
+
+        int lookup = getLookup(intKey);
+
+        if (lookup != -1) {
+            int intValue = intValueTable[lookup];
+            return Integer.valueOf(intValue);
         }
 
         return null;
@@ -201,20 +197,6 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
         return value != null;
     }
 
-    public void putAll(Map<? extends Integer, ? extends Integer> other) {
-
-        Iterator<? extends Integer> it = other.keySet().iterator();
-
-        while (it.hasNext()) {
-            Integer key      = it.next();
-            int     intKey   = key.intValue();
-            Integer value    = other.get(key);
-            int     intValue = value.intValue();
-
-            put(intKey, intValue);
-        }
-    }
-
     public void putAll(IntKeyIntValueHashMap other) {
 
         Iterator<Integer> it = other.keySet().iterator();
@@ -238,7 +220,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
 
     public Set<Integer> keySet() {
         if (keySet == null) {
-            keySet = new KeySet<>();
+            keySet = new KeySet();
         }
 
         return keySet;
@@ -247,7 +229,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
     public Collection<Integer> values() {
 
         if (values == null) {
-            values = new Values<>();
+            values = new Values();
         }
 
         return values;
@@ -263,7 +245,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
 
     private class EntrySet extends AbstractReadOnlyCollection<Map.Entry<Integer, Integer>> implements Set<Map.Entry<Integer, Integer>> {
 
-        public Iterator<Map.Entry<Integer, Integer>> iterator() {
+        public Iterator<Entry<Integer, Integer>> iterator() {
             return IntKeyIntValueHashMap.this.new EntrySetIterator();
         }
 
@@ -290,7 +272,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
         }
     }
 
-    private class KeySet<Integer> extends AbstractReadOnlyCollection<Integer> implements Set<Integer> {
+    private class KeySet extends AbstractReadOnlyCollection<Integer> implements Set<Integer> {
 
         public PrimitiveIterator<Integer> iterator() {
             return IntKeyIntValueHashMap.this.new BaseHashIterator(true);
@@ -305,7 +287,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
         }
     }
 
-    private class Values<Integer> extends AbstractReadOnlyCollection<Integer> {
+    private class Values extends AbstractReadOnlyCollection<Integer> {
 
         public PrimitiveIterator<Integer> iterator() {
             return IntKeyIntValueHashMap.this.new BaseHashIterator(false);

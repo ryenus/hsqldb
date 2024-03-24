@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.hsqldb.lib;
  * A basic collection of values.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public interface Collection<E> {
@@ -50,7 +50,7 @@ public interface Collection<E> {
 
     boolean add(E o);
 
-    boolean remove(Object o);
+    boolean remove(E o);
 
     boolean addAll(Collection<? extends E> c);
 

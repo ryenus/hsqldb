@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,12 +37,12 @@ import java.util.NoSuchElementException;
  * Abstract base for Lists
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.7.0
  */
 abstract class BaseList<E> {
 
-    protected ObjectComparator comparator = ObjectComparator.defaultComparator;
+    protected ObjectComparator<E> comparator = ObjectComparator.defaultComparator;
 
     protected int elementCount;
 
@@ -57,34 +57,19 @@ abstract class BaseList<E> {
     public boolean contains(Object element) {
 
         for (int i = 0, size = size(); i < size; i++) {
-            Object current = get(i);
+            E current = get(i);
 
-            if (comparator.equals(current, element)) {
+            if (comparator.equals(current, (E) element)) {
                 return true;
             }
         }
-        return false;
-    }
-
-    public boolean remove(Object element) {
-
-        for (int i = 0, size = size(); i < size; i++) {
-            Object current = get(i);
-
-            if (comparator.equals(current, element)) {
-                remove(i);
-
-                return true;
-            }
-        }
-
         return false;
     }
 
     public int indexOf(E element) {
 
         for (int i = 0, size = size(); i < size; i++) {
-            Object current = get(i);
+            E current = get(i);
 
             if (comparator.equals(current, element)) {
                 return i;

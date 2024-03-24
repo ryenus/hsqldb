@@ -75,7 +75,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
 
             int intKey = ((Integer) key).intValue();
 
-            return super.containsKey(intKey);
+            return super.containsIntKey(intKey);
         }
 
         if (key == null) {
@@ -90,7 +90,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
         try {
             readLock.lock();
 
-            return super.containsKey(key);
+            return super.containsIntKey(key);
         } finally {
             readLock.unlock();
         }
@@ -107,11 +107,11 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
         }
     }
 
-    public V get(Object key) {
+    public V get(Integer key) {
 
         if (key instanceof Integer) {
 
-            int intKey = ((Integer) key).intValue();
+            int intKey = key.intValue();
 
             return get(intKey);
         }
@@ -181,23 +181,6 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
         }
     }
 
-    public void putAll(Map<? extends Integer, ? extends V> other) {
-        try {
-            writeLock.lock();
-
-            Iterator<? extends Integer> it = other.keySet().iterator();
-
-            while (it.hasNext()) {
-                Integer key = it.next();
-                int intKey = key.intValue();
-
-                put(intKey, other.get(key));
-            }
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
     public void putAll(IntKeyHashMap<V> other) {
 
         try {
@@ -223,7 +206,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
             readLock.lock();
 
             for (; i < array.length; i++) {
-                if (!super.containsKey(array[i])) {
+                if (!super.containsIntKey(array[i])) {
                     break;
                 }
             }
@@ -256,7 +239,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
 
     public Set<Integer> keySet() {
         if (keySet == null) {
-            keySet = new KeySet<>();
+            keySet = new KeySet();
         }
 
         return keySet;
@@ -264,7 +247,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
 
     public Collection<V> values() {
         if (values == null) {
-            values = new Values<>();
+            values = new Values();
         }
 
         return values;
@@ -307,7 +290,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
         }
     }
 
-    private class KeySet<Integer> extends AbstractReadOnlyCollection<Integer> implements Set<Integer> {
+    private class KeySet extends AbstractReadOnlyCollection<Integer> implements Set<Integer> {
 
         public PrimitiveIterator<Integer> iterator() {
             return IntKeyHashMapConcurrent.this.new BaseHashIterator(true);
@@ -322,7 +305,7 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
         }
     }
 
-    private class Values<V> extends AbstractReadOnlyCollection<V> {
+    private class Values extends AbstractReadOnlyCollection<V> {
 
         public Iterator<V> iterator() {
             return IntKeyHashMapConcurrent.this.new BaseHashIterator(false);
@@ -334,15 +317,6 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap implements Map<Integ
 
         public boolean isEmpty() {
             return size() == 0;
-        }
-
-        public Object[] toArray() {
-            Object[] array = new Object[size()];
-            return IntKeyHashMapConcurrent.this.valuesToArray(array);
-        }
-
-        public <T> T[] toArray(T[] a) {
-            return IntKeyHashMapConcurrent.this.valuesToArray(a);
         }
     }
 }

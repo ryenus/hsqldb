@@ -58,7 +58,7 @@ public class OrderedLongHashSet extends BaseHashMap {
     }
 
     public boolean contains(long key) {
-        return super.containsKey(key);
+        return super.containsLongKey(key);
     }
 
     public boolean add(long key) {
@@ -118,7 +118,7 @@ public class OrderedLongHashSet extends BaseHashMap {
         int i = 0;
 
         for (; i < array.length; i++) {
-            if (!super.containsKey(array[i])) {
+            if (!super.containsLongKey(array[i])) {
                 break;
             }
         }

@@ -61,7 +61,7 @@ public class IntValueHashMap<K> extends BaseHashMap {
     }
 
     public boolean containsKey(Object key) {
-        return super.containsKey(key);
+        return super.containsObjectKey(key);
     }
 
     public boolean containsValue(Object value) {
@@ -146,7 +146,7 @@ public class IntValueHashMap<K> extends BaseHashMap {
         return null;
     }
 
-    public boolean put(Object key, int value) {
+    public boolean put(K key, int value) {
 
         if (key == null) {
             throw new NullPointerException();
@@ -170,19 +170,6 @@ public class IntValueHashMap<K> extends BaseHashMap {
         super.remove(0, 0, key, null, false, false);
 
         return oldSize != size();
-    }
-
-    public void putAll(Map<? extends K, ? extends Integer> other) {
-
-        Iterator<? extends K> it = other.keySet().iterator();
-
-        while (it.hasNext()) {
-            K        key      = it.next();
-            Integer value    = other.get(key);
-            int     intValue = value.intValue();
-
-            put(key, intValue);
-        }
     }
 
     public void putAll(IntValueHashMap<K> other) {
@@ -247,13 +234,13 @@ public class IntValueHashMap<K> extends BaseHashMap {
             K       key   = (K) super.next();
             Integer value = intValueTable[lookup];
 
-            return new MapEntry<K, Integer>(key, value);
+            return new MapEntry<>(key, value);
         }
     }
 
     class KeySet extends AbstractReadOnlyCollection<K> implements Set<K> {
 
-        public PrimitiveIterator<K> iterator() {
+        public Iterator<K> iterator() {
             return IntValueHashMap.this.new BaseHashIterator(true);
         }
 
@@ -261,20 +248,8 @@ public class IntValueHashMap<K> extends BaseHashMap {
             return IntValueHashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            return containsKey(o);
-        }
-
         public boolean isEmpty() {
             return size() == 0;
-        }
-
-        public Object[] toArray() {
-            return IntValueHashMap.this.toArray(true);
-        }
-
-        public <T> T[] toArray(T[] a) {
-            return IntValueHashMap.this.toArray(a, true);
         }
     }
 

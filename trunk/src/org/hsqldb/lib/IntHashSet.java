@@ -74,18 +74,14 @@ public class IntHashSet extends BaseHashMap {
 
             int intKey = ((Integer) o).intValue();
 
-            return containsKey(intKey);
-        }
-
-        if (o == null) {
-            throw new NullPointerException();
+            return containsIntKey(intKey);
         }
 
         return false;
     }
 
     public boolean contains(int key) {
-        return super.containsKey(key);
+        return super.containsIntKey(key);
     }
 
     public boolean add(Integer e) {
@@ -112,7 +108,7 @@ public class IntHashSet extends BaseHashMap {
         int i = 0;
 
         for (; i < array.length; i++) {
-            if (!super.containsKey(array[i])) {
+            if (!super.containsIntKey(array[i])) {
                 break;
             }
         }
@@ -160,7 +156,7 @@ public class IntHashSet extends BaseHashMap {
         Iterator<Integer> it = c.iterator();
 
         while (it.hasNext()) {
-            if (!contains(it.next())) {
+            if (!contains(it.nextInt())) {
                 return false;
             }
         }

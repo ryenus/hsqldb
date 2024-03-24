@@ -60,21 +60,21 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         this.comparator = comparator;
     }
 
-    public HashSet(Object[] valueList) {
+    public HashSet(E[] valueList) {
         this(valueList.length);
 
         for (int i = 0; i < valueList.length; i++) {
-            add((E) valueList[i]);
+            add(valueList[i]);
         }
     }
 
     public boolean contains(Object key) {
-        return super.containsKey(key);
+        return super.containsObjectKey(key);
     }
 
-    public boolean containsAll(Collection<?> col) {
+    public boolean containsAll(Collection<E> col) {
 
-        Iterator<?> it = col.iterator();
+        Iterator<E> it = col.iterator();
 
         while (it.hasNext()) {
             if (contains(it.next())) {
@@ -87,6 +87,9 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         return true;
     }
 
+    /** returns existing value or null if added
+     *  can be used as an Object cache
+     */
     public E getOrAdd(E key) {
 
         if (key == null) {
@@ -191,13 +194,13 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
      * @param key Object to remove
      * @return true if removed
      */
-    public boolean remove(Object key) {
+    public boolean remove(E key) {
 
         if (key == null) {
             throw new NullPointerException();
         }
 
-        return (Boolean) super.remove(0, 0, key, null, false, false);
+        return super.removeObject(key, false) != null;
     }
 
     /**
@@ -206,9 +209,9 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
      * @param c Collection of elements to remove
      * @return true if all removed
      */
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(Collection<E> c) {
 
-        Iterator<?> it = c.iterator();
+        Iterator<E> it = c.iterator();
         boolean  result = true;
 
         while (it.hasNext()) {
@@ -233,6 +236,10 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         }
 
         return result;
+    }
+
+    public int capacity() {
+        return super.capacity();
     }
 
     public int getCommonElementCount(Set<E> other) {
@@ -272,17 +279,18 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
 
         Iterator<E>   it = iterator();
         StringBuilder sb = new StringBuilder();
+        sb.append('[');
 
         while (it.hasNext()) {
-            if (sb.length() > 0) {
+            if (sb.length() > 1) {
                 sb.append(", ");
-            } else {
-                sb.append('[');
             }
 
             sb.append(it.next());
         }
 
-        return sb.toString() + ']';
+        sb.append(']');
+
+        return sb.toString();
     }
 }
