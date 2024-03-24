@@ -65,7 +65,7 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
 
             int intKey = ((Integer) key).intValue();
 
-            return super.containsKey(intKey);
+            return super.containsIntKey(intKey);
         }
 
         if (key == null) {
@@ -76,7 +76,7 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
     }
 
     public boolean containsKey(int key) {
-        return super.containsKey(key);
+        return super.containsIntKey(key);
     }
 
     public boolean containsValue(Object value) {
@@ -94,27 +94,22 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
         return false;
     }
 
-    public boolean containsValue(int value) {
+    public boolean containsValue(long value) {
         return super.containsValue(value);
     }
 
-    public Long get(Object key) {
-
-        if (key instanceof Integer) {
-
-            int intKey = ((Integer) key).intValue();
-
-            try {
-                long longVal = get(intKey);
-
-                return Long.valueOf(longVal);
-            } catch (NoSuchElementException e) {
-                return null;
-            }
-        }
+    public Long get(Integer key) {
 
         if (key == null) {
             throw new NullPointerException();
+        }
+        int intKey = key.intValue();
+
+        int lookup = getLookup(intKey);
+
+        if (lookup != -1) {
+            long longValue = longValueTable[lookup];
+            return Long.valueOf(longValue);
         }
 
         return null;
@@ -201,20 +196,6 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
         Long value = (Long)super.remove(key, 0, null, null, false, false);
 
         return value == null ? false : true;
-    }
-
-    public void putAll(Map<? extends Integer, ? extends Long> other) {
-
-        Iterator<? extends Integer> it = other.keySet().iterator();
-
-        while (it.hasNext()) {
-            Integer key = it.next();
-            int intKey = key.intValue();
-            Long value = other.get(key);
-            long longValue = value.longValue();
-
-            put(intKey, longValue);
-        }
     }
 
     public void putAll(IntKeyLongValueHashMap other) {

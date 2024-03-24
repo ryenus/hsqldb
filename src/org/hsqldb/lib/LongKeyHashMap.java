@@ -77,7 +77,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
 
             long longKey = ((Long) key).longValue();
 
-            return containsKey(longKey);
+            return containsLongKey(longKey);
         }
 
         if (key == null) {
@@ -92,7 +92,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
         readLock.lock();
 
         try {
-            return super.containsKey(key);
+            return super.containsLongKey(key);
         } finally {
             readLock.unlock();
         }
@@ -109,11 +109,11 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
         }
     }
 
-    public V get(Object key) {
+    public V get(Long key) {
 
         if (key instanceof Long) {
 
-            long longKey = ((Long) key).longValue();
+            long longKey = key.longValue();
 
             return get(longKey);
         }
@@ -223,23 +223,6 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
         }
     }
 
-    public void putAll(Map<? extends Long, ? extends V> other) {
-        Iterator<? extends Long> it = other.keySet().iterator();
-
-        writeLock.lock();
-
-        try {
-            while (it.hasNext()) {
-                Long key = it.next();
-                long longKey = key.longValue();
-
-                put(longKey, other.get(key));
-            }
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
     public void putAll(LongKeyHashMap<V> other) {
 
         writeLock.lock();
@@ -293,7 +276,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
     public Set<Long> keySet() {
 
         if (keySet == null) {
-            keySet = new KeySet<>();
+            keySet = new KeySet();
         }
 
         return keySet;
@@ -302,7 +285,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
     public Collection<V> values() {
 
         if (values == null) {
-            values = new Values<>();
+            values = new Values();
         }
 
         return values;
@@ -345,7 +328,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
         }
     }
 
-    private class KeySet<Long> extends AbstractReadOnlyCollection<Long> implements Set<Long> {
+    private class KeySet extends AbstractReadOnlyCollection<Long> implements Set<Long> {
 
         public PrimitiveIterator<Long> iterator() {
             return LongKeyHashMap.this.new BaseHashIterator(true);
@@ -360,7 +343,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
         }
     }
 
-    private class Values<V> extends AbstractReadOnlyCollection<V> {
+    private class Values extends AbstractReadOnlyCollection<V> {
 
         public Iterator<V> iterator() {
             return LongKeyHashMap.this.new BaseHashIterator(false);
@@ -372,14 +355,6 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
 
         public boolean isEmpty() {
             return size() == 0;
-        }
-
-        public Object[] toArray() {
-            return LongKeyHashMap.this.toArray(false);
-        }
-
-        public <T> T[] toArray(T[] a) {
-            return LongKeyHashMap.this.toArray(a, false);
         }
     }
 }

@@ -54,7 +54,7 @@ import java.util.NoSuchElementException;
  */
 public class HsqlDeque<E> extends BaseList<E> implements List<E> {
 
-    private E[] list;
+    private Object[] list;
     private int firstindex = 0;    // index of first list element
     private int endindex   = 0;    // index of last list element + 1
 
@@ -63,15 +63,11 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
     public HsqlDeque() {
-        list = (E[]) new Object[DEFAULT_INITIAL_CAPACITY];
+        list = new Object[DEFAULT_INITIAL_CAPACITY];
     }
 
     public int size() {
         return elementCount;
-    }
-
-    public boolean isEmpty() {
-        return elementCount == 0;
     }
 
     public boolean offer(E e) {
@@ -115,7 +111,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
             throw new NoSuchElementException();
         }
 
-        return list[firstindex];
+        return (E) list[firstindex];
     }
 
     public E getLast() throws NoSuchElementException {
@@ -124,14 +120,14 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
             throw new NoSuchElementException();
         }
 
-        return list[endindex - 1];
+        return (E) list[endindex - 1];
     }
 
     public E get(int i) throws IndexOutOfBoundsException {
 
         int index = getInternalIndex(i);
 
-        return list[index];
+        return (E) list[index];
     }
 
     public void add(int i, E o) throws IndexOutOfBoundsException {
@@ -166,7 +162,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
     public E set(int i, E o) throws IndexOutOfBoundsException {
 
         int index  = getInternalIndex(i);
-        E   result = list[index];
+        E   result = (E) list[index];
 
         list[index] = o;
 
@@ -179,7 +175,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
             throw new NoSuchElementException();
         }
 
-        E o = list[firstindex];
+        E o = (E) list[firstindex];
 
         list[firstindex] = null;
 
@@ -203,7 +199,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
 
         endindex--;
 
-        E o = list[endindex];
+        E o = (E) list[endindex];
 
         list[endindex] = null;
 
@@ -343,12 +339,27 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
                 return i;
             }
 
-            if (value != null && comparator.equals(value, list[index])) {
+            if (value != null && comparator.equals(value, (E) list[index])) {
                 return i;
             }
         }
 
         return -1;
+    }
+
+    public boolean contains(Object value) {
+        return indexOf((E) value) >= 0;
+    }
+
+    public boolean remove(E value) {
+        int i = indexOf(value);
+
+        if (i >= 0) {
+            remove(i);
+            return true;
+        }
+
+        return false;
     }
 
     public int lastIndexOf(E value) {
@@ -364,7 +375,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
                 return i;
             }
 
-            if (value != null && comparator.equals(value, list[index])) {
+            if (value != null && comparator.equals(value, (E) list[index])) {
                 return i;
             }
         }
@@ -376,7 +387,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
     public E remove(int index) {
 
         int target = getInternalIndex(index);
-        E   value  = list[target];
+        E   value  = (E) list[target];
 
         if (target == firstindex) {
             list[firstindex] = null;
@@ -451,7 +462,7 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
             endindex = list.length + endindex;
         }
 
-        list = (E[]) newList;
+        list = newList;
     }
 
     public <T> T[] toArray(T[] array) {
@@ -481,25 +492,5 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
         Object[] newArray = new Object[elementCount];
 
         return toArray(newArray);
-    }
-
-    public List<E> subList(int fromIndex, int toIndex) {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean containsAll(Collection<E> c) {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean removeAll(Collection<E> c) {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean retainAll(Collection<E> c) {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean addAll(int index, Collection<E> c) {
-        throw new UnsupportedOperationException();
     }
 }

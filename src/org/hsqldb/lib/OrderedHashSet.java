@@ -69,28 +69,24 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
         }
     }
 
-    public boolean remove(Object key) {
+    public boolean remove(E key) {
 
         if (key == null) {
             throw new NullPointerException();
         }
 
-        return (Boolean) super.remove(0, 0, key, null, false, true);
+        return (boolean) super.remove(0, 0, key, null, false, true);
     }
 
     public E remove(int index) {
 
         checkRange(index);
 
-        E key = (E)objectKeyTable[index];
+        E key = (E) objectKeyTable[index];
 
         super.remove(0, 0, key, null, false, true);
 
         return key;
-    }
-
-    public void removeEntry(int index) throws IndexOutOfBoundsException {
-        remove(index);
     }
 
     public boolean insert(int index,

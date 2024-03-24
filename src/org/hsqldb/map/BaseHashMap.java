@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -362,7 +362,7 @@ public class BaseHashMap {
      *
      * returns existing Object value if any or null
      *
-     * returns
+     * for SETs, returns TRUE or FALSE
      */
     protected Object addOrUpdate(long longKey, long longValue,
                                  Object objectKey, Object objectValue) {
@@ -785,7 +785,7 @@ public class BaseHashMap {
         for (; lookup >= 0;
                 lastLookup = lookup,
                 lookup = hashIndex.getNextLookup(lookup)) {
-            boolean matched = false;
+            boolean matched;
 
             if (isObjectKey) {
                 matched = comparator.equals(objectKeyTable[lookup], objectKey);
@@ -1011,7 +1011,7 @@ public class BaseHashMap {
             return;
         }
 
-        hashIndex.reset((int) (newCapacity * loadFactor), newCapacity);
+        hashIndex.reset(newCapacity, newCapacity);
 
         hasZeroKey           = false;
         zeroKeyIndex         = -1;
@@ -1061,61 +1061,60 @@ public class BaseHashMap {
      */
     private void resizeElementArrays(int dataLength, int newLength) {
 
-        Object temp;
         int    usedLength = newLength > dataLength ? dataLength
                                                    : newLength;
 
         if (isIntKey) {
-            temp        = intKeyTable;
+            int[] temp        = intKeyTable;
             intKeyTable = new int[newLength];
 
             System.arraycopy(temp, 0, intKeyTable, 0, usedLength);
         }
 
         if (isIntValue) {
-            temp          = intValueTable;
+            int[] temp          = intValueTable;
             intValueTable = new int[newLength];
 
             System.arraycopy(temp, 0, intValueTable, 0, usedLength);
         }
 
         if (isLongKey) {
-            temp         = longKeyTable;
+            long[] temp         = longKeyTable;
             longKeyTable = new long[newLength];
 
             System.arraycopy(temp, 0, longKeyTable, 0, usedLength);
         }
 
         if (isLongValue) {
-            temp           = longValueTable;
+            long[] temp           = longValueTable;
             longValueTable = new long[newLength];
 
             System.arraycopy(temp, 0, longValueTable, 0, usedLength);
         }
 
         if (objectKeyTable != null) {
-            temp           = objectKeyTable;
+            Object[] temp           = objectKeyTable;
             objectKeyTable = new Object[newLength];
 
             System.arraycopy(temp, 0, objectKeyTable, 0, usedLength);
         }
 
         if (isObjectValue) {
-            temp             = objectValueTable;
+            Object[] temp             = objectValueTable;
             objectValueTable = new Object[newLength];
 
             System.arraycopy(temp, 0, objectValueTable, 0, usedLength);
         }
 
         if (objectValueTable2 != null) {
-            temp              = objectValueTable2;
+            Object[] temp              = objectValueTable2;
             objectValueTable2 = new Object[newLength];
 
             System.arraycopy(temp, 0, objectValueTable2, 0, usedLength);
         }
 
         if (accessTable != null) {
-            temp        = accessTable;
+            int[] temp        = accessTable;
             accessTable = new int[newLength];
 
             System.arraycopy(temp, 0, accessTable, 0, usedLength);
@@ -1160,14 +1159,14 @@ public class BaseHashMap {
     void removeFromElementArrays(int size, int lookup) {
 
         if (isIntKey) {
-            Object array = intKeyTable;
+            int[] array = intKeyTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
                              size - lookup - 1);
 
             intKeyTable[size - 1] = 0;
         } else if (isLongKey) {
-            Object array = longKeyTable;
+            long[] array = longKeyTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
                              size - lookup - 1);
@@ -1176,7 +1175,7 @@ public class BaseHashMap {
         }
 
         if (objectKeyTable != null) {
-            Object array = objectKeyTable;
+            Object[] array = objectKeyTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
                              size - lookup - 1);
@@ -1185,14 +1184,14 @@ public class BaseHashMap {
         }
 
         if (isIntValue) {
-            Object array = intValueTable;
+            int[] array = intValueTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
                              size - lookup - 1);
 
             intValueTable[size - 1] = 0;
         } else if (isLongValue) {
-            Object array = longValueTable;
+            long[] array = longValueTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
                              size - lookup - 1);
@@ -1201,7 +1200,7 @@ public class BaseHashMap {
         }
 
         if (isObjectValue) {
-            Object array = objectValueTable;
+            Object[] array = objectValueTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
                              size - lookup - 1);
@@ -1210,7 +1209,7 @@ public class BaseHashMap {
         }
 
         if (objectValueTable2 != null) {
-            Object array = objectValueTable2;
+            Object[] array = objectValueTable2;
 
             System.arraycopy(array, lookup + 1, array, lookup,
                              size - lookup - 1);
@@ -1219,7 +1218,7 @@ public class BaseHashMap {
         }
 
         if (accessTable != null) {
-            Object array = accessTable;
+            int[] array = accessTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
                              size - lookup - 1);
@@ -1234,13 +1233,13 @@ public class BaseHashMap {
     void insertIntoElementArrays(int size, int lookup) {
 
         if (isIntKey) {
-            Object array = intKeyTable;
+            int[] array = intKeyTable;
 
             System.arraycopy(array, lookup, array, lookup + 1, size - lookup);
 
             intKeyTable[lookup] = 0;
         } else if (isLongKey) {
-            Object array = longKeyTable;
+            long[] array = longKeyTable;
 
             System.arraycopy(array, lookup, array, lookup + 1, size - lookup);
 
@@ -1248,7 +1247,7 @@ public class BaseHashMap {
         }
 
         if (objectKeyTable != null) {
-            Object array = objectKeyTable;
+            Object[] array = objectKeyTable;
 
             System.arraycopy(array, lookup, array, lookup + 1, size - lookup);
 
@@ -1256,13 +1255,13 @@ public class BaseHashMap {
         }
 
         if (isIntValue) {
-            Object array = intValueTable;
+            int[] array = intValueTable;
 
             System.arraycopy(array, lookup, array, lookup + 1, size - lookup);
 
             intValueTable[lookup] = 0;
         } else if (isLongValue) {
-            Object array = longValueTable;
+            long[] array = longValueTable;
 
             System.arraycopy(array, lookup, array, lookup + 1, size - lookup);
 
@@ -1270,7 +1269,7 @@ public class BaseHashMap {
         }
 
         if (isObjectValue) {
-            Object array = objectValueTable;
+            Object[] array = objectValueTable;
 
             System.arraycopy(array, lookup, array, lookup + 1, size - lookup);
 
@@ -1278,7 +1277,7 @@ public class BaseHashMap {
         }
 
         if (objectValueTable2 != null) {
-            Object array = objectValueTable2;
+            Object[] array = objectValueTable2;
 
             System.arraycopy(array, lookup, array, lookup + 1, size - lookup);
 
@@ -1286,7 +1285,7 @@ public class BaseHashMap {
         }
 
         if (accessTable != null) {
-            Object array = accessTable;
+            int[] array = accessTable;
 
             System.arraycopy(array, lookup, array, lookup + 1, size - lookup);
 
@@ -1511,7 +1510,7 @@ public class BaseHashMap {
         return hashIndex.elementCount == 0;
     }
 
-    protected boolean containsKey(Object key) {
+    protected final boolean containsObjectKey(Object key) {
 
         if (key == null) {
             return false;
@@ -1523,11 +1522,10 @@ public class BaseHashMap {
 
         int lookup = getLookup(key, comparator.hashCode(key));
 
-        return lookup == -1 ? false
-                            : true;
+        return lookup != -1;
     }
 
-    protected boolean containsKey(int key) {
+    protected final boolean containsIntKey(int key) {
 
         if (hashIndex.elementCount == 0) {
             return false;
@@ -1535,11 +1533,10 @@ public class BaseHashMap {
 
         int lookup = getLookup(key);
 
-        return lookup == -1 ? false
-                            : true;
+        return lookup != -1;
     }
 
-    protected boolean containsKey(long key) {
+    protected final boolean containsLongKey(long key) {
 
         if (hashIndex.elementCount == 0) {
             return false;
@@ -1547,8 +1544,7 @@ public class BaseHashMap {
 
         int lookup = getLookup(key);
 
-        return lookup == -1 ? false
-                            : true;
+        return lookup != -1;
     }
 
     protected boolean containsValue(Object value) {
@@ -1747,18 +1743,6 @@ public class BaseHashMap {
 
             return value;
         }
-
-        public int nextInt() throws NoSuchElementException {
-            throw new NoSuchElementException("Hash Iterator");
-        }
-
-        public long nextLong() throws NoSuchElementException {
-            throw new NoSuchElementException("Hash Iterator");
-        }
-
-        public void remove() throws NoSuchElementException {
-            throw new NoSuchElementException("Hash Iterator");
-        }
     }
 
     protected class MultiValueKeyIterator implements PrimitiveIterator {
@@ -1777,7 +1761,7 @@ public class BaseHashMap {
 
         private void toNextLookup() {
 
-            for (; index < hashIndex.hashTable.length; ) {
+            while (index < hashIndex.hashTable.length) {
                 if (hashIndex.hashTable[index] < 0) {
                     index++;
 
@@ -1913,7 +1897,7 @@ public class BaseHashMap {
         public int nextInt() throws NoSuchElementException {
 
             if ((keys && !isIntKey) || (!keys && !isIntValue)) {
-                throw new NoSuchElementException("Hash Iterator");
+                throw new UnsupportedOperationException("Hash Iterator");
             }
 
             removed = false;
@@ -1936,7 +1920,7 @@ public class BaseHashMap {
         public long nextLong() throws NoSuchElementException {
 
             if ((keys && !isLongKey) || (!keys && !isLongValue)) {
-                throw new NoSuchElementException("Hash Iterator");
+                throw new UnsupportedOperationException("Hash Iterator");
             }
 
             removed = false;
