@@ -308,7 +308,7 @@ public class TestJavaFunctions extends TestBase {
 
     public static byte[] getSortedByteArray(byte[] bytes) throws SQLException {
 
-        bytes = (byte[]) java.util.Arrays.copyOf(bytes, bytes.length);
+        bytes = java.util.Arrays.copyOf(bytes, bytes.length);
 
         java.util.Arrays.sort(bytes);
 
@@ -318,7 +318,7 @@ public class TestJavaFunctions extends TestBase {
     public static byte[][] getSortedArrayByteArray(byte[][] bytes)
     throws SQLException {
 
-        bytes = (byte[][]) java.util.Arrays.copyOf(bytes, bytes.length);
+        bytes = java.util.Arrays.copyOf(bytes, bytes.length);
 
         java.util.Arrays.sort(bytes);
 

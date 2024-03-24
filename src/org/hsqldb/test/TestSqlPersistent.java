@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -350,9 +350,9 @@ public class TestSqlPersistent extends TestCase {
             arrayValueResult = (Double[]) rs.getObject(2);
 
             // cast objects to original types - will throw if type is wrong
-            String   castStringValue      = (String) stringValueResult;
-            Integer  castIntegerValue     = (Integer) integerValueResult;
-            Double[] castDoubleArrayValue = (Double[]) arrayValueResult;
+            String   castStringValue      = stringValueResult;
+            Integer  castIntegerValue     = integerValueResult;
+            Double[] castDoubleArrayValue = arrayValueResult;
 
             for (int i = 0; i < arrayValue.length; i++) {
                 if (!arrayValue[i].equals(arrayValueResult[i])) {
@@ -382,8 +382,8 @@ public class TestSqlPersistent extends TestCase {
 
         boolean success = stringValue.equals(stringValueResult)
                           && integerValue.equals(integerValueResult)
-                          && java.util.Arrays.equals((Double[]) arrayValue,
-                              (Double[]) arrayValueResult);
+                          && java.util.Arrays.equals(arrayValue,
+                arrayValueResult);
 
         assertEquals(true, success);
 
