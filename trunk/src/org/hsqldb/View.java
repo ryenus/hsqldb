@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author leptipre@users
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class View extends TableDerived {
@@ -85,12 +85,8 @@ public class View extends TableDerived {
         return SchemaObject.VIEW;
     }
 
-    public OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
         return schemaObjectNames;
-    }
-
-    public OrderedHashSet getComponents() {
-        return null;
     }
 
     /**
@@ -187,13 +183,11 @@ public class View extends TableDerived {
     }
 
     public boolean isInsertable() {
-        return isTriggerInsertable ? false
-                                   : super.isInsertable();
+        return !isTriggerInsertable && super.isInsertable();
     }
 
     public boolean isUpdatable() {
-        return isTriggerUpdatable ? false
-                                  : super.isUpdatable();
+        return !isTriggerUpdatable && super.isUpdatable();
     }
 
     void addTrigger(TriggerDef td, HsqlName otherName) {

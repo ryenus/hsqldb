@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.hsqldb.server.ServerConstants;
  * Parses a connection URL into parts.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  * @since 1.8.0
  */
 
@@ -66,10 +66,7 @@ public final class DatabaseURL {
      */
     public static boolean isInProcessDatabaseType(String type) {
 
-        if (S_FILE.equals(type) || S_RES.equals(type) || S_MEM.equals(type)) {
-            return true;
-        }
-        return false;
+        return S_FILE.equals(type) || S_RES.equals(type) || S_MEM.equals(type);
     }
 
     /**

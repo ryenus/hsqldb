@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2842,7 +2842,7 @@ public class ParserCommand extends ParserDDL {
         args[0] = t.getName();
 
         if (!t.isText()) {
-            Exception e = Error.error(ErrorCode.X_S0522);
+            throw Error.error(ErrorCode.X_S0522);
         }
 
         // SET TABLE <table> SOURCE ON

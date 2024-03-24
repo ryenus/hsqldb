@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.rights.Grantee;
  * Class for DOMAIN and DISTINCT objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class UserTypeModifier {
@@ -155,12 +155,12 @@ public class UserTypeModifier {
         return name.schema.owner;
     }
 
-    public OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         for (int i = 0; i < constraints.length; i++) {
-            OrderedHashSet subSet = constraints[i].getReferences();
+            OrderedHashSet<HsqlName> subSet = constraints[i].getReferences();
 
             if (subSet != null) {
                 set.addAll(subSet);
@@ -176,15 +176,13 @@ public class UserTypeModifier {
         return set;
     }
 
-    public final OrderedHashSet getComponents() {
+    public final OrderedHashSet<SchemaObject> getComponents() {
 
-        if (constraints == null) {
-            return null;
+        OrderedHashSet<SchemaObject> set = new OrderedHashSet<>();
+
+        if (constraints != null) {
+            set.addAll(constraints);
         }
-
-        OrderedHashSet set = new OrderedHashSet();
-
-        set.addAll(constraints);
 
         return set;
     }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -228,7 +228,7 @@ public class DatabaseManager {
      * until the db is open or closed. At this point the db state is either
      * DATABASE_ONLINE (after db.open() has returned) which allows a new
      * connection to be made, or the state is DATABASE_SHUTDOWN which means
-     * the db can be reopened for the new connection).
+     * the db can be reopened for the new connection.
      *
      */
     public static Database getDatabase(String dbtype, String path,

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -922,7 +922,7 @@ public class ParserRoutine extends ParserTable {
 
         int           position = getPosition();
         Type          type;
-        HsqlArrayList names = new HsqlArrayList();
+        HsqlArrayList<HsqlName> names = new HsqlArrayList<>();
 
         try {
             readThis(Tokens.DECLARE);
@@ -969,19 +969,19 @@ public class ParserRoutine extends ParserTable {
             def = readDefaultClause(type);
         }
 
-        ColumnSchema[] variable = new ColumnSchema[names.size()];
+        ColumnSchema[] variables = new ColumnSchema[names.size()];
 
         for (int i = 0; i < names.size(); i++) {
-            variable[i] = new ColumnSchema((HsqlName) names.get(i), type,
+            variables[i] = new ColumnSchema(names.get(i), type,
                                            true, false, def);
 
-            variable[i].setParameterMode(
+            variables[i].setParameterMode(
                 SchemaObject.ParameterModes.PARAM_INOUT);
         }
 
         readThis(Tokens.SEMICOLON);
 
-        return variable;
+        return variables;
     }
 
     private StatementHandler compileLocalHandlerDeclaration(Routine routine,
@@ -1213,7 +1213,7 @@ public class ParserRoutine extends ParserTable {
             StatementCompound context) {
 
         Statement     e;
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Statement> list = new HsqlArrayList<>();
 
         while (true) {
             e = compileSQLProcedureStatementOrNull(routine, context);

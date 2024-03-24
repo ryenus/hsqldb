@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -166,7 +166,7 @@ class TransferSQLText extends DataAccessPoint {
             int t = r.getColumnType(i + 1);
 
             sLast = "column=" + r.getColumnName(i + 1) + " datatype="
-                    + (String) helper.getSupportedTypes().get(Integer.valueOf(t));
+                    + helper.getSupportedTypes().get(Integer.valueOf(t));
 
             Object o = r.getObject(i + 1);
 

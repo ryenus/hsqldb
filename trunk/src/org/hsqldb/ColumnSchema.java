@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL table column metadata.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class ColumnSchema extends ColumnBase implements SchemaObject {
@@ -59,8 +59,8 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
     private Expression     generatingExpression;
     private Expression     updateExpression;
     private NumberSequence sequence;
-    private OrderedHashSet references;
-    private OrderedHashSet generatedColumnReferences;
+    private OrderedHashSet<HsqlName> references;
+    private OrderedHashSet<HsqlName> generatedColumnReferences;
     private Expression     accessor;
     private int            systemPeriodType;
 
@@ -129,12 +129,8 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
                                          : columnName.schema.owner;
     }
 
-    public OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
         return references;
-    }
-
-    public OrderedHashSet getComponents() {
-        return null;
     }
 
     public void compile(Session session, SchemaObject table) {
@@ -318,9 +314,7 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
      */
     public String getDefaultSQL() {
 
-        String ddl = null;
-
-        ddl = defaultExpression == null ? null
+        String ddl = defaultExpression == null ? null
                                         : defaultExpression.getSQL();
 
         return ddl;

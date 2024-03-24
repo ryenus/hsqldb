@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -279,9 +279,9 @@ public class Table extends TableBase implements SchemaObject {
         return tableName.schema.owner;
     }
 
-    public OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         if (identitySequence != null && identitySequence.getName() != null) {
             set.add(identitySequence.getName());
@@ -332,9 +332,9 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
-    public OrderedHashSet getComponents() {
+    public OrderedHashSet<SchemaObject> getComponents() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<SchemaObject> set = new OrderedHashSet<>();
 
         set.addAll(constraintList);
         set.addAll(triggerList);

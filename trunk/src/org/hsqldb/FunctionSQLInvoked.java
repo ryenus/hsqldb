@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayListIdentity;
@@ -44,7 +45,7 @@ import org.hsqldb.types.Type;
  * Implementation of SQL-invoked user-defined function calls - PSM and JRT
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class FunctionSQLInvoked extends Expression {
@@ -130,9 +131,7 @@ public class FunctionSQLInvoked extends Expression {
             if (opType == OpTypes.USER_AGGREGATE) {
                 data = new Object[routine.getParameterCount()];
 
-                for (int i = 0; i < aggregateData.length; i++) {
-                    data[i + 1] = aggregateData[i];
-                }
+                System.arraycopy(aggregateData, 0, data, 1, aggregateData.length);
             } else {
                 data = new Object[nodes.length + extraArg];
             }

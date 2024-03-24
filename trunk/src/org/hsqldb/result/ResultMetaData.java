@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -164,6 +164,7 @@ public final class ResultMetaData {
 
         return md;
     }
+
     public static ResultMetaData newResultMetaData(Type[] types,
             int[] baseColumnIndexes, int colCount, int extColCount) {
 
@@ -561,11 +562,7 @@ public final class ResultMetaData {
             return false;
         }
 
-        if (!Arrays.equals(a.colIndexes, b.colIndexes)) {
-            return false;
-        }
-
-        return true;
+        return Arrays.equals(a.colIndexes, b.colIndexes);
     }
 
     public boolean areTypesCompatible(ResultMetaData newMeta) {

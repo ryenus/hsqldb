@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1275,11 +1275,7 @@ public final class NumberType extends Type {
             return true;
         }
 
-        if (otherType.isBitType() && otherType.precision == 1) {
-            return true;
-        }
-
-        return false;
+        return otherType.isBitType() && otherType.precision == 1;
     }
 
     public int canMoveFrom(Type otherType) {

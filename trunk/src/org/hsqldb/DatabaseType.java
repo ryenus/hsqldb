@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,11 +67,7 @@ public enum DatabaseType {
     }
 
     public static boolean isInProcessDatabaseType(String type) {
-        if (DB_FILE.value.equals(type) || DB_RES.value.equals(type) || DB_MEM.value.equals(type)) {
-            return true;
-        }
-
-        return false;
+        return DB_FILE.value.equals(type) || DB_RES.value.equals(type) || DB_MEM.value.equals(type);
     }
 
     public static DatabaseType get(String value) {

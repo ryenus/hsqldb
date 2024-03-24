@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class Tokens {
@@ -1980,8 +1980,8 @@ public class Tokens {
 
     //
     public static final int X_UNKNOWN_TOKEN = -1;
-    private static final IntValueHashMap reservedKeys =
-        new IntValueHashMap(351);
+    private static final IntValueHashMap<String> reservedKeys =
+        new IntValueHashMap<>(351);
 
     static {
         reservedKeys.put(T_ABS, ABS);
@@ -2328,7 +2328,7 @@ public class Tokens {
         reservedKeys.put(T_YEAR, YEAR);
     }
 
-    private static final IntValueHashMap commandSet = new IntValueHashMap(449);
+    private static final IntValueHashMap<String> commandSet = new IntValueHashMap<>(449);
 
     static {
         commandSet.put(T_ABSENT, ABSENT);
@@ -2864,7 +2864,7 @@ public class Tokens {
     public static final String[] SQL_INTERVAL_FIELD_NAMES = new String[] {
         T_YEAR, T_MONTH, T_DAY, T_HOUR, T_MINUTE, T_SECOND
     };
-    private static final IntKeyHashMap sqlTSILookup = new IntKeyHashMap(11);
+    private static final IntKeyHashMap<String> sqlTSILookup = new IntKeyHashMap<>(11);
 
     static {
         sqlTSILookup.put(SQL_TSI_DAY, T_SQL_TSI_DAY);
@@ -2881,6 +2881,6 @@ public class Tokens {
     }
 
     public static String getSQLTSIString(int token) {
-        return (String) sqlTSILookup.get(token);
+        return sqlTSILookup.get(token);
     }
 }

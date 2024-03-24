@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import org.hsqldb.trigger.Trigger;
  *  Realisations Ltd
  *
  * @author Peter Hudson (peterhudson@users dot sourceforge.net)
- * @version  2.5.1
+ * @version  2.7.3
  * @since hsqldb 1.61
  */
 public class TriggerDef implements Runnable, SchemaObject {
@@ -102,7 +102,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     Thread           thread;
 
     //protected boolean busy;               // firing trigger in progress
-    protected HsqlDeque        pendingQueue;                   // row triggers pending
+    protected HsqlDeque<TriggerData> pendingQueue;                   // row triggers pending
     protected int              rowsQueued;                     // rows in pendingQueue
     protected boolean          valid     = true;               // parsing valid
     protected volatile boolean keepGoing = true;
@@ -150,7 +150,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         this.nowait           = noWait;
         this.maxRowsQueued    = queueSize;
         rowsQueued            = 0;
-        pendingQueue          = new HsqlDeque();
+        pendingQueue          = new HsqlDeque<>();
 
         Class<?> cl = null;
 
@@ -225,16 +225,6 @@ public class TriggerDef implements Runnable, SchemaObject {
     public Grantee getOwner() {
         return name.schema.owner;
     }
-
-    public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
-    }
-
-    public OrderedHashSet getComponents() {
-        return null;
-    }
-
-    public void compile(Session session, SchemaObject parentObject) {}
 
     /**
      *  Retrieves the SQL character sequence required to (re)create the
@@ -606,7 +596,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         if (pendingQueue.size() == 0) {
             return null;
         } else {
-            return (TriggerData) pendingQueue.removeFirst();
+            return pendingQueue.removeFirst();
         }
     }
 

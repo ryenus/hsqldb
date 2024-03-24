@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class Scanner {
@@ -1908,9 +1908,7 @@ public class Scanner {
         int character = charAt(currentPosition);
 
         if (character == 'N' || character == 'n') {
-            if (scanSpecialIdentifier(Tokens.T_NULL)) {
-                return true;
-            }
+            return scanSpecialIdentifier(Tokens.T_NULL);
         }
 
         return false;
@@ -2123,7 +2121,7 @@ public class Scanner {
         int       currentPart   = firstPart;
         int       currentDigits = 0;
 
-        for (; currentPart <= lastPart; ) {
+        while (currentPart <= lastPart) {
             boolean endOfPart = false;
 
             if (i == intervalString.length()) {
@@ -2277,7 +2275,7 @@ public class Scanner {
         int    currentPart   = firstPart;
         int    currentDigits = 0;
 
-        for (; currentPart <= lastPart; ) {
+        while (currentPart <= lastPart) {
             boolean endOfPart = false;
 
             if (i == intervalString.length()) {
@@ -2387,7 +2385,7 @@ public class Scanner {
         int currentValue  = 0;
         int currentDigits = 0;
 
-        for (; intervalPosition < intervalString.length(); ) {
+        while (intervalPosition < intervalString.length()) {
             int character = intervalString.charAt(intervalPosition);
 
             if (character >= '0' && character <= '9') {

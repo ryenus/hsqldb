@@ -163,7 +163,7 @@ public class HsqlProperties {
 
         value = value.trim();
 
-        return value.toLowerCase().equals("true");
+        return value.equalsIgnoreCase("true");
     }
 
     public void removeProperty(String key) {

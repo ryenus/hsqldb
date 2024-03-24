@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.lib.StringConverter;
  * Cast to CHARACTER types converts to a hexadecimal UUID string.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 2.3.4
  */
 public class BinaryUUIDType extends BinaryType {
@@ -184,8 +184,7 @@ public class BinaryUUIDType extends BinaryType {
         if (a instanceof BinaryData && b instanceof BinaryData) {
             byte[] data1  = ((BinaryData) a).getBytes();
             byte[] data2  = ((BinaryData) b).getBytes();
-            int    length = data1.length > data2.length ? data2.length
-                                                        : data1.length;
+            int    length = Math.min(data1.length, data2.length);
 
             for (int i = 0; i < length; i++) {
                 if (data1[i] == data2[i]) {
@@ -304,7 +303,7 @@ public class BinaryUUIDType extends BinaryType {
     public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a == null) {
-            return a;
+            return null;
         }
 
         if (a instanceof byte[]) {
@@ -390,8 +389,7 @@ public class BinaryUUIDType extends BinaryType {
         if (hasLength) {
             end = offset + length;
         } else {
-            end = dataLength > offset ? dataLength
-                                      : offset;
+            end = Math.max(dataLength, offset);
         }
 
         if (offset > end) {

@@ -127,7 +127,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         return userTypeModifier.getOwner();
     }
 
-    public final OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
 
         if (userTypeModifier == null) {
             throw Error.runtimeError(ErrorCode.U_S0500, "Type");
@@ -136,7 +136,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         return userTypeModifier.getReferences();
     }
 
-    public final OrderedHashSet getComponents() {
+    public final OrderedHashSet<SchemaObject> getComponents() {
 
         if (userTypeModifier == null) {
             throw Error.runtimeError(ErrorCode.U_S0500, "Type");
