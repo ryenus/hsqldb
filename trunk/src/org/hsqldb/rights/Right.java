@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashSet;
+import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 
 /**
@@ -46,33 +47,34 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public final class Right {
 
-    boolean        isFull;
-    boolean        isFullSelect;
-    boolean        isFullInsert;
-    boolean        isFullUpdate;
-    boolean        isFullDelete;
-    boolean        isFullReferences;
-    boolean        isFullTrigger;
-    boolean        isFullExecute;    // used only in temporary Right object
-    boolean        isFullUsage;      // ditto
-    OrderedHashSet selectColumnSet;
-    OrderedHashSet insertColumnSet;
-    OrderedHashSet updateColumnSet;
-    OrderedHashSet referencesColumnSet;
-    OrderedHashSet triggerColumnSet;
-    Expression     selectFilter;
-    Expression     insertFilter;
-    Expression     deleteFilter;
-    Expression     updateFilter;
-    String         selectFilterSQL;
-    String         insertFilterSQL;
-    String         deleteFilterSQL;
-    String         updateFilterSQL;
+    boolean                               isFull;
+    boolean                               isFullSelect;
+    boolean                               isFullInsert;
+    boolean                               isFullUpdate;
+    boolean                               isFullDelete;
+    boolean                               isFullReferences;
+    boolean                               isFullTrigger;
+    boolean                               isFullExecute;     // in temp object
+    boolean                               isFullUsage;       // ditto
+    IntKeyHashMap<OrderedHashSet<String>> columnNameSets;    // ditto
+    OrderedHashSet<HsqlName>              selectColumnSet;
+    OrderedHashSet<HsqlName>              insertColumnSet;
+    OrderedHashSet<HsqlName>              updateColumnSet;
+    OrderedHashSet<HsqlName>              referencesColumnSet;
+    OrderedHashSet<HsqlName>              triggerColumnSet;
+    Expression                            selectFilter;
+    Expression                            insertFilter;
+    Expression                            deleteFilter;
+    Expression                            updateFilter;
+    String                                selectFilterSQL;
+    String                                insertFilterSQL;
+    String                                deleteFilterSQL;
+    String                                updateFilterSQL;
 
     //
     Right   grantableRights;
@@ -80,9 +82,9 @@ public final class Right {
     Grantee grantee;
 
     //
-    public static final OrderedHashSet emptySet   = new OrderedHashSet();
+    static final OrderedHashSet<Right> emptySet   = new OrderedHashSet<>();
     public static final Right          fullRights = new Right(true);
-    public static final Right          noRights   = new Right();
+    static final Right                 noRights   = new Right();
 
     static {
         fullRights.grantor = GranteeManager.systemAuthorisation;
@@ -94,8 +96,7 @@ public final class Right {
     };
     public static final int[] tablePrivilegeTypes = {
         GrantConstants.SELECT, GrantConstants.INSERT, GrantConstants.UPDATE,
-        GrantConstants.DELETE, GrantConstants.REFERENCES,
-        GrantConstants.TRIGGER
+        GrantConstants.DELETE, GrantConstants.REFERENCES, GrantConstants.TRIGGER
     };
 
     public Right() {
@@ -119,8 +120,10 @@ public final class Right {
     }
 
     public Right getGrantableRights() {
-        return grantableRights == null ? noRights
-                                       : grantableRights;
+
+        return grantableRights == null
+               ? noRights
+               : grantableRights;
     }
 
     Right duplicate() {
@@ -164,8 +167,10 @@ public final class Right {
         }
     }
 
-    public void setFilterExpression(int rightType, Expression filter,
-                                    String sql) {
+    public void setFilterExpression(
+            int rightType,
+            Expression filter,
+            String sql) {
 
         switch (rightType) {
 
@@ -221,7 +226,7 @@ public final class Right {
         } else {
             if (right.selectColumnSet != null) {
                 if (selectColumnSet == null) {
-                    selectColumnSet = new OrderedHashSet();
+                    selectColumnSet = new OrderedHashSet<>();
                 }
 
                 selectColumnSet.addAll(right.selectColumnSet);
@@ -237,7 +242,7 @@ public final class Right {
             insertColumnSet = null;
         } else if (right.insertColumnSet != null) {
             if (insertColumnSet == null) {
-                insertColumnSet = new OrderedHashSet();
+                insertColumnSet = new OrderedHashSet<>();
             }
 
             insertColumnSet.addAll(right.insertColumnSet);
@@ -247,7 +252,7 @@ public final class Right {
             updateColumnSet = null;
         } else if (right.updateColumnSet != null) {
             if (updateColumnSet == null) {
-                updateColumnSet = new OrderedHashSet();
+                updateColumnSet = new OrderedHashSet<>();
             }
 
             updateColumnSet.addAll(right.updateColumnSet);
@@ -257,7 +262,7 @@ public final class Right {
             referencesColumnSet = null;
         } else if (right.referencesColumnSet != null) {
             if (referencesColumnSet == null) {
-                referencesColumnSet = new OrderedHashSet();
+                referencesColumnSet = new OrderedHashSet<>();
             }
 
             referencesColumnSet.addAll(right.referencesColumnSet);
@@ -267,7 +272,7 @@ public final class Right {
             triggerColumnSet = null;
         } else if (right.triggerColumnSet != null) {
             if (triggerColumnSet == null) {
-                triggerColumnSet = new OrderedHashSet();
+                triggerColumnSet = new OrderedHashSet<>();
             }
 
             triggerColumnSet.addAll(right.triggerColumnSet);
@@ -404,8 +409,12 @@ public final class Right {
      */
     boolean isEmpty() {
 
-        if (isFull || isFullSelect || isFullInsert || isFullUpdate
-                || isFullReferences || isFullDelete) {
+        if (isFull
+                || isFullSelect
+                || isFullInsert
+                || isFullUpdate
+                || isFullReferences
+                || isFullDelete) {
             return false;
         }
 
@@ -425,14 +434,10 @@ public final class Right {
             return false;
         }
 
-        if (triggerColumnSet != null && !triggerColumnSet.isEmpty()) {
-            return false;
-        }
-
-        return true;
+        return triggerColumnSet == null || triggerColumnSet.isEmpty();
     }
 
-    OrderedHashSet getColumnsForAllRights(Table table) {
+    OrderedHashSet<HsqlName> getColumnsForAllRights(Table table) {
 
         if (isFull) {
             return table.getColumnNameSet();
@@ -442,7 +447,7 @@ public final class Right {
             return table.getColumnNameSet();
         }
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         if (selectColumnSet != null) {
             set.addAll(selectColumnSet);
@@ -473,43 +478,48 @@ public final class Right {
             return false;
         }
 
-        if (!containsRights(isFullSelect, selectColumnSet,
-                            right.selectColumnSet, right.isFullSelect)) {
+        if (!containsRights(isFullSelect,
+                            selectColumnSet,
+                            right.selectColumnSet,
+                            right.isFullSelect)) {
             return false;
         }
 
-        if (!containsRights(isFullInsert, insertColumnSet,
-                            right.insertColumnSet, right.isFullInsert)) {
+        if (!containsRights(isFullInsert,
+                            insertColumnSet,
+                            right.insertColumnSet,
+                            right.isFullInsert)) {
             return false;
         }
 
-        if (!containsRights(isFullUpdate, updateColumnSet,
-                            right.updateColumnSet, right.isFullUpdate)) {
+        if (!containsRights(isFullUpdate,
+                            updateColumnSet,
+                            right.updateColumnSet,
+                            right.isFullUpdate)) {
             return false;
         }
 
-        if (!containsRights(isFullReferences, referencesColumnSet,
+        if (!containsRights(isFullReferences,
+                            referencesColumnSet,
                             right.referencesColumnSet,
                             right.isFullReferences)) {
             return false;
         }
 
-        if (!containsRights(isFullTrigger, triggerColumnSet,
-                            right.triggerColumnSet, right.isFullTrigger)) {
+        if (!containsRights(isFullTrigger,
+                            triggerColumnSet,
+                            right.triggerColumnSet,
+                            right.isFullTrigger)) {
             return false;
         }
 
-        if (!isFullDelete && right.isFullDelete) {
-            return false;
-        }
-
-        return true;
+        return isFullDelete || !right.isFullDelete;
     }
 
-    void removeDroppedColumns(OrderedHashSet columnSet, Table table) {
+    void removeDroppedColumns(OrderedHashSet<HsqlName> columnSet, Table table) {
 
         for (int i = 0; i < columnSet.size(); i++) {
-            HsqlName name = (HsqlName) columnSet.get(i);
+            HsqlName name = columnSet.get(i);
 
             if (table.findColumn(name.name) >= 0) {
                 columnSet.remove(i);
@@ -519,7 +529,9 @@ public final class Right {
         }
     }
 
-    public OrderedHashSet getColumnsForPrivilege(Table table, int type) {
+    public OrderedHashSet<HsqlName> getColumnsForPrivilege(
+            Table table,
+            int type) {
 
         if (isFull) {
             return table.getColumnNameSet();
@@ -528,40 +540,51 @@ public final class Right {
         switch (type) {
 
             case GrantConstants.SELECT :
-                return isFullSelect ? table.getColumnNameSet()
-                                    : selectColumnSet == null ? emptySet
-                                                              : selectColumnSet;
+                return isFullSelect
+                       ? table.getColumnNameSet()
+                       : selectColumnSet == null
+                         ? new OrderedHashSet<>()
+                         : selectColumnSet;
 
             case GrantConstants.INSERT :
-                return isFullInsert ? table.getColumnNameSet()
-                                    : insertColumnSet == null ? emptySet
-                                                              : insertColumnSet;
+                return isFullInsert
+                       ? table.getColumnNameSet()
+                       : insertColumnSet == null
+                         ? new OrderedHashSet<>()
+                         : insertColumnSet;
 
             case GrantConstants.UPDATE :
-                return isFullUpdate ? table.getColumnNameSet()
-                                    : updateColumnSet == null ? emptySet
-                                                              : updateColumnSet;
+                return isFullUpdate
+                       ? table.getColumnNameSet()
+                       : updateColumnSet == null
+                         ? new OrderedHashSet<>()
+                         : updateColumnSet;
 
             case GrantConstants.REFERENCES :
-                return isFullReferences ? table.getColumnNameSet()
-                                        : referencesColumnSet == null
-                                          ? emptySet
-                                          : referencesColumnSet;
+                return isFullReferences
+                       ? table.getColumnNameSet()
+                       : referencesColumnSet == null
+                         ? new OrderedHashSet<>()
+                         : referencesColumnSet;
 
             case GrantConstants.TRIGGER :
-                return isFullTrigger ? table.getColumnNameSet()
-                                     : triggerColumnSet == null ? emptySet
-                                                                : triggerColumnSet;
+                return isFullTrigger
+                       ? table.getColumnNameSet()
+                       : triggerColumnSet == null
+                         ? new OrderedHashSet<>()
+                         : triggerColumnSet;
         }
 
-        return emptySet;
+        return new OrderedHashSet<>();
     }
 
     /**
      * Supports column level checks
      */
-    static boolean containsAllColumns(OrderedHashSet columnSet, Table table,
-                                      boolean[] columnCheckList) {
+    static boolean containsAllColumns(
+            OrderedHashSet<HsqlName> columnSet,
+            Table table,
+            boolean[] columnCheckList) {
 
         for (int i = 0; i < columnCheckList.length; i++) {
             if (columnCheckList[i]) {
@@ -580,10 +603,11 @@ public final class Right {
         return true;
     }
 
-    private static boolean containsRights(boolean isFull,
-                                          OrderedHashSet columnSet,
-                                          OrderedHashSet otherColumnSet,
-                                          boolean otherIsFull) {
+    private static boolean containsRights(
+            boolean isFull,
+            OrderedHashSet<HsqlName> columnSet,
+            OrderedHashSet<HsqlName> otherColumnSet,
+            boolean otherIsFull) {
 
         if (isFull) {
             return true;
@@ -593,13 +617,8 @@ public final class Right {
             return false;
         }
 
-        if (otherColumnSet != null
-                && (columnSet == null
-                    || !columnSet.containsAll(otherColumnSet))) {
-            return false;
-        }
-
-        return true;
+        return otherColumnSet == null
+               || (columnSet != null && columnSet.containsAll(otherColumnSet));
     }
 
     /**
@@ -672,7 +691,10 @@ public final class Right {
             return true;
         }
 
-        if (isFullInsert || isFullUpdate || isFullDelete || isFullReferences
+        if (isFullInsert
+                || isFullUpdate
+                || isFullDelete
+                || isFullReferences
                 || isFullTrigger) {
             return true;
         }
@@ -681,8 +703,7 @@ public final class Right {
 
         result |= (insertColumnSet != null && !insertColumnSet.isEmpty());
         result |= (updateColumnSet != null && !updateColumnSet.isEmpty());
-        result |= referencesColumnSet != null
-                  && !referencesColumnSet.isEmpty();
+        result |= referencesColumnSet != null && !referencesColumnSet.isEmpty();
         result |= triggerColumnSet != null && !triggerColumnSet.isEmpty();
 
         return result;
@@ -752,8 +773,12 @@ public final class Right {
             return true;
         }
 
-        if (isFullSelect || isFullInsert || isFullUpdate || isFullDelete
-                || isFullReferences || isFullTrigger) {
+        if (isFullSelect
+                || isFullInsert
+                || isFullUpdate
+                || isFullDelete
+                || isFullReferences
+                || isFullTrigger) {
             return true;
         }
 
@@ -762,15 +787,14 @@ public final class Right {
         result |= (selectColumnSet != null && !selectColumnSet.isEmpty());
         result |= (insertColumnSet != null && !insertColumnSet.isEmpty());
         result |= (updateColumnSet != null && !updateColumnSet.isEmpty());
-        result |= referencesColumnSet != null
-                  && !referencesColumnSet.isEmpty();
+        result |= referencesColumnSet != null && !referencesColumnSet.isEmpty();
         result |= triggerColumnSet != null && !triggerColumnSet.isEmpty();
 
         if (!result) {
             return false;
         }
 
-        HashSet set = new HashSet();
+        HashSet<HsqlName> set = new HashSet<>();
 
         set.addAll(selectColumnSet);
         set.addAll(insertColumnSet);
@@ -809,15 +833,16 @@ public final class Right {
     }
 
     public Expression[] getFiltersArray() {
-
-        return new Expression[] {
-            selectFilter, deleteFilter, insertFilter, updateFilter,
-        };
+        return new Expression[]{ selectFilter, deleteFilter, insertFilter,
+                                 updateFilter, };
     }
 
     boolean hasFilter() {
-        return selectFilter != null || deleteFilter != null
-               || insertFilter != null || updateFilter != null;
+
+        return selectFilter != null
+               || deleteFilter != null
+               || insertFilter != null
+               || updateFilter != null;
     }
 
     /**
@@ -886,7 +911,7 @@ public final class Right {
             sb.append(',');
         }
 
-        return sb.toString().substring(0, sb.length() - 1);
+        return sb.substring(0, sb.length() - 1);
     }
 
     static void appendFilterSQL(String sql, StringBuilder sb) {
@@ -899,14 +924,16 @@ public final class Right {
         sb.append(sql);
     }
 
-    private static void appendColumnList(Table t, OrderedHashSet set,
-                                         StringBuilder buf) {
+    private static void appendColumnList(
+            Table t,
+            OrderedHashSet<HsqlName> set,
+            StringBuilder buf) {
 
         int       count        = 0;
         boolean[] colCheckList = t.getNewColumnCheckList();
 
         for (int i = 0; i < set.size(); i++) {
-            HsqlName name     = (HsqlName) set.get(i);
+            HsqlName name     = set.get(i);
             int      colIndex = t.findColumn(name.name);
 
             if (colIndex == -1) {
@@ -964,34 +991,38 @@ public final class Right {
 
     public void setColumns(Table table) {
 
-        if (selectColumnSet != null) {
-            setColumns(table, selectColumnSet);
+        if (columnNameSets == null) {
+            return;
         }
 
-        if (insertColumnSet != null) {
-            setColumns(table, insertColumnSet);
-        }
+        OrderedHashSet<String> nameSet;
 
-        if (updateColumnSet != null) {
-            setColumns(table, updateColumnSet);
-        }
-
-        if (referencesColumnSet != null) {
-            setColumns(table, referencesColumnSet);
-        }
-
-        if (triggerColumnSet != null) {
-            setColumns(table, triggerColumnSet);
-        }
+        nameSet             = columnNameSets.get(GrantConstants.SELECT);
+        selectColumnSet     = setColumns(table, nameSet);
+        nameSet             = columnNameSets.get(GrantConstants.INSERT);
+        insertColumnSet     = setColumns(table, nameSet);
+        nameSet             = columnNameSets.get(GrantConstants.UPDATE);
+        updateColumnSet     = setColumns(table, nameSet);
+        nameSet             = columnNameSets.get(GrantConstants.REFERENCES);
+        referencesColumnSet = setColumns(table, nameSet);
+        nameSet             = columnNameSets.get(GrantConstants.TRIGGER);
+        triggerColumnSet    = setColumns(table, nameSet);
+        columnNameSets      = null;
     }
 
-    private static void setColumns(Table t, OrderedHashSet set) {
+    private static OrderedHashSet<HsqlName> setColumns(
+            Table t,
+            OrderedHashSet<String> set) {
+
+        if (set == null) {
+            return null;
+        }
 
         int       count        = 0;
         boolean[] colCheckList = t.getNewColumnCheckList();
 
         for (int i = 0; i < set.size(); i++) {
-            String name     = (String) set.get(i);
+            String name     = set.get(i);
             int    colIndex = t.findColumn(name);
 
             if (colIndex == -1) {
@@ -1007,16 +1038,18 @@ public final class Right {
             throw Error.error(ErrorCode.X_42501);
         }
 
-        set.clear();
+        OrderedHashSet<HsqlName> newSet = new OrderedHashSet<>();
 
         for (int i = 0; i < colCheckList.length; i++) {
             if (colCheckList[i]) {
-                set.add(t.getColumn(i).getName());
+                newSet.add(t.getColumn(i).getName());
             }
         }
+
+        return newSet;
     }
 
-    public void set(int type, OrderedHashSet set) {
+    public void set(int type, OrderedHashSet<String> set) {
 
         switch (type) {
 
@@ -1025,13 +1058,10 @@ public final class Right {
                     isFullSelect = true;
                 }
 
-                selectColumnSet = set;
                 break;
 
             case GrantConstants.DELETE :
-                if (set == null) {
-                    isFullDelete = true;
-                }
+                isFullDelete = true;
                 break;
 
             case GrantConstants.INSERT :
@@ -1039,7 +1069,6 @@ public final class Right {
                     isFullInsert = true;
                 }
 
-                insertColumnSet = set;
                 break;
 
             case GrantConstants.UPDATE :
@@ -1047,7 +1076,6 @@ public final class Right {
                     isFullUpdate = true;
                 }
 
-                updateColumnSet = set;
                 break;
 
             case GrantConstants.REFERENCES :
@@ -1055,7 +1083,6 @@ public final class Right {
                     isFullReferences = true;
                 }
 
-                referencesColumnSet = set;
                 break;
 
             case GrantConstants.TRIGGER :
@@ -1063,7 +1090,6 @@ public final class Right {
                     isFullTrigger = true;
                 }
 
-                triggerColumnSet = set;
                 break;
 
             case GrantConstants.EXECUTE :
@@ -1075,6 +1101,14 @@ public final class Right {
                 break;
 
             default :
+        }
+
+        if (set != null) {
+            if (columnNameSets == null) {
+                columnNameSets = new IntKeyHashMap<>();
+            }
+
+            columnNameSets.put(type, set);
         }
     }
 }

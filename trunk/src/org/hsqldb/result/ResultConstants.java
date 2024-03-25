@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,30 +51,25 @@ public interface ResultConstants {
 
     /** The offset at which HSQLDB API Result mode values start. */
     int HSQL_API_BASE = 0;
-
     /**
      * Not a result
      */
     int NONE = HSQL_API_BASE + 0;
-
     /**
      * Indicates that the Result object encapsulates an update
      * count response.
      */
     int UPDATECOUNT = HSQL_API_BASE + 1;
-
     /**
      * Indicates that the Result object encapsulates an
      * error response.
      */
     int ERROR = HSQL_API_BASE + 2;
-
     /**
      * Indicates that the Result object encapsulates a result
      * set response containing data.
      */
     int DATA = HSQL_API_BASE + 3;
-
     /**
      * Indicates that the Result object encapsulates a response
      * that communicates the acknowledgement of newly allocated
@@ -82,180 +77,148 @@ public interface ResultConstants {
      * and metadata
      */
     int PREPARE_ACK = HSQL_API_BASE + 4;
-
     /**
      * Indicates that Result encapsulates a request to cancel execution of
      * a CLI routine.
      */
     int SQLCANCEL = HSQL_API_BASE + 5;
-
     /**
      * Indicates that the Result object encapsulates a result
      * set for setting session attributes.
      */
     int SETSESSIONATTR = HSQL_API_BASE + 6;
-
     /**
      * Indicates that the Result object encapsulates a request
      * to get session attributes.
      */
     int GETSESSIONATTR = HSQL_API_BASE + 7;
-
     /**
      * Indicates that the Result object encapsulates a batch of statements
      */
     int BATCHEXECDIRECT = HSQL_API_BASE + 8;
-
     /**
      * Indicates that the Result object encapsulates a batch of prepared
      * statement parameter values
      */
     int BATCHEXECUTE = HSQL_API_BASE + 9;
-
     /**
      * Indicates that the Result object encapsulates a request to start a new
      * internal session for the connection
      */
     int RESETSESSION = HSQL_API_BASE + 10;
-
     /**
      * Indicates that the Result object encapsulates a response to a connection
      * attempt that was successful
      */
     int CONNECTACKNOWLEDGE = HSQL_API_BASE + 11;
-
     /**
      * Indicates that the Result object encapsulates a request to prepare
      * to commit as the first phase of a two-phase commit
      */
     int PREPARECOMMIT = HSQL_API_BASE + 12;
-
     /**
      * Indicates that the Result object encapsulates a request to return
      * some rows of data
      */
     int REQUESTDATA = HSQL_API_BASE + 13;
-
     /**
      * Indicates that the Result object encapsulates a set of data rows
      * without metadata
      */
     int DATAROWS = HSQL_API_BASE + 14;
-
     /**
      * Indicates that the Result object encapsulates a set of data rows
      * with metadata
      */
     int DATAHEAD = HSQL_API_BASE + 15;
-
     /**
      * Indicates that the Result object encapsulates a set of update counts
      * for a batch execution
      */
     int BATCHEXECRESPONSE = HSQL_API_BASE + 16;
-
     /**
      * Only for metadata, indicates that the metadata is for the parameters.
      */
     int PARAM_METADATA = HSQL_API_BASE + 17;
-
     /**
      * Common result type for all large object operations
      */
     int LARGE_OBJECT_OP = HSQL_API_BASE + 18;
-
     /**
      * Warning
      */
     int WARNING = HSQL_API_BASE + 19;
-
     /**
      * generated data
      */
     int GENERATED = HSQL_API_BASE + 20;
-
     /**
      * attempt to execute invalid statement
      */
     int EXECUTE_INVALID = HSQL_API_BASE + 21;
-
     /**
      * Indicates that Result encapsulates a request to establish a connection.
      */
     int CONNECT = HSQL_API_BASE + 31;
-
     /**
      * Indicates that Result encapsulates a request to terminate an
      * established connection.
      */
     int DISCONNECT = HSQL_API_BASE + 32;
-
     /**
      * Indicates that Result encapsulates a request to terminate an
      * SQL-transaction.
      */
     int ENDTRAN = HSQL_API_BASE + 33;
-
     /**
      * Indicates that Result encapsulates a request to execute a statement
      * directly.
      */
     int EXECDIRECT = HSQL_API_BASE + 34;
-
     /**
      * Indicates that Result encapsulates a request to execute a prepared
      * statement.
      */
     int EXECUTE = HSQL_API_BASE + 35;
-
     /**
      * Indicates that Result encapsulates a request to deallocate an
      * SQL-statement.
      */
     int FREESTMT = HSQL_API_BASE + 36;
-
     /**
      * Indicates that Result encapsulates a request to prepare a statement.
      */
     int PREPARE = HSQL_API_BASE + 37;
-
     /**
      * Indicates that Result encapsulates a request to set the value of an
      * SQL-connection attribute.
      */
     int SETCONNECTATTR = HSQL_API_BASE + 38;
-
     /**
      * Indicates that Result encapsulates a request to explicitly start an
      * SQL-transaction and set its characteristics.
      */
     int STARTTRAN = HSQL_API_BASE + 39;
-
     /**
      * Indicates that the Result encapsulates a request to close a result set
      */
     int CLOSE_RESULT = HSQL_API_BASE + 40;
-
     /**
      * Indicates that the Result encapsulates a request to update or insert into a result set
      */
     int UPDATE_RESULT = HSQL_API_BASE + 41;
-
     /**
      * Indicates that the Result encapsulates a simple value for internal use
      */
     int VALUE = HSQL_API_BASE + 42;
-
     /**
      * Indicates that the Result encapsulates a response to a procedure call via CallableStatement
      */
     int CALL_RESPONSE = HSQL_API_BASE + 43;
-
     /**
      * Indicates that the Result encapsulates a data change set
      */
     int CHANGE_SET = HSQL_API_BASE + 44;
-
     /**
      * Constants above this limit are handled as non-HSQLDB results
      */
@@ -650,6 +613,7 @@ public interface ResultConstants {
 //     * tables described by the Information Schema of the connected data source.
 //     */
 //    int SQLTABLEPRIVILEGES  = SQL_API_BASE + 70;
+
 /*
  Codes for transaction termination:
 
@@ -684,15 +648,14 @@ public interface ResultConstants {
     int SQL_ATTR_SAVEPOINT_NAME = 10027;
 
 // Batched execution constants:
-
     /** batch item failed */
     int EXECUTE_FAILED = -3;
-
     /**
      * Batch item succeeded but does not generate an update count,
      * for example a call having no return value
      */
     int SUCCESS_NO_INFO = -2;
+
 /*
    SQL standard properties
    The operational sensitivity property (either SENSITIVE, INSENSITIVE, or ASENSITIVE).
@@ -726,10 +689,9 @@ public interface ResultConstants {
     //
     int HOLD_CURSORS_OVER_COMMIT = 1;
     int CLOSE_CURSORS_AT_COMMIT  = 2;
-
     /** Constants indicating generated key return behaviour */
-    int RETURN_GENERATED_KEYS             = 1;     // matching java.sql.Statement constant
-    int RETURN_NO_GENERATED_KEYS          = 2;     // matching java.sql.Statement constant
+    int RETURN_GENERATED_KEYS = 1;    // matching java.sql.Statement constant
+    int RETURN_NO_GENERATED_KEYS = 2;    // matching java.sql.Statement constant
     int RETURN_GENERATED_KEYS_COL_NAMES   = 11;    // constant in HSQLDB only
     int RETURN_GENERATED_KEYS_COL_INDEXES = 21;    // constant in HSQLDB only
     int RETURN_PRIMARY_KEYS               = 31;    // constant in HSQLDB only

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,7 @@ import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.InputStreamInterface;
 import org.hsqldb.lib.InputStreamWrapper;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.tar.DbBackup;
@@ -87,7 +88,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class Logger implements EventLogInterface {
@@ -1431,9 +1432,9 @@ public class Logger implements EventLogInterface {
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
     }
 
-    public HashMap getPropertyValueMap(Session session) {
+    public HashMap<String, String> getPropertyValueMap() {
 
-        HashMap map   = new HashMap();
+        HashMap<String, String> map   = new HashMap<>();
         String  value = null;
 
         map.put(HsqlDatabaseProperties.sql_avg_scale,
@@ -1523,8 +1524,7 @@ public class Logger implements EventLogInterface {
         switch (database.defaultIsolationLevel) {
 
             case SessionInterface.TX_READ_COMMITTED :
-                value = new StringBuilder(Tokens.T_READ).append('_').append(
-                    Tokens.T_COMMITTED).toString();
+                value = Tokens.T_READ + '_' + Tokens.T_COMMITTED;
                 break;
 
             case SessionInterface.TX_SERIALIZABLE :
@@ -1630,9 +1630,9 @@ public class Logger implements EventLogInterface {
         return map;
     }
 
-    public String[] getPropertiesSQL(boolean indexRoots) {
+    public List<String> getPropertiesSQLArray(boolean indexRoots) {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<String> list = new HsqlArrayList<>();
         StringBuilder sb   = new StringBuilder();
 
         sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
@@ -2100,11 +2100,7 @@ public class Logger implements EventLogInterface {
         list.add(sb.toString());
         sb.setLength(0);
 
-        String[] array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
+        return list;
     }
 
     public void backup(String destPath, boolean script, boolean blocking,
@@ -2137,7 +2133,7 @@ public class Logger implements EventLogInterface {
 
     public SimpleDateFormat fileDateFormat =
         new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-    private static char runtimeFileDelim =
+    private static final char runtimeFileDelim =
         System.getProperty("file.separator").charAt(0);
     DbBackup backup;
 

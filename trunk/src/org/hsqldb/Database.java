@@ -41,6 +41,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlTimer;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -63,7 +64,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class Database {
@@ -725,9 +726,9 @@ public class Database {
         }
     }
 
-    public String[] getSettingsSQL() {
+    public List<String> getSettingsSQLArray() {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<String> list = new HsqlArrayList<>();
         StringBuilder sb   = new StringBuilder();
 
         if (!getCatalogName().name.equals(
@@ -741,11 +742,11 @@ public class Database {
 
         list.add(collation.getDatabaseCollationSQL());
 
-        OrderedHashMap lobTables =
+        OrderedHashMap<String, Table> lobTables =
             schemaManager.getTables(SqlInvariants.LOBS_SCHEMA);
 
         for (int i = 0; i < lobTables.size(); i++) {
-            Table table = (Table) lobTables.get(i);
+            Table table = lobTables.get(i);
 
             if (table.isCached()) {
                 sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE);
@@ -758,11 +759,7 @@ public class Database {
             }
         }
 
-        String[] array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
+        return list;
     }
 
     /**
@@ -773,15 +770,15 @@ public class Database {
         Result r = Result.newSingleColumnResult("COMMAND");
 
         // properties
-        String[] list = logger.getPropertiesSQL(indexRoots);
+        List<String> list = logger.getPropertiesSQLArray(indexRoots);
 
         r.addRows(list);
 
-        list = getSettingsSQL();
+        list = getSettingsSQLArray();
 
         r.addRows(list);
 
-        list = granteeManager.getSQL();
+        list = granteeManager.getSQLArray();
 
         r.addRows(list);
 
@@ -791,34 +788,34 @@ public class Database {
         r.addRows(list);
 
         // table spaces
-        list = schemaManager.getTableSpaceSQL();
+        list = schemaManager.getTableSpaceSQLArray();
 
         r.addRows(list);
 
         // index roots
         if (indexRoots) {
-            list = schemaManager.getIndexRootsSQL();
+            list = schemaManager.getIndexRootsSQLArray();
 
             r.addRows(list);
         }
 
         // text headers - readonly - clustered
-        list = schemaManager.getTablePropsSQL(!indexRoots);
+        list = schemaManager.getTablePropsSQLArray(!indexRoots);
 
         r.addRows(list);
 
         // password complexity
-        list = userManager.getAuthenticationSQL();
+        list = userManager.getAuthenticationSQLArray();
 
         r.addRows(list);
 
         // user session start schema names
-        list = userManager.getInitialSchemaSQL();
+        list = userManager.getInitialSchemaSQLArray();
 
         r.addRows(list);
 
         // grantee rights
-        list = granteeManager.getRightsSQL();
+        list = granteeManager.getRightsSQLArray();
 
         r.addRows(list);
 
@@ -872,6 +869,7 @@ public class Database {
 
         public void start() {
 
+            // started only when maxLogSize is reached in file: or when deleted lobs exceed maxLogSize in mem:
             synchronized (this) {
                 if (waiting) {
                     return;
@@ -903,7 +901,7 @@ public class Database {
     static class TimeoutRunner implements Runnable {
 
         private Object        timerTask;
-        private HsqlArrayList timeoutList;
+        private HsqlArrayList<TimeoutManager> timeoutList;
         int                   abortCount;
 
         public void run() {
@@ -913,8 +911,7 @@ public class Database {
                     long systemMillis = System.currentTimeMillis();
 
                     for (int i = 0; i < timeoutList.size(); i++) {
-                        TimeoutManager timeOut =
-                            (TimeoutManager) timeoutList.get(i);
+                        TimeoutManager timeOut = timeoutList.get(i);
 
                         if (timeOut.isClosed()) {
                             timeoutList.remove(i);
@@ -965,7 +962,7 @@ public class Database {
 
         private void start() {
 
-            timeoutList = new HsqlArrayList();
+            timeoutList = new HsqlArrayList<>();
             timerTask =
                 DatabaseManager.getTimer().schedulePeriodicallyAfter(1000,
                     1000, this, true);
