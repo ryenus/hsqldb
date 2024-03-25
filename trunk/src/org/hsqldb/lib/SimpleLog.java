@@ -51,21 +51,19 @@ import org.hsqldb.types.HsqlDateTime.SystemTimeString;
  */
 public class SimpleLog {
 
-    public static final int LOG_NONE   = 0;
-    public static final int LOG_ERROR  = 1;
+    public static final int LOG_NONE    = 0;
+    public static final int LOG_ERROR   = 1;
     public static final int LOG_WARNING = 2;
-    public static final int LOG_NORMAL = 3;
-    public static final int LOG_DETAIL = 4;
-    public static final int LOG_RESULT = 4;
+    public static final int LOG_NORMAL  = 3;
+    public static final int LOG_DETAIL  = 4;
+    public static final int LOG_RESULT  = 4;
 
     //
     public static final String logTypeNameEngine = "ENGINE";
-    static final String[]      appLogTypeNames   = {
-        "", "ERROR ", "WARNING", "NORMAL", "DETAIL"
-    };
-    static final String[]      sqlLogTypeNames   = {
-        "", "BASIC ", "NORMAL", "DETAIL", "RESULT"
-    };
+    static final String[] appLogTypeNames = { "", "ERROR ", "WARNING", "NORMAL",
+                                              "DETAIL" };
+    static final String[] sqlLogTypeNames = { "", "BASIC ", "NORMAL", "DETAIL",
+                                              "RESULT" };
 
     //
     private PrintWriter   writer;
@@ -82,8 +80,9 @@ public class SimpleLog {
         this.isSystem = path == null;
         this.filePath = path;
         this.isSQL    = isSQL;
-        logTypeNames  = isSQL ? sqlLogTypeNames
-                              : appLogTypeNames;
+        logTypeNames  = isSQL
+                        ? sqlLogTypeNames
+                        : appLogTypeNames;
         sb            = new StringBuilder(256);
 
         setLevel(level);
@@ -157,8 +156,11 @@ public class SimpleLog {
         writer.flush();
     }
 
-    public synchronized void logContext(int atLevel, String prefix,
-                                        String message, String suffix) {
+    public synchronized void logContext(
+            int atLevel,
+            String prefix,
+            String message,
+            String suffix) {
 
         if (level < atLevel) {
             return;
@@ -181,8 +183,10 @@ public class SimpleLog {
         writer.flush();
     }
 
-    public synchronized void logContext(Throwable t, String message,
-                                        int atLevel) {
+    public synchronized void logContext(
+            Throwable t,
+            String message,
+            int atLevel) {
 
         if (level == LOG_NONE) {
             return;

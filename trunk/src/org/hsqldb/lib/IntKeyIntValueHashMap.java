@@ -42,7 +42,8 @@ import org.hsqldb.map.BaseHashMap;
  * @version 2.7.3
  * @since 1.7.2
  */
-public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, Integer> {
+public class IntKeyIntValueHashMap extends BaseHashMap
+        implements Map<Integer, Integer> {
 
     private Set<Integer>                 keySet;
     private Collection<Integer>          values;
@@ -52,15 +53,19 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
         this(8);
     }
 
-    public IntKeyIntValueHashMap(int initialCapacity) throws IllegalArgumentException {
-        super(initialCapacity, BaseHashMap.intKeyOrValue,
-              BaseHashMap.intKeyOrValue, false);
+    public IntKeyIntValueHashMap(
+            int initialCapacity)
+            throws IllegalArgumentException {
+
+        super(initialCapacity,
+              BaseHashMap.intKeyOrValue,
+              BaseHashMap.intKeyOrValue,
+              false);
     }
 
     public boolean containsKey(Object key) {
 
         if (key instanceof Integer) {
-
             int intKey = ((Integer) key).intValue();
 
             return super.containsIntKey(intKey);
@@ -78,8 +83,8 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
     }
 
     public boolean containsValue(Object value) {
-        if (value instanceof Integer) {
 
+        if (value instanceof Integer) {
             int intValue = ((Integer) value).intValue();
 
             return super.containsValue(intValue);
@@ -103,11 +108,11 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
         }
 
         int intKey = key.intValue();
-
         int lookup = getLookup(intKey);
 
         if (lookup != -1) {
             int intValue = intValueTable[lookup];
+
             return Integer.valueOf(intValue);
         }
 
@@ -176,8 +181,8 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
     }
 
     public Integer remove(Object key) {
-        if (key instanceof Integer) {
 
+        if (key instanceof Integer) {
             int intKey = ((Integer) key).intValue();
 
             return (Integer) super.remove(intKey, 0, null, null, false, false);
@@ -192,7 +197,12 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
 
     public boolean remove(int key) {
 
-        Integer value = (Integer) super.remove(key, 0, null, null, false, false);
+        Integer value = (Integer) super.remove(key,
+                                               0,
+                                               null,
+                                               null,
+                                               false,
+                                               false);
 
         return value != null;
     }
@@ -202,7 +212,6 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
         Iterator<Integer> it = other.keySet().iterator();
 
         while (it.hasNext()) {
-
             int key   = it.nextInt();
             int value = other.get(key);
 
@@ -219,6 +228,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
     }
 
     public Set<Integer> keySet() {
+
         if (keySet == null) {
             keySet = new KeySet();
         }
@@ -236,6 +246,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
     }
 
     public Set<Map.Entry<Integer, Integer>> entrySet() {
+
         if (entries == null) {
             entries = new EntrySet();
         }
@@ -243,7 +254,9 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
         return entries;
     }
 
-    private class EntrySet extends AbstractReadOnlyCollection<Map.Entry<Integer, Integer>> implements Set<Map.Entry<Integer, Integer>> {
+    private class EntrySet
+            extends AbstractReadOnlyCollection<Map.Entry<Integer, Integer>>
+            implements Set<Map.Entry<Integer, Integer>> {
 
         public Iterator<Entry<Integer, Integer>> iterator() {
             return IntKeyIntValueHashMap.this.new EntrySetIterator();
@@ -258,13 +271,15 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
         }
     }
 
-    private class EntrySetIterator extends BaseHashIterator{
+
+    private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
             super(true);
         }
 
         public Entry<Integer, Integer> next() {
+
             Integer key   = super.nextInt();
             Integer value = intValueTable[lookup];
 
@@ -272,7 +287,9 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
         }
     }
 
-    private class KeySet extends AbstractReadOnlyCollection<Integer> implements Set<Integer> {
+
+    private class KeySet extends AbstractReadOnlyCollection<Integer>
+            implements Set<Integer> {
 
         public PrimitiveIterator<Integer> iterator() {
             return IntKeyIntValueHashMap.this.new BaseHashIterator(true);
@@ -286,6 +303,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, I
             return size() == 0;
         }
     }
+
 
     private class Values extends AbstractReadOnlyCollection<Integer> {
 

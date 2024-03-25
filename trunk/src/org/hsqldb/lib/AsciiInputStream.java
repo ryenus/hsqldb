@@ -34,6 +34,7 @@ package org.hsqldb.lib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+
 import java.util.Objects;
 
 /**
@@ -68,10 +69,9 @@ public class AsciiInputStream extends InputStream {
      * is '?'
      */
     public static final int NON_ASCII_REPLACEMENT = '?';
-
-    private boolean hasNextChar = false;
-    private int nextChar = 0;
-    private final Reader reader;
+    private boolean         hasNextChar           = false;
+    private int             nextChar              = 0;
+    private final Reader    reader;
 
     /**
      * Constructs a new instance for the given reader.
@@ -106,8 +106,10 @@ public class AsciiInputStream extends InputStream {
      * @exception IOException if an I/O error occurs.
      */
     public synchronized int read() throws IOException {
+
         if (hasNextChar) {
             hasNextChar = false;
+
             return nextChar;
         }
 
@@ -119,16 +121,18 @@ public class AsciiInputStream extends InputStream {
 
         if (Character.isHighSurrogate((char) c)) {
             final int nc = reader.read();
+
             hasNextChar = !Character.isLowSurrogate((char) nc);
+
             if (hasNextChar) {
                 nextChar = nc < NON_ASCII_MIN
-                        ? nc & ASCII_MASK
-                        : NON_ASCII_REPLACEMENT;
+                           ? nc & ASCII_MASK
+                           : NON_ASCII_REPLACEMENT;
             }
         }
 
         return c < NON_ASCII_MIN
-                ? c & ASCII_MASK
-                : NON_ASCII_REPLACEMENT;
+               ? c & ASCII_MASK
+               : NON_ASCII_REPLACEMENT;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,8 +74,10 @@ class HsqlThreadFactory implements ThreadFactory {
      * @return the requested thread instance
      */
     public Thread newThread(Runnable r) {
-        return factory == this ? new Thread(r)
-                               : factory.newThread(r);
+
+        return factory == this
+               ? new Thread(r)
+               : factory.newThread(r);
     }
 
     /**
@@ -92,8 +94,9 @@ class HsqlThreadFactory implements ThreadFactory {
         ThreadFactory old;
 
         old     = factory;
-        factory = (f == null) ? this
-                              : f;
+        factory = (f == null)
+                  ? this
+                  : f;
 
         return old;
     }

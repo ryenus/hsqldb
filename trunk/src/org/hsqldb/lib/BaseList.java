@@ -42,8 +42,8 @@ import java.util.NoSuchElementException;
  */
 abstract class BaseList<E> {
 
-    protected ObjectComparator<E> comparator = ObjectComparator.defaultComparator;
-
+    protected ObjectComparator<E> comparator =
+        ObjectComparator.defaultComparator;
     protected int elementCount;
 
     public abstract E get(int index);
@@ -63,6 +63,7 @@ abstract class BaseList<E> {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -95,11 +96,12 @@ abstract class BaseList<E> {
 
     public boolean addAll(E[] array) {
 
-        boolean  result = false;
-        for ( E object : array ) {
-          result = true;
+        boolean result = false;
 
-          add(object);
+        for (E object : array) {
+            result = true;
+
+            add(object);
         }
 
         return result;

@@ -32,9 +32,11 @@
 package org.hsqldb.lib.java;
 
 import java.io.IOException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import java.nio.MappedByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -78,8 +80,8 @@ public final class JavaSystem {
     }
 
     public static long usedMemory() {
-        return Runtime.getRuntime().totalMemory()
-               - Runtime.getRuntime().freeMemory();
+        return Runtime.getRuntime()
+                      .totalMemory() - Runtime.getRuntime().freeMemory();
     }
 
     public static Throwable unmap(MappedByteBuffer buffer) {
@@ -91,13 +93,14 @@ public final class JavaSystem {
         if (javaVersion > 8) {
             try {
                 Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-                Field unsafeField = unsafeClass.getDeclaredField("theUnsafe");
+                Field    unsafeField =
+                    unsafeClass.getDeclaredField("theUnsafe");
 
                 unsafeField.setAccessible(true);
 
                 Object unsafe = unsafeField.get(null);
                 Method invokeCleaner = unsafeClass.getMethod("invokeCleaner",
-                    java.nio.ByteBuffer.class);
+                                                             java.nio.ByteBuffer.class);
 
                 invokeCleaner.invoke(unsafe, buffer);
 
@@ -125,6 +128,7 @@ public final class JavaSystem {
             Method cleanMethod = cleaner.getClass().getMethod("clean");
 
             cleanMethod.invoke(cleaner);
+
             return null;
         } catch (NoSuchMethodException e) {}
         catch (IllegalAccessException e) {}
@@ -142,8 +146,8 @@ public final class JavaSystem {
             Method freeMethod = buffer.getClass().getMethod("free");
 
             freeMethod.setAccessible(true);
-
             freeMethod.invoke(buffer);
+
             return null;
         } catch (Throwable t) {
             return t;

@@ -43,9 +43,9 @@ import java.util.List;
  */
 public class AppendableException extends Exception {
 
-    static final long    serialVersionUID = -1002629580611098803L;
+    static final long          serialVersionUID = -1002629580611098803L;
     public static final String LS = System.getProperty("line.separator");
-    public List<String>  appendages       = null;
+    public List<String>        appendages       = null;
 
     public String getMessage() {
 
@@ -82,6 +82,7 @@ public class AppendableException extends Exception {
     }
 
     public AppendableException() {
+
         // Intentionally empty
     }
 
@@ -94,6 +95,6 @@ public class AppendableException extends Exception {
     }
 
     public AppendableException(String string, Throwable cause) {
-         super(string, cause);
+        super(string, cause);
     }
 }

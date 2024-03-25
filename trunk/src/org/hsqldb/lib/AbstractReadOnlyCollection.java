@@ -31,7 +31,7 @@
 
 package org.hsqldb.lib;
 
-abstract class AbstractReadOnlyCollection<V> implements Collection<V>{
+abstract class AbstractReadOnlyCollection<V> implements Collection<V> {
 
     public final boolean contains(Object o) {
         throw new UnsupportedOperationException();

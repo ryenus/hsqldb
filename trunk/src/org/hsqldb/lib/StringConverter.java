@@ -273,8 +273,9 @@ public class StringConverter {
         for (int j = 0; j < bitCount; j++) {
             byte b = bytes[j / 8];
 
-            s[j] = BitMap.isSet(b, j % 8) ? '1'
-                                          : '0';
+            s[j] = BitMap.isSet(b, j % 8)
+                   ? '1'
+                   : '0';
         }
 
         return new String(s);
@@ -300,8 +301,9 @@ public class StringConverter {
         for (int j = 0; j < bitCount; j++) {
             byte b = bytes[j / 8];
 
-            s[pos++] = BitMap.isSet(b, j % 8) ? '1'
-                                              : '0';
+            s[pos++] = BitMap.isSet(b, j % 8)
+                       ? '1'
+                       : '0';
         }
 
         s[pos] = '\'';
@@ -336,8 +338,9 @@ public class StringConverter {
     public static String byteArrayToString(byte[] b, String charset) {
 
         try {
-            return (charset == null) ? new String(b)
-                                     : new String(b, charset);
+            return (charset == null)
+                   ? new String(b)
+                   : new String(b, charset);
         } catch (Exception e) {}
 
         return null;
@@ -361,8 +364,10 @@ public class StringConverter {
      * @param s Java string
      * @param doubleSingleQuotes boolean
      */
-    public static void stringToUnicodeBytes(HsqlByteArrayOutputStream b,
-            String s, boolean doubleSingleQuotes) {
+    public static void stringToUnicodeBytes(
+            HsqlByteArrayOutputStream b,
+            String s,
+            boolean doubleSingleQuotes) {
 
         if (s == null) {
             return;
@@ -394,7 +399,7 @@ public class StringConverter {
                     b.write(c);
                 }
             } else if ((c >= 0x0020) && (c <= 0x007f)) {
-                b.writeNoCheck(c);        // this is 99%
+                b.writeNoCheck(c);    // this is 99%
 
                 if (c == '\'' && doubleSingleQuotes) {
                     b.writeNoCheck(c);
@@ -424,7 +429,6 @@ public class StringConverter {
 // this legacy bug resulted from forward reading the input when a backslash
 // was present and manifested itself when a backslash was followed
 // immediately by a character outside the 0x20-7f range in a database field.
-
     /**
      * Hsqldb specific decoding used only for log files. This method converts
      * the 7 bit escaped ASCII strings in a log file back into Java Unicode
@@ -472,16 +476,23 @@ public class StringConverter {
         return new String(b, 0, j);
     }
 
-    public static String readUTF(byte[] bytearr, int offset,
-                                 int length) throws IOException {
+    public static String readUTF(
+            byte[] bytearr,
+            int offset,
+            int length)
+            throws IOException {
 
         char[] buf = new char[length];
 
         return readUTF(bytearr, offset, length, buf);
     }
 
-    public static String readUTF(byte[] bytearr, int offset, int length,
-                                 char[] buf) throws IOException {
+    public static String readUTF(
+            byte[] bytearr,
+            int offset,
+            int length,
+            char[] buf)
+            throws IOException {
 
         int bcount = 0;
         int c, char2, char3;
@@ -500,7 +511,6 @@ public class StringConverter {
                 count++;
 
                 buf[bcount++] = (char) c;
-
                 continue;
             }
 
@@ -524,8 +534,7 @@ public class StringConverter {
                         throw new UTFDataFormatException();
                     }
 
-                    buf[bcount++] = (char) (((c & 0x1F) << 6)
-                                            | (char2 & 0x3F));
+                    buf[bcount++] = (char) (((c & 0x1F) << 6) | (char2 & 0x3F));
                     break;
 
                 case 14 :
@@ -568,8 +577,9 @@ public class StringConverter {
      * @param      out   destination to write to
      * @return     The number of bytes written out.
      */
-    public static int stringToUTFBytes(String str,
-                                       HsqlByteArrayOutputStream out) {
+    public static int stringToUTFBytes(
+            String str,
+            HsqlByteArrayOutputStream out) {
 
         int strlen = str.length();
         int c,
@@ -609,8 +619,9 @@ public class StringConverter {
 
     public static int getUTFSize(String s) {
 
-        int len = (s == null) ? 0
-                              : s.length();
+        int len = (s == null)
+                  ? 0
+                  : s.length();
         int l   = 0;
 
         for (int i = 0; i < len; i++) {
@@ -636,8 +647,10 @@ public class StringConverter {
      * @throws IOException on error
      * @return a Java string
      */
-    public static String inputStreamToString(InputStream is,
-            String encoding) throws IOException {
+    public static String inputStreamToString(
+            InputStream is,
+            String encoding)
+            throws IOException {
 
         HsqlByteArrayOutputStream baOS = new HsqlByteArrayOutputStream(1024);
 
@@ -655,7 +668,6 @@ public class StringConverter {
     }
 
 // fredt@users 20020130 - patch 497872 by Nitin Chauhan - use byte[] of exact size
-
     /**
      * Returns the quoted version of the string using the quotechar argument.
      * doublequote argument indicates whether each instance of quotechar inside
@@ -669,15 +681,18 @@ public class StringConverter {
      * @param extraQuote true if quoteChar itself should be repeated
      * @return String
      */
-    public static String toQuotedString(String s, char quoteChar,
-                                        boolean extraQuote) {
+    public static String toQuotedString(
+            String s,
+            char quoteChar,
+            boolean extraQuote) {
 
         if (s == null) {
             return null;
         }
 
-        int    count = extraQuote ? count(s, quoteChar)
-                                  : 0;
+        int    count = extraQuote
+                       ? count(s, quoteChar)
+                       : 0;
         int    len   = s.length();
         char[] b     = new char[2 + count + len];
         int    i     = 0;
@@ -729,8 +744,9 @@ public class StringConverter {
      * @param b the output byte array output stream
      * @param s the input string
      */
-    public static void stringToHtmlBytes(HsqlByteArrayOutputStream b,
-                                         String s) {
+    public static void stringToHtmlBytes(
+            HsqlByteArrayOutputStream b,
+            String s) {
 
         if (s == null) {
             return;
@@ -911,7 +927,6 @@ public class StringConverter {
 
             if (c != '\\') {
                 b.append(c);
-
                 continue;
             }
 
@@ -925,7 +940,6 @@ public class StringConverter {
 
             if (c == '\\') {
                 b.append(c);
-
                 continue;
             }
 

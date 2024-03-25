@@ -48,11 +48,14 @@ public class OrderedLongHashSet extends BaseHashMap {
         this(8);
     }
 
-    public OrderedLongHashSet(int initialCapacity)
-    throws IllegalArgumentException {
+    public OrderedLongHashSet(
+            int initialCapacity)
+            throws IllegalArgumentException {
 
-        super(initialCapacity, BaseHashMap.longKeyOrValue,
-              BaseHashMap.noKeyOrValue, false);
+        super(initialCapacity,
+              BaseHashMap.longKeyOrValue,
+              BaseHashMap.noKeyOrValue,
+              false);
 
         isList = true;
     }
@@ -70,8 +73,10 @@ public class OrderedLongHashSet extends BaseHashMap {
         return oldSize != size();
     }
 
-    public boolean insert(int index,
-                          long key) throws IndexOutOfBoundsException {
+    public boolean insert(
+            int index,
+            long key)
+            throws IndexOutOfBoundsException {
 
         if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException();
@@ -89,7 +94,6 @@ public class OrderedLongHashSet extends BaseHashMap {
     }
 
     public boolean remove(long key) {
-
         return (Boolean) super.remove(key, 0, null, null, false, true);
     }
 

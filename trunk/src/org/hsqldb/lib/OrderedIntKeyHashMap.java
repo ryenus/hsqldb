@@ -40,13 +40,16 @@ package org.hsqldb.lib;
  * @version 2.6.0
  * @since 2.0.0
  */
-public class OrderedIntKeyHashMap<V> extends IntKeyHashMap<V> implements Map<Integer, V> {
+public class OrderedIntKeyHashMap<V> extends IntKeyHashMap<V>
+        implements Map<Integer, V> {
 
     public OrderedIntKeyHashMap() {
         this(8);
     }
 
-    public OrderedIntKeyHashMap(int initialCapacity) throws IllegalArgumentException {
+    public OrderedIntKeyHashMap(
+            int initialCapacity)
+            throws IllegalArgumentException {
 
         super(initialCapacity);
 
@@ -80,25 +83,33 @@ public class OrderedIntKeyHashMap<V> extends IntKeyHashMap<V> implements Map<Int
         return oldValue;
     }
 
-    public boolean set(int index, int key, V value) throws IndexOutOfBoundsException {
+    public boolean set(
+            int index,
+            int key,
+            V value)
+            throws IndexOutOfBoundsException {
 
         checkRange(index);
 
         if (keySet().contains(key) && getIndex(key) != index) {
             return false;
         }
+
         super.remove(intKeyTable[index], 0, null, null, false, false);
         put(key, value);
 
         return true;
     }
 
-    public boolean insert(int index, int key, V value) throws IndexOutOfBoundsException {
+    public boolean insert(
+            int index,
+            int key,
+            V value)
+            throws IndexOutOfBoundsException {
 
         if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException();
         }
-
 
         int lookup = getLookup(key);
 
@@ -115,7 +126,10 @@ public class OrderedIntKeyHashMap<V> extends IntKeyHashMap<V> implements Map<Int
         return true;
     }
 
-    public boolean setKeyAt(int index, int key) throws IndexOutOfBoundsException {
+    public boolean setKeyAt(
+            int index,
+            int key)
+            throws IndexOutOfBoundsException {
 
         checkRange(index);
 

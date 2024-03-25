@@ -343,8 +343,9 @@ public class DoubleIntIndex implements LongLookup {
             fastQuickSort();
         }
 
-        targetSearchValue = sortOnValues ? value
-                                         : key;
+        targetSearchValue = sortOnValues
+                            ? value
+                            : key;
 
         int i = binaryEmptySlotSearch();
 
@@ -508,8 +509,9 @@ public class DoubleIntIndex implements LongLookup {
             fastQuickSort();
         }
 
-        targetSearchValue = sortOnValues ? value
-                                         : key;
+        targetSearchValue = sortOnValues
+                            ? value
+                            : key;
 
         int i = binarySlotSearch(true);
 
@@ -641,8 +643,9 @@ public class DoubleIntIndex implements LongLookup {
 
         int index = findFirstGreaterEqualSlotIndex(value);
 
-        return index == count ? -1
-                              : index;
+        return index == count
+               ? -1
+               : index;
     }
 
     /**
@@ -747,8 +750,9 @@ public class DoubleIntIndex implements LongLookup {
             }
         }
 
-        return found == count ? -1
-                              : found;
+        return found == count
+               ? -1
+               : found;
     }
 
     /**
@@ -1057,9 +1061,15 @@ public class DoubleIntIndex implements LongLookup {
 
     public void removeRange(int start, int limit) {
 
-        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT, keys, count, start,
+        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT,
+                              keys,
+                              count,
+                              start,
                               start - limit);
-        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT, values, count, start,
+        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT,
+                              values,
+                              count,
+                              start,
                               start - limit);
 
         count -= (limit - start);
@@ -1079,6 +1089,7 @@ public class DoubleIntIndex implements LongLookup {
         System.arraycopy(keys, 0, other.keys, 0, count);
         System.arraycopy(values, 0, other.values, 0, count);
         other.setSize(count);
+
         other.sorted = false;
     }
 

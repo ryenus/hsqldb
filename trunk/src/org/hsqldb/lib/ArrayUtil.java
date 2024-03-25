@@ -32,6 +32,7 @@
 package org.hsqldb.lib;
 
 import java.lang.reflect.Array;
+
 import java.util.Arrays;
 
 /**
@@ -102,6 +103,7 @@ public final class ArrayUtil {
 
                 return;
             }
+
             case ArrayUtil.CLASS_CODE_CHAR : {
                 char[] array = (char[]) data;
 
@@ -109,6 +111,7 @@ public final class ArrayUtil {
 
                 return;
             }
+
             case ArrayUtil.CLASS_CODE_SHORT : {
                 short[] array = (short[]) data;
 
@@ -116,6 +119,7 @@ public final class ArrayUtil {
 
                 return;
             }
+
             case ArrayUtil.CLASS_CODE_INT : {
                 int[] array = (int[]) data;
 
@@ -123,6 +127,7 @@ public final class ArrayUtil {
 
                 return;
             }
+
             case ArrayUtil.CLASS_CODE_LONG : {
                 long[] array = (long[]) data;
 
@@ -130,6 +135,7 @@ public final class ArrayUtil {
 
                 return;
             }
+
             case ArrayUtil.CLASS_CODE_FLOAT : {
                 float[] array = (float[]) data;
 
@@ -137,6 +143,7 @@ public final class ArrayUtil {
 
                 return;
             }
+
             case ArrayUtil.CLASS_CODE_DOUBLE : {
                 double[] array = (double[]) data;
 
@@ -144,6 +151,7 @@ public final class ArrayUtil {
 
                 return;
             }
+
             case ArrayUtil.CLASS_CODE_BOOLEAN : {
                 boolean[] array = (boolean[]) data;
 
@@ -151,6 +159,7 @@ public final class ArrayUtil {
 
                 return;
             }
+
             default : {
                 Object[] array = (Object[]) data;
 
@@ -171,8 +180,12 @@ public final class ArrayUtil {
      * @param index point at which to add or remove elements
      * @param count number of elements to add or remove
      */
-    public static void adjustArray(int type, Object array, int usedElements,
-                                   int index, int count) {
+    public static void adjustArray(
+            int type,
+            Object array,
+            int usedElements,
+            int index,
+            int count) {
 
         if (index >= usedElements || count == 0) {
             return;
@@ -319,6 +332,7 @@ public final class ArrayUtil {
 
         return -1;
     }
+
     /**
      * Finds the first element of the array that is not equal to the given value.
      *
@@ -415,8 +429,10 @@ public final class ArrayUtil {
      * @param count int
      * @return boolean
      */
-    public static boolean haveEqualArrays(Object[] arra, Object[] arrb,
-                                          int count) {
+    public static boolean haveEqualArrays(
+            Object[] arra,
+            Object[] arrb,
+            int count) {
 
         if (count > arra.length || count > arrb.length) {
             return false;
@@ -530,7 +546,6 @@ public final class ArrayUtil {
             for (int j = 0; j < arrb.length; j++) {
                 if (arra[i] == arrb[j]) {
                     k++;
-
                     break;
                 }
             }
@@ -539,8 +554,10 @@ public final class ArrayUtil {
         return k;
     }
 
-    public static int countCommonElements(Object[] arra, int alen,
-                                          Object[] arrb) {
+    public static int countCommonElements(
+            Object[] arra,
+            int alen,
+            Object[] arrb) {
 
         int k = 0;
 
@@ -548,7 +565,6 @@ public final class ArrayUtil {
             for (int j = 0; j < arrb.length; j++) {
                 if (arra[i] == arrb[j]) {
                     k++;
-
                     break;
                 }
             }
@@ -695,7 +711,7 @@ public final class ArrayUtil {
      */
     public static int[] union(int[] arra, int[] arrb) {
 
-        int commonSize  = ArrayUtil.countCommonElements(arra, arrb);
+        int commonSize = ArrayUtil.countCommonElements(arra, arrb);
 
         if (commonSize == arrb.length) {
             return arra;
@@ -709,18 +725,18 @@ public final class ArrayUtil {
         int[] arrn    = Arrays.copyOf(arra, newSize);
         int   pos     = arra.length;
 
-            mainloop:
-            for (int i = 0; i < arrb.length; i++) {
-                for (int j = 0; j < arra.length; j++) {
-                    if (arrb[i] == arra[j]) {
-                        continue mainloop;
-                    }
+        mainloop:
+        for (int i = 0; i < arrb.length; i++) {
+            for (int j = 0; j < arra.length; j++) {
+                if (arrb[i] == arra[j]) {
+                    continue mainloop;
                 }
-
-                arrn[pos++] = arrb[i];
             }
 
-            return arrn;
+            arrn[pos++] = arrb[i];
+        }
+
+        return arrn;
     }
 
     /**
@@ -731,17 +747,16 @@ public final class ArrayUtil {
      * @return int[]
      */
     public static int[] concat(int[] arra, int[] arrb) {
-        int newSize = arra.length + arrb.length;
 
-        int[] arrn = Arrays.copyOf(arra, newSize);
-        int   pos  = arra.length;
+        int   newSize = arra.length + arrb.length;
+        int[] arrn    = Arrays.copyOf(arra, newSize);
+        int   pos     = arra.length;
 
         for (int i = 0; i < arrb.length; i++) {
             arrn[pos++] = arrb[i];
         }
 
         return arrn;
-
     }
 
     /**
@@ -787,8 +802,11 @@ public final class ArrayUtil {
      * @param byteSet byte[]
      * @return int
      */
-    public static int findNotIn(byte[] arra, int start, int limit,
-                                byte[] byteSet) {
+    public static int findNotIn(
+            byte[] arra,
+            int start,
+            int limit,
+            byte[] byteSet) {
 
         mainloop:
         for (int k = start; k < limit; k++) {
@@ -814,8 +832,11 @@ public final class ArrayUtil {
      * @param byteSet byte[]
      * @return int
      */
-    public static int findIn(byte[] arra, int start, int limit,
-                             byte[] byteSet) {
+    public static int findIn(
+            byte[] arra,
+            int start,
+            int limit,
+            byte[] byteSet) {
 
         for (int k = start; k < limit; k++) {
             for (int i = 0; i < byteSet.length; i++) {
@@ -902,7 +923,8 @@ public final class ArrayUtil {
      * @param arrb boolean[]
      * @return int
      */
-    public static int countStartIntIndexesInBooleanArray(int[] arra,
+    public static int countStartIntIndexesInBooleanArray(
+            int[] arra,
             boolean[] arrb) {
 
         int k = 0;
@@ -935,7 +957,8 @@ public final class ArrayUtil {
      * @param arrb boolean[]
      * @return boolean
      */
-    public static boolean areAllIntIndexesAsBooleanArray(int[] arra,
+    public static boolean areAllIntIndexesAsBooleanArray(
+            int[] arra,
             boolean[] arrb) {
 
         for (int i = 0; i < arra.length; i++) {
@@ -949,7 +972,8 @@ public final class ArrayUtil {
         return arra.length == countTrueElements(arrb);
     }
 
-    public static boolean areAllIntIndexesInBooleanArray(int[] arra,
+    public static boolean areAllIntIndexesInBooleanArray(
+            int[] arra,
             boolean[] arrb) {
 
         for (int i = 0; i < arra.length; i++) {
@@ -963,7 +987,8 @@ public final class ArrayUtil {
         return true;
     }
 
-    public static boolean isAnyIntIndexInBooleanArray(int[] arra,
+    public static boolean isAnyIntIndexInBooleanArray(
+            int[] arra,
             boolean[] arrb) {
 
         for (int i = 0; i < arra.length; i++) {
@@ -983,7 +1008,8 @@ public final class ArrayUtil {
      * @param arrb boolean[]
      * @return boolean
      */
-    public static boolean containsAllTrueElements(boolean[] arra,
+    public static boolean containsAllTrueElements(
+            boolean[] arra,
             boolean[] arrb) {
 
         for (int i = 0; i < arra.length; i++) {
@@ -1070,8 +1096,10 @@ public final class ArrayUtil {
      * @param arrb byte[]
      * @return int
      */
-    public static int countStartElementsAt(byte[] arra, int start,
-                                           byte[] arrb) {
+    public static int countStartElementsAt(
+            byte[] arra,
+            int start,
+            byte[] arrb) {
 
         int k = 0;
 
@@ -1080,7 +1108,6 @@ public final class ArrayUtil {
             for (int j = 0; j < arrb.length; j++) {
                 if (arra[i] == arrb[j]) {
                     k++;
-
                     continue mainloop;
                 }
             }
@@ -1113,7 +1140,9 @@ public final class ArrayUtil {
      * @param arrb byte[]
      * @return int
      */
-    public static int countNonStartElementsAt(byte[] arra, int start,
+    public static int countNonStartElementsAt(
+            byte[] arra,
+            int start,
             byte[] arrb) {
 
         int k = 0;
@@ -1147,9 +1176,14 @@ public final class ArrayUtil {
      * @param destLength int
      * @return int
      */
-    public static int copyBytes(long sourceOffset, byte[] source,
-                                int sourceOff, int sourceLength,
-                                long destOffset, byte[] dest, int destLength) {
+    public static int copyBytes(
+            long sourceOffset,
+            byte[] source,
+            int sourceOff,
+            int sourceLength,
+            long destOffset,
+            byte[] dest,
+            int destLength) {
 
         if (sourceOff >= source.length) {
             return 0;
@@ -1187,7 +1221,10 @@ public final class ArrayUtil {
             sourceLength = destLength - (int) destIndex;
         }
 
-        System.arraycopy(source, (int) sourceIndex, dest, (int) destIndex,
+        System.arraycopy(source,
+                         (int) sourceIndex,
+                         dest,
+                         (int) destIndex,
                          sourceLength);
 
         return sourceLength;
@@ -1202,8 +1239,7 @@ public final class ArrayUtil {
      * @param destOffset int
      * @return byte[]
      */
-    public static byte[] copyBytes(byte[] source, byte[] dest,
-                                   int destOffset) {
+    public static byte[] copyBytes(byte[] source, byte[] dest, int destOffset) {
 
         if (source.length + destOffset > dest.length) {
             byte[] newDest = new byte[source.length + destOffset];
@@ -1229,34 +1265,42 @@ public final class ArrayUtil {
         System.arraycopy(source, 0, dest, 0, count);
     }
 
-    public static void copyMoveSegment(Object source, Object dest, int size,
-                                       int index, int segmentSize,
-                                       int destIndex) {
+    public static void copyMoveSegment(
+            Object source,
+            Object dest,
+            int size,
+            int index,
+            int segmentSize,
+            int destIndex) {
 
         boolean forward   = index < destIndex;
-        int     sliceSize = forward ? index
-                                    : destIndex;
+        int     sliceSize = forward
+                            ? index
+                            : destIndex;
 
         System.arraycopy(source, 0, dest, 0, sliceSize);
 
-        sliceSize = forward ? size - destIndex - segmentSize
-                            : size - index - segmentSize;
+        sliceSize = forward
+                    ? size - destIndex - segmentSize
+                    : size - index - segmentSize;
 
-        int sliceIndex = forward ? destIndex + segmentSize
-                                 : index + segmentSize;
+        int sliceIndex = forward
+                         ? destIndex + segmentSize
+                         : index + segmentSize;
 
         System.arraycopy(source, sliceIndex, dest, sliceIndex, sliceSize);
         System.arraycopy(source, index, dest, destIndex, segmentSize);
 
         sliceSize  = Math.abs(index - destIndex);
-        sliceIndex = forward ? index + segmentSize
-                             : destIndex;
+        sliceIndex = forward
+                     ? index + segmentSize
+                     : destIndex;
 
-        int targetSliceIndex = forward ? index
-                                       : destIndex + segmentSize;
+        int targetSliceIndex = forward
+                               ? index
+                               : destIndex + segmentSize;
 
-        System.arraycopy(source, sliceIndex, dest, targetSliceIndex,
-                         sliceSize);
+        System.arraycopy(source, sliceIndex, dest, targetSliceIndex, sliceSize);
     }
 
     /**
@@ -1378,7 +1422,8 @@ public final class ArrayUtil {
 
         int size = Array.getLength(source);
         Object newarray =
-            Array.newInstance(source.getClass().getComponentType(), size);
+            Array.newInstance(source.getClass().getComponentType(),
+                              size);
 
         System.arraycopy(source, 0, newarray, 0, size);
 
@@ -1403,7 +1448,8 @@ public final class ArrayUtil {
         }
 
         Object newarray =
-            Array.newInstance(source.getClass().getComponentType(), newsize);
+            Array.newInstance(source.getClass().getComponentType(),
+                              newsize);
 
         if (oldsize < newsize) {
             newsize = oldsize;
@@ -1426,7 +1472,8 @@ public final class ArrayUtil {
     public static Object resizeArray(Object source, int newsize) {
 
         Object newarray =
-            Array.newInstance(source.getClass().getComponentType(), newsize);
+            Array.newInstance(source.getClass().getComponentType(),
+                              newsize);
         int oldsize = Array.getLength(source);
 
         if (oldsize < newsize) {
@@ -1470,12 +1517,16 @@ public final class ArrayUtil {
      * @param adjust int
      * @return Object
      */
-    public static Object toAdjustedArray(Object source, Object addition,
-                                         int colindex, int adjust) {
+    public static Object toAdjustedArray(
+            Object source,
+            Object addition,
+            int colindex,
+            int adjust) {
 
         int newsize = Array.getLength(source) + adjust;
         Object newarray =
-            Array.newInstance(source.getClass().getComponentType(), newsize);
+            Array.newInstance(source.getClass().getComponentType(),
+                              newsize);
 
         copyAdjustArray(source, newarray, addition, colindex, adjust);
 
@@ -1498,9 +1549,12 @@ public final class ArrayUtil {
      * @param colindex int
      * @param adjust int
      */
-    public static void copyAdjustArray(Object source, Object dest,
-                                       Object addition, int colindex,
-                                       int adjust) {
+    public static void copyAdjustArray(
+            Object source,
+            Object dest,
+            Object addition,
+            int colindex,
+            int adjust) {
 
         int length = Array.getLength(source);
 
@@ -1518,14 +1572,20 @@ public final class ArrayUtil {
             Array.set(dest, colindex, addition);
 
             if (endcount > 0) {
-                System.arraycopy(source, colindex + 1, dest, colindex + 1,
+                System.arraycopy(source,
+                                 colindex + 1,
+                                 dest,
+                                 colindex + 1,
                                  endcount);
             }
         } else if (adjust < 0) {
             int endcount = length - colindex - 1;
 
             if (endcount > 0) {
-                System.arraycopy(source, colindex + 1, dest, colindex,
+                System.arraycopy(source,
+                                 colindex + 1,
+                                 dest,
+                                 colindex,
                                  endcount);
             }
         } else {
@@ -1534,7 +1594,10 @@ public final class ArrayUtil {
             Array.set(dest, colindex, addition);
 
             if (endcount > 0) {
-                System.arraycopy(source, colindex, dest, colindex + 1,
+                System.arraycopy(source,
+                                 colindex,
+                                 dest,
+                                 colindex + 1,
                                  endcount);
             }
         }
@@ -1552,8 +1615,11 @@ public final class ArrayUtil {
      * @param colindex int[]
      * @param adjust int
      */
-    public static void copyAdjustArray(Object[] source, Object[] dest,
-                                       int[] colindex, int adjust) {
+    public static void copyAdjustArray(
+            Object[] source,
+            Object[] dest,
+            int[] colindex,
+            int adjust) {
 
         if (adjust == 0) {
             System.arraycopy(source, 0, dest, 0, source.length);
@@ -1563,7 +1629,6 @@ public final class ArrayUtil {
 
         for (int i = 0, j = 0, counter = 0;
                 i < source.length && j < dest.length; i++, j++) {
-
             if (counter < colindex.length) {
                 int adjustPos = colindex[counter];
 
@@ -1604,7 +1669,9 @@ public final class ArrayUtil {
      * @param  adjust +1, 0 or -1
      * @return new, adjusted array
      */
-    public static int[] toAdjustedColumnArray(int[] colarr, int colindex,
+    public static int[] toAdjustedColumnArray(
+            int[] colarr,
+            int colindex,
             int adjust) {
 
         if (colarr == null) {
@@ -1659,7 +1726,9 @@ public final class ArrayUtil {
      * @param adjust int
      * @return int[]
      */
-    public static int[] toAdjustedColumnArray(int[] colarr, int[] colindex,
+    public static int[] toAdjustedColumnArray(
+            int[] colarr,
+            int[] colindex,
             int adjust) {
 
         if (colarr == null) {
@@ -1698,8 +1767,10 @@ public final class ArrayUtil {
      *  @param columnMap the list of indexes into row
      *  @param newRow the destination array
      */
-    public static void projectRow(Object[] row, int[] columnMap,
-                                  Object[] newRow) {
+    public static void projectRow(
+            Object[] row,
+            int[] columnMap,
+            Object[] newRow) {
 
         for (int i = 0; i < columnMap.length; i++) {
             newRow[i] = row[columnMap[i]];
@@ -1720,8 +1791,10 @@ public final class ArrayUtil {
      *  @param columnMap the list of indexes into row
      *  @param newRow the source array
      */
-    public static void projectRowReverse(Object[] row, int[] columnMap,
-                                         Object[] newRow) {
+    public static void projectRowReverse(
+            Object[] row,
+            int[] columnMap,
+            Object[] newRow) {
 
         for (int i = 0; i < columnMap.length; i++) {
             row[columnMap[i]] = newRow[i];
@@ -1753,22 +1826,25 @@ public final class ArrayUtil {
         }
     }
 */
-    public static void projectMap(int[] mainMap, int[] subMap,
-                                  int[] newSubMap) {
+    public static void projectMap(
+            int[] mainMap,
+            int[] subMap,
+            int[] newSubMap) {
 
         for (int i = 0; i < subMap.length; i++) {
             for (int j = 0; j < mainMap.length; j++) {
                 if (subMap[i] == mainMap[j]) {
                     newSubMap[i] = j;
-
                     break;
                 }
             }
         }
     }
 
-    public static void reorderMaps(int[] mainMap, int[] firstMap,
-                                   int[] secondMap) {
+    public static void reorderMaps(
+            int[] mainMap,
+            int[] firstMap,
+            int[] secondMap) {
 
         for (int i = 0; i < mainMap.length; i++) {
             for (int j = i; j < firstMap.length; j++) {
@@ -1780,7 +1856,6 @@ public final class ArrayUtil {
                     temp         = secondMap[i];
                     secondMap[i] = secondMap[j];
                     secondMap[j] = temp;
-
                     break;
                 }
             }
@@ -1836,7 +1911,8 @@ public final class ArrayUtil {
      */
     public static boolean isInSortedArray(char ch, char[] array) {
 
-        if (array.length == 0 || ch < array[0]
+        if (array.length == 0
+                || ch < array[0]
                 || ch > array[array.length - 1]) {
             return false;
         }
@@ -2014,8 +2090,13 @@ public final class ArrayUtil {
         return compare(a, 0, a.length, b, 0, b.length);
     }
 
-    public static int compare(byte[] a, int aOffset, int aLength, byte[] b,
-                              int bOffset, int bLength) {
+    public static int compare(
+            byte[] a,
+            int aOffset,
+            int aLength,
+            byte[] b,
+            int bOffset,
+            int bLength) {
 
         int length = aLength;
 
@@ -2029,16 +2110,18 @@ public final class ArrayUtil {
             }
 
             return (((int) a[aOffset + i]) & 0xff)
-                   > (((int) b[bOffset + i]) & 0xff) ? 1
-                                                     : -1;
+                   > (((int) b[bOffset + i]) & 0xff)
+                   ? 1
+                   : -1;
         }
 
         if (aLength == bLength) {
             return 0;
         }
 
-        return aLength < bLength ? -1
-                                 : 1;
+        return aLength < bLength
+               ? -1
+               : 1;
     }
 
     /**

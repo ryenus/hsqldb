@@ -265,8 +265,9 @@ public class IntIndex {
 
         int index = findFirstGreaterEqualSlotIndex(value);
 
-        return index == count ? -1
-                              : index;
+        return index == count
+               ? -1
+               : index;
     }
 
     /**
@@ -388,8 +389,9 @@ public class IntIndex {
             }
         }
 
-        return found == count ? -1
-                              : found;
+        return found == count
+               ? -1
+               : found;
     }
 
     /**
@@ -467,7 +469,8 @@ public class IntIndex {
             indices.pop();
 
             if (end - start >= threshold) {
-                int pivot = partition(start, end,
+                int pivot = partition(start,
+                                      end,
                                       start + ((end - start) >>> 1));
 
                 indices.push(start, pivot - 1);
@@ -630,7 +633,10 @@ public class IntIndex {
 
     public synchronized void removeRange(int start, int limit) {
 
-        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT, keys, count, start,
+        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT,
+                              keys,
+                              count,
+                              start,
                               start - limit);
 
         count -= (limit - start);

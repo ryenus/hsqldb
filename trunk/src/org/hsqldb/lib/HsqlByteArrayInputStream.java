@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,7 @@ import java.io.InputStream;
  * @version 2.4.0
  * @since 1.7.2
  */
-public class HsqlByteArrayInputStream extends InputStream
-implements DataInput {
+public class HsqlByteArrayInputStream extends InputStream implements DataInput {
 
     protected byte[] buffer;
     protected int    pos;
@@ -76,8 +75,7 @@ implements DataInput {
         readFully(b, 0, b.length);
     }
 
-    public final void readFully(byte[] b, int off,
-                                int len) throws IOException {
+    public final void readFully(byte[] b, int off, int len) throws IOException {
 
         if (len < 0) {
             throw new IndexOutOfBoundsException();
@@ -222,8 +220,10 @@ implements DataInput {
 
 // methods that extend java.io.InputStream
     public int read() {
-        return (pos < count) ? (buffer[pos++] & 0xff)
-                             : -1;
+
+        return (pos < count)
+               ? (buffer[pos++] & 0xff)
+               : -1;
     }
 
     public int read(byte[] b, int off, int len) {

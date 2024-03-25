@@ -47,13 +47,17 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
     }
 
     public HashSet(int initialCapacity) throws IllegalArgumentException {
-        super(initialCapacity, BaseHashMap.objectKeyOrValue,
-              BaseHashMap.noKeyOrValue, false);
+
+        super(initialCapacity,
+              BaseHashMap.objectKeyOrValue,
+              BaseHashMap.noKeyOrValue,
+              false);
     }
 
-    public HashSet(int initialCapacity,
-                   ObjectComparator<E> comparator)
-                   throws IllegalArgumentException {
+    public HashSet(
+            int initialCapacity,
+            ObjectComparator<E> comparator)
+            throws IllegalArgumentException {
 
         this(initialCapacity);
 
@@ -61,6 +65,7 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
     }
 
     public HashSet(E[] valueList) {
+
         this(valueList.length);
 
         for (int i = 0; i < valueList.length; i++) {
@@ -129,6 +134,7 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
      * @return true if added
      */
     public boolean add(E key) {
+
         if (key == null) {
             throw new NullPointerException();
         }
@@ -211,8 +217,8 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
      */
     public boolean removeAll(Collection<E> c) {
 
-        Iterator<E> it = c.iterator();
-        boolean  result = true;
+        Iterator<E> it     = c.iterator();
+        boolean     result = true;
 
         while (it.hasNext()) {
             result &= remove(it.next());
@@ -244,9 +250,8 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
 
     public int getCommonElementCount(Set<E> other) {
 
-        int count = 0;
-
-        Iterator<E> it = iterator();
+        int         count = 0;
+        Iterator<E> it    = iterator();
 
         while (it.hasNext()) {
             if (other.contains(it.next())) {
@@ -279,6 +284,7 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
 
         Iterator<E>   it = iterator();
         StringBuilder sb = new StringBuilder();
+
         sb.append('[');
 
         while (it.hasNext()) {

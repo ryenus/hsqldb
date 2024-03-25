@@ -55,9 +55,14 @@ public class IntValueHashMap<K> extends BaseHashMap {
         this(8);
     }
 
-    public IntValueHashMap(int initialCapacity) throws IllegalArgumentException {
-        super(initialCapacity, BaseHashMap.objectKeyOrValue,
-              BaseHashMap.intKeyOrValue, false);
+    public IntValueHashMap(
+            int initialCapacity)
+            throws IllegalArgumentException {
+
+        super(initialCapacity,
+              BaseHashMap.objectKeyOrValue,
+              BaseHashMap.intKeyOrValue,
+              false);
     }
 
     public boolean containsKey(Object key) {
@@ -67,7 +72,6 @@ public class IntValueHashMap<K> extends BaseHashMap {
     public boolean containsValue(Object value) {
 
         if (value instanceof Integer) {
-
             int intValue = ((Integer) value).intValue();
 
             return super.containsValue(intValue);
@@ -202,6 +206,7 @@ public class IntValueHashMap<K> extends BaseHashMap {
     }
 
     public Set<Map.Entry<K, Integer>> entrySet() {
+
         if (entries == null) {
             entries = new EntrySet();
         }
@@ -209,7 +214,9 @@ public class IntValueHashMap<K> extends BaseHashMap {
         return entries;
     }
 
-    private class EntrySet extends AbstractReadOnlyCollection<Entry<K, Integer>> implements Set<Entry<K, Integer>> {
+    private class EntrySet
+            extends AbstractReadOnlyCollection<Entry<K, Integer>>
+            implements Set<Entry<K, Integer>> {
 
         public Iterator<Entry<K, Integer>> iterator() {
             return IntValueHashMap.this.new EntrySetIterator();
@@ -224,19 +231,22 @@ public class IntValueHashMap<K> extends BaseHashMap {
         }
     }
 
-    private class EntrySetIterator extends BaseHashIterator{
+
+    private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
             super(true);
         }
 
         public Entry<K, Integer> next() {
+
             K       key   = (K) super.next();
             Integer value = intValueTable[lookup];
 
             return new MapEntry<>(key, value);
         }
     }
+
 
     class KeySet extends AbstractReadOnlyCollection<K> implements Set<K> {
 
@@ -252,6 +262,7 @@ public class IntValueHashMap<K> extends BaseHashMap {
             return size() == 0;
         }
     }
+
 
     class Values extends AbstractReadOnlyCollection<Integer> {
 

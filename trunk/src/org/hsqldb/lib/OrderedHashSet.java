@@ -44,24 +44,28 @@ package org.hsqldb.lib;
 public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
 
     public OrderedHashSet() {
+
         super(8);
 
         this.isList = true;
     }
 
     public OrderedHashSet(int initialCapacity) {
+
         super(initialCapacity);
 
         this.isList = true;
     }
 
     public OrderedHashSet(int initialCapacity, ObjectComparator<E> comparator) {
+
         super(initialCapacity, comparator);
 
         this.isList = true;
     }
 
     public OrderedHashSet(E[] valueList) {
+
         this(valueList.length);
 
         for (int i = 0; i < valueList.length; i++) {
@@ -89,8 +93,7 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
         return key;
     }
 
-    public boolean insert(int index,
-                          E key) throws IndexOutOfBoundsException {
+    public boolean insert(int index, E key) throws IndexOutOfBoundsException {
 
         if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException();
@@ -108,6 +111,7 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
     }
 
     public E set(int index, E key) {
+
         if (key == null) {
             throw new NullPointerException();
         }
@@ -121,13 +125,13 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
         E oldKey = (E) objectKeyTable[index];
 
         super.remove(0, 0, oldKey, null, false, false);
-
         add(key);
 
         return oldKey;
     }
 
     public void add(int index, E key) {
+
         boolean result = insert(index, key);
 
         if (!result) {
@@ -143,11 +147,14 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
     }
 
     public Object[] toArray() {
+
         Object[] array = new Object[size()];
+
         return toArray(array);
     }
 
     public <T> T[] toArray(T[] array) {
+
         System.arraycopy(super.objectKeyTable, 0, array, 0, array.length);
 
         return array;
@@ -215,8 +222,9 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
      * if second is null return first (which can be null),
      * else if first is null return a new set and add the elements of second
      */
-    public static <E> OrderedHashSet<E> addAll(OrderedHashSet<E> first,
-                                        OrderedHashSet<E> second) {
+    public static <E> OrderedHashSet<E> addAll(
+            OrderedHashSet<E> first,
+            OrderedHashSet<E> second) {
 
         if (second == null) {
             return first;

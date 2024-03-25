@@ -42,27 +42,30 @@ import org.hsqldb.map.BaseHashMap;
  * @version 2.6.0
  * @since 1.7.2
  */
-public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, Long> {
+public class IntKeyLongValueHashMap extends BaseHashMap
+        implements Map<Integer, Long> {
 
     private Set<Integer>              keySet;
     private Collection<Long>          values;
     private Set<Entry<Integer, Long>> entries;
 
-
     public IntKeyLongValueHashMap() {
         this(8);
     }
 
-    public IntKeyLongValueHashMap(int initialCapacity) throws
-        IllegalArgumentException {
-        super(initialCapacity, BaseHashMap.intKeyOrValue,
-              BaseHashMap.longKeyOrValue, false);
+    public IntKeyLongValueHashMap(
+            int initialCapacity)
+            throws IllegalArgumentException {
+
+        super(initialCapacity,
+              BaseHashMap.intKeyOrValue,
+              BaseHashMap.longKeyOrValue,
+              false);
     }
 
     public boolean containsKey(Object key) {
 
         if (key instanceof Integer) {
-
             int intKey = ((Integer) key).intValue();
 
             return super.containsIntKey(intKey);
@@ -80,8 +83,8 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
     }
 
     public boolean containsValue(Object value) {
-        if (value instanceof Long) {
 
+        if (value instanceof Long) {
             long longValue = ((Long) value).longValue();
 
             return super.containsValue(longValue);
@@ -103,12 +106,13 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
         if (key == null) {
             throw new NullPointerException();
         }
-        int intKey = key.intValue();
 
+        int intKey = key.intValue();
         int lookup = getLookup(intKey);
 
         if (lookup != -1) {
             long longValue = longValueTable[lookup];
+
             return Long.valueOf(longValue);
         }
 
@@ -177,11 +181,11 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
     }
 
     public Long remove(Object key) {
-        if (key instanceof Integer) {
 
+        if (key instanceof Integer) {
             int intKey = ((Integer) key).intValue();
 
-            return (Long)super.remove(intKey, 0, null, null, false, false);
+            return (Long) super.remove(intKey, 0, null, null, false, false);
         }
 
         if (key == null) {
@@ -193,9 +197,9 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
 
     public boolean remove(int key) {
 
-        Long value = (Long)super.remove(key, 0, null, null, false, false);
+        Long value = (Long) super.remove(key, 0, null, null, false, false);
 
-        return value == null ? false : true;
+        return value != null;
     }
 
     public void putAll(IntKeyLongValueHashMap other) {
@@ -203,8 +207,7 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
         Iterator<Integer> it = other.keySet().iterator();
 
         while (it.hasNext()) {
-
-            int intKey     = it.nextInt();
+            int  intKey    = it.nextInt();
             long longValue = other.get(intKey);
 
             put(intKey, longValue);
@@ -220,6 +223,7 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
     }
 
     public Set<Integer> keySet() {
+
         if (keySet == null) {
             keySet = new KeySet();
         }
@@ -237,6 +241,7 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
     }
 
     public Set<Map.Entry<Integer, Long>> entrySet() {
+
         if (entries == null) {
             entries = new EntrySet();
         }
@@ -244,7 +249,9 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
         return entries;
     }
 
-    private class EntrySet extends AbstractReadOnlyCollection<Map.Entry<Integer, Long>> implements Set<Map.Entry<Integer, Long>> {
+    private class EntrySet
+            extends AbstractReadOnlyCollection<Map.Entry<Integer, Long>>
+            implements Set<Map.Entry<Integer, Long>> {
 
         public Iterator<Map.Entry<Integer, Long>> iterator() {
             return IntKeyLongValueHashMap.this.new EntrySetIterator();
@@ -259,13 +266,15 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
         }
     }
 
-    private class EntrySetIterator extends BaseHashIterator{
+
+    private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
             super(true);
         }
 
         public Entry<Integer, Long> next() {
+
             Integer key   = super.nextInt();
             Long    value = longValueTable[lookup];
 
@@ -273,7 +282,9 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
         }
     }
 
-    private class KeySet extends AbstractReadOnlyCollection<Integer> implements Set<Integer> {
+
+    private class KeySet extends AbstractReadOnlyCollection<Integer>
+            implements Set<Integer> {
 
         public PrimitiveIterator<Integer> iterator() {
             return IntKeyLongValueHashMap.this.new BaseHashIterator(true);
@@ -287,6 +298,7 @@ public class IntKeyLongValueHashMap extends BaseHashMap implements Map<Integer, 
             return size() == 0;
         }
     }
+
 
     private class Values extends AbstractReadOnlyCollection<Long> {
 

@@ -45,7 +45,7 @@ import org.hsqldb.map.BaseHashMap;
  * @version 2.7.3
  * @since 1.9.0
  */
-public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
+public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V> {
 
     private Set<K>           keySet;
     private Collection<V>    values;
@@ -55,16 +55,25 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
         this(8);
     }
 
-    public MultiValueHashMap(int initialCapacity) throws IllegalArgumentException {
+    public MultiValueHashMap(
+            int initialCapacity)
+            throws IllegalArgumentException {
 
-        super(initialCapacity, BaseHashMap.objectKeyOrValue,
-              BaseHashMap.objectKeyOrValue, false);
+        super(initialCapacity,
+              BaseHashMap.objectKeyOrValue,
+              BaseHashMap.objectKeyOrValue,
+              false);
+
         this.isMultiValue = true;
     }
 
-    public MultiValueHashMap(int initialCapacity, ObjectComparator<K> comparator) throws IllegalArgumentException {
+    public MultiValueHashMap(
+            int initialCapacity,
+            ObjectComparator<K> comparator)
+            throws IllegalArgumentException {
 
         this(initialCapacity);
+
         this.comparator = comparator;
     }
 
@@ -126,7 +135,9 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
 
         boolean added = super.addMultiVal(0, 0, key, value);
 
-        return added ? null : value;
+        return added
+               ? null
+               : value;
     }
 
     /**
@@ -180,6 +191,7 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
     }
 
     public void putAll(Map<K, V> m) {
+
         Iterator<K> it = m.keySet().iterator();
 
         while (it.hasNext()) {
@@ -198,14 +210,13 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
         Iterator<K> it = m.keySet().iterator();
 
         while (it.hasNext()) {
-            K key = it.next();
-
+            K           key      = it.next();
             Iterator<V> valueSet = m.getValuesIterator(key);
 
-            while(valueSet.hasNext()) {
+            while (valueSet.hasNext()) {
                 V value = valueSet.next();
-                put(key, value);
 
+                put(key, value);
             }
         }
     }
@@ -237,6 +248,7 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
     }
 
     public Set<Entry<K, V>> entrySet() {
+
         if (entries == null) {
             entries = new EntrySet();
         }
@@ -244,7 +256,8 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
         return entries;
     }
 
-    private class EntrySet extends AbstractReadOnlyCollection<Entry<K, V>> implements Set<Map.Entry<K, V>> {
+    private class EntrySet extends AbstractReadOnlyCollection<Entry<K, V>>
+            implements Set<Map.Entry<K, V>> {
 
         public Iterator<Entry<K, V>> iterator() {
             return MultiValueHashMap.this.new EntrySetIterator<K, V>();
@@ -259,13 +272,15 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
         }
     }
 
-    private class EntrySetIterator<K, V> extends BaseHashIterator{
+
+    private class EntrySetIterator<K, V> extends BaseHashIterator {
 
         EntrySetIterator() {
             super(true);
         }
 
         public Entry<K, V> next() {
+
             K key   = (K) super.next();
             V value = (V) objectValueTable[lookup];
 
@@ -273,7 +288,9 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
         }
     }
 
-    private class KeySet extends AbstractReadOnlyCollection<K> implements Set<K> {
+
+    private class KeySet extends AbstractReadOnlyCollection<K>
+            implements Set<K> {
 
         public Iterator<K> iterator() {
             return MultiValueHashMap.this.new MultiValueKeyIterator();
@@ -287,6 +304,7 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
             return size() == 0;
         }
     }
+
 
     private class Values extends AbstractReadOnlyCollection<V> {
 

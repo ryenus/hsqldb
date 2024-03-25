@@ -46,7 +46,9 @@ public class OrderedIntHashSet extends IntHashSet {
         this(8);
     }
 
-    public OrderedIntHashSet(int initialCapacity) throws IllegalArgumentException {
+    public OrderedIntHashSet(
+            int initialCapacity)
+            throws IllegalArgumentException {
 
         super(initialCapacity);
 
@@ -72,7 +74,10 @@ public class OrderedIntHashSet extends IntHashSet {
         addAll(elementsB);
     }
 
-    public OrderedIntHashSet(int[] elementsA, int[] elementsB, int[] elementsC) {
+    public OrderedIntHashSet(
+            int[] elementsA,
+            int[] elementsB,
+            int[] elementsC) {
 
         super(elementsA.length + elementsB.length + elementsC.length);
 
@@ -83,9 +88,7 @@ public class OrderedIntHashSet extends IntHashSet {
         addAll(elementsC);
     }
 
-
-    public boolean insert(int index,
-                          int key) throws IndexOutOfBoundsException {
+    public boolean insert(int index, int key) throws IndexOutOfBoundsException {
 
         if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException();
@@ -107,6 +110,7 @@ public class OrderedIntHashSet extends IntHashSet {
     }
 
     public void removeEntry(int index) throws IndexOutOfBoundsException {
+
         checkRange(index);
 
         int key = intKeyTable[index];

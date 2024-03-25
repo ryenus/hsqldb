@@ -34,6 +34,7 @@ package org.hsqldb.lib;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -51,9 +52,8 @@ import org.hsqldb.map.ValuePool;
  */
 public class LineGroupReader {
 
-    private static final String[] defaultContinuations = new String[] {
-        " ", "*"
-    };
+    private static final String[] defaultContinuations = new String[]{ " ",
+                                                                       "*" };
     private static final String[] defaultIgnoredStarts = new String[]{ "--" };
     static final String LS = System.getProperty("line.separator", "\n");
 
@@ -107,7 +107,7 @@ public class LineGroupReader {
 
     public HsqlArrayList<String> getNextSection() {
 
-        String        line;
+        String                line;
         HsqlArrayList<String> list = new HsqlArrayList<>(128);
 
         if (nextStartLine != null) {
@@ -154,7 +154,9 @@ public class LineGroupReader {
     }
 
     public String getSectionAsString() {
+
         HsqlArrayList<String> list = getNextSection();
+
         return convertToString(list, 0);
     }
 
@@ -227,7 +229,9 @@ public class LineGroupReader {
         } catch (Exception e) {}
     }
 
-    public static String convertToString(HsqlArrayList<String> list, int offset) {
+    public static String convertToString(
+            HsqlArrayList<String> list,
+            int offset) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -238,11 +242,13 @@ public class LineGroupReader {
         return sb.toString();
     }
 
-    public static OrderedHashMap<String, String> getStatementMap(final String path) {
+    public static OrderedHashMap<String, String> getStatementMap(
+            final String path) {
 
         OrderedHashMap<String, String> statementMap;
-        String[]        starters = new String[]{ "/*" };
-        LineGroupReader lg       = getGroupReader(path, starters);
+        String[]                       starters = new String[]{ "/*" };
+        LineGroupReader                lg       = getGroupReader(path,
+                                                                 starters);
 
         statementMap = lg.getAsMap();
 
@@ -251,7 +257,8 @@ public class LineGroupReader {
         return statementMap;
     }
 
-    public static LineGroupReader getGroupReader(final String path,
+    public static LineGroupReader getGroupReader(
+            final String path,
             final String[] starters) {
 
         InputStream fis =
@@ -262,7 +269,7 @@ public class LineGroupReader {
                 }
             });
         InputStreamReader reader = new InputStreamReader(fis,
-            JavaSystem.CS_ISO_8859_1);
+                                                         JavaSystem.CS_ISO_8859_1);
         LineNumberReader lineReader = new LineNumberReader(reader);
 
         return new LineGroupReader(lineReader, starters);
@@ -271,5 +278,4 @@ public class LineGroupReader {
     public static LineGroupReader getGroupReader(final String path) {
         return getGroupReader(path, ValuePool.emptyStringArray);
     }
-
 }

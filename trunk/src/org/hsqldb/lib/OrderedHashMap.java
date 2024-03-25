@@ -48,6 +48,7 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
     }
 
     public OrderedHashMap(int initialCapacity) throws IllegalArgumentException {
+
         super(initialCapacity);
 
         this.isList = true;
@@ -101,7 +102,7 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
             throw new NullPointerException();
         }
 
-        return (V) super.remove(0, 0, key, null, false, true);
+        return (V) super.removeObject(key, true);
     }
 
     public void removeEntry(int index) throws IndexOutOfBoundsException {
@@ -141,7 +142,11 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
         return returnValue;
     }
 
-    public boolean insert(int index, K key, V value) throws IndexOutOfBoundsException {
+    public boolean insert(
+            int index,
+            K key,
+            V value)
+            throws IndexOutOfBoundsException {
 
         if (key == null) {
             throw new NullPointerException();
@@ -150,7 +155,6 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
         if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException();
         }
-
 
         int lookup = getLookup(key);
 
@@ -167,7 +171,11 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
         return true;
     }
 
-    public boolean set(int index, K key, V value) throws IndexOutOfBoundsException {
+    public boolean set(
+            int index,
+            K key,
+            V value)
+            throws IndexOutOfBoundsException {
 
         if (key == null) {
             throw new NullPointerException();

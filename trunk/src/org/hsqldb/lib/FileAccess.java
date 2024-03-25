@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,8 +54,9 @@ public interface FileAccess {
 
     OutputStream openOutputStreamElement(String streamName) throws IOException;
 
-    OutputStream openOutputStreamElementAppend(String streamName)
-    throws IOException;
+    OutputStream openOutputStreamElementAppend(
+            String streamName)
+            throws IOException;
 
     boolean isStreamElement(String elementName);
 
@@ -65,12 +66,15 @@ public interface FileAccess {
 
     boolean renameElement(String oldName, String newName);
 
-    boolean renameElementOrCopy(String oldName, String newName,
-                                EventLogInterface logger);
+    boolean renameElementOrCopy(
+            String oldName,
+            String newName,
+            EventLogInterface logger);
 
     interface FileSync {
         void sync() throws IOException;
     }
+
 
     FileSync getFileSync(OutputStream os) throws IOException;
 }

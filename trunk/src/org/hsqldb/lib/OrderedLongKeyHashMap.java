@@ -42,31 +42,38 @@ import org.hsqldb.map.BaseHashMap;
  * @version 2.7.3
  * @since 1.9.0
  */
-public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
+public class OrderedLongKeyHashMap<V> extends BaseHashMap
+        implements Map<Long, V> {
 
-    private Set<Long>                 keySet;
-    private Collection<V>             values;
+    private Set<Long>           keySet;
+    private Collection<V>       values;
     private Set<Entry<Long, V>> entries;
 
     public OrderedLongKeyHashMap() {
         this(8);
     }
 
-    public OrderedLongKeyHashMap(int initialCapacity)
-    throws IllegalArgumentException {
+    public OrderedLongKeyHashMap(
+            int initialCapacity)
+            throws IllegalArgumentException {
 
-        super(initialCapacity, BaseHashMap.longKeyOrValue,
-              BaseHashMap.objectKeyOrValue, false);
+        super(initialCapacity,
+              BaseHashMap.longKeyOrValue,
+              BaseHashMap.objectKeyOrValue,
+              false);
 
         isList = true;
     }
 
-    public OrderedLongKeyHashMap(int initialCapacity,
-                                 boolean hasThirdValue)
-                                 throws IllegalArgumentException {
+    public OrderedLongKeyHashMap(
+            int initialCapacity,
+            boolean hasThirdValue)
+            throws IllegalArgumentException {
 
-        super(initialCapacity, BaseHashMap.longKeyOrValue,
-              BaseHashMap.objectKeyOrValue, false);
+        super(initialCapacity,
+              BaseHashMap.longKeyOrValue,
+              BaseHashMap.objectKeyOrValue,
+              false);
 
         objectKeyTable   = new Object[objectValueTable.length];
         isTwoObjectValue = true;
@@ -82,7 +89,6 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
     public boolean containsKey(Object key) {
 
         if (key instanceof Long) {
-
             long longKey = ((Long) key).longValue();
 
             return containsLongKey(longKey);
@@ -106,7 +112,6 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
     public V get(Long key) {
 
         if (key instanceof Long) {
-
             long longKey = key.longValue();
 
             return get(longKey);
@@ -131,24 +136,28 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
     }
 
     public long getKeyAt(int index) {
+
         checkRange(index);
 
         return longKeyTable[index];
     }
 
     public V getValueAt(int index) {
+
         checkRange(index);
 
         return (V) objectValueTable[index];
     }
 
     public Object getSecondValueAt(int index) {
+
         checkRange(index);
 
         return objectKeyTable[index];
     }
 
     public Object getThirdValueAt(int index) {
+
         checkRange(index);
 
         return objectValueTable2[index];
@@ -187,12 +196,15 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
         return oldValue;
     }
 
-    public boolean insert(int index, long key, V value) throws IndexOutOfBoundsException {
+    public boolean insert(
+            int index,
+            long key,
+            V value)
+            throws IndexOutOfBoundsException {
 
         if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException();
         }
-
 
         int lookup = getLookup(key);
 
@@ -209,7 +221,11 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
         return true;
     }
 
-    public boolean set(int index, long key, V value) throws IndexOutOfBoundsException {
+    public boolean set(
+            int index,
+            long key,
+            V value)
+            throws IndexOutOfBoundsException {
 
         checkRange(index);
 
@@ -223,7 +239,10 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
         return true;
     }
 
-    public boolean setKeyAt(int index, long key) throws IndexOutOfBoundsException {
+    public boolean setKeyAt(
+            int index,
+            long key)
+            throws IndexOutOfBoundsException {
 
         checkRange(index);
 
@@ -252,8 +271,8 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
     }
 
     public V remove(Object key) {
-        if (key instanceof Long) {
 
+        if (key instanceof Long) {
             long longKey = ((Long) key).longValue();
 
             return remove(longKey);
@@ -298,17 +317,14 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
     }
 
     public long[] keysToArray(long[] array) {
-
         return toLongArray(array, true);
     }
 
     public Object[] valuesToArray() {
-
         return toArray(false);
     }
 
     public <T> T[] valuesToArray(T[] array) {
-
         return toArray(array, false);
     }
 
@@ -331,6 +347,7 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
     }
 
     public Set<Entry<Long, V>> entrySet() {
+
         if (entries == null) {
             entries = new EntrySet();
         }
@@ -338,7 +355,8 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
         return entries;
     }
 
-    private class EntrySet extends AbstractReadOnlyCollection<Entry<Long, V>> implements Set<Entry<Long, V>> {
+    private class EntrySet extends AbstractReadOnlyCollection<Entry<Long, V>>
+            implements Set<Entry<Long, V>> {
 
         public Iterator<Entry<Long, V>> iterator() {
             return OrderedLongKeyHashMap.this.new EntrySetIterator();
@@ -353,19 +371,22 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
         }
     }
 
-    private class EntrySetIterator extends BaseHashIterator{
+
+    private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
             super(true);
         }
 
         public Entry<Long, V> next() {
+
             Long key   = super.nextLong();
             V    value = (V) objectValueTable[lookup];
 
             return new MapEntry<>(key, value);
         }
     }
+
 
     private void checkRange(int i) {
 
@@ -374,7 +395,8 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
         }
     }
 
-   private class KeySet extends AbstractReadOnlyCollection<Long> implements Set<Long> {
+    private class KeySet extends AbstractReadOnlyCollection<Long>
+            implements Set<Long> {
 
         public PrimitiveIterator<Long> iterator() {
             return OrderedLongKeyHashMap.this.new BaseHashIterator(true);
@@ -388,6 +410,7 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap implements Map<Long, V
             return size() == 0;
         }
     }
+
 
     private class Values extends AbstractReadOnlyCollection<V> {
 

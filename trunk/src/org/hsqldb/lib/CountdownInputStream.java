@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 // fredt@users - 1.9.0 corrected read(byte[], int, int)
-
 /**
  * Counts down from a specified value the number of bytes actually read
  * from the wrapped InputStream. <p>
@@ -101,8 +100,11 @@ public final class CountdownInputStream extends InputStream {
         return r;
     }
 
-    public int read(final byte[] buf, final int off,
-                    int len) throws IOException {
+    public int read(
+            final byte[] buf,
+            final int off,
+            int len)
+            throws IOException {
 
         if (buf == null) {
             throw new NullPointerException();
@@ -135,8 +137,10 @@ public final class CountdownInputStream extends InputStream {
     }
 
     public long skip(long count) throws IOException {
-        return (count <= 0) ? 0
-                            : m_input.skip(Math.min(m_count, count));
+
+        return (count <= 0)
+               ? 0
+               : m_input.skip(Math.min(m_count, count));
     }
 
     public long getCount() {
