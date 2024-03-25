@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -135,16 +135,6 @@ public final class Schema implements SchemaObject {
         return name.owner;
     }
 
-    public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
-    }
-
-    public OrderedHashSet getComponents() {
-        return null;
-    }
-
-    public void compile(Session session, SchemaObject parentObject) {}
-
     public long getChangeTimestamp() {
         return changeTimestamp;
     }
@@ -173,10 +163,10 @@ public final class Schema implements SchemaObject {
         return sb.toString();
     }
 
-    public HsqlArrayList getSQLArray(int objectType, OrderedHashSet resolved,
+    public HsqlArrayList<String> getSQLArray(int objectType, OrderedHashSet resolved,
                                      OrderedHashSet unresolved) {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<String> list = new HsqlArrayList<>();
 
         switch (objectType) {
 
@@ -216,9 +206,9 @@ public final class Schema implements SchemaObject {
         return list;
     }
 
-    public HsqlArrayList getSequenceRestartSQL() {
+    public HsqlArrayList<String> getSequenceRestartSQLArray() {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<String> list = new HsqlArrayList<>();
         Iterator      it   = sequenceLookup.map.values().iterator();
 
         while (it.hasNext()) {
@@ -231,9 +221,9 @@ public final class Schema implements SchemaObject {
         return list;
     }
 
-    public HsqlArrayList getTriggerSQL() {
+    public HsqlArrayList<String> getTriggerSQL() {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<String> list = new HsqlArrayList<>();
         Iterator      it   = tableLookup.map.values().iterator();
 
         while (it.hasNext()) {

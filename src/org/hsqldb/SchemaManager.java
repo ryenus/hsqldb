@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FilteredIterator;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
@@ -2414,14 +2415,14 @@ public class SchemaManager {
         }
     }
 
-    public String[] getSQLArray() {
+    public List<String> getSQLArray() {
 
         readLock.lock();
 
         try {
             OrderedHashSet resolved   = new OrderedHashSet();
             OrderedHashSet unresolved = new OrderedHashSet();
-            HsqlArrayList  list       = new HsqlArrayList();
+            HsqlArrayList<String>  list       = new HsqlArrayList<>();
             Iterator       schemas    = getUserSchemaIterator();
 
             while (schemas.hasNext()) {
@@ -2538,7 +2539,7 @@ public class SchemaManager {
             while (schemas.hasNext()) {
                 Schema schema = (Schema) schemas.next();
 
-                list.addAll(schema.getSequenceRestartSQL());
+                list.addAll(schema.getSequenceRestartSQLArray());
             }
 
             if (defaultSchemaHsqlName != null) {
@@ -2552,23 +2553,19 @@ public class SchemaManager {
                 list.add(sb.toString());
             }
 
-            String[] array = new String[list.size()];
-
-            list.toArray(array);
-
-            return array;
+            return list;
         } finally {
             readLock.unlock();
         }
     }
 
-    public String[] getTablePropsSQL(boolean withHeader) {
+    public List<String> getTablePropsSQLArray(boolean withHeader) {
 
         readLock.lock();
 
         try {
             HsqlArrayList tableList = getAllTables(false);
-            HsqlArrayList list      = new HsqlArrayList();
+            HsqlArrayList<String> list      = new HsqlArrayList<>();
 
             for (int i = 0; i < tableList.size(); i++) {
                 Table t = (Table) tableList.get(i);
@@ -2594,23 +2591,19 @@ public class SchemaManager {
                 }
             }
 
-            String[] array = new String[list.size()];
-
-            list.toArray(array);
-
-            return array;
+            return list;
         } finally {
             readLock.unlock();
         }
     }
 
-    public String[] getTableSpaceSQL() {
+    public List<String> getTableSpaceSQLArray() {
 
         readLock.lock();
 
         try {
             HsqlArrayList tableList = getAllTables(true);
-            HsqlArrayList list      = new HsqlArrayList();
+            HsqlArrayList<String> list      = new HsqlArrayList<>();
 
             for (int i = 0; i < tableList.size(); i++) {
                 Table t = (Table) tableList.get(i);
@@ -2624,24 +2617,20 @@ public class SchemaManager {
                 }
             }
 
-            String[] array = new String[list.size()];
-
-            list.toArray(array);
-
-            return array;
+            return list;
         } finally {
             readLock.unlock();
         }
     }
 
-    public String[] getIndexRootsSQL() {
+    public List<String> getIndexRootsSQLArray() {
 
         readLock.lock();
 
         try {
             long[][]      rootsArray = getIndexRoots();
             HsqlArrayList tableList  = getAllTables(true);
-            HsqlArrayList list       = new HsqlArrayList();
+            HsqlArrayList<String> list       = new HsqlArrayList<>();
 
             for (int i = 0; i < rootsArray.length; i++) {
                 Table table = (Table) tableList.get(i);
@@ -2654,11 +2643,7 @@ public class SchemaManager {
                 }
             }
 
-            String[] array = new String[list.size()];
-
-            list.toArray(array);
-
-            return array;
+            return list;
         } finally {
             readLock.unlock();
         }

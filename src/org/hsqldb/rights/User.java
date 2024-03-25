@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.lib.StringConverter;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.3.2
+ * @version 2.7.3
  * @since 1.8.0
  */
 public class User extends Grantee {
@@ -54,7 +54,6 @@ public class User extends Grantee {
     private String password;
     public boolean isLocalOnly;
     public boolean isExternalOnly;
-
     /** default schema when new Sessions started (defaults to PUBLIC schema) */
     private HsqlName initialSchema = null;
 
@@ -126,8 +125,7 @@ public class User extends Grantee {
                 getName().getNameString());
 
         if (schema == null) {
-            return granteeManager.database.schemaManager
-                .getDefaultSchemaHsqlName();
+            return granteeManager.database.schemaManager.getDefaultSchemaHsqlName();
         } else {
             return schema;
         }
@@ -180,7 +178,8 @@ public class User extends Grantee {
      * Returns the SQL string for setting password digest.
      *
      */
-    public String getSetUserPasswordDigestSQL(String password,
+    public String getSetUserPasswordDigestSQL(
+            String password,
             boolean isDigest) {
 
         if (!isDigest) {
@@ -203,8 +202,10 @@ public class User extends Grantee {
      * Returns the SQL string for setting password digest.
      *
      */
-    public static String getSetCurrentPasswordDigestSQL(GranteeManager manager,
-            String password, boolean isDigest) {
+    public static String getSetCurrentPasswordDigestSQL(
+            GranteeManager manager,
+            String password,
+            boolean isDigest) {
 
         if (!isDigest) {
             password = manager.digest(password);
@@ -234,7 +235,8 @@ public class User extends Grantee {
         sb.append(Tokens.T_SESSION).append(' ');
         sb.append(Tokens.T_AUTHORIZATION).append(' ');
         sb.append(StringConverter.toQuotedString(getName().getNameString(),
-                '\'', true));
+                '\'',
+                true));
 
         return sb.toString();
     }

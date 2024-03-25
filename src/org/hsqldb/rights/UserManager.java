@@ -43,6 +43,7 @@ import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.result.Result;
 
@@ -57,7 +58,7 @@ import org.hsqldb.result.Result;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.5.0
+ * @version 2.7.3
  * @since 1.7.2
  * @see  User
  */
@@ -71,9 +72,8 @@ public final class UserManager {
      * User object is kept in the list because it's needed by MetaData
      * routines via "listVisibleUsers(x, true)".
      */
-    private OrderedHashMap userList;
-    private GranteeManager granteeManager;
-
+    private OrderedHashMap<String, User> userList;
+    private GranteeManager               granteeManager;
     /**
      * The function for password complexity.
      */
@@ -88,7 +88,7 @@ public final class UserManager {
      */
     public UserManager(Database database) {
         granteeManager = database.getGranteeManager();
-        userList       = new OrderedHashMap();
+        userList       = new OrderedHashMap<>();
     }
 
     /**
@@ -107,8 +107,11 @@ public final class UserManager {
      *        (This will catch attempts to create Reserved grantee names).
      *  </OL>
      */
-    public User createUser(Session session, HsqlName name, String password,
-                           boolean isDigest) {
+    public User createUser(
+            Session session,
+            HsqlName name,
+            String password,
+            boolean isDigest) {
 
         // This will throw an appropriate exception if grantee already exists,
         // regardless of whether the name is in any User, Role, etc. list.
@@ -132,8 +135,11 @@ public final class UserManager {
         return user;
     }
 
-    public void setPassword(Session session, User user, String password,
-                            boolean isDigest) {
+    public void setPassword(
+            Session session,
+            User user,
+            String password,
+            boolean isDigest) {
 
         if (!isDigest && !checkComplexity(session, password)) {
             throw Error.error(ErrorCode.PASSWORD_COMPLEXITY);
@@ -150,7 +156,8 @@ public final class UserManager {
         }
 
         Result result = pwCheckFunction.invoke(session,
-                                               new Object[]{ password }, null,
+                                               new Object[]{ password },
+                                               null,
                                                true);
         Boolean check = (Boolean) result.getValueObject();
 
@@ -194,7 +201,7 @@ public final class UserManager {
             throw Error.error(ErrorCode.X_28501, name);
         }
 
-        User user = (User) userList.remove(name);
+        User user = userList.remove(name);
 
         if (user == null) {
             throw Error.error(ErrorCode.X_28501, name);
@@ -212,12 +219,14 @@ public final class UserManager {
 
         HsqlName name =
             granteeManager.database.nameManager.newHsqlName(username,
-                isQuoted, SchemaObject.GRANTEE);
+                                                            isQuoted,
+                                                            SchemaObject.GRANTEE);
         User user = createUser(null, name, password, false);
 
         user.isLocalOnly = true;
 
-        granteeManager.grant(name.name, SqlInvariants.DBA_ADMIN_ROLE_NAME,
+        granteeManager.grant(name.name,
+                             SqlInvariants.DBA_ADMIN_ROLE_NAME,
                              granteeManager.getDBARole());
     }
 
@@ -235,7 +244,7 @@ public final class UserManager {
             password = "";
         }
 
-        User    user    = (User) userList.get(name);
+        User    user    = userList.get(name);
         boolean isLocal = user != null && user.isLocalOnly;
 
         if (extAuthenticationFunction == null || isLocal) {
@@ -253,9 +262,10 @@ public final class UserManager {
          * assign the list of roles to the user.
          */
         Result result =
-            extAuthenticationFunction.invokeJavaMethodDirect(new String[] {
-            granteeManager.database.getNameString(), name, password
-        });
+            extAuthenticationFunction.invokeJavaMethodDirect(new String[]{
+                granteeManager.database.getNameString(),
+                name,
+                password });
 
         if (result.isError()) {
             throw Error.error(ErrorCode.X_28501, result.getMainString());
@@ -265,8 +275,9 @@ public final class UserManager {
 
         if (user == null) {
             HsqlName hsqlName =
-                granteeManager.database.nameManager.newHsqlName(name, true,
-                    SchemaObject.GRANTEE);
+                granteeManager.database.nameManager.newHsqlName(name,
+                                                                true,
+                                                                SchemaObject.GRANTEE);
 
             user                = createUser(null, hsqlName, "", false);
             user.isExternalOnly = true;
@@ -294,11 +305,10 @@ public final class UserManager {
 
         for (int i = 0; i < roles.length; i++) {
             Schema schema = granteeManager.database.schemaManager.findSchema(
-                (String) roles[i]);
+                                (String) roles[i]);
 
             if (schema != null) {
                 user.setInitialSchema(schema.getName());
-
                 break;
             }
         }
@@ -310,13 +320,15 @@ public final class UserManager {
      * Retrieves this object's set of User objects as
      *  an associative list.
      */
-    public OrderedHashMap getUsers() {
+    public OrderedHashMap<String, User> getUsers() {
         return userList;
     }
 
     public boolean exists(String name) {
-        return userList.get(name) == null ? false
-                                          : true;
+
+        return userList.get(name) == null
+               ? false
+               : true;
     }
 
     /**
@@ -325,7 +337,7 @@ public final class UserManager {
      */
     public User get(String name) {
 
-        User user = (User) userList.get(name);
+        User user = userList.get(name);
 
         if (user == null) {
             throw Error.error(ErrorCode.X_28501, name);
@@ -354,30 +366,24 @@ public final class UserManager {
      *         {@code session} argument.
      *
      */
-    public HsqlArrayList listVisibleUsers(Session session) {
+    public HsqlArrayList<User> listVisibleUsers(Session session) {
 
-        HsqlArrayList list;
-        User          user;
-        boolean       isAdmin;
-        String        sessionName;
-        String        userName;
-
-        list        = new HsqlArrayList();
-        isAdmin     = session.isAdmin();
-        sessionName = session.getUsername();
+        HsqlArrayList<User> list        = new HsqlArrayList<>();
+        boolean             isAdmin     = session.isAdmin();
+        String              sessionName = session.getUsername();
 
         if (userList == null || userList.size() == 0) {
             return list;
         }
 
         for (int i = 0; i < userList.size(); i++) {
-            user = (User) userList.get(i);
+            User user = userList.get(i);
 
             if (user == null) {
                 continue;
             }
 
-            userName = user.getName().getNameString();
+            String userName = user.getName().getNameString();
 
             if (isAdmin) {
                 list.add(user);
@@ -405,7 +411,7 @@ public final class UserManager {
     public synchronized void removeSchemaReference(HsqlName schemaName) {
 
         for (int i = 0; i < userList.size(); i++) {
-            User     user   = (User) userList.get(i);
+            User     user   = userList.get(i);
             HsqlName schema = user.getInitialSchema();
 
             if (schema == null) {
@@ -426,12 +432,12 @@ public final class UserManager {
         extAuthenticationFunction = function;
     }
 
-    public String[] getInitialSchemaSQL() {
+    public List<String> getInitialSchemaSQLArray() {
 
-        HsqlArrayList list = new HsqlArrayList(userList.size());
+        HsqlArrayList<String> list = new HsqlArrayList<>(userList.size());
 
         for (int i = 0; i < userList.size(); i++) {
-            User user = (User) userList.get(i);
+            User user = userList.get(i);
 
             if (user.isSystem) {
                 continue;
@@ -446,17 +452,12 @@ public final class UserManager {
             list.add(user.getInitialSchemaSQL());
         }
 
-        String[] array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
+        return list;
     }
 
-    public String[] getAuthenticationSQL() {
+    public List<String> getAuthenticationSQLArray() {
 
-        HsqlArrayList list = new HsqlArrayList();
-        String[]      array;
+        HsqlArrayList<String> list = new HsqlArrayList<>();
 
         if (pwCheckFunction != null) {
             StringBuilder sb = new StringBuilder();
@@ -479,10 +480,6 @@ public final class UserManager {
             list.add(sb.toString());
         }
 
-        array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
+        return list;
     }
 }

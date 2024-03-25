@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -472,9 +472,6 @@ public class TableWorks {
         }
 
         table = tn;
-
-        database.granteeManager.updateAddColumn(table.getName(),
-                column.getName());
     }
 
     void updateConstraints(OrderedHashSet tableSet,
@@ -1424,11 +1421,6 @@ public class TableWorks {
         setNewTableInSchema(tn);
 
         table = tn;
-
-        database.granteeManager.updateAddColumn(table.getName(),
-                period.startColumn.getName());
-        database.granteeManager.updateAddColumn(table.getName(),
-                period.endColumn.getName());
     }
 
     void dropSystemPeriod(boolean cascade) {

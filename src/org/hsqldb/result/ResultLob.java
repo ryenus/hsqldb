@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,7 @@ public final class ResultLob extends Result {
         int RESPONSE_TRUNCATE                  = 29;
     }
 
+
     long        lobID;
     int         subType;
     long        blockOffset;
@@ -104,7 +105,9 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobGetBytesRequest(long id, long offset,
+    public static ResultLob newLobGetBytesRequest(
+            long id,
+            long offset,
             long length) {
 
         ResultLob result = new ResultLob();
@@ -117,7 +120,9 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobGetCharsRequest(long id, long offset,
+    public static ResultLob newLobGetCharsRequest(
+            long id,
+            long offset,
             long length) {
 
         ResultLob result = new ResultLob();
@@ -130,7 +135,9 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobSetBytesRequest(long id, long offset,
+    public static ResultLob newLobSetBytesRequest(
+            long id,
+            long offset,
             byte[] block) {
 
         ResultLob result = new ResultLob();
@@ -144,7 +151,9 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobSetCharsRequest(long id, long offset,
+    public static ResultLob newLobSetCharsRequest(
+            long id,
+            long offset,
             char[] chars) {
 
         ResultLob result = new ResultLob();
@@ -169,7 +178,9 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobGetBytesResponse(long id, long offset,
+    public static ResultLob newLobGetBytesResponse(
+            long id,
+            long offset,
             byte[] block) {
 
         ResultLob result = new ResultLob();
@@ -183,7 +194,9 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobGetCharsResponse(long id, long offset,
+    public static ResultLob newLobGetCharsResponse(
+            long id,
+            long offset,
             char[] chars) {
 
         ResultLob result = new ResultLob();
@@ -208,8 +221,10 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobGetBytePatternPositionRequest(long id,
-            byte[] pattern, long offset) {
+    public static ResultLob newLobGetBytePatternPositionRequest(
+            long id,
+            byte[] pattern,
+            long offset) {
 
         ResultLob result = new ResultLob();
 
@@ -222,8 +237,10 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobGetBytePatternPositionRequest(long id,
-            long otherId, long offset) {
+    public static ResultLob newLobGetBytePatternPositionRequest(
+            long id,
+            long otherId,
+            long offset) {
 
         ResultLob result = new ResultLob();
 
@@ -234,8 +251,10 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobGetCharPatternPositionRequest(long id,
-            char[] pattern, long offset) {
+    public static ResultLob newLobGetCharPatternPositionRequest(
+            long id,
+            char[] pattern,
+            long offset) {
 
         ResultLob result = new ResultLob();
 
@@ -248,8 +267,10 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobGetCharPatternPositionRequest(long id,
-            long otherId, long offset) {
+    public static ResultLob newLobGetCharPatternPositionRequest(
+            long id,
+            long otherId,
+            long offset) {
 
         ResultLob result = new ResultLob();
 
@@ -261,8 +282,11 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobCreateBlobRequest(long sessionID,
-            long lobID, InputStream stream, long length) {
+    public static ResultLob newLobCreateBlobRequest(
+            long sessionID,
+            long lobID,
+            InputStream stream,
+            long length) {
 
         ResultLob result = new ResultLob();
 
@@ -274,8 +298,11 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobCreateClobRequest(long sessionID,
-            long lobID, Reader reader, long length) {
+    public static ResultLob newLobCreateClobRequest(
+            long sessionID,
+            long lobID,
+            Reader reader,
+            long length) {
 
         ResultLob result = new ResultLob();
 
@@ -328,7 +355,9 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobGetRequest(long id, long offset,
+    public static ResultLob newLobGetRequest(
+            long id,
+            long offset,
             long length) {
 
         ResultLob result = new ResultLob();
@@ -351,8 +380,10 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLob(DataInputStream dataInput,
-                                   boolean readTerminate) throws IOException {
+    public static ResultLob newLob(
+            DataInputStream dataInput,
+            boolean readTerminate)
+            throws IOException {
 
         ResultLob result = new ResultLob();
 
@@ -398,6 +429,7 @@ public final class ResultLob extends Result {
                 for (int i = 0; i < result.charBlock.length; i++) {
                     result.charBlock[i] = dataInput.readChar();
                 }
+
                 break;
 
             case LobResultTypes.REQUEST_GET_LENGTH :
@@ -421,6 +453,7 @@ public final class ResultLob extends Result {
                 for (int i = 0; i < result.charBlock.length; i++) {
                     result.charBlock[i] = dataInput.readChar();
                 }
+
                 break;
 
             case LobResultTypes.RESPONSE_SET :
@@ -446,16 +479,21 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public void write(SessionInterface session, DataOutputStream dataOut,
-                      RowOutputInterface rowOut) throws IOException {
+    public void write(
+            SessionInterface session,
+            DataOutputStream dataOut,
+            RowOutputInterface rowOut)
+            throws IOException {
 
         writeBody(session, dataOut);
         dataOut.writeByte(ResultConstants.NONE);
         dataOut.flush();
     }
 
-    public void writeBody(SessionInterface session,
-                          DataOutputStream dataOut) throws IOException {
+    public void writeBody(
+            SessionInterface session,
+            DataOutputStream dataOut)
+            throws IOException {
 
         switch (subType) {
 
@@ -471,6 +509,7 @@ public final class ResultLob extends Result {
                 return;
 
             case LobResultTypes.REQUEST_CREATE_CHARS : {
+
                 if (blockLength >= 0) {
                     writeCreate(session, dataOut);
 
@@ -549,8 +588,10 @@ public final class ResultLob extends Result {
         }
     }
 
-    private void writeCreate(SessionInterface session,
-                             DataOutputStream dataOut) throws IOException {
+    private void writeCreate(
+            SessionInterface session,
+            DataOutputStream dataOut)
+            throws IOException {
 
         dataOut.writeByte(mode);
         dataOut.writeInt(databaseID);
@@ -572,9 +613,10 @@ public final class ResultLob extends Result {
         }
     }
 
-    private void writeCreateByteSegments(SessionInterface session,
-                                         DataOutputStream dataOut)
-                                         throws IOException {
+    private void writeCreateByteSegments(
+            SessionInterface session,
+            DataOutputStream dataOut)
+            throws IOException {
 
         int  bufferLength  = session.getStreamBlockSize();
         long currentOffset = blockOffset;
@@ -627,9 +669,10 @@ public final class ResultLob extends Result {
         }
     }
 
-    private void writeCreateCharSegments(SessionInterface session,
-                                         DataOutputStream dataOut)
-                                         throws IOException {
+    private void writeCreateCharSegments(
+            SessionInterface session,
+            DataOutputStream dataOut)
+            throws IOException {
 
         int  bufferLength  = session.getStreamBlockSize();
         long currentOffset = blockOffset;

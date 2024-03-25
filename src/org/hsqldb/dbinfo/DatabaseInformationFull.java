@@ -866,7 +866,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Object[] row;
         boolean  restrict   = !session.isAdmin();
         Iterator it = HsqlDatabaseProperties.getUserDefinedProperties();
-        HashMap  nameToProp = database.logger.getPropertyValueMap(session);
+        HashMap  nameToProp = database.logger.getPropertyValueMap();
         HsqlDatabaseProperties dbProps = database.getProperties();
 
         while (it.hasNext()) {
