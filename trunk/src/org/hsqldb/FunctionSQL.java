@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -146,8 +146,8 @@ public class FunctionSQL extends Expression {
     };
 
     //
-    static IntValueHashMap   valueFuncMap            = new IntValueHashMap();
-    static IntValueHashMap   regularFuncMap          = new IntValueHashMap();
+    static IntValueHashMap<String> valueFuncMap      = new IntValueHashMap<>();
+    static IntValueHashMap<String> regularFuncMap    = new IntValueHashMap<>();
     static OrderedIntHashSet nonDeterministicFuncSet = new OrderedIntHashSet();
 
     static {

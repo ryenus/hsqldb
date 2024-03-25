@@ -59,7 +59,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_reconfig_logging =
         "hsqldb.reconfig_logging";
     public static String methodClassNames;
-    private static final HashSet accessibleJavaMethodNames = new HashSet();
+    private static final HashSet<String> accessibleJavaMethodNames = new HashSet<>();
     private static boolean allowFullPath;
 
     static {
@@ -110,10 +110,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             return true;
         }
 
-        Iterator it = accessibleJavaMethodNames.iterator();
+        Iterator<String> it = accessibleJavaMethodNames.iterator();
 
         while (it.hasNext()) {
-            String className = (String) it.next();
+            String className = it.next();
             int    limit     = className.lastIndexOf(".*");
 
             if (limit < 1) {
@@ -150,10 +150,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     private static final String MODIFIED_NO_NEW       = "no-new-files";
 
     // allowed property metadata
-    private static final HashMap<String, PropertyMeta> dbMeta = new HashMap(128);
-    private static final HashMap<String, PropertyMeta> textMeta = new HashMap(16);
-    private static final HashSet<String>               excludedMeta = new HashSet();
-    private static final HashMap<String, PropertyMeta> urlUserConnMeta = new HashMap();
+    private static final HashMap<String, PropertyMeta> dbMeta = new HashMap<>(128);
+    private static final HashMap<String, PropertyMeta> textMeta = new HashMap<>(16);
+    private static final HashSet<String>               excludedMeta = new HashSet<>();
+    private static final HashMap<String, PropertyMeta> urlUserConnMeta = new HashMap<>();
 
     // versions
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
@@ -634,7 +634,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             stringProps.setProperty(sql_enforce_size, val);
         }
 
-        Enumeration en = stringProps.propertyNames();
+        Enumeration<?> en = stringProps.propertyNames();
 
         while (en.hasMoreElements()) {
             String  key    = (String) en.nextElement();
@@ -667,7 +667,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         strict = p.isPropertyTrue(url_check_props, false);
 
-        for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
+        for (Enumeration<?> e = p.propertyNames(); e.hasMoreElements(); ) {
             String       propertyName  = (String) e.nextElement();
             String       propertyValue = p.getProperty(propertyName);
             boolean      valid         = false;
@@ -698,7 +698,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             }
         }
 
-        for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
+        for (Enumeration<?> e = p.propertyNames(); e.hasMoreElements(); ) {
             String       propertyName = (String) e.nextElement();
             PropertyMeta meta         = dbMeta.get(propertyName);
 
@@ -712,7 +712,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public static Iterator<PropertyMeta> getUserDefinedProperties() {
 
-        return new Iterator() {
+        return new Iterator<PropertyMeta>() {
 
             Iterator<PropertyMeta> it = dbMeta.values().iterator();
             PropertyMeta current;
@@ -722,7 +722,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                 return current != null;
             }
 
-            public Object next() {
+            public PropertyMeta next() {
 
                 PropertyMeta value = current;
 
@@ -730,16 +730,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
                 return value;
             }
-
-            public int nextInt() {
-                return 0;
-            }
-
-            public long nextLong() {
-                return 0L;
-            }
-
-            public void remove() {}
 
             private boolean filterToNext() {
 
@@ -989,9 +979,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             if (meta.propValues != null) {
                 int[] values = meta.propValues;
 
-                if (ArrayUtil.find(values, number) == -1) {
-                    return false;
-                }
+                return ArrayUtil.find(values, number) >= 0;
             }
 
             return true;
@@ -1007,11 +995,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public String getClientPropertiesAsString() {
 
         if (isPropertyTrue(jdbc_translate_tti_types)) {
-            StringBuilder sb = new StringBuilder(jdbc_translate_tti_types);
 
-            sb.append('=').append(true);
-
-            return sb.toString();
+            return jdbc_translate_tti_types + '=' + true;
         }
 
         return "";
@@ -1023,6 +1008,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             getProperty(HsqlDatabaseProperties.hsqldb_cache_version,
                         THIS_VERSION);
 
-        return version.substring(0, 4).equals("1.7.");
+        return version.startsWith("1.7.");
     }
 }

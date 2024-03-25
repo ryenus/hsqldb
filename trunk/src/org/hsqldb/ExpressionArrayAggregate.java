@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
@@ -75,7 +75,7 @@ public class ExpressionArrayAggregate extends Expression {
         if (sort == null) {
             nodes = new Expression[]{ e };
         } else {
-            HsqlArrayList list = sort.getExpressionList();
+            HsqlArrayList<Expression> list = sort.getExpressionList();
 
             nodes = new Expression[list.size() + 1];
 
@@ -164,21 +164,19 @@ public class ExpressionArrayAggregate extends Expression {
         return sb.toString();
     }
 
-    public List resolveColumnReferences(Session session,
-                                        RangeGroup rangeGroup, int rangeCount,
-                                        RangeGroup[] rangeGroups,
-                                        List unresolvedSet,
-                                        boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(Session session,
+                                                    RangeGroup rangeGroup, int rangeCount,
+                                                    RangeGroup[] rangeGroups,
+                                                    List<Expression> unresolvedSet,
+                                                    boolean acceptsSequences) {
 
-        List conditionSet = condition.resolveColumnReferences(session,
+        List<Expression> conditionSet = condition.resolveColumnReferences(session,
             rangeGroup, rangeCount, rangeGroups, null, false);
 
-        if (conditionSet != null) {
-            ExpressionColumn.checkColumnsResolved(conditionSet);
-        }
+        ExpressionColumn.checkColumnsResolved(conditionSet);
 
         if (unresolvedSet == null) {
-            unresolvedSet = new ArrayListIdentity();
+            unresolvedSet = new ArrayListIdentity<>();
         }
 
         unresolvedSet.add(this);

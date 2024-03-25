@@ -121,7 +121,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
     static final String resourceFileName =
         "/org/hsqldb/resources/information-schema.sql";
-    static final OrderedHashMap statementMap =
+    static final OrderedHashMap<String, String> statementMap =
         LineGroupReader.getStatementMap(resourceFileName);
 
     /**
@@ -482,9 +482,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         //
         DataFileCache cache = null;
         Object[]      row;
-        HashSet       cacheSet;
-        Iterator      caches;
-        Iterator      tables;
+        HashSet<DataFileCache> cacheSet;
+        Iterator<DataFileCache> caches;
+        Iterator<Table>      tables;
         Table         table;
 
         if (!session.isAdmin()) {
@@ -492,14 +492,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // Initialization
-        cacheSet = new HashSet();
+        cacheSet = new HashSet<>();
 
         // dynamic system tables are never cached
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (!table.isText()) {
                 continue;
@@ -528,7 +527,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // Do it.
         while (caches.hasNext()) {
-            cache = (DataFileCache) caches.next();
+            cache = caches.next();
             row   = t.getEmptyRowData();
             row[icache_file] = FileUtil.getFileUtil().canonicalOrAbsolutePath(
                 cache.getFileName());
@@ -585,17 +584,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         //
         // intermediate holders
         int            columnCount;
-        Iterator       tables;
+        Iterator<Table>       tables;
         Table          table;
         Object[]       row;
-        OrderedHashSet columnList;
+        OrderedHashSet<HsqlName> columnList;
         NumberSequence sequence;
 
         // Initialization
         tables = allTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (!table.hasIdentityColumn()) {
                 continue;
@@ -677,13 +676,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int remark      = 5;
 
         //
-        Iterator it;
+        Iterator<Table> tables;
         Object[] row;
 
-        it = allTables();
+        tables = allTables();
 
-        while (it.hasNext()) {
-            Table  table = (Table) it.next();
+        while (tables.hasNext()) {
+            Table  table = tables.next();
             String comment;
 
             if (!session.getGrantee().isAccessible(table)) {
@@ -732,11 +731,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             t.insertSys(session, store, row);
         }
 
-        it = database.schemaManager.databaseObjectIterator(
+        Iterator<SchemaObject> it = database.schemaManager.databaseObjectIterator(
             SchemaObject.ROUTINE);
 
         while (it.hasNext()) {
-            SchemaObject object = (SchemaObject) it.next();
+            SchemaObject object = it.next();
 
             if (!session.getGrantee().isAccessible(object)) {
                 continue;
@@ -761,7 +760,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             SchemaObject.SEQUENCE);
 
         while (it.hasNext()) {
-            SchemaObject object = (SchemaObject) it.next();
+            SchemaObject object = it.next();
 
             if (!session.getGrantee().isAccessible(object)) {
                 continue;
@@ -786,7 +785,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             SchemaObject.TRIGGER);
 
         while (it.hasNext()) {
-            SchemaObject object = (SchemaObject) it.next();
+            SchemaObject object = it.next();
 
             if (!session.getGrantee().isAccessible(object)) {
                 continue;
@@ -865,12 +864,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         // intermediate holders
         Object[] row;
         boolean  restrict   = !session.isAdmin();
-        Iterator it = HsqlDatabaseProperties.getUserDefinedProperties();
-        HashMap  nameToProp = database.logger.getPropertyValueMap();
+        Iterator<PropertyMeta> it = HsqlDatabaseProperties.getUserDefinedProperties();
+        HashMap<String, String>  nameToProp = database.logger.getPropertyValueMap();
         HsqlDatabaseProperties dbProps = database.getProperties();
 
         while (it.hasNext()) {
-            PropertyMeta metaData = (PropertyMeta) it.next();
+            PropertyMeta metaData = it.next();
             String propValue;
 
             if (restrict
@@ -905,7 +904,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[iscope] = scope;
             row[ins]    = nameSpace;
             row[iname]  = metaData.propName;
-            propValue   = (String) nameToProp.get(metaData.propName);
+            propValue   = nameToProp.get(metaData.propName);
 
             if (metaData.propType
                        != HsqlDatabaseProperties.SYSTEM_PROP) {
@@ -1295,7 +1294,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         //
         // intermediate holders
-        Iterator        objects;
+        Iterator<SchemaObject>        objects;
         ReferenceObject synonym;
         Object[]        row;
 
@@ -1430,7 +1429,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         //
         // intermediate holders
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         Object[] row;
 
@@ -1439,12 +1438,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (!table.isText()) {
                 continue;
@@ -1519,7 +1517,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // intermediate holders
-        Iterator  tables;
+        Iterator<Table>  tables;
         Table     table;
         Object[]  row;
         final int table_catalog = 0;
@@ -1557,7 +1555,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // Do it.
         while (tables.hasNext()) {
-            table              = (Table) tables.next();
+            table              = tables.next();
             row                = t.getEmptyRowData();
             row[table_catalog] = database.getCatalogName().name;
             row[table_schema]  = table.getSchemaName().name;
@@ -1756,7 +1754,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         String indexName;
 
         // Intermediate holders
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         int      indexCount;
         Object[] row;
@@ -1770,12 +1768,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int iordinal_pos = 5;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView() || !session.getGrantee().isAccessible(table)) {
                 continue;
@@ -1863,11 +1860,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int index_name         = 5;
 
         // Initialization
-        Iterator tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        Iterator<Table> tables = allUserTables();
 
         while (tables.hasNext()) {
-            Table table = (Table) tables.next();
+            Table table = tables.next();
 
             if (table.isView()) {
                 continue;
@@ -2037,11 +2033,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         PersistentStore store        = t.getRowStore(session);
 
         if (isGrantable) {
-            Set      roles = database.getGranteeManager().getRoleNames();
-            Iterator it    = roles.iterator();
+            Set<String> roles = database.getGranteeManager().getRoleNames();
+            Iterator<String> it    = roles.iterator();
 
             while (it.hasNext()) {
-                String   roleName = (String) it.next();
+                String   roleName = it.next();
                 Object[] row      = t.getEmptyRowData();
 
                 row[grantee]      = role.getName().getNameString();
@@ -2051,10 +2047,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 t.insertSys(session, store, row);
             }
         } else {
-            OrderedHashSet roles = role.getDirectRoles();
+            OrderedHashSet<Grantee> roles = role.getDirectRoles();
 
             for (int i = 0; i < roles.size(); i++) {
-                Grantee  currentRole = (Grantee) roles.get(i);
+                Grantee  currentRole = roles.get(i);
                 String   roleName    = currentRole.getName().getNameString();
                 Object[] row         = t.getEmptyRowData();
 
@@ -2171,7 +2167,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // Intermediate holders
-        Iterator grantees;
+        Iterator<Grantee> grantees;
         Grantee  grantee;
         Object[] row;
 
@@ -2180,7 +2176,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // Do it.
         while (grantees.hasNext()) {
-            grantee = (Grantee) grantees.next();
+            grantee = grantees.next();
             row     = t.getEmptyRowData();
             row[0]  = grantee.getName().getNameString();
             row[1]  = grantee.isRole() ? "ROLE"
@@ -2229,7 +2225,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int default_collate_name    = 7;
 
         //
-        Iterator it = database.schemaManager.databaseObjectIterator(
+        Iterator<SchemaObject> it = database.schemaManager.databaseObjectIterator(
             SchemaObject.CHARSET);
 
         while (it.hasNext()) {
@@ -2351,67 +2347,19 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         //
         // Intermediate holders
-        Iterator       constraints;
+        Iterator<Constraint>       constraints;
         Constraint     constraint;
-        OrderedHashSet references;
+        OrderedHashSet<HsqlName> references;
         Object[]       row;
 
-        constraints = database.schemaManager.databaseObjectIterator(
-            SchemaObject.CONSTRAINT);
+        constraints = database.schemaManager.databaseCheckConstraintIterator();
 
         while (constraints.hasNext()) {
-            HsqlName constraintName = (HsqlName) constraints.next();
-
-            if (constraintName.parent == null) {
-                continue;
-            }
-
-            switch (constraintName.parent.type) {
-
-                case SchemaObject.TABLE : {
-                    Table table =
-                        (Table) database.schemaManager.findSchemaObject(
-                            constraintName.parent.name,
-                            constraintName.parent.schema.name,
-                            SchemaObject.TABLE);
-
-                    if (table == null) {
-                        continue;
-                    }
-
-                    constraint = table.getConstraint(constraintName.name);
-
-                    if (constraint.getConstraintType()
-                            != SchemaObject.ConstraintTypes.CHECK) {
-                        continue;
-                    }
-
-                    break;
-                }
-                case SchemaObject.DOMAIN : {
-                    Type domain =
-                        (Type) database.schemaManager.findSchemaObject(
-                            constraintName.parent.name,
-                            constraintName.parent.schema.name,
-                            SchemaObject.DOMAIN);
-
-                    if (domain == null) {
-                        continue;
-                    }
-
-                    constraint = domain.userTypeModifier.getConstraint(
-                        constraintName.name);
-
-                    break;
-                }
-                default :
-                    continue;
-            }
-
+            constraint = constraints.next();
             references = constraint.getReferences();
 
             for (int i = 0; i < references.size(); i++) {
-                HsqlName name = (HsqlName) references.get(i);
+                HsqlName name = references.get(i);
 
                 if (name.type != SchemaObject.SPECIFIC_ROUTINE) {
                     continue;
@@ -2504,7 +2452,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         //
         // calculated column values
         // Intermediate holders
-        Iterator     tables;
+        Iterator<Table>     tables;
         Table        table;
         Constraint[] tableConstraints;
         int          constraintCount;
@@ -2512,11 +2460,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Object[]     row;
 
         //
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView()
                     || !session.getGrantee().isFullyAccessibleByRole(
@@ -2548,7 +2495,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             }
         }
 
-        Iterator it =
+        Iterator<SchemaObject> it =
             database.schemaManager.databaseObjectIterator(SchemaObject.DOMAIN);
 
         while (it.hasNext()) {
@@ -2655,7 +2602,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         //
         // Intermediate holders
-        Iterator  collations;
+        Iterator<SchemaObject>  collations;
         Collation collation;
         String    collationName;
         String    collationSchema;
@@ -2680,13 +2627,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // Initialization
-        collations = Collation.nameToJavaName.keySet().iterator();
+        Iterator<String> collationNames = Collation.nameToJavaName.keySet().iterator();
 
         // Do it.
-        while (collations.hasNext()) {
+        while (collationNames.hasNext()) {
             row                    = t.getEmptyRowData();
             collationSchema        = "INFORMATION_SCHEMA";
-            collationName          = (String) collations.next();
+            collationName          = collationNames.next();
             row[collation_catalog] = database.getCatalogName().name;
             row[collation_schema]  = collationSchema;
             row[collation_name]    = collationName;
@@ -2763,15 +2710,14 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int dependent_column = 4;
 
         //
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         Object[] row;
 
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView()
                     || !session.getGrantee().isFullyAccessibleByRole(
@@ -2792,7 +2738,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     continue;
                 }
 
-                OrderedHashSet set = column.getGeneratedColumnReferences();
+                OrderedHashSet<HsqlName> set = column.getGeneratedColumnReferences();
 
                 if (set != null) {
                     for (int j = 0; j < set.size(); j++) {
@@ -2800,7 +2746,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         row[table_catalog]    = database.getCatalogName().name;
                         row[table_schema]     = name.schema.name;
                         row[table_name]       = name.name;
-                        row[column_name]      = ((HsqlName) set.get(j)).name;
+                        row[column_name]      = set.get(j).name;
                         row[dependent_column] = column.getName().name;
 
                         t.insertSys(session, store, row);
@@ -2885,7 +2831,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // intermediate holders
         int      columnCount;
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         Object[] row;
         Type     type;
@@ -2897,7 +2843,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Grantee grantee = session.getGrantee();
 
         while (tables.hasNext()) {
-            table       = (Table) tables.next();
+            table       = tables.next();
             columnCount = table.getColumnCount();
             tableName   = table.getName();
 
@@ -3004,7 +2950,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // intermediate holders
         int      columnCount;
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         Object[] row;
         Type     type;
@@ -3016,7 +2962,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Grantee grantee = session.getGrantee();
 
         while (tables.hasNext()) {
-            table       = (Table) tables.next();
+            table       = tables.next();
             columnCount = table.getColumnCount();
             tableName   = table.getName();
 
@@ -3189,17 +3135,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         //
         // intermediate holders
         int            columnCount;
-        Iterator       tables;
+        Iterator<Table>       tables;
         Table          table;
         Object[]       row;
-        OrderedHashSet columnList;
+        OrderedHashSet<HsqlName> columnList;
         Type           type;
 
         // Initialization
         tables = allTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
             columnList =
                 session.getGrantee().getColumnsForAllPrivileges(table);
 
@@ -3451,21 +3397,20 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         String constraintName;
 
         // Intermediate holders
-        Iterator     tables;
+        Iterator<Table>     tables;
         Table        table;
         Constraint[] constraints;
         int          constraintCount;
         Constraint   constraint;
-        Iterator     iterator;
+        Iterator<Expression>     iterator;
         Object[]     row;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView()
                     || !session.getGrantee().isFullyAccessibleByRole(
@@ -3486,7 +3431,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 switch (constraint.getConstraintType()) {
 
                     case SchemaObject.ConstraintTypes.CHECK : {
-                        OrderedHashSet expressions =
+                        OrderedHashSet<Expression> expressions =
                             constraint.getCheckColumnExpressions();
 
                         if (expressions == null) {
@@ -3638,21 +3583,19 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         String constraintName;
 
         // Intermediate holders
-        Iterator     tables;
+        Iterator<Table>     tables;
         Table        table;
         Constraint[] constraints;
         int          constraintCount;
         Constraint   constraint;
-        Iterator     iterator;
         Object[]     row;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView()
                     || !session.getGrantee().isFullyAccessibleByRole(
@@ -3831,7 +3774,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         //
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
-        String sql = (String) statementMap.get("/*data_type_privileges*/");
+        String sql = statementMap.get("/*data_type_privileges*/");
         Result rs  = sys.executeDirectStatement(sql);
 
         t.insertSys(session, store, rs);
@@ -3998,7 +3941,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         //
         //
-        Iterator it =
+        Iterator<SchemaObject> it =
             database.schemaManager.databaseObjectIterator(SchemaObject.DOMAIN);
 
         while (it.hasNext()) {
@@ -4111,7 +4054,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         //
         //
-        Iterator it =
+        Iterator<SchemaObject> it =
             database.schemaManager.databaseObjectIterator(SchemaObject.DOMAIN);
 
         while (it.hasNext()) {
@@ -4277,17 +4220,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         //
         // intermediate holders
         int            columnCount;
-        Iterator       tables;
+        Iterator<Table>       tables;
         Table          table;
         Object[]       row;
-        OrderedHashSet columnList;
+        OrderedHashSet<HsqlName> columnList;
         Type           type;
 
         // Initialization
         tables = allTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
             columnList =
                 session.getGrantee().getColumnsForAllPrivileges(table);
 
@@ -4326,7 +4269,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             }
         }
 
-        Iterator it =
+        Iterator<SchemaObject> it =
             database.schemaManager.databaseObjectIterator(SchemaObject.DOMAIN);
 
         while (it.hasNext()) {
@@ -4563,7 +4506,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // Intermediate holders
-        Iterator grantees;
+        Iterator<Grantee> grantees;
         Grantee  grantee;
         Object[] row;
 
@@ -4571,7 +4514,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         grantees = session.getGrantee().getAllRoles().iterator();
 
         while (grantees.hasNext()) {
-            grantee = (Grantee) grantees.next();
+            grantee = grantees.next();
             row     = t.getEmptyRowData();
             row[0]  = grantee.getName().getNameString();
 
@@ -4621,9 +4564,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int jar_name         = 5;
 
         //
-        Iterator it;
-        Object[] row;
-
         return t;
     }
 
@@ -4662,9 +4602,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int jar_path    = 3;
 
         //
-        Iterator it;
-        Object[] row;
-
         return t;
     }
 
@@ -4731,7 +4668,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // Intermediate holders
-        Iterator tables;
+        Iterator<Table> tables;
         Object[] row;
 
         // column number mappings
@@ -4746,11 +4683,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int position_in_unique_constraint = 8;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         while (tables.hasNext()) {
-            Table    table        = (Table) tables.next();
+            Table    table        = tables.next();
             String   tableCatalog = database.getCatalogName().name;
             HsqlName tableName    = table.getName();
 
@@ -4881,7 +4817,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // Intermediate holders
-        Iterator tables;
+        Iterator<Table> tables;
         Object[] row;
 
         // column number mappings
@@ -4894,11 +4830,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int period_name        = 6;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         while (tables.hasNext()) {
-            Table    table        = (Table) tables.next();
+            Table    table        = tables.next();
             String   tableCatalog = database.getCatalogName().name;
             HsqlName tableName    = table.getName();
 
@@ -5125,7 +5060,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // intermediate holders
         int           columnCount;
-        Iterator      routines;
+        Iterator<SchemaObject>      routines;
         RoutineSchema routineSchema;
         Routine       routine;
         Object[]      row;
@@ -5316,17 +5251,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int end_column    = 5;
 
         //
-        Iterator         tables;
+        Iterator<Table>         tables;
         Table            table;
         PeriodDefinition systemPeriod;
         PeriodDefinition applicationPeriod;
         Object[]         row;
 
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView() || !session.getGrantee().isAccessible(table)) {
                 continue;
@@ -5446,17 +5380,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int delete_rule               = 8;
 
         //
-        Iterator     tables;
+        Iterator<Table>     tables;
         Table        table;
         Constraint[] constraints;
         Constraint   constraint;
         Object[]     row;
 
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView()
                     || !session.getGrantee().hasNonSelectTableRight(table)) {
@@ -5992,7 +5925,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int column_name      = 9;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -6000,10 +5933,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         while (it.hasNext()) {
             Routine        routine = (Routine) it.next();
-            OrderedHashSet set     = routine.getReferences();
+            OrderedHashSet<HsqlName> set     = routine.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.COLUMN) {
                     continue;
@@ -6106,7 +6039,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int jar_name         = 5;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         if (!session.isAdmin()) {
@@ -6223,7 +6156,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int period_name      = 9;
 
         //
-        Iterator         it;
+        Iterator<SchemaObject>        it;
         Object[]         row;
         Table            table;
         PeriodDefinition systemPeriod;
@@ -6234,10 +6167,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         while (it.hasNext()) {
             Routine        routine = (Routine) it.next();
-            OrderedHashSet set     = routine.getReferences();
+            OrderedHashSet<HsqlName> set     = routine.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.PERIOD) {
                     continue;
@@ -6356,10 +6289,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         String  privilege;
 
         // intermediate holders
-        Iterator       routines;
+        Iterator<SchemaObject>       routines;
         Routine        routine;
         Object[]       row;
-        OrderedHashSet grantees = session.getGrantee().visibleGrantees();
+        OrderedHashSet<Grantee> grantees = session.getGrantee().visibleGrantees();
 
         routines = database.schemaManager.databaseObjectIterator(
             SchemaObject.SPECIFIC_ROUTINE);
@@ -6368,11 +6301,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             routine = (Routine) routines.next();
 
             for (int i = 0; i < grantees.size(); i++) {
-                granteeObject = (Grantee) grantees.get(i);
+                granteeObject = grantees.get(i);
 
-                OrderedHashSet rights =
+                OrderedHashSet<Right> rights =
                     granteeObject.getAllDirectPrivileges(routine);
-                OrderedHashSet grants =
+                OrderedHashSet<Right> grants =
                     granteeObject.getAllGrantedPrivileges(routine);
 
                 if (!grants.isEmpty()) {
@@ -6382,7 +6315,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 }
 
                 for (int j = 0; j < rights.size(); j++) {
-                    Right right          = (Right) rights.get(j);
+                    Right right          = rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
                     if (!right.canAccess(GrantConstants.EXECUTE)) {
@@ -6488,7 +6421,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int routine_name     = 5;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -6496,10 +6429,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         while (it.hasNext()) {
             Routine        routine = (Routine) it.next();
-            OrderedHashSet set     = routine.getReferences();
+            OrderedHashSet<HsqlName> set     = routine.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.SPECIFIC_ROUTINE) {
                     continue;
@@ -6596,7 +6529,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int sequence_name    = 5;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -6604,10 +6537,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         while (it.hasNext()) {
             Routine        routine = (Routine) it.next();
-            OrderedHashSet set     = routine.getReferences();
+            OrderedHashSet<HsqlName> set     = routine.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.SEQUENCE) {
                     continue;
@@ -6713,7 +6646,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_name       = 8;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -6721,10 +6654,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         while (it.hasNext()) {
             Routine        routine = (Routine) it.next();
-            OrderedHashSet set     = routine.getReferences();
+            OrderedHashSet<HsqlName> set     = routine.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.TABLE
                         && refName.type != SchemaObject.VIEW) {
@@ -6961,7 +6894,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int result_cast_declared_numeric_scale     = 87;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -7299,7 +7232,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
-        String sql = (String) statementMap.get("/*sql_features*/");
+        String sql = statementMap.get("/*sql_features*/");
         Result rs  = sys.executeDirectStatement(sql);
 
         t.insertSys(session, store, rs);
@@ -7337,7 +7270,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
-        String sql = (String) statementMap.get("/*sql_implementation_info*/");
+        String sql = statementMap.get("/*sql_implementation_info*/");
         Result rs  = sys.executeDirectStatement(sql);
 
         t.insertSys(session, store, rs);
@@ -7375,7 +7308,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
-        String sql = (String) statementMap.get("/*sql_packages*/");
+        String sql = statementMap.get("/*sql_packages*/");
         Result rs  = sys.executeDirectStatement(sql);
 
         t.insertSys(session, store, rs);
@@ -7412,7 +7345,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
-        String sql = (String) statementMap.get("/*sql_parts*/");
+        String sql = statementMap.get("/*sql_parts*/");
         Result rs  = sys.executeDirectStatement(sql);
 
         t.insertSys(session, store, rs);
@@ -7448,7 +7381,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
-        String sql = (String) statementMap.get("/*sql_sizing*/");
+        String sql = statementMap.get("/*sql_sizing*/");
         Result rs  = sys.executeDirectStatement(sql);
 
         t.insertSys(session, store, rs);
@@ -7585,7 +7518,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // Intermediate holders
-        Iterator     tables;
+        Iterator<Table>     tables;
         Table        table;
         Constraint[] constraints;
         int          constraintCount;
@@ -7606,13 +7539,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int initially_deferred = 8;
 
         // initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
-        table = null;    // else compiler complains
+        tables = allUserTables();
 
         // do it
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             /* requires any INSERT or UPDATE or DELETE or REFERENCES or TRIGGER, (not SELECT) right */
             if (table.isView()
@@ -7788,7 +7719,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int column_name     = 6;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -7802,10 +7733,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 continue;
             }
 
-            OrderedHashSet set = trigger.getReferences();
+            OrderedHashSet<HsqlName> set = trigger.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.COLUMN) {
                     continue;
@@ -7908,7 +7839,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int period_name     = 6;
 
         //
-        Iterator         it;
+        Iterator<SchemaObject>         it;
         Object[]         row;
         Table            table;
         PeriodDefinition systemPeriod;
@@ -7925,10 +7856,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 continue;
             }
 
-            OrderedHashSet set = trigger.getReferences();
+            OrderedHashSet<HsqlName> set = trigger.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.TABLE) {
                     continue;
@@ -8038,7 +7969,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int specific_name    = 5;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -8052,10 +7983,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 continue;
             }
 
-            OrderedHashSet set = trigger.getReferences();
+            OrderedHashSet<HsqlName> set = trigger.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.SPECIFIC_ROUTINE) {
                     continue;
@@ -8148,7 +8079,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int sequence_name    = 5;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -8162,10 +8093,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 continue;
             }
 
-            OrderedHashSet set = trigger.getReferences();
+            OrderedHashSet<HsqlName> set = trigger.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.SEQUENCE) {
                     continue;
@@ -8259,7 +8190,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_name      = 5;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -8273,10 +8204,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 continue;
             }
 
-            OrderedHashSet set = trigger.getReferences();
+            OrderedHashSet<HsqlName> set = trigger.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.TABLE
                         && refName.type != SchemaObject.VIEW) {
@@ -8425,7 +8356,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int created                    = 16;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -8544,7 +8475,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int event_object_column  = 6;
 
         //
-        Iterator it;
+        Iterator<SchemaObject> it;
         Object[] row;
 
         it = database.schemaManager.databaseObjectIterator(
@@ -8654,23 +8585,23 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int is_grantable   = 6;
 
         //
-        Iterator objects =
+        Iterator<SchemaObject> objects =
             database.schemaManager.databaseObjectIterator(SchemaObject.TYPE);
-        OrderedHashSet grantees =
+        OrderedHashSet<Grantee> grantees =
             session.getGrantee().getGranteeAndAllRolesWithPublic();
 
         while (objects.hasNext()) {
-            SchemaObject object = (SchemaObject) objects.next();
+            SchemaObject object = objects.next();
 
             if (object.getType() != SchemaObject.TYPE) {
                 continue;
             }
 
             for (int i = 0; i < grantees.size(); i++) {
-                Grantee granteeObject = (Grantee) grantees.get(i);
-                OrderedHashSet rights =
+                Grantee granteeObject = grantees.get(i);
+                OrderedHashSet<Right> rights =
                     granteeObject.getAllDirectPrivileges(object);
-                OrderedHashSet grants =
+                OrderedHashSet<Right> grants =
                     granteeObject.getAllGrantedPrivileges(object);
 
                 if (!grants.isEmpty()) {
@@ -8680,7 +8611,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 }
 
                 for (int j = 0; j < rights.size(); j++) {
-                    Right    right          = (Right) rights.get(j);
+                    Right    right          = rights.get(j);
                     Right    grantableRight = right.getGrantableRights();
                     Object[] row;
 
@@ -8831,32 +8762,32 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int is_grantable   = 7;
 
         //
-        Iterator objects =
-            new WrapperIterator(database.schemaManager
+        Iterator<SchemaObject> objects =
+            new WrapperIterator<>(database.schemaManager
                 .databaseObjectIterator(SchemaObject.SEQUENCE), database
                 .schemaManager.databaseObjectIterator(SchemaObject.COLLATION));
 
-        objects = new WrapperIterator(
+        objects = new WrapperIterator<SchemaObject>(
             objects,
             database.schemaManager.databaseObjectIterator(
                 SchemaObject.CHARSET));
-        objects = new WrapperIterator(
+        objects = new WrapperIterator<>(
             objects,
             database.schemaManager.databaseObjectIterator(
                 SchemaObject.DOMAIN));
 
         // TYPE objects are covered in separate UDT_PRIVILEGES view
-        OrderedHashSet grantees =
+        OrderedHashSet<Grantee> grantees =
             session.getGrantee().getGranteeAndAllRolesWithPublic();
 
         while (objects.hasNext()) {
-            SchemaObject object = (SchemaObject) objects.next();
+            SchemaObject object = objects.next();
 
             for (int i = 0; i < grantees.size(); i++) {
-                Grantee granteeObject = (Grantee) grantees.get(i);
-                OrderedHashSet rights =
+                Grantee granteeObject = grantees.get(i);
+                OrderedHashSet<Right> rights =
                     granteeObject.getAllDirectPrivileges(object);
-                OrderedHashSet grants =
+                OrderedHashSet<Right> grants =
                     granteeObject.getAllGrantedPrivileges(object);
 
                 if (!grants.isEmpty()) {
@@ -8866,7 +8797,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 }
 
                 for (int j = 0; j < rights.size(); j++) {
-                    Right right          = (Right) rights.get(j);
+                    Right right          = rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
                     row                 = t.getEmptyRowData();
@@ -9019,7 +8950,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int maximum_cardinality        = 32;
 
         //
-        Iterator it =
+        Iterator<SchemaObject> it =
             database.schemaManager.databaseObjectIterator(SchemaObject.TYPE);
 
         while (it.hasNext()) {
@@ -9171,11 +9102,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         String viewName;
 
         // Intermediate holders
-        Iterator tables;
+        Iterator<Table> tables;
         View     view;
         Table    table;
         Object[] row;
-        Iterator iterator;
+        Iterator<HsqlName> iterator;
 
         // Column number mappings
         final int view_catalog  = 0;
@@ -9187,12 +9118,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int column_name   = 6;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView()
                     && session.getGrantee().isFullyAccessibleByRole(
@@ -9208,12 +9138,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             viewName    = table.getName().name;
             view        = (View) table;
 
-            OrderedHashSet references = view.getReferences();
+            OrderedHashSet<HsqlName> references = view.getReferences();
 
             iterator = references.iterator();
 
             while (iterator.hasNext()) {
-                HsqlName refName = (HsqlName) iterator.next();
+                HsqlName refName = iterator.next();
 
                 if (refName.type != SchemaObject.COLUMN) {
                     continue;
@@ -9310,26 +9240,25 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int period_name   = 6;
 
         //
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         Object[] row;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (!table.isView()) {
                 continue;
             }
 
-            OrderedHashSet references = table.getReferences();
+            OrderedHashSet<HsqlName> references = table.getReferences();
 
             for (int i = 0; i < references.size(); i++) {
-                HsqlName refName = (HsqlName) references.get(i);
+                HsqlName refName = references.get(i);
 
                 if (refName.type != SchemaObject.PERIOD) {
                     continue;
@@ -9419,7 +9348,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // Intermediate holders
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         Object[] row;
 
@@ -9432,21 +9361,20 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int specific_name    = 5;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (!table.isView()) {
                 continue;
             }
 
-            OrderedHashSet set = table.getReferences();
+            OrderedHashSet<HsqlName> set = table.getReferences();
 
             for (int i = 0; i < set.size(); i++) {
-                HsqlName refName = (HsqlName) set.get(i);
+                HsqlName refName = set.get(i);
 
                 if (refName.type != SchemaObject.SPECIFIC_ROUTINE) {
                     continue;
@@ -9545,26 +9473,25 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_name    = 5;
 
         //
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         Object[] row;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (!table.isView()) {
                 continue;
             }
 
-            OrderedHashSet references = table.getReferences();
+            OrderedHashSet<HsqlName> references = table.getReferences();
 
             for (int i = 0; i < references.size(); i++) {
-                HsqlName refName = (HsqlName) references.get(i);
+                HsqlName refName = references.get(i);
 
                 if (refName.type != SchemaObject.TABLE
                         && refName.type != SchemaObject.VIEW) {
@@ -9650,7 +9577,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        Iterator  tables;
+        Iterator<Table>  tables;
         Table     table;
         Object[]  row;
         final int table_catalog              = 0;
@@ -9667,7 +9594,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         tables = allTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (!table.isView()
                     && table.getSchemaName()
@@ -9798,10 +9725,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // Intermediate holders
         String   grantorName = SqlInvariants.SYSTEM_AUTHORIZATION_NAME;
-        Iterator grantees;
+        Iterator<Grantee> grantees;
         Grantee  granteeObject;
         String   granteeName;
-        Iterator roles;
+        Iterator<Grantee> roles;
         String   isGrantable;
         Object[] row;
 
@@ -9816,14 +9743,14 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         //
         while (grantees.hasNext()) {
-            granteeObject = (Grantee) grantees.next();
+            granteeObject = grantees.next();
             granteeName   = granteeObject.getName().getNameString();
             roles         = granteeObject.getDirectRolesWithPublic().iterator();
             isGrantable   = granteeObject.isAdmin() ? Tokens.T_YES
                                                     : Tokens.T_NO;
 
             while (roles.hasNext()) {
-                Grantee role = (Grantee) roles.next();
+                Grantee role = roles.next();
 
                 row               = t.getEmptyRowData();
                 row[role_name]    = role.getName().getNameString();

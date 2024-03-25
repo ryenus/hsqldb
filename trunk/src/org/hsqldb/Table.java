@@ -75,7 +75,7 @@ public class Table extends TableBase implements SchemaObject {
     protected long     changeTimestamp;
 
     //
-    public OrderedHashMap columnList;              // columns in table
+    public OrderedHashMap<String, ColumnSchema> columnList;              // columns in table
     int                   identityColumn;          // -1 means no such column
     NumberSequence        identitySequence;        // next value of identity column
 
@@ -216,7 +216,7 @@ public class Table extends TableBase implements SchemaObject {
         // type may have changed above for CACHED tables
         tableType         = type;
         identityColumn    = -1;
-        columnList        = new OrderedHashMap();
+        columnList        = new OrderedHashMap<>();
         indexList         = Index.emptyArray;
         constraintList    = Constraint.emptyArray;
         fkConstraints     = Constraint.emptyArray;
@@ -290,13 +290,13 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
-    public OrderedHashSet getReferencesForScript() {
+    public OrderedHashSet<HsqlName> getReferencesForScript() {
 
-        OrderedHashSet set = getReferences();
+        OrderedHashSet<HsqlName> set = getReferences();
 
         for (int i = 0; i < colTypes.length; i++) {
-            ColumnSchema   column = getColumn(i);
-            OrderedHashSet refs   = column.getReferences();
+            ColumnSchema column = getColumn(i);
+            OrderedHashSet<HsqlName> refs = column.getReferences();
 
             if (refs != null && !refs.isEmpty()) {
                 set.addAll(refs);
@@ -306,13 +306,13 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
-    public OrderedHashSet getReferencesForDependents() {
+    public OrderedHashSet<HsqlName> getReferencesForDependents() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         for (int i = 0; i < colTypes.length; i++) {
-            ColumnSchema   column = getColumn(i);
-            OrderedHashSet refs   = column.getReferences();
+            ColumnSchema column = getColumn(i);
+            OrderedHashSet<HsqlName> refs = column.getReferences();
 
             if (refs != null && !refs.isEmpty()) {
                 set.add(column.getName());
@@ -536,7 +536,7 @@ public class Table extends TableBase implements SchemaObject {
         tableName = name;
     }
 
-    String[] getSQL(OrderedHashSet resolved, OrderedHashSet unresolved) {
+    HsqlArrayList<String> getSQL(OrderedHashSet<HsqlName> resolved, OrderedHashSet<SchemaObject> unresolved) {
 
         for (int i = 0; i < constraintList.length; i++) {
             Constraint c = constraintList[i];
@@ -550,7 +550,7 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<String> list = new HsqlArrayList<>();
 
         list.add(getSQL());
 
@@ -566,11 +566,7 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        String[] array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
+        return list;
     }
 
     public String getSQLForReadOnly() {
@@ -594,7 +590,7 @@ public class Table extends TableBase implements SchemaObject {
 
         // readonly for TEXT tables only
         if (isText()) {
-            HsqlArrayList list = new HsqlArrayList();
+            HsqlArrayList<String> list = new HsqlArrayList<>();
 
             if (isReadOnly) {
                 list.add(getSQLForReadOnly());
@@ -663,9 +659,9 @@ public class Table extends TableBase implements SchemaObject {
         return sb.toString();
     }
 
-    public String[] getTriggerSQL() {
+    public HsqlArrayList<String> getTriggerSQLArray() {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<String> list = new HsqlArrayList<>();
 
         for (int i = 0; i < triggerList.length; i++) {
             if (!triggerList[i].isSystem()) {
@@ -673,11 +669,7 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        String[] array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
+        return list;
     }
 
     public String getIndexRootsSQL(long[] roots) {
@@ -741,7 +733,7 @@ public class Table extends TableBase implements SchemaObject {
         return sb.toString();
     }
 
-    public void setForwardConstraints(OrderedHashSet resolved) {
+    public void setForwardConstraints(OrderedHashSet<HsqlName> resolved) {
 
         for (int i = 0; i < constraintList.length; i++) {
             Constraint c = constraintList[i];
@@ -899,8 +891,8 @@ public class Table extends TableBase implements SchemaObject {
 // akede@users - 1.7.2 patch Files readonly
     public void setDataReadOnly(boolean value) {
 
-        // Changing the Read-Only mode for the table is only allowed if the
-        // the database can realize it.
+        // Changing the Read-Only mode for the table is only allowed if
+        // the database type allows it.
         if (!value) {
             if (database.isFilesReadOnly() && isFileBased()) {
                 throw Error.error(ErrorCode.DATA_IS_READONLY);
@@ -1073,7 +1065,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /** columnMap is null for deletes */
-    void collectFKReadLocks(int[] columnMap, OrderedHashSet set) {
+    void collectFKReadLocks(int[] columnMap, OrderedHashSet<HsqlName> set) {
 
         for (int i = 0; i < fkMainConstraints.length; i++) {
             Constraint constraint  = fkMainConstraints[i];
@@ -1105,7 +1097,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /** columnMap is null for deletes */
-    void collectFKWriteLocks(int[] columnMap, OrderedHashSet set) {
+    void collectFKWriteLocks(int[] columnMap, OrderedHashSet<HsqlName> set) {
 
         for (int i = 0; i < fkMainConstraints.length; i++) {
             Constraint constraint  = fkMainConstraints[i];
@@ -1313,16 +1305,12 @@ public class Table extends TableBase implements SchemaObject {
      */
     Table moveDefinition(Session session, int newType, ColumnSchema[] columns,
                          Constraint constraint, Index index, int[] colIndex,
-                         int adjust, OrderedHashSet dropConstraints,
-                         OrderedHashSet dropIndexes) {
+                         int adjust, OrderedHashSet<HsqlName> dropConstraints,
+                         OrderedHashSet<HsqlName> dropIndexes) {
 
-        boolean newPK = false;
-
-        if (constraint != null
+        boolean newPK = constraint != null
                 && constraint.getConstraintType()
-                   == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
-            newPK = true;
-        }
+                == ConstraintTypes.PRIMARY_KEY;
 
         Table tn;
 
@@ -1364,7 +1352,7 @@ public class Table extends TableBase implements SchemaObject {
                 }
             }
 
-            ColumnSchema col = (ColumnSchema) columnList.get(i);
+            ColumnSchema col = columnList.get(i);
 
             col = col.duplicate();
 
@@ -1420,7 +1408,7 @@ public class Table extends TableBase implements SchemaObject {
             tn.addIndexStructure(index);
         }
 
-        HsqlArrayList newList = new HsqlArrayList();
+        HsqlArrayList<Constraint> newList = new HsqlArrayList<>();
 
         if (newPK) {
             constraint.core.mainIndex     = tn.indexList[0];
@@ -1511,9 +1499,9 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Returns list of constraints dependent only on one column
      */
-    OrderedHashSet getDependentConstraints(int colIndex) {
+    OrderedHashSet<Constraint> getDependentConstraints(int colIndex) {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<Constraint> set = new OrderedHashSet<>();
 
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
@@ -1529,9 +1517,9 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Returns list of constraints dependent on more than one column
      */
-    OrderedHashSet getContainingConstraints(int colIndex) {
+    OrderedHashSet<Constraint> getContainingConstraints(int colIndex) {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<Constraint> set = new OrderedHashSet<>();
 
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
@@ -1544,9 +1532,9 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
-    OrderedHashSet getContainingIndexNames(int colIndex) {
+    OrderedHashSet<HsqlName> getContainingIndexNames(int colIndex) {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         for (int i = 0, size = indexList.length; i < size; i++) {
             Index index = indexList[i];
@@ -1562,9 +1550,9 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Returns list of MAIN constraints dependent on this PK or UNIQUE constraint
      */
-    OrderedHashSet getDependentConstraints(Constraint constraint) {
+    OrderedHashSet<Constraint> getDependentConstraints(Constraint constraint) {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<Constraint> set = new OrderedHashSet<>();
 
         for (int i = 0, size = fkMainConstraints.length; i < size; i++) {
             Constraint c = fkMainConstraints[i];
@@ -1577,9 +1565,9 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
-    public OrderedHashSet getDependentExternalConstraints() {
+    public OrderedHashSet<Constraint> getDependentExternalConstraints() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<Constraint> set = new OrderedHashSet<>();
 
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
@@ -1596,9 +1584,9 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
-    public OrderedHashSet getUniquePKConstraintNames() {
+    public OrderedHashSet<HsqlName> getUniquePKConstraintNames() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
@@ -1938,27 +1926,16 @@ public class Table extends TableBase implements SchemaObject {
         return cols;
     }
 
-    int[] getColumnIndexes(OrderedHashSet set) {
+    int[] getColumnIndexes(OrderedHashSet<String> set) {
 
         int[] cols = new int[set.size()];
 
         for (int i = 0; i < cols.length; i++) {
-            cols[i] = getColumnIndex((String) set.get(i));
+            cols[i] = getColumnIndex(set.get(i));
 
             if (cols[i] == -1) {
-                throw Error.error(ErrorCode.X_42501, (String) set.get(i));
+                throw Error.error(ErrorCode.X_42501, set.get(i));
             }
-        }
-
-        return cols;
-    }
-
-    int[] getColumnIndexes(OrderedHashMap list) {
-
-        int[] cols = new int[list.size()];
-
-        for (int i = 0; i < cols.length; i++) {
-            cols[i] = ((Integer) list.get(i)).intValue();
         }
 
         return cols;
@@ -1968,48 +1945,24 @@ public class Table extends TableBase implements SchemaObject {
      *  Returns the Column object at the given index
      */
     public ColumnSchema getColumn(int i) {
-        return (ColumnSchema) columnList.get(i);
+        return columnList.get(i);
     }
 
-    public OrderedHashSet getColumnNameSet(int[] columnIndexes) {
-
-        OrderedHashSet set = new OrderedHashSet();
-
-        for (int i = 0; i < columnIndexes.length; i++) {
-            set.add(((ColumnSchema) columnList.get(i)).getName());
-        }
-
-        return set;
-    }
-
-    public OrderedHashSet getColumnNameSet(boolean[] columnCheckList) {
-
-        OrderedHashSet set = new OrderedHashSet();
+    public void getColumnNames(boolean[] columnCheckList, Set<HsqlName> set) {
 
         for (int i = 0; i < columnCheckList.length; i++) {
             if (columnCheckList[i]) {
-                set.add(columnList.get(i));
-            }
-        }
-
-        return set;
-    }
-
-    public void getColumnNames(boolean[] columnCheckList, Set set) {
-
-        for (int i = 0; i < columnCheckList.length; i++) {
-            if (columnCheckList[i]) {
-                set.add(((ColumnSchema) columnList.get(i)).getName());
+                set.add(columnList.get(i).getName());
             }
         }
     }
 
-    public OrderedHashSet getColumnNameSet() {
+    public OrderedHashSet<HsqlName> getColumnNameSet() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         for (int i = 0; i < columnCount; i++) {
-            set.add(((ColumnSchema) columnList.get(i)).getName());
+            set.add(columnList.get(i).getName());
         }
 
         return set;
@@ -2020,7 +1973,7 @@ public class Table extends TableBase implements SchemaObject {
         String[] labels = new String[columnCount];
 
         for (int i = 0; i < columnCount; i++) {
-            labels[i] = ((ColumnSchema) columnList.get(i)).getName().name;
+            labels[i] = columnList.get(i).getName().name;
         }
 
         return labels;
@@ -3026,14 +2979,14 @@ public class Table extends TableBase implements SchemaObject {
 
             if (identitySequence.getName() == null) {
                 if (id == null) {
-                    id = (Number) identitySequence.getValueObject();
+                    id = identitySequence.getValueObject();
                     data[identityColumn] = id;
                 } else {
                     identitySequence.userUpdate(id.longValue());
                 }
             } else {
                 if (id == null) {
-                    id = (Number) session.sessionData.getSequenceValue(
+                    id = session.sessionData.getSequenceValue(
                         identitySequence);
                     data[identityColumn] = id;
                 }
@@ -3122,7 +3075,7 @@ public class Table extends TableBase implements SchemaObject {
             Number id = (Number) data[identityColumn];
 
             if (id == null) {
-                id = (Number) identitySequence.getValueObject();
+                id = identitySequence.getValueObject();
                 data[identityColumn] = id;
             } else {
                 if (identitySequence.getName() == null) {

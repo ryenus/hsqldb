@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,7 +92,7 @@ final class RAFile implements RandomAccessInterface {
      */
     static RandomAccessInterface newScaledRAFile(Database database,
             String name, boolean readonly,
-            int type) throws FileNotFoundException, IOException {
+            int type) throws IOException {
 
         if (type == DATA_FILE_JAR) {
             return new RAFileInJar(name);
@@ -115,7 +115,7 @@ final class RAFile implements RandomAccessInterface {
 
     RAFile(EventLogInterface logger, String name, boolean readonly,
             boolean extendLengthToBlock,
-            boolean commitOnChange) throws FileNotFoundException, IOException {
+            boolean commitOnChange) throws IOException {
 
         this.logger       = logger;
         this.fileName     = name;

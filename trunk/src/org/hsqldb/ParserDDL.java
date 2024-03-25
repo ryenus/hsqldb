@@ -359,13 +359,13 @@ public class ParserDDL extends ParserRoutine {
 
         readThis(Tokens.AS);
 
-        Index index = (Index) database.schemaManager.getSchemaObject(name);
+        Index index = (Index) database.schemaManager.findSchemaObject(name);
 
         if (index == null) {
             throw Error.error(ErrorCode.X_42501);
         }
 
-        Table table = (Table) database.schemaManager.getSchemaObject(
+        Table table = (Table) database.schemaManager.findSchemaObject(
             index.getName().parent);
         int[]      indexColumns   = readColumnList(table, true);
         String     sql            = getLastPart();
@@ -779,7 +779,7 @@ public class ParserDDL extends ParserRoutine {
         Table t;
 
         if (ifExists) {
-            t = (Table) database.schemaManager.findUserTable(name.name,
+            t = database.schemaManager.findUserTable(name.name,
                     name.schema.name);
         } else {
             t = database.schemaManager.getUserTable(name);
@@ -1074,10 +1074,10 @@ public class ParserDDL extends ParserRoutine {
         } else {
             cs = compileCreateTableBody(table, ifNot);
 
-            HsqlArrayList constraints = (HsqlArrayList) cs.arguments[1];
+            HsqlArrayList<Constraint> constraints = (HsqlArrayList<Constraint>) cs.arguments[1];
 
             for (int i = 0; i < constraints.size(); i++) {
-                Constraint c = (Constraint) constraints.get(i);
+                Constraint c = constraints.get(i);
 
                 if (c.getConstraintType()
                         == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
@@ -1219,7 +1219,7 @@ public class ParserDDL extends ParserRoutine {
 
         type.userTypeModifier = userTypeModifier;
 
-        HsqlArrayList tempConstraints = new HsqlArrayList();
+        HsqlArrayList<Constraint> tempConstraints = new HsqlArrayList<>();
 
         compileContext.currentDomain = type;
 
@@ -1246,7 +1246,7 @@ public class ParserDDL extends ParserRoutine {
         compileContext.currentDomain = null;
 
         for (int i = 0; i < tempConstraints.size(); i++) {
-            Constraint c = (Constraint) tempConstraints.get(i);
+            Constraint c = tempConstraints.get(i);
 
             c.prepareDomainCheckConstraint(session);
             userTypeModifier.addConstraint(c);
@@ -1572,7 +1572,7 @@ public class ParserDDL extends ParserRoutine {
 
         cs.setSchemaHsqlName(schemaName);
 
-        HsqlArrayList list = new HsqlArrayList(128);
+        HsqlArrayList<StatementSchema> list = new HsqlArrayList<>(128);
 
         list.add(cs);
         getCompiledStatementBody(list);
@@ -1600,7 +1600,7 @@ public class ParserDDL extends ParserRoutine {
         return new StatementSchemaDefinition(array);
     }
 
-    void getCompiledStatementBody(List list) {
+    void getCompiledStatementBody(List<StatementSchema> list) {
 
         int    position;
         String sql;
@@ -1910,7 +1910,7 @@ public class ParserDDL extends ParserRoutine {
                     SchemaObject.CONSTRAINT);
         }
 
-        OrderedHashSet set           = readColumnNames(false);
+        OrderedHashSet<String> set   = readColumnNames(false);
         Constraint     c             = readFKReferences(table, name, set);
         HsqlName       mainTableName = c.getMainTableName();
 
@@ -1970,7 +1970,7 @@ public class ParserDDL extends ParserRoutine {
     Statement compileAlterTableAddColumn(Table table) {
 
         int           colIndex = table.getColumnCount();
-        HsqlArrayList list     = new HsqlArrayList();
+        HsqlArrayList<Constraint> list     = new HsqlArrayList<>();
         Constraint constraint =
             new Constraint(null, null, SchemaObject.ConstraintTypes.TEMP);
         Boolean ifNotExists = readIfNotExists();
@@ -2022,7 +2022,7 @@ public class ParserDDL extends ParserRoutine {
                     SchemaObject.CONSTRAINT);
         }
 
-        OrderedHashSet set = readColumnNames(false);
+        OrderedHashSet<String> set = readColumnNames(false);
         Constraint constraint =
             new Constraint(name, set,
                            SchemaObject.ConstraintTypes.PRIMARY_KEY);
@@ -2825,7 +2825,7 @@ public class ParserDDL extends ParserRoutine {
 
                 if (token.tokenType == Tokens.CONSTRAINT
                         || token.tokenType == Tokens.CHECK) {
-                    HsqlArrayList tempConstraints = new HsqlArrayList();
+                    HsqlArrayList<Constraint> tempConstraints = new HsqlArrayList<>();
 
                     compileContext.currentDomain = domain;
 
@@ -2833,7 +2833,7 @@ public class ParserDDL extends ParserRoutine {
 
                     compileContext.currentDomain = null;
 
-                    Constraint c = (Constraint) tempConstraints.get(0);
+                    Constraint c = tempConstraints.get(0);
 
                     c.prepareDomainCheckConstraint(session);
 
@@ -2926,7 +2926,7 @@ public class ParserDDL extends ParserRoutine {
 
     private StatementSchema compileRightGrantOrRevoke(boolean grant) {
 
-        OrderedHashSet granteeList   = new OrderedHashSet();
+        OrderedHashSet<String> granteeList   = new OrderedHashSet<>();
         Grantee        grantor       = null;
         Right          right         = null;
         HsqlName       objectName    = null;
@@ -2976,7 +2976,7 @@ public class ParserDDL extends ParserRoutine {
                 int rightType =
                     GranteeManager.getCheckSingleRight(token.tokenString);
                 int            tokenType = token.tokenType;
-                OrderedHashSet columnSet = null;
+                OrderedHashSet<String> columnNameSet = null;
 
                 read();
 
@@ -2987,12 +2987,12 @@ public class ParserDDL extends ParserRoutine {
                     case Tokens.INSERT :
                     case Tokens.UPDATE :
                         if (token.tokenType == Tokens.OPENBRACKET) {
-                            columnSet = readColumnNames(false);
+                            columnNameSet = readColumnNames(false);
                         }
 
                     // fall through
                     case Tokens.DELETE :
-                        right.set(rightType, columnSet);
+                        right.set(rightType, columnNameSet);
 
                         isTable = true;
 
@@ -3294,8 +3294,8 @@ public class ParserDDL extends ParserRoutine {
     private StatementSchema compileRoleGrantOrRevoke(boolean grant) {
 
         Grantee        grantor     = session.getGrantee();
-        OrderedHashSet roleList    = new OrderedHashSet();
-        OrderedHashSet granteeList = new OrderedHashSet();
+        OrderedHashSet<String> roleList    = new OrderedHashSet<>();
+        OrderedHashSet<String> granteeList = new OrderedHashSet<>();
         boolean        cascade     = false;
 
         if (!grant && token.tokenType == Tokens.ADMIN) {

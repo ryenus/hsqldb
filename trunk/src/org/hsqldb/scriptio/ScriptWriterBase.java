@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ import org.hsqldb.types.TimestampData;
  * DatabaseScriptReader and its subclasses read back the data at startup time.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public abstract class ScriptWriterBase implements Runnable {
@@ -314,7 +314,7 @@ public abstract class ScriptWriterBase implements Runnable {
                 continue;
             }
 
-            Iterator tables =
+            Iterator<SchemaObject> tables =
                 database.schemaManager.databaseObjectIterator(schema,
                     SchemaObject.TABLE);
 
@@ -356,20 +356,14 @@ public abstract class ScriptWriterBase implements Runnable {
         // start with blank schema - SET SCHEMA to log
         currentSession.loggedSchema = null;
 
-        String[] schemas = database.schemaManager.getSchemaNamesArray();
+        Iterator<SchemaObject> tables = database.schemaManager.databaseObjectIterator(
+                SchemaObject.TABLE);
 
-        for (int i = 0; i < schemas.length; i++) {
-            String schema = schemas[i];
-            Iterator tables =
-                database.schemaManager.databaseObjectIterator(schema,
-                    SchemaObject.TABLE);
+        while (tables.hasNext()) {
+            Table t = (Table) tables.next();
 
-            while (tables.hasNext()) {
-                Table t = (Table) tables.next();
-
-                if (t.isSystemVersioned() && t.hasPrimaryKey()) {
-                    writeTableVersionData(t, from);
-                }
+            if (t.isSystemVersioned() && t.hasPrimaryKey()) {
+                writeTableVersionData(t, from);
             }
         }
 

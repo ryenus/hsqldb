@@ -373,11 +373,11 @@ public class ExpressionOp extends Expression {
         return sb.toString();
     }
 
-    public List resolveColumnReferences(Session session,
-                                        RangeGroup rangeGroup, int rangeCount,
-                                        RangeGroup[] rangeGroups,
-                                        List unresolvedSet,
-                                        boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(Session session,
+                                                    RangeGroup rangeGroup, int rangeCount,
+                                                    RangeGroup[] rangeGroups,
+                                                    List<Expression> unresolvedSet,
+                                                    boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;

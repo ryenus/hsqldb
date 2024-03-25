@@ -1015,7 +1015,7 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                HsqlArrayList list    = new HsqlArrayList();
+                HsqlArrayList<Object> list    = new HsqlArrayList<>();
                 Object        current = data[0];
                 Type          type    = nodes[0].getDataType();
                 boolean ascending = type.compare(session, data[1], data[0])
@@ -2023,10 +2023,10 @@ public class FunctionCustom extends FunctionSQL {
                         nodes[1].getDataType());
 
                 String        string = (String) data[0];
-                int           i      = ((Number) data[1]).intValue();
-                StringBuilder sb     = new StringBuilder(string.length() * i);
+                int           count  = ((Number) data[1]).intValue();
+                StringBuilder sb     = new StringBuilder(string.length() * count);
 
-                while (i-- > 0) {
+                for (int i = 0; i < count; i++) {
                     sb.append(string);
                 }
 
@@ -2237,7 +2237,7 @@ public class FunctionCustom extends FunctionSQL {
                         return Integer.valueOf(count);
                     }
                     case FUNC_REGEXP_SUBSTRING_ARRAY : {
-                        HsqlArrayList list = new HsqlArrayList();
+                        HsqlArrayList<Object> list = new HsqlArrayList<>();
 
                         while (matcher.find()) {
                             list.add(matcher.group());

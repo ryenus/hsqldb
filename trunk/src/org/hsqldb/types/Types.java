@@ -48,7 +48,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * has been added to differentiate HSQLDB-specific type specializations.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class Types {
@@ -579,16 +579,16 @@ public class Types {
     };
 
 // lookup for types
-    static final IntValueHashMap javaTypeNumbers;
+    static final IntValueHashMap<String> javaTypeNumbers;
 
 //  campbell-burnet@users - We can't handle method invocations in
 //                   Function.java whose number class is
 //                   narrower than the corresponding internal
 //                   wrapper
-    private static final HashSet illegalParameterClasses;
+    private static final HashSet<Class> illegalParameterClasses;
 
     static {
-        javaTypeNumbers = new IntValueHashMap(32);
+        javaTypeNumbers = new IntValueHashMap<String>(32);
 
         javaTypeNumbers.put("int", Types.SQL_INTEGER);
         javaTypeNumbers.put("java.lang.Integer", Types.SQL_INTEGER);
@@ -625,7 +625,7 @@ public class Types {
         javaTypeNumbers.put("java.time.Duration", Types.SQL_INTERVAL_SECOND);
         javaTypeNumbers.put("java.time.Period", Types.SQL_INTERVAL_MONTH);
 
-        illegalParameterClasses = new HashSet();
+        illegalParameterClasses = new HashSet<>();
 
         illegalParameterClasses.add(Byte.TYPE);
         illegalParameterClasses.add(Short.TYPE);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorMain;
@@ -53,7 +54,7 @@ public class RangeVariableJoined extends RangeVariable {
     RangeVariable[] rangeArray;
 
     public RangeVariableJoined(Table table, SimpleName alias,
-                               OrderedHashSet columnList,
+                               OrderedHashSet<String> columnList,
                                SimpleName[] columnNameList,
                                CompileContext compileContext) {
 
@@ -64,7 +65,7 @@ public class RangeVariableJoined extends RangeVariable {
 
     private void setParameters() {
 
-        namedJoinColumnExpressions = new HashMap();
+        namedJoinColumnExpressions = new HashMap<>();
 
         QuerySpecification qs =
             (QuerySpecification) this.rangeTable.getQueryExpression();
@@ -103,7 +104,7 @@ public class RangeVariableJoined extends RangeVariable {
         super.setJoinType(isLeft, isRight);
     }
 
-    public void addNamedJoinColumns(OrderedHashSet columns) {
+    public void addNamedJoinColumns(OrderedHashSet<String> columns) {
         super.addNamedJoinColumns(columns);
     }
 
@@ -154,11 +155,11 @@ public class RangeVariableJoined extends RangeVariable {
         return super.reverseOrder();
     }
 
-    public OrderedHashSet getColumnNames() {
+    public OrderedHashSet<HsqlName> getColumnNames() {
         return super.getColumnNames();
     }
 
-    public OrderedHashSet getUniqueColumnNameSet() {
+    public OrderedHashSet<String> getUniqueColumnNameSet() {
         return super.getUniqueColumnNameSet();
     }
 
@@ -250,20 +251,20 @@ public class RangeVariableJoined extends RangeVariable {
     /**
      * Add all columns to a list of expressions
      */
-    public void addTableColumns(HsqlArrayList exprList) {
+    public void addTableColumns(HsqlArrayList<Expression> exprList) {
         super.addTableColumns(exprList);
     }
 
     /**
      * Add all columns to a list of expressions
      */
-    public int addTableColumns(HsqlArrayList exprList, int position,
-                               HashSet exclude) {
+    public int addTableColumns(HsqlArrayList<Expression> exprList, int position,
+                               HashSet<String> exclude) {
         return super.addTableColumns(exprList, position, exclude);
     }
 
     public void addTableColumns(RangeVariable subRange, Expression expression,
-                                HashSet exclude) {
+                                HashSet<String> exclude) {
 
         int index = getFirstColumnIndex(subRange);
 

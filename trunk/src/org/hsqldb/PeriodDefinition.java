@@ -39,7 +39,7 @@ import org.hsqldb.rights.Grantee;
  * Implementation of SQL period metadata.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  * @since 2.5.0
  */
 public class PeriodDefinition implements SchemaObject {
@@ -48,10 +48,10 @@ public class PeriodDefinition implements SchemaObject {
     final int      periodType;
     ColumnSchema   startColumn;
     ColumnSchema   endColumn;
-    OrderedHashSet columnNames;
+    OrderedHashSet<String> columnNames;
 
     PeriodDefinition(HsqlName periodName, int periodType,
-                     OrderedHashSet columnNames) {
+                     OrderedHashSet<String> columnNames) {
 
         this.periodName  = periodName;
         this.periodType  = periodType;

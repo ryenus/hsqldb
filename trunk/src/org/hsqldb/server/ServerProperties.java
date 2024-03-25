@@ -151,7 +151,7 @@ public class ServerProperties extends HsqlProperties {
      */
     public void validate() {
 
-        Enumeration en = stringProps.propertyNames();
+        Enumeration<?> en = stringProps.propertyNames();
 
         while (en.hasMoreElements()) {
             String       key      = (String) en.nextElement();
@@ -196,7 +196,7 @@ public class ServerProperties extends HsqlProperties {
             }
         }
 
-        Iterator it = idToAliasMap.keySet().iterator();
+        Iterator<Integer> it = idToAliasMap.keySet().iterator();
 
         while (it.hasNext()) {
             int number = it.nextInt();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import org.hsqldb.result.Result;
  * Implementation of Statement for PSM and trigger assignment.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.7.3
  * @since 2.0.1
  */
 public class StatementCursor extends StatementQuery {
@@ -97,6 +97,6 @@ public class StatementCursor extends StatementQuery {
     /**
      * always readonly
      */
-    void collectTableNamesForWrite(OrderedHashSet set) {}
+    void collectTableNamesForWrite(OrderedHashSet<HsqlNameManager.HsqlName> set) {}
 
 }

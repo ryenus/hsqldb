@@ -212,7 +212,7 @@ public class JDBCClobFile implements java.sql.Clob {
 
         InputStream stream;
         
-        final List streams = m_streams;
+        final List<Object> streams = m_streams;
 
         try {
             stream = new JDBCBlobFile.InputStreamAdapter(m_file, 0,
@@ -829,11 +829,13 @@ public class JDBCClobFile implements java.sql.Clob {
 
         m_closed = true;
 
-        final List streams = m_streams;
+        final List<Object> streams = m_streams;
 
         m_streams = null;
 
-        for (Iterator itr = streams.iterator(); itr.hasNext(); ) {
+        Iterator<Object> itr = streams.iterator();
+
+        while (itr.hasNext()) {
             final Object stream = itr.next();
 
             closeSafely(stream);
@@ -875,7 +877,7 @@ public class JDBCClobFile implements java.sql.Clob {
 
         Reader reader;
         
-        final List streams = m_streams;
+        final List<Object> streams = m_streams;
 
         try {
             reader = new ReaderAdapter(m_file, pos - 1, length) {
@@ -958,7 +960,7 @@ public class JDBCClobFile implements java.sql.Clob {
     private CharsetEncoder m_encoder;
     private boolean        m_fixedWidthCharset;
     private int            m_maxCharWidth;
-    private List           m_streams = new HsqlArrayList();
+    private List<Object>   m_streams = new HsqlArrayList<>();
 
     /**
      * Convenience constructor for {@link

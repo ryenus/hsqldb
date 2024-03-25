@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -287,19 +287,19 @@ public class StatementCommand extends Statement {
                 HsqlName name = (HsqlName) arguments[0];
                 boolean referenceFrom =
                     ((Boolean) arguments[1]).booleanValue();
-                OrderedHashSet set;
+                OrderedHashSet<HsqlName> set;
 
                 if (referenceFrom) {
                     SchemaObject object =
-                        session.database.schemaManager.getSchemaObject(name);
+                        session.database.schemaManager.findSchemaObject(name);
 
                     set = object.getReferences();
 
                     if (set == null) {
-                        set = new OrderedHashSet();
+                        set = new OrderedHashSet<>();
                     }
                 } else {
-                    set = new OrderedHashSet();
+                    set = new OrderedHashSet<>();
 
                     session.database.schemaManager.getCascadingReferencesTo(
                         name, set);
@@ -314,7 +314,7 @@ public class StatementCommand extends Statement {
                 Result   result = Result.newMultiColumnResult(names, types);
 
                 for (int i = 0; i < set.size(); i++) {
-                    HsqlName current = (HsqlName) set.get(i);
+                    HsqlName current = set.get(i);
                     Object[] data    = new Object[] {
                         SchemaObjectSet.getName(current.type),
                         current.getSchemaQualifiedStatementName()
@@ -1600,7 +1600,7 @@ public class StatementCommand extends Statement {
                 // ensure schema existence
                 session.database.schemaManager.getSchemaHsqlName(name.name);
 
-                OrderedHashMap list =
+                OrderedHashMap<String, Table> list =
                     session.database.schemaManager.getTables(name.name);
 
                 tables = new Table[list.size()];
@@ -1609,13 +1609,13 @@ public class StatementCommand extends Statement {
                 StatementSchema.checkSchemaUpdateAuthorisation(session, name);
 
                 if (!noCheck) {
-                    OrderedHashSet set = new OrderedHashSet();
+                    OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
                     session.database.schemaManager
                         .getCascadingReferencesToSchema(name, set);
 
                     for (int i = 0; i < set.size(); i++) {
-                        HsqlName objectName = (HsqlName) set.get(i);
+                        HsqlName objectName = set.get(i);
 
                         if (objectName.type == SchemaObject.CONSTRAINT) {
                             if (objectName.parent.type == SchemaObject.TABLE) {
@@ -1633,7 +1633,7 @@ public class StatementCommand extends Statement {
                 }
 
                 if (restartIdentity) {
-                    Iterator it =
+                    Iterator<SchemaObject> it =
                         session.database.schemaManager.databaseObjectIterator(
                             name.name, SchemaObject.SEQUENCE);
 

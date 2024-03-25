@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.1
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -61,7 +61,7 @@ public class ExpressionColumn extends Expression {
         HsqlNameManager.getSimpleName("ROWNUM", false);
 
     //
-    public static final OrderedHashMap diagnosticsList = new OrderedHashMap();
+    public static final OrderedHashMap<String, ColumnSchema> diagnosticsList = new OrderedHashMap<>();
     static final String[] diagnosticsVariableTokens    = new String[] {
         Tokens.T_NUMBER, Tokens.T_MORE, Tokens.T_ROW_COUNT
     };
@@ -197,7 +197,7 @@ public class ExpressionColumn extends Expression {
             return;
         }
 
-        this.column      = (ColumnSchema) diagnosticsList.get(columnIndex);
+        this.column      = diagnosticsList.get(columnIndex);
         this.columnIndex = columnIndex;
         this.dataType    = column.dataType;
     }
@@ -338,7 +338,7 @@ public class ExpressionColumn extends Expression {
         return "";
     }
 
-    void collectObjectNames(Set set) {
+    void collectObjectNames(Set<HsqlName> set) {
 
         switch (opType) {
 
@@ -398,11 +398,11 @@ public class ExpressionColumn extends Expression {
         return rangeVariable;
     }
 
-    public List resolveColumnReferences(Session session,
-                                        RangeGroup rangeGroup, int rangeCount,
-                                        RangeGroup[] rangeGroups,
-                                        List unresolvedSet,
-                                        boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(Session session,
+                                                    RangeGroup rangeGroup, int rangeCount,
+                                                    RangeGroup[] rangeGroups,
+                                                    List<Expression> unresolvedSet,
+                                                    boolean acceptsSequences) {
 
         switch (opType) {
 
@@ -442,7 +442,7 @@ public class ExpressionColumn extends Expression {
 
                 if (isUpdateColumn) {
                     if (unresolvedSet == null) {
-                        unresolvedSet = new ArrayListIdentity();
+                        unresolvedSet = new ArrayListIdentity<>();
                     }
 
                     unresolvedSet.add(this);
@@ -535,7 +535,7 @@ public class ExpressionColumn extends Expression {
                 }
 
                 if (unresolvedSet == null) {
-                    unresolvedSet = new ArrayListIdentity();
+                    unresolvedSet = new ArrayListIdentity<>();
                 }
 
                 unresolvedSet.add(this);
@@ -995,10 +995,10 @@ public class ExpressionColumn extends Expression {
         return "";
     }
 
-    public static void checkColumnsResolved(List set) {
+    public static void checkColumnsResolved(List<Expression> set) {
 
         if (set != null && !set.isEmpty()) {
-            Expression e = (Expression) set.get(0);
+            Expression e = set.get(0);
 
             if (e instanceof ExpressionColumn) {
                 StringBuilder    sb = new StringBuilder();
@@ -1016,7 +1016,7 @@ public class ExpressionColumn extends Expression {
 
                 throw Error.error(ErrorCode.X_42501, sb.toString());
             } else {
-                OrderedHashSet newSet = new OrderedHashSet();
+                OrderedHashSet<Expression> newSet = new OrderedHashSet<>();
 
                 e.collectAllExpressions(newSet, OpTypes.columnExpressionSet,
                                         OpTypes.emptyExpressionSet);
@@ -1030,7 +1030,7 @@ public class ExpressionColumn extends Expression {
         }
     }
 
-    public OrderedHashSet getUnkeyedColumns(OrderedHashSet unresolvedSet) {
+    public OrderedHashSet<Expression> getUnkeyedColumns(OrderedHashSet<Expression> unresolvedSet) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
@@ -1043,7 +1043,7 @@ public class ExpressionColumn extends Expression {
         if (opType == OpTypes.COLUMN
                 && !rangeVariable.hasKeyedColumnInGroupBy) {
             if (unresolvedSet == null) {
-                unresolvedSet = new OrderedHashSet();
+                unresolvedSet = new OrderedHashSet<>();
             }
 
             unresolvedSet.add(this);
@@ -1055,7 +1055,7 @@ public class ExpressionColumn extends Expression {
     /**
      * collects all range variables in expression tree
      */
-    OrderedHashSet collectRangeVariables(OrderedHashSet set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(OrderedHashSet<RangeVariable> set) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -1065,7 +1065,7 @@ public class ExpressionColumn extends Expression {
 
         if (rangeVariable != null) {
             if (set == null) {
-                set = new OrderedHashSet();
+                set = new OrderedHashSet<>();
             }
 
             set.add(rangeVariable);
@@ -1074,8 +1074,8 @@ public class ExpressionColumn extends Expression {
         return set;
     }
 
-    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVariables,
-                                         OrderedHashSet set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(RangeVariable[] rangeVariables,
+                                                        OrderedHashSet<RangeVariable> set) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -1087,7 +1087,7 @@ public class ExpressionColumn extends Expression {
             for (int i = 0; i < rangeVariables.length; i++) {
                 if (rangeVariables[i] == rangeVariable) {
                     if (set == null) {
-                        set = new OrderedHashSet();
+                        set = new OrderedHashSet<>();
                     }
 
                     set.add(rangeVariable);
@@ -1140,7 +1140,7 @@ public class ExpressionColumn extends Expression {
                 }
 
                 for (int i = 0; i < length; i++) {
-                    Expression e = (Expression) columns[i];
+                    Expression e = columns[i];
 
                     if (e instanceof ExpressionColumn) {
                         if (equals(e)) {
@@ -1306,7 +1306,7 @@ public class ExpressionColumn extends Expression {
         return isParam;
     }
 
-    void getJoinRangeVariables(RangeVariable[] ranges, List list) {
+    void getJoinRangeVariables(RangeVariable[] ranges, List<RangeVariable> list) {
 
         if (opType == OpTypes.COLUMN) {
             for (int i = 0; i < ranges.length; i++) {

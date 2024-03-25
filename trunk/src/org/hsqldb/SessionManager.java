@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,9 +50,9 @@ import java.util.TimeZone;
 public class SessionManager {
 
     AtomicLong             sessionIdCount = new AtomicLong();
-    private LongKeyHashMap sessionMap     = new LongKeyHashMap();
-    private Session        sysSession;
-    private Session        sysLobSession;
+    private final LongKeyHashMap<Session> sessionMap     = new LongKeyHashMap<>();
+    private final Session        sysSession;
+    private final Session        sysLobSession;
 
     /*
      * @todo:
@@ -62,7 +62,7 @@ public class SessionManager {
      */
 
     /**
-     * Constructs an new SessionManager handling the specified Database.
+     * Constructs a new SessionManager handling the specified Database.
      * Creates a SYS User.
      */
     public SessionManager(Database db) {
@@ -250,16 +250,16 @@ public class SessionManager {
      * if no such Session is registered with this SessionManager.
      */
     synchronized Session getSession(long id) {
-        return (Session) sessionMap.get(id);
+        return sessionMap.get(id);
     }
 
     public synchronized Session[] getAllSessions() {
 
         Session[] sessions = new Session[sessionMap.size()];
-        Iterator  it       = sessionMap.values().iterator();
+        Iterator<Session>  it       = sessionMap.values().iterator();
 
         for (int i = 0; it.hasNext(); i++) {
-            sessions[i] = (Session) it.next();
+            sessions[i] = it.next();
         }
 
         return sessions;
@@ -267,10 +267,10 @@ public class SessionManager {
 
     public synchronized boolean isUserActive(String userName) {
 
-        Iterator it = sessionMap.values().iterator();
+        Iterator<Session> it = sessionMap.values().iterator();
 
         for (int i = 0; it.hasNext(); i++) {
-            Session session = (Session) it.next();
+            Session session = it.next();
 
             if (!session.isClosed()
                     && userName.equals(
@@ -284,10 +284,10 @@ public class SessionManager {
 
     public synchronized void removeSchemaReference(HsqlName schemaName) {
 
-        Iterator it = sessionMap.values().iterator();
+        Iterator<Session> it = sessionMap.values().iterator();
 
         for (int i = 0; it.hasNext(); i++) {
-            Session session = (Session) it.next();
+            Session session = it.next();
 
             if (session.getCurrentSchemaHsqlName() == schemaName) {
                 session.resetSchema();
@@ -297,10 +297,10 @@ public class SessionManager {
 
     public synchronized void resetLoggedSchemas() {
 
-        Iterator it = sessionMap.values().iterator();
+        Iterator<Session> it = sessionMap.values().iterator();
 
         for (int i = 0; it.hasNext(); i++) {
-            Session session = (Session) it.next();
+            Session session = it.next();
 
             session.loggedSchema = null;
         }
@@ -310,11 +310,11 @@ public class SessionManager {
 
     public synchronized long resetNewLobIDs() {
 
-        Iterator it          = sessionMap.values().iterator();
+        Iterator<Session> it          = sessionMap.values().iterator();
         long     newLobFloor = Long.MAX_VALUE;
 
         for (int i = 0; it.hasNext(); i++) {
-            Session session      = (Session) it.next();
+            Session session      = it.next();
             long    currentFloor = session.sessionData.newLobFloor;
 
             if (currentFloor != SessionData.noLobFloor

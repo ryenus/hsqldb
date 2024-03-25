@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  * by the constraint.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.6.0
  */
 public final class Constraint implements SchemaObject {
@@ -68,8 +68,8 @@ public final class Constraint implements SchemaObject {
     RangeVariable   rangeVariable;
 
     // for temp constraints only
-    OrderedHashSet mainColSet;
-    OrderedHashSet refColSet;
+    OrderedHashSet<String> mainColSet;
+    OrderedHashSet<String> refColSet;
     boolean        isSimpleIdentityPK;
 
     //
@@ -130,8 +130,8 @@ public final class Constraint implements SchemaObject {
      *
      */
     public Constraint(HsqlName name, HsqlName refTableName,
-                      OrderedHashSet refCols, HsqlName mainTableName,
-                      OrderedHashSet mainCols, int type, int deleteAction,
+                      OrderedHashSet<String> refCols, HsqlName mainTableName,
+                      OrderedHashSet<String> mainCols, int type, int deleteAction,
                       int updateAction, int matchType) {
 
         this.name          = name;
@@ -168,7 +168,7 @@ public final class Constraint implements SchemaObject {
         }
     }
 
-    public Constraint(HsqlName name, OrderedHashSet mainCols, int type) {
+    public Constraint(HsqlName name, OrderedHashSet<String> mainCols, int type) {
 
         this.name  = name;
         constType  = type;
@@ -991,9 +991,9 @@ public final class Constraint implements SchemaObject {
         return check;
     }
 
-    public OrderedHashSet getCheckColumnExpressions() {
+    public OrderedHashSet<Expression> getCheckColumnExpressions() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<Expression> set = new OrderedHashSet<>();
 
         check.collectAllExpressions(set, OpTypes.columnExpressionSet,
                                     OpTypes.emptyExpressionSet);
@@ -1059,11 +1059,11 @@ public final class Constraint implements SchemaObject {
         // to ensure no subselects etc. are in condition
         check.checkValidCheckConstraint();
 
-        List list = check.resolveColumnReferences(session,
+        List<Expression> list = check.resolveColumnReferences(session,
             RangeGroup.emptyGroup, 0, RangeGroup.emptyArray, null, false);
 
         if (list != null) {
-            Expression e = ((Expression) list.get(0));
+            Expression e = list.get(0);
 
             throw Error.error(ErrorCode.X_42501, e.getSQL());
         }

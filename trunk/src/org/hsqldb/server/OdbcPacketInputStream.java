@@ -142,7 +142,7 @@ class OdbcPacketInputStream extends DataInputStream {
      * @throws EOFException if the rest of packet does not contained the
      *                   required, well-formed null-terminated string pairs.
      */
-    Map readStringPairs() throws IOException {
+    Map<String, String> readStringPairs() throws IOException {
 
         String key;
         HashMap<String, String> map = new HashMap<>();

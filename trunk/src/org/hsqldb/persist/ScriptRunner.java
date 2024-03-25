@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import org.hsqldb.scriptio.StatementLineTypes;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class ScriptRunner {
@@ -102,7 +102,7 @@ public class ScriptRunner {
     private static void runScript(Database database, ScriptReaderBase scr,
                                   boolean fullReplay) {
 
-        IntKeyHashMap sessionMap = new IntKeyHashMap();
+        IntKeyHashMap<Session> sessionMap = new IntKeyHashMap<>();
         Session       current    = null;
         int           currentId  = 0;
         String        statement;
@@ -121,7 +121,7 @@ public class ScriptRunner {
 
                 if (current == null || currentId != sessionId) {
                     currentId = sessionId;
-                    current   = (Session) sessionMap.get(currentId);
+                    current   = sessionMap.get(currentId);
 
                     if (current == null) {
 

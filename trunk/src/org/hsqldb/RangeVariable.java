@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeGroup.RangeGroupSimple;
@@ -55,7 +56,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class RangeVariable {
@@ -72,11 +73,11 @@ public class RangeVariable {
     //
     Table                  rangeTable;
     final SimpleName       tableAlias;
-    private OrderedHashSet columnAliases;
+    private OrderedHashSet<String> columnAliases;
     private SimpleName[]   columnAliasNames;
-    private OrderedHashSet columnNames;
-    OrderedHashSet         namedJoinColumns;
-    HashMap                namedJoinColumnExpressions;
+    private OrderedHashSet<HsqlName> columnNames;
+    OrderedHashSet<String> namedJoinColumns;
+    HashMap<String, Expression> namedJoinColumnExpressions;
     boolean[]              columnsInGroupBy;
     boolean                hasKeyedColumnInGroupBy;
     boolean[]              usedColumns;
@@ -124,7 +125,7 @@ public class RangeVariable {
     boolean isViewSubquery;
 
     // for variable and parameter lists
-    OrderedHashMap variables;
+    OrderedHashMap<String, ColumnSchema> variables;
 
     // variable, parameter, table
     int rangeType;
@@ -132,7 +133,7 @@ public class RangeVariable {
     //
     boolean isGenerated;
 
-    public RangeVariable(OrderedHashMap variables, SimpleName rangeName,
+    public RangeVariable(OrderedHashMap<String, ColumnSchema> variables, SimpleName rangeName,
                          boolean isVariable, int rangeType) {
 
         this.variables   = variables;
@@ -163,7 +164,7 @@ public class RangeVariable {
     }
 
     public RangeVariable(Table table, SimpleName alias,
-                         OrderedHashSet columnList,
+                         OrderedHashSet<String> columnList,
                          SimpleName[] columnNameList,
                          CompileContext compileContext) {
 
@@ -240,7 +241,7 @@ public class RangeVariable {
         }
     }
 
-    public void addNamedJoinColumns(OrderedHashSet columns) {
+    public void addNamedJoinColumns(OrderedHashSet<String> columns) {
         namedJoinColumns = columns;
     }
 
@@ -262,7 +263,7 @@ public class RangeVariable {
             int position) {
 
         if (namedJoinColumnExpressions == null) {
-            namedJoinColumnExpressions = new HashMap();
+            namedJoinColumnExpressions = new HashMap<>();
         }
 
         namedJoinColumnExpressions.put(name, e);
@@ -393,20 +394,20 @@ public class RangeVariable {
         return false;
     }
 
-    public OrderedHashSet getColumnNames() {
+    public OrderedHashSet<HsqlName> getColumnNames() {
 
         if (columnNames == null) {
-            columnNames = new OrderedHashSet();
+            columnNames = new OrderedHashSet<>();
 
-            rangeTable.getColumnNames(this.usedColumns, columnNames);
+            rangeTable.getColumnNames(usedColumns, columnNames);
         }
 
         return columnNames;
     }
 
-    public OrderedHashSet getUniqueColumnNameSet() {
+    public OrderedHashSet<String> getUniqueColumnNameSet() {
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<String> set = new OrderedHashSet<>();
 
         if (columnAliases != null) {
             set.addAll(columnAliases);
@@ -465,7 +466,7 @@ public class RangeVariable {
         if (variables == null) {
             return rangeTable.getColumn(i);
         } else {
-            return (ColumnSchema) variables.get(i);
+            return variables.get(i);
         }
     }
 
@@ -524,14 +525,10 @@ public class RangeVariable {
         }
 
         if (tableAlias == null) {
-            if (name.equals(rangeTable.getName().name)) {
-                return true;
-            }
-        } else if (name.equals(tableAlias.name)) {
-            return true;
+            return name.equals(rangeTable.getName().name);
+        } else {
+            return name.equals(tableAlias.name);
         }
-
-        return false;
     }
 
     private boolean resolvesSchemaName(String name) {
@@ -574,14 +571,14 @@ public class RangeVariable {
     /**
      * Add all columns to a list of expressions
      */
-    public void addTableColumns(HsqlArrayList exprList) {
+    public void addTableColumns(HsqlArrayList<Expression> exprList) {
 
         if (namedJoinColumns != null) {
             int count    = exprList.size();
             int position = 0;
 
             for (int i = 0; i < count; i++) {
-                Expression e          = (Expression) exprList.get(i);
+                Expression e          = exprList.get(i);
                 String     columnName = e.getColumnName();
 
                 if (namedJoinColumns.contains(columnName)) {
@@ -605,8 +602,8 @@ public class RangeVariable {
     /**
      * Add all columns to a list of expressions
      */
-    public int addTableColumns(HsqlArrayList exprList, int position,
-                               HashSet exclude) {
+    public int addTableColumns(HsqlArrayList<Expression> exprList, int position,
+                               HashSet<String> exclude) {
 
         Table table = getTable();
         int   count = table.getColumnCount();
@@ -614,7 +611,7 @@ public class RangeVariable {
         for (int i = 0; i < count; i++) {
             ColumnSchema column = table.getColumn(i);
             String columnName = columnAliases == null ? column.getName().name
-                                                      : (String) columnAliases
+                                                      : columnAliases
                                                           .get(i);
 
             if (exclude != null && exclude.contains(columnName)) {
@@ -630,7 +627,7 @@ public class RangeVariable {
     }
 
     public void addTableColumns(RangeVariable subRange, Expression expression,
-                                HashSet exclude) {
+                                HashSet<String> exclude) {
 
         if (subRange == this) {
             Table table = getTable();
@@ -650,15 +647,15 @@ public class RangeVariable {
     }
 
     protected void addTableColumns(Expression expression, int start,
-                                   int count, HashSet exclude) {
+                                   int count, HashSet<String> exclude) {
 
         Table         table = getTable();
-        HsqlArrayList list  = new HsqlArrayList();
+        HsqlArrayList<Expression> list  = new HsqlArrayList<>();
 
         for (int i = start; i < start + count; i++) {
             ColumnSchema column = table.getColumn(i);
             String columnName = columnAliases == null ? column.getName().name
-                                                      : (String) columnAliases
+                                                      : columnAliases
                                                           .get(i);
 
             if (exclude != null && exclude.contains(columnName)) {
@@ -718,9 +715,9 @@ public class RangeVariable {
         whereConditions[0].rangeIndex = index;
     }
 
-    public OrderedHashSet getSubqueries() {
+    public OrderedHashSet<TableDerived> getSubqueries() {
 
-        OrderedHashSet set = null;
+        OrderedHashSet<TableDerived> set = null;
 
         if (joinCondition != null) {
             set = joinCondition.collectAllSubqueries(set);
@@ -734,24 +731,24 @@ public class RangeVariable {
 
                 if (dataExpression != null) {
                     if (set == null) {
-                        set = new OrderedHashSet();
+                        set = new OrderedHashSet<>();
                     }
 
                     OrderedHashSet.addAll(set, dataExpression.getSubqueries());
                 }
             } else {
-                OrderedHashSet temp = queryExpression.getSubqueries();
+                OrderedHashSet<TableDerived> temp = queryExpression.getSubqueries();
 
                 set = OrderedHashSet.addAll(set, temp);
-                set = OrderedHashSet.add(set, rangeTable);
+                set = OrderedHashSet.add(set, (TableDerived) rangeTable);
             }
         }
 
         return set;
     }
 
-    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVars,
-                                         OrderedHashSet set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(RangeVariable[] rangeVars,
+                                                        OrderedHashSet<RangeVariable> set) {
 
         QueryExpression queryExpression = rangeTable.getQueryExpression();
         Expression      dataExpression  = rangeTable.getDataExpression();
@@ -767,8 +764,8 @@ public class RangeVariable {
         return set;
     }
 
-    public OrderedHashSet collectAllExpressions(OrderedHashSet set,
-            OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
+    public OrderedHashSet<Expression> collectAllExpressions(OrderedHashSet<Expression> set,
+                                                            OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
 
         if (joinCondition != null) {
             set = joinCondition.collectAllExpressions(set, typeSet,
@@ -827,7 +824,7 @@ public class RangeVariable {
         }
     }
 
-    public void replaceExpressions(OrderedHashSet expressions,
+    public void replaceExpressions(OrderedHashSet<Expression> expressions,
                                    int resultRangePosition) {
 
         QueryExpression queryExpression = rangeTable.getQueryExpression();
@@ -873,7 +870,7 @@ public class RangeVariable {
                 rangeGroup, rangeGroups.length, 1);
 
         if (dataExpression != null) {
-            List unresolved = dataExpression.resolveColumnReferences(session,
+            List<Expression> unresolved = dataExpression.resolveColumnReferences(session,
                 RangeGroup.emptyGroup, rangeGroups, null);
 
             unresolved = Expression.resolveColumnSet(session,
@@ -888,7 +885,7 @@ public class RangeVariable {
         if (queryExpression != null) {
             queryExpression.resolveReferences(session, rangeGroups);
 
-            List unresolved = queryExpression.getUnresolvedExpressions();
+            List<Expression> unresolved = queryExpression.getUnresolvedExpressions();
 
             unresolved = Expression.resolveColumnSet(session,
                     RangeVariable.emptyArray, RangeGroup.emptyArray,
@@ -926,7 +923,7 @@ public class RangeVariable {
 
         Expression[]  colExpr;
         int           exclude;
-        HsqlArrayList conditionsList;
+        HsqlArrayList<Expression> conditionsList;
         Expression    condition = null;
 
         if (whereConditions.length > 1) {
@@ -944,7 +941,7 @@ public class RangeVariable {
         }
 
         exclude        = ArrayUtil.find(ranges, this);
-        conditionsList = new HsqlArrayList();
+        conditionsList = new HsqlArrayList<>();
 
         addConditionsToList(conditionsList, joinConditions[0].indexCond);
 
@@ -963,7 +960,7 @@ public class RangeVariable {
                 whereConditions[0].nonIndexCondition, conditionsList);
 
         for (int i = conditionsList.size() - 1; i >= 0; i--) {
-            Expression e = (Expression) conditionsList.get(i);
+            Expression e = conditionsList.get(i);
 
             if (e == null || e.isTrue() || e.hasReference(ranges, exclude)) {
                 conditionsList.remove(i);
@@ -978,10 +975,10 @@ public class RangeVariable {
             return;
         }
 
-        OrderedHashSet subquerySet = null;
+        OrderedHashSet<TableDerived> subquerySet = null;
 
         for (int i = 0; i < conditionsList.size(); i++) {
-            Expression e = (Expression) conditionsList.get(i);
+            Expression e = conditionsList.get(i);
 
             subquerySet = e.collectAllSubqueries(subquerySet);
 
@@ -995,16 +992,16 @@ public class RangeVariable {
         colExpr = ((QuerySpecification) queryExpression).exprColumns;
 
         for (int i = 0; i < conditionsList.size(); i++) {
-            Expression e = (Expression) conditionsList.get(i);
+            Expression e = conditionsList.get(i);
 
             e = e.duplicate();
             e = e.replaceColumnReferences(session, this, colExpr);
 
-            OrderedHashSet set = e.collectRangeVariables(null);
+            OrderedHashSet<RangeVariable> set = e.collectRangeVariables(null);
 
             if (set != null) {
                 for (int j = 0; j < set.size(); j++) {
-                    RangeVariable range = (RangeVariable) set.get(j);
+                    RangeVariable range = set.get(j);
 
                     if (this != range
                             && range.rangeType == RangeVariable.TABLE_RANGE) {
@@ -1021,8 +1018,8 @@ public class RangeVariable {
         queryExpression.addExtraConditions(condition);
     }
 
-    private static void addConditionsToList(HsqlArrayList list,
-            Expression[] array) {
+    private static void addConditionsToList(HsqlArrayList<Expression> list,
+                                            Expression[] array) {
 
         if (array == null) {
             return;
@@ -1202,11 +1199,7 @@ public class RangeVariable {
                 throw Error.error(ErrorCode.X_40502);
             }
 
-            if (it.next()) {
-                return true;
-            } else {
-                return false;
-            }
+            return it.next();
         }
 
         public Row getCurrentRow() {
@@ -2255,7 +2248,7 @@ public class RangeVariable {
             }
         }
 
-        private void replaceExpressions(OrderedHashSet expressions,
+        private void replaceExpressions(OrderedHashSet<Expression> expressions,
                                         int resultRangePosition) {
 
             if (indexCond != null) {

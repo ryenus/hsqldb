@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.rights.Right;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.3
  * @since 1.7.2
  */
 
@@ -186,12 +186,12 @@ public abstract class StatementDMQL extends Statement {
 
         Result result = Result.newSingleColumnStringResult("OPERATION",
             describe(session));
-        OrderedHashSet set = getReferences();
+        OrderedHashSet<HsqlName> set = getReferences();
 
         result.navigator.add(new Object[]{ "Object References" });
 
         for (int i = 0; i < set.size(); i++) {
-            HsqlName name = (HsqlName) set.get(i);
+            HsqlName name = set.get(i);
 
             result.navigator.add(new Object[]{
                 name.getSchemaQualifiedStatementName() });
@@ -220,9 +220,9 @@ public abstract class StatementDMQL extends Statement {
 
     abstract Result getResult(Session session);
 
-    abstract void collectTableNamesForRead(OrderedHashSet set);
+    abstract void collectTableNamesForRead(OrderedHashSet<HsqlName> set);
 
-    abstract void collectTableNamesForWrite(OrderedHashSet set);
+    abstract void collectTableNamesForWrite(OrderedHashSet<HsqlName> set);
 
     boolean[] getInsertOrUpdateColumnCheckList() {
 
@@ -248,7 +248,7 @@ public abstract class StatementDMQL extends Statement {
 
     void materializeSubQueries(Session session) {
 
-        HashSet subqueryPopFlags = new HashSet();
+        HashSet<TableDerived> subqueryPopFlags = new HashSet<>();
 
         for (int i = 0; i < subqueries.length; i++) {
             TableDerived td = subqueries[i];
@@ -265,14 +265,14 @@ public abstract class StatementDMQL extends Statement {
 
     TableDerived[] getSubqueries(Session session) {
 
-        OrderedHashSet subQueries = null;
+        OrderedHashSet<TableDerived> subQueries = null;
 
         for (int i = 0; i < targetRangeVariables.length; i++) {
             if (targetRangeVariables[i] == null) {
                 continue;
             }
 
-            OrderedHashSet set = targetRangeVariables[i].getSubqueries();
+            OrderedHashSet<TableDerived> set = targetRangeVariables[i].getSubqueries();
 
             subQueries = OrderedHashSet.addAll(subQueries, set);
         }
@@ -290,13 +290,13 @@ public abstract class StatementDMQL extends Statement {
         }
 
         if (queryExpression != null) {
-            OrderedHashSet set = queryExpression.getSubqueries();
+            OrderedHashSet<TableDerived> set = queryExpression.getSubqueries();
 
             subQueries = OrderedHashSet.addAll(subQueries, set);
         }
 
         if (updatableTableCheck != null) {
-            OrderedHashSet set = updatableTableCheck.getSubqueries();
+            OrderedHashSet<TableDerived> set = updatableTableCheck.getSubqueries();
 
             subQueries = OrderedHashSet.addAll(subQueries, set);
         }
@@ -324,7 +324,7 @@ public abstract class StatementDMQL extends Statement {
         sequences          = compileContext.getSequences();
         routines           = compileContext.getRoutines();
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         collectTableNamesForWrite(set);
 
@@ -434,11 +434,11 @@ public abstract class StatementDMQL extends Statement {
 
                 range.setFilterExpression(session, expr);
 
-                OrderedHashSet set = expr.collectAllSubqueries(null);
+                OrderedHashSet<TableDerived> set = expr.collectAllSubqueries(null);
 
                 if (set != null && set.size() > 0) {
                     for (int j = 0; j < set.size(); j++) {
-                        TableDerived subquery = (TableDerived) set.get(j);
+                        TableDerived subquery = set.get(j);
 
                         subqueries =
                             (TableDerived[]) ArrayUtil.toAdjustedArray(
@@ -496,11 +496,11 @@ public abstract class StatementDMQL extends Statement {
 
             targetRangeVariables[0].setFilterExpression(session, expr);
 
-            OrderedHashSet set = expr.collectAllSubqueries(null);
+            OrderedHashSet<TableDerived> set = expr.collectAllSubqueries(null);
 
             if (set != null && set.size() > 0) {
                 for (int j = 0; j < set.size(); j++) {
-                    TableDerived subquery = (TableDerived) set.get(j);
+                    TableDerived subquery = set.get(j);
 
                     subqueries =
                         (TableDerived[]) ArrayUtil.toAdjustedArray(subqueries,

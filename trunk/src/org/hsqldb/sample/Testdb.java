@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -135,7 +135,7 @@ public class Testdb {
         // assume we are pointing to BEFORE the first row
         // rs.next() points to next row and returns true
         // or false if there is no next row, which breaks the loop
-        for (; rs.next(); ) {
+        while (rs.next()) {
             for (i = 0; i < colmax; ++i) {
                 o = rs.getObject(i + 1);    // Is SQL the first column is indexed
 

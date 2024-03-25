@@ -1801,7 +1801,7 @@ public class JDBCResultSet implements ResultSet {
         columnIndex++;
 
         if (columnMap == null) {
-            columnMap = new IntValueHashMap();
+            columnMap = new IntValueHashMap<>();
         }
         columnMap.put(columnLabel, columnIndex);
 
@@ -7005,7 +7005,7 @@ public class JDBCResultSet implements ResultSet {
     private ResultSetMetaData resultSetMetaData;
 
     /** Accelerates fineColumn {@code Map<columnName, columnIndex>} */
-    private IntValueHashMap columnMap;
+    private IntValueHashMap<String> columnMap;
 
     /** The first warning in the chain. Null if there are no warnings. */
     private SQLWarning rootWarning;

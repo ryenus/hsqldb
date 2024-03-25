@@ -64,7 +64,7 @@ public class TriggerDefSQL extends TriggerDef {
     }
 
     public void compile(Session session, SchemaObject parentObject) {
-        routine.compile(session, null);
+        routine.compile(session, this);
     }
 
     public String getClassName() {

@@ -71,7 +71,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
     public static DataSource createDataSource(Properties props)
     throws Exception {
 
-        Class cl = Class.forName(bdsClassName);
+        Class<?> cl = Class.forName(bdsClassName);
         JDBCDataSource ds =
             (JDBCDataSource) cl.getDeclaredConstructor().newInstance();
         String value = props.getProperty(databaseName);
@@ -147,7 +147,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
                 || xdsClassName.equals(className)) {
             RefAddr refAddr;
             Object  value;
-            Class   cl = Class.forName(bdsClassName);
+            Class<?> cl = Class.forName(bdsClassName);
             JDBCCommonDataSource ds =
                 (JDBCDataSource) cl.getDeclaredConstructor().newInstance();
 

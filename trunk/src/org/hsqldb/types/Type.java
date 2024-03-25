@@ -485,16 +485,14 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public boolean isDistinctType() {
 
-        return userTypeModifier == null ? false
-                                        : userTypeModifier.schemaObjectType
-                                          == SchemaObject.TYPE;
+        return userTypeModifier != null && userTypeModifier.schemaObjectType
+                == SchemaObject.TYPE;
     }
 
     public boolean isDomainType() {
 
-        return userTypeModifier == null ? false
-                                        : userTypeModifier.schemaObjectType
-                                          == SchemaObject.DOMAIN;
+        return userTypeModifier != null && userTypeModifier.schemaObjectType
+                == SchemaObject.DOMAIN;
     }
 
     public int getDegree() {
@@ -1261,11 +1259,7 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public static boolean isSupportedSQLType(int typeNumber) {
 
-        if (getDefaultType(typeNumber) == null) {
-            return false;
-        }
-
-        return true;
+        return getDefaultType(typeNumber) != null;
     }
 
     public static boolean matches(Type[] one, Type[] other) {

@@ -5595,7 +5595,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * DECIMAL_DIGITS is not applicable.
      *  <LI><B>NUM_PREC_RADIX</B> int {@code =>} Radix (typically either 10 or 2)
      *  <LI><B>COLUMN_USAGE</B> String {@code =>} The allowed usage for the column.  The
-     *  value returned will correspond to the enum name returned by {@link java.sql.PseudoColumnUsage#name PseudoColumnUsage.name()}
+     *  value returned will correspond to the enum name returned by {@link java.sql.PseudoColumnUsage PseudoColumnUsage.name()}
      *  <LI><B>REMARKS</B> String {@code =>} comment describing column (may be {@code null})
      *  <LI><B>CHAR_OCTET_LENGTH</B> int {@code =>} for char types the
      *       maximum number of bytes in the column

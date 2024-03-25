@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -249,8 +249,8 @@ public class LobManager {
 
         sysLobSession = database.sessionManager.getSysLobSession();
 
-        OrderedHashMap map = LineGroupReader.getStatementMap(resourceFileName);
-        String         sql = (String) map.get("/*lob_schema_definition*/");
+        OrderedHashMap<String, String> map = LineGroupReader.getStatementMap(resourceFileName);
+        String         sql = map.get("/*lob_schema_definition*/");
         Statement      statement = sysLobSession.compileStatement(sql);
         Result         result    = statement.execute(sysLobSession);
 

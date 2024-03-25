@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.hsqldb.types.Type;
  * database object component access
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.7.3
  * @since 2.0.0
  */
 public class ExpressionAccessor extends Expression {
@@ -58,9 +58,9 @@ public class ExpressionAccessor extends Expression {
         return nodes[LEFT].getColumn();
     }
 
-    public List resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            List unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(Session session,
+                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {

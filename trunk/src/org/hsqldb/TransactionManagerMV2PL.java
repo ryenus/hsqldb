@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public class TransactionManagerMV2PL extends TransactionManagerCommon
 implements TransactionManager {
 
     // functional unit - merged committed transactions
-    HsqlDeque committedTransactions    = new HsqlDeque();
+    HsqlDeque<RowAction[]> committedTransactions    = new HsqlDeque<>();
     LongDeque committedTransactionSCNs = new LongDeque();
 
     public TransactionManagerMV2PL(Database db) {
@@ -101,7 +101,7 @@ implements TransactionManager {
             session.actionSCN = getNextSystemChangeNumber();
 
             for (int i = 0; i < limit; i++) {
-                RowAction action = (RowAction) session.rowActionList.get(i);
+                RowAction action = session.rowActionList.get(i);
 
                 action.prepareCommit(session);
             }
@@ -130,7 +130,7 @@ implements TransactionManager {
             endTransaction(session);
 
             for (int i = 0; i < limit; i++) {
-                RowAction action = (RowAction) session.rowActionList.get(i);
+                RowAction action = session.rowActionList.get(i);
 
                 action.commit(session);
             }
@@ -141,7 +141,7 @@ implements TransactionManager {
             int newLimit = session.rowActionList.size();
 
             if (newLimit > limit) {
-                Object[] list = session.rowActionList.getArray();
+                RowAction[] list = session.rowActionList.getArray();
 
                 mergeTransaction(list, limit, newLimit, session.actionSCN);
                 finaliseRows(session, list, limit, newLimit);
@@ -152,12 +152,12 @@ implements TransactionManager {
             if (session == lobSession
                     || getFirstLiveTransactionTimestamp()
                        > session.actionSCN) {
-                Object[] list = session.rowActionList.getArray();
+                RowAction[] list = session.rowActionList.getArray();
 
                 mergeTransaction(list, 0, limit, session.actionSCN);
                 finaliseRows(session, list, 0, limit);
             } else {
-                Object[] list = session.rowActionList.toArray();
+                RowAction[] list = session.rowActionList.toArray(RowAction.emptyArray);
 
                 addToCommittedQueue(session, list);
             }
@@ -199,7 +199,7 @@ implements TransactionManager {
     public void rollbackSavepoint(Session session, int index) {
 
         long timestamp = session.sessionContext.savepointTimestamps.get(index);
-        Integer oi = (Integer) session.sessionContext.savepoints.get(index);
+        Integer oi = session.sessionContext.savepoints.get(index);
         int     start  = oi.intValue();
 
         while (session.sessionContext.savepoints.size() > index + 1) {
@@ -229,7 +229,7 @@ implements TransactionManager {
         }
 
         for (int i = limit - 1; i >= start; i--) {
-            RowAction action = (RowAction) session.rowActionList.get(i);
+            RowAction action = session.rowActionList.get(i);
 
             if (action == null || action.type == RowActionBase.ACTION_NONE
                     || action.type == RowActionBase.ACTION_DELETE_FINAL) {
@@ -338,7 +338,7 @@ implements TransactionManager {
     /**
      * add a list of actions to the end of queue
      */
-    void addToCommittedQueue(Session session, Object[] list) {
+    void addToCommittedQueue(Session session, RowAction[] list) {
 
         synchronized (committedTransactionSCNs) {
 
@@ -364,7 +364,7 @@ implements TransactionManager {
 
         while (true) {
             long     commitTimestamp = 0;
-            Object[] actions         = null;
+            RowAction[] actions         = null;
 
             synchronized (committedTransactionSCNs) {
                 if (committedTransactionSCNs.isEmpty()) {
@@ -376,7 +376,7 @@ implements TransactionManager {
                 if (commitTimestamp < timestamp) {
                     committedTransactionSCNs.removeFirst();
 
-                    actions = (Object[]) committedTransactions.removeFirst();
+                    actions = committedTransactions.removeFirst();
                 } else {
                     break;
                 }

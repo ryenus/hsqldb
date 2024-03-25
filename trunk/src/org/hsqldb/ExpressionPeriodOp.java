@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.List;
@@ -42,7 +43,7 @@ import org.hsqldb.types.Type;
  * Represents a PERIOD condition.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.3
  * @since 2.5.0
  */
 public class ExpressionPeriodOp extends ExpressionLogical {
@@ -139,7 +140,7 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         period.setRangeVariable(range);
 
         Expression right = nodes[RIGHT];
-        List unresolved = right.resolveColumnReferences(session,
+        List<Expression> unresolved = right.resolveColumnReferences(session,
             RangeGroup.emptyGroup, rangeGroups, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
@@ -147,9 +148,9 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         transform();
     }
 
-    public List resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            List unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(Session session,
+                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
 
         // special treatment of column or period for CONTAINS
         if (opType == OpTypes.RANGE_CONTAINS) {
@@ -277,7 +278,7 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         return result;
     }
 
-    void collectObjectNames(Set set) {
+    void collectObjectNames(Set<HsqlName> set) {
 
         if (leftPeriod != null) {
             set.add(leftPeriod.getName());

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.rowio.RowInputBinary;
  * Checks indexes for inconsistencies
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.3
  * @since 2.5.1
  */
 public class IndexAVLCheck {
@@ -58,12 +58,12 @@ public class IndexAVLCheck {
     public static Result checkAllTables(Session session, int type) {
 
         Result result = IndexStats.newEmptyResult();
-        HsqlArrayList allTables =
+        HsqlArrayList<Table> allTables =
             session.database.schemaManager.getAllTables(true);
         int tableCount = allTables.size();
 
         for (int i = 0; i < tableCount; i++) {
-            Table table = (Table) allTables.get(i);
+            Table table = allTables.get(i);
 
             if (!table.isCached()) {
                 continue;
@@ -175,12 +175,12 @@ public class IndexAVLCheck {
         final NodeAVLDisk     rootNode;
 
         //
-        IntKeyHashMap      bitMaps;
-        IntKeyHashMap      bitMapsPos;
+        IntKeyHashMap<BitMap>      bitMaps;
+        IntKeyHashMap<BitMap>      bitMapsPos;
         OrderedLongHashSet badRows;
         OrderedLongHashSet loopedRows;
         OrderedLongHashSet ignoreRows;
-        HsqlArrayList      unorderedRows = new HsqlArrayList();
+        HsqlArrayList<String> unorderedRows = new HsqlArrayList<>();
         int                branchPosition;
         int                leafPosition;
         long               errorRowCount;
@@ -247,12 +247,12 @@ public class IndexAVLCheck {
                 return;
             }
 
-            bitMaps       = new IntKeyHashMap();
-            bitMapsPos    = new IntKeyHashMap();
+            bitMaps       = new IntKeyHashMap<>();
+            bitMapsPos    = new IntKeyHashMap<>();
             badRows       = new OrderedLongHashSet();
             loopedRows    = new OrderedLongHashSet();
             ignoreRows    = new OrderedLongHashSet();
-            unorderedRows = new HsqlArrayList();
+            unorderedRows = new HsqlArrayList<>();
 
             Row row = rootNode.getRow(store);
 
@@ -308,7 +308,7 @@ public class IndexAVLCheck {
             }
         }
 
-        int checkNodes(NodeAVL p, HsqlArrayList list) {
+        int checkNodes(NodeAVL p, HsqlArrayList<String> list) {
 
             NodeAVLDisk l      = (NodeAVLDisk) p.getLeft(store);
             NodeAVLDisk r      = (NodeAVLDisk) p.getRight(store);
@@ -349,7 +349,7 @@ public class IndexAVLCheck {
             return errorRowCount;
         }
 
-        public IntKeyHashMap getBitMaps() {
+        public IntKeyHashMap<BitMap> getBitMaps() {
             return bitMaps;
         }
 
@@ -532,7 +532,7 @@ public class IndexAVLCheck {
 
         BitMap getBitMap(int blockIndex) {
 
-            BitMap bitMap = (BitMap) bitMaps.get(blockIndex);
+            BitMap bitMap = bitMaps.get(blockIndex);
 
             if (bitMap == null) {
                 bitMap =
@@ -561,7 +561,7 @@ public class IndexAVLCheck {
 
         BitMap getPosSet(int blockIndex) {
 
-            BitMap bitMap = (BitMap) bitMapsPos.get(blockIndex);
+            BitMap bitMap = bitMapsPos.get(blockIndex);
 
             if (bitMap == null) {
                 bitMap =

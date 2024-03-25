@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.hsqldb.lib.StringUtil;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    2.5.1
+ * @version    2.7.3
  * @since      1.7.2
  */
 final class DataFileDefrag {
@@ -81,14 +81,14 @@ final class DataFileDefrag {
 
         database.logger.logDetailEvent("Defrag process begins");
 
-        HsqlArrayList allTables = database.schemaManager.getAllTables(true);
+        HsqlArrayList<Table> allTables = database.schemaManager.getAllTables(true);
 
         rootsList = new long[allTables.size()][];
 
         long maxSize = 0;
 
         for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
-            Table table = (Table) allTables.get(i);
+            Table table = allTables.get(i);
 
             if (table.getTableType() == TableBase.CACHED_TABLE) {
                 RowStoreAVLDisk store =
@@ -130,7 +130,7 @@ final class DataFileDefrag {
             }
 
             for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
-                Table t = (Table) allTables.get(i);
+                Table t = allTables.get(i);
 
                 if (t.getTableType() == TableBase.CACHED_TABLE) {
                     long[] rootsArray = writeTableToDataFile(session, t);

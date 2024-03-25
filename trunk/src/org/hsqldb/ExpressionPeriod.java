@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.List;
@@ -40,7 +41,7 @@ import org.hsqldb.lib.Set;
  * Nodes represent PERIOD start and end.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  * @since 2.5.0
  */
 public class ExpressionPeriod extends Expression {
@@ -129,9 +130,9 @@ public class ExpressionPeriod extends Expression {
         };
     }
 
-    public List resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            List unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(Session session,
+                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
 
         for (int i = 0; i < nodes.length; i++) {
             unresolvedSet = nodes[i].resolveColumnReferences(session,
@@ -182,7 +183,7 @@ public class ExpressionPeriod extends Expression {
         }
     }
 
-    void collectObjectNames(Set set) {
+    void collectObjectNames(Set<HsqlName> set) {
 
         if (period != null) {
             set.add(period.getName());

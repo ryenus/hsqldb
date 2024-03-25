@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM and trigger assignment.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class StatementSet extends StatementDMQL {
@@ -131,7 +131,7 @@ public class StatementSet extends StatementDMQL {
             return super.getSubqueries(session);
         }
 
-        OrderedHashSet subQueries = null;
+        OrderedHashSet<TableDerived> subQueries = null;
 
         if (expression != null) {
             subQueries = expression.collectAllSubqueries(subQueries);
@@ -307,7 +307,7 @@ public class StatementSet extends StatementDMQL {
     }
 
     // this fk references -> other  :  other read lock
-    void collectTableNamesForRead(OrderedHashSet set) {
+    void collectTableNamesForRead(OrderedHashSet<HsqlName> set) {
 
         if (queryExpression != null) {
             queryExpression.getBaseTableNames(set);
@@ -343,7 +343,7 @@ public class StatementSet extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForWrite(OrderedHashSet set) {}
+    void collectTableNamesForWrite(OrderedHashSet<HsqlName> set) {}
 
     public void checkIsNotColumnTarget() {
 

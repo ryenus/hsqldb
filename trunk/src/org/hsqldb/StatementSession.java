@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for SQL session statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class StatementSession extends Statement {
@@ -99,7 +99,7 @@ public class StatementSession extends Statement {
         switch (type) {
 
             case StatementTypes.SET_TIME_ZONE :
-                List unresolved = e.resolveColumnReferences(session,
+                List<Expression> unresolved = e.resolveColumnReferences(session,
                     RangeGroup.emptyGroup, RangeGroup.emptyArray, null);
 
                 ExpressionColumn.checkColumnsResolved(unresolved);
@@ -770,7 +770,7 @@ public class StatementSession extends Statement {
             }
             case StatementTypes.DECLARE_SESSION_TABLE : {
                 Table         table           = (Table) arguments[0];
-                HsqlArrayList tempConstraints = (HsqlArrayList) arguments[1];
+                HsqlArrayList<Constraint> tempConstraints = (HsqlArrayList<Constraint>) arguments[1];
                 StatementDMQL statement       = (StatementDMQL) arguments[3];
                 Boolean       ifNotExists     = (Boolean) arguments[4];
 

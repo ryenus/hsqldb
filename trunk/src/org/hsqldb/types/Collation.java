@@ -60,9 +60,9 @@ public class Collation implements SchemaObject {
 
     public static String        defaultCollationName = "SQL_TEXT";
     static String defaultIgnoreCaseCollationName     = "SQL_TEXT_UCC";
-    public static final HashMap nameToJavaName       = new HashMap(101);
-    public static final HashMap dbNameToJavaName     = new HashMap(101);
-    public static final HashMap dbNameToCollation    = new HashMap(11);
+    public static final HashMap<String, String> nameToJavaName       = new HashMap<>(101);
+    public static final HashMap<String, String> dbNameToJavaName     = new HashMap<>(101);
+    public static final HashMap<String, Collation> dbNameToCollation = new HashMap<>(11);
 
     static {
         nameToJavaName.put("Afrikaans", "af-ZA");
@@ -162,10 +162,10 @@ public class Collation implements SchemaObject {
         nameToJavaName.put("Zulu", "zu-ZA");
 
         //
-        Iterator it = nameToJavaName.values().iterator();
+        Iterator<String> it = nameToJavaName.values().iterator();
 
         while (it.hasNext()) {
-            String javaName = (String) it.next();
+            String javaName = it.next();
             String dbName = javaName.replace('-',
                                              '_').toUpperCase(Locale.ENGLISH);
 
@@ -267,17 +267,17 @@ public class Collation implements SchemaObject {
         return collation;
     }
 
-    public static Iterator getCollationsIterator() {
+    public static Iterator<String> getCollationsIterator() {
         return nameToJavaName.keySet().iterator();
     }
 
-    public static Iterator getLocalesIterator() {
+    public static Iterator<String> getLocalesIterator() {
         return nameToJavaName.values().iterator();
     }
 
     public synchronized static Collation getCollation(String name) {
 
-        Collation collation = (Collation) dbNameToCollation.get(name);
+        Collation collation = dbNameToCollation.get(name);
 
         if (collation != null) {
             return collation;
@@ -345,10 +345,10 @@ public class Collation implements SchemaObject {
             throw Error.error(ErrorCode.X_42501, name);
         }
 
-        String javaName = (String) dbNameToJavaName.get(dbName);
+        String javaName = dbNameToJavaName.get(dbName);
 
         if (javaName == null) {
-            javaName = (String) nameToJavaName.get(dbName);
+            javaName = nameToJavaName.get(dbName);
 
             if (javaName == null) {
                 throw Error.error(ErrorCode.X_42501, dbName);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.result.Result;
  * Implementation of Statement for CREATE SCHEMA statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class StatementSchemaDefinition extends StatementSchema {
@@ -84,7 +84,7 @@ public class StatementSchemaDefinition extends StatementSchema {
 
         StatementSchema cs;
         Result          result      = statements[0].execute(session);
-        HsqlArrayList   constraints = new HsqlArrayList();
+        HsqlArrayList<Constraint>   constraints = new HsqlArrayList<>();
         StatementSchema log = new StatementSchema(null,
             StatementTypes.LOG_SCHEMA_STATEMENT);
 
@@ -133,10 +133,11 @@ public class StatementSchemaDefinition extends StatementSchema {
                         HsqlName name = ((Table) cs.arguments[0]).getName();
                         Table table =
                             (Table) session.database.schemaManager
-                                .getSchemaObject(name);
+                                .findSchemaObject(name);
 
-                        constraints.addAll((HsqlArrayList) cs.arguments[1]);
-                        ((HsqlArrayList) cs.arguments[1]).clear();
+                        HsqlArrayList<Constraint> tableConstraints = (HsqlArrayList<Constraint>) cs.arguments[1];
+                        constraints.addAll(tableConstraints);
+                        tableConstraints.clear();
 
                         //
                         log.sql = table.getSQL();
@@ -193,7 +194,7 @@ public class StatementSchemaDefinition extends StatementSchema {
         if (!result.isError()) {
             try {
                 for (int i = 0; i < constraints.size(); i++) {
-                    Constraint c = (Constraint) constraints.get(i);
+                    Constraint c = constraints.get(i);
                     Table table = session.database.schemaManager.getUserTable(
                         c.core.refTableName);
 

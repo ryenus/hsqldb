@@ -4564,7 +4564,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 // --------------------------- Internal Implementation -------------------------
 
     /** parameter name maps to parameter index */
-    private IntValueHashMap parameterNameMap;
+    private IntValueHashMap<String> parameterNameMap;
     private boolean         wasNullValue;
 
     /* parameter index => registered OUT type */
@@ -4596,7 +4596,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         String   name;
 
         // outRegistrationMap = new IntKeyIntValueHashMap();
-        parameterNameMap = new IntValueHashMap();
+        parameterNameMap = new IntValueHashMap<>();
 
         if (parameterMetaData != null) {
             names = parameterMetaData.columnLabels;

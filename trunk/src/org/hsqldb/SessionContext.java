@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.result.Result;
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class SessionContext {
@@ -65,12 +65,12 @@ public class SessionContext {
     int            currentMaxRows;
 
     //
-    OrderedHashMap  sessionVariables;
+    OrderedHashMap<String, ColumnSchema> sessionVariables;
     RangeVariable[] sessionVariablesRange;
     RangeGroup[]    sessionVariableRangeGroups;
 
     //
-    private HsqlArrayList stack;
+    private HsqlArrayList<Object> stack;
     Object[]              diagnosticsVariables = ValuePool.emptyObjectArray;
     Object[]              routineArguments     = ValuePool.emptyObjectArray;
     Object[]              routineVariables     = ValuePool.emptyObjectArray;
@@ -82,7 +82,7 @@ public class SessionContext {
 
     //
     Number         lastIdentity = ValuePool.INTEGER_0;
-    OrderedHashMap savepoints;
+    OrderedHashMap<String, Integer> savepoints;
     LongDeque      savepointTimestamps;
 
     // range variable data
@@ -93,8 +93,8 @@ public class SessionContext {
     List     currentGroup;
 
     // session tables
-    OrderedHashMap sessionTables;
-    OrderedHashMap popSessionTables;
+    OrderedHashMap<String, Table> sessionTables;
+    OrderedHashMap<String, Table> popSessionTables;
 
     //
     public volatile Statement currentStatement;
@@ -107,7 +107,7 @@ public class SessionContext {
      * Reusable set of all FK constraints that have so far been enforced while
      * a cascading insert or delete is in progress.
      */
-    HashSet               constraintPath;
+    HashSet<Constraint>               constraintPath;
     StatementResultUpdate rowUpdateStatement = new StatementResultUpdate();
 
     //
@@ -123,9 +123,9 @@ public class SessionContext {
         diagnosticsVariables =
             new Object[ExpressionColumn.diagnosticsVariableTokens.length];
         rangeIterators        = new RangeIterator[8];
-        savepoints            = new OrderedHashMap(4);
+        savepoints            = new OrderedHashMap<>(4);
         savepointTimestamps   = new LongDeque();
-        sessionVariables      = new OrderedHashMap();
+        sessionVariables      = new OrderedHashMap<>();
         sessionVariablesRange = new RangeVariable[1];
         sessionVariablesRange[0] = new RangeVariable(sessionVariables, null,
                 true, RangeVariable.VARIALBE_RANGE);
@@ -157,7 +157,7 @@ public class SessionContext {
         session.sessionData.persistentStoreCollection.push(isRoutine);
 
         if (stack == null) {
-            stack = new HsqlArrayList(32, true);
+            stack = new HsqlArrayList<>(32, true);
         }
 
         stack.add(diagnosticsVariables);
@@ -180,7 +180,7 @@ public class SessionContext {
         diagnosticsVariables =
             new Object[ExpressionColumn.diagnosticsVariableTokens.length];
         rangeIterators      = new RangeIterator[8];
-        savepoints          = new OrderedHashMap(4);
+        savepoints          = new OrderedHashMap<>(4);
         savepointTimestamps = new LongDeque();
         isAutoCommit        = false;
         currentMaxRows      = 0;
@@ -205,7 +205,7 @@ public class SessionContext {
         isAutoCommit         = (Boolean) stack.remove(stack.size() - 1);
         lastIdentity         = (Number) stack.remove(stack.size() - 1);
         savepointTimestamps  = (LongDeque) stack.remove(stack.size() - 1);
-        savepoints           = (OrderedHashMap) stack.remove(stack.size() - 1);
+        savepoints           = (OrderedHashMap<String, Integer>) stack.remove(stack.size() - 1);
         rangeIterators = (RangeIterator[]) stack.remove(stack.size() - 1);
         routineCursors       = (Result[]) stack.remove(stack.size() - 1);
         routineVariables     = (Object[]) stack.remove(stack.size() - 1);
@@ -235,7 +235,7 @@ public class SessionContext {
     public void pushStatementState() {
 
         if (stack == null) {
-            stack = new HsqlArrayList(32, true);
+            stack = new HsqlArrayList<>(32, true);
         }
 
         stack.add(ValuePool.getInt(rownum));
@@ -341,10 +341,10 @@ public class SessionContext {
     /**
      * For cascade operations
      */
-    public HashSet getConstraintPath() {
+    public HashSet<Constraint> getConstraintPath() {
 
         if (constraintPath == null) {
-            constraintPath = new HashSet();
+            constraintPath = new HashSet<>();
         } else {
             constraintPath.clear();
         }
@@ -370,7 +370,7 @@ public class SessionContext {
 
     public void pushRoutineTables() {
         popSessionTables = sessionTables;
-        sessionTables    = new OrderedHashMap();
+        sessionTables    = new OrderedHashMap<>();
     }
 
     public void popRoutineTables() {
@@ -383,7 +383,7 @@ public class SessionContext {
     public void addSessionTable(Table table) {
 
         if (sessionTables == null) {
-            sessionTables = new OrderedHashMap();
+            sessionTables = new OrderedHashMap<>();
         }
 
         if (sessionTables.containsKey(table.getName().name)) {
@@ -401,7 +401,7 @@ public class SessionContext {
             return null;
         }
 
-        return (Table) sessionTables.get(name);
+        return sessionTables.get(name);
     }
 
     public void dropSessionTable(String name) {

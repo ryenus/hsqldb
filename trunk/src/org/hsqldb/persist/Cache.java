@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -461,7 +461,7 @@ public class Cache extends BaseHashMap {
         cacheBytesLength = 0;
     }
 
-    public Iterator getIterator() {
+    public Iterator<CachedObject> getIterator() {
 
         objectIterator.reset();
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM compound statements.
 
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class StatementCompound extends Statement implements RangeGroup {
@@ -63,10 +63,10 @@ public class StatementCompound extends Statement implements RangeGroup {
     //
     ColumnSchema[]    variables      = ColumnSchema.emptyArray;
     StatementCursor[] cursors        = StatementCursor.emptyArray;
-    OrderedHashMap    scopeVariables = new OrderedHashMap();
+    OrderedHashMap<String, ColumnSchema> scopeVariables = new OrderedHashMap<>();
     RangeVariable[]   rangeVariables = RangeVariable.emptyArray;
     Table[]           tables         = Table.emptyArray;
-    OrderedHashMap    scopeTables;
+    OrderedHashMap<String, Table>    scopeTables;
 
     //
     int variablesOffset;
@@ -737,12 +737,12 @@ public class StatementCompound extends Statement implements RangeGroup {
             handlers[i].resolve(session);
         }
 
-        OrderedHashSet writeTableNamesSet = new OrderedHashSet();
-        OrderedHashSet readTableNamesSet  = new OrderedHashSet();
-        OrderedHashSet set                = new OrderedHashSet();
+        OrderedHashSet<HsqlName> writeTableNamesSet = new OrderedHashSet<>();
+        OrderedHashSet<HsqlName> readTableNamesSet  = new OrderedHashSet<>();
+        OrderedHashSet<HsqlName> set                = new OrderedHashSet<>();
 
         for (int i = 0; i < variables.length; i++) {
-            OrderedHashSet refs = variables[i].getReferences();
+            OrderedHashSet<HsqlName> refs = variables[i].getReferences();
 
             if (refs != null) {
                 set.addAll(refs);
@@ -802,7 +802,7 @@ public class StatementCompound extends Statement implements RangeGroup {
         return "";
     }
 
-    public OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
         return references;
     }
 
@@ -813,7 +813,7 @@ public class StatementCompound extends Statement implements RangeGroup {
     //
     private void setVariables() {
 
-        OrderedHashMap list = new OrderedHashMap();
+        OrderedHashMap<String, ColumnSchema> list = new OrderedHashMap<>();
 
         if (parent != null && parent.scopeVariables != null) {
             for (int i = 0; i < parent.scopeVariables.size(); i++) {
@@ -845,9 +845,7 @@ public class StatementCompound extends Statement implements RangeGroup {
 
         rangeVariables = new RangeVariable[parameterRangeVariables.length + 1];
 
-        for (int i = 0; i < parameterRangeVariables.length; i++) {
-            rangeVariables[i] = parameterRangeVariables[i];
-        }
+        System.arraycopy(parameterRangeVariables, 0, rangeVariables, 0, parameterRangeVariables.length);
 
         rangeVariables[parameterRangeVariables.length] = range;
 
@@ -862,7 +860,7 @@ public class StatementCompound extends Statement implements RangeGroup {
             return;
         }
 
-        HashSet           statesSet = new HashSet();
+        HashSet<String>   statesSet = new HashSet<>();
         OrderedIntHashSet typesSet  = new OrderedIntHashSet();
 
         for (int i = 0; i < handlers.length; i++) {
@@ -890,7 +888,7 @@ public class StatementCompound extends Statement implements RangeGroup {
             return;
         }
 
-        OrderedHashMap list = new OrderedHashMap();
+        OrderedHashMap<String, Table> list = new OrderedHashMap<>();
 
         if (parent != null && parent.scopeTables != null) {
             for (int i = 0; i < parent.scopeTables.size(); i++) {
@@ -917,7 +915,7 @@ public class StatementCompound extends Statement implements RangeGroup {
             return;
         }
 
-        HashSet list = new HashSet();
+        HashSet<String> list = new HashSet<>();
 
         for (int i = 0; i < cursors.length; i++) {
             StatementCursor cursor = cursors[i];
@@ -933,11 +931,7 @@ public class StatementCompound extends Statement implements RangeGroup {
     private boolean findLabel(StatementSimple statement) {
 
         if (label != null && statement.label.name.equals(label.name)) {
-            if (!isLoop && statement.getType() == StatementTypes.ITERATE) {
-                return false;
-            }
-
-            return true;
+            return isLoop || statement.getType() != StatementTypes.ITERATE;
         }
 
         if (parent == null) {

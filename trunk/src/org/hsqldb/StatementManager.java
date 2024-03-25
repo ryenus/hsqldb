@@ -70,7 +70,7 @@ import org.hsqldb.result.ResultMetaData;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public final class StatementManager {
@@ -85,7 +85,7 @@ public final class StatementManager {
     private HashSet<StatementWrapper> statementSet;
 
     /** Map: Statement id (int) maps to: wrapper for Statement object. */
-    private LongKeyHashMap csidMap;
+    private LongKeyHashMap<StatementWrapper> csidMap;
 
     /**
      * Monotonically increasing counter used to assign unique ids to
@@ -103,8 +103,8 @@ public final class StatementManager {
 
         this.session  = session;
         this.database = session.database;
-        statementSet  = new HashSet(32, new StatementComparator());
-        csidMap       = new LongKeyHashMap();
+        statementSet  = new HashSet<>(32, new StatementComparator());
+        csidMap       = new LongKeyHashMap<>();
         next_cs_id    = 0;
     }
 
@@ -142,7 +142,7 @@ public final class StatementManager {
      */
     public Statement getStatement(long csid) {
 
-        StatementWrapper sw = (StatementWrapper) csidMap.get(csid);
+        StatementWrapper sw = csidMap.get(csid);
 
         if (sw == null) {
             return null;
@@ -189,7 +189,7 @@ public final class StatementManager {
         long csid = statement.getID();
 
         if (csid != 0) {
-            StatementWrapper sw = (StatementWrapper) csidMap.get(csid);
+            StatementWrapper sw = csidMap.get(csid);
 
             if (sw != null) {
                 return getStatement(sw);
@@ -286,7 +286,7 @@ public final class StatementManager {
      */
     void freeStatement(long csid) {
 
-        StatementWrapper sw = (StatementWrapper) csidMap.get(csid);
+        StatementWrapper sw = csidMap.get(csid);
 
         if (sw == null) {
             return;
@@ -312,7 +312,7 @@ public final class StatementManager {
             return;
         }
 
-        StatementWrapper sw = (StatementWrapper) csidMap.remove(csid);
+        StatementWrapper sw = csidMap.remove(csid);
 
         if (sw != null) {
             statementSet.remove(sw);

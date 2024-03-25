@@ -399,7 +399,7 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
         return accessor;
     }
 
-    public OrderedHashSet getGeneratedColumnReferences() {
+    public OrderedHashSet<HsqlName> getGeneratedColumnReferences() {
         return generatedColumnReferences;
     }
 
@@ -417,34 +417,34 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
             HsqlName name = dataType.getName();
 
             if (references == null) {
-                references = new OrderedHashSet();
+                references = new OrderedHashSet<>();
             }
 
             references.add(name);
         }
 
         if (generatingExpression != null) {
-            OrderedHashSet set = new OrderedHashSet();
+            OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
             generatingExpression.collectObjectNames(set);
 
-            Iterator it = set.iterator();
+            Iterator<HsqlName> it = set.iterator();
 
             while (it.hasNext()) {
-                HsqlName name = (HsqlName) it.next();
+                HsqlName name = it.next();
 
                 if (name.type == SchemaObject.COLUMN
                         || name.type == SchemaObject.TABLE) {
                     if (name.type == SchemaObject.COLUMN) {
                         if (generatedColumnReferences == null) {
-                            generatedColumnReferences = new OrderedHashSet();
+                            generatedColumnReferences = new OrderedHashSet<>();
                         }
 
                         generatedColumnReferences.add(name);
                     }
                 } else {
                     if (references == null) {
-                        references = new OrderedHashSet();
+                        references = new OrderedHashSet<>();
                     }
 
                     references.add(name);

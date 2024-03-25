@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class RowSetNavigatorData extends RowSetNavigator
@@ -85,7 +85,7 @@ implements Comparator<Object[]> {
 
     //
     TreeMap<Object[], Integer> groupMap;
-    LongKeyHashMap             idMap;
+    LongKeyHashMap<Object[]>   idMap;
 
     RowSetNavigatorData(Session session, SortAndSlice sortAndSlice) {
         this.session = session;
@@ -105,11 +105,11 @@ implements Comparator<Object[]> {
 
         if (select.isGrouped) {
             mainIndex = select.groupIndex;
-            groupMap    = new TreeMap<Object[], Integer>(this);
+            groupMap    = new TreeMap<>(this);
         }
 
         if (select.idIndex != null) {
-            idMap = new LongKeyHashMap();
+            idMap = new LongKeyHashMap<>();
         }
     }
 
@@ -271,7 +271,7 @@ implements Comparator<Object[]> {
     }
 
     public void resetRowMap() {
-        groupMap = new TreeMap(this);
+        groupMap = new TreeMap<>(this);
     }
 
     public boolean absolute(int position) {
@@ -354,7 +354,7 @@ implements Comparator<Object[]> {
     }
 
     public Object[] getData(long rowId) {
-        return (Object[]) idMap.get(rowId);
+        return idMap.get(rowId);
     }
 
     public void copy(RowIterator other, int[] rightColumnIndexes) {

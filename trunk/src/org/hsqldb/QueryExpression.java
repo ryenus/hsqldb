@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.hsqldb.types.Types;
  * Implementation of an SQL query expression
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.1
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class QueryExpression implements RangeGroup {
@@ -77,13 +77,13 @@ public class QueryExpression implements RangeGroup {
     public SortAndSlice    sortAndSlice;
     private int            unionType;
     private boolean        unionCorresponding;
-    private OrderedHashSet unionCorrespondingColumns;
+    private OrderedHashSet<String> unionCorrespondingColumns;
     int[]                  unionColumnMap;
     Type[]                 unionColumnTypes;
     boolean                isFullOrder;
 
     //
-    List unresolvedExpressions;
+    List<Expression> unresolvedExpressions;
 
     //
     boolean isReferencesResolved;
@@ -181,7 +181,7 @@ public class QueryExpression implements RangeGroup {
         unionCorresponding = true;
     }
 
-    public void setUnionCorrespondingColumns(OrderedHashSet names) {
+    public void setUnionCorrespondingColumns(OrderedHashSet<String> names) {
         unionCorrespondingColumns = names;
     }
 
@@ -268,7 +268,7 @@ public class QueryExpression implements RangeGroup {
         String[] rightNames = rightQueryExpression.getColumnNames();
 
         if (unionCorrespondingColumns == null) {
-            unionCorrespondingColumns = new OrderedHashSet();
+            unionCorrespondingColumns = new OrderedHashSet<>();
 
             OrderedIntHashSet leftColumns  = new OrderedIntHashSet();
             OrderedIntHashSet rightColumns = new OrderedIntHashSet();
@@ -305,7 +305,7 @@ public class QueryExpression implements RangeGroup {
                 new int[unionCorrespondingColumns.size()];
 
             for (int i = 0; i < unionCorrespondingColumns.size(); i++) {
-                String name  = (String) unionCorrespondingColumns.get(i);
+                String name  = unionCorrespondingColumns.get(i);
                 int    index = ArrayUtil.find(leftNames, name);
 
                 if (index == -1) {
@@ -357,7 +357,7 @@ public class QueryExpression implements RangeGroup {
         String[] unionColumnNames = getColumnNames();
 
         for (int i = 0; i < orderCount; i++) {
-            Expression sort = (Expression) sortAndSlice.exprList.get(i);
+            Expression sort = sortAndSlice.exprList.get(i);
             Expression e    = sort.getLeftNode();
 
             if (e.getType() == OpTypes.VALUE) {
@@ -387,14 +387,14 @@ public class QueryExpression implements RangeGroup {
         sortAndSlice.prepare(0);
     }
 
-    private void addUnresolvedExpressions(List expressions) {
+    private void addUnresolvedExpressions(List<Expression> expressions) {
 
         if (expressions == null) {
             return;
         }
 
         if (unresolvedExpressions == null) {
-            unresolvedExpressions = new ArrayListIdentity();
+            unresolvedExpressions = new ArrayListIdentity<>();
         }
 
         unresolvedExpressions.addAll(expressions);
@@ -667,14 +667,14 @@ public class QueryExpression implements RangeGroup {
 
     public void setRecursiveQuerySettings(RecursiveQuerySettings settings) {
 
-        OrderedHashSet subqueryList = rightQueryExpression.getSubqueries();
+        OrderedHashSet<TableDerived> subqueryList = rightQueryExpression.getSubqueries();
 
         if (subqueryList == null) {
-            subqueryList = new OrderedHashSet();
+            subqueryList = new OrderedHashSet<>();
         }
 
         for (int i = 0; i < subqueryList.size(); i++) {
-            TableDerived td = (TableDerived) subqueryList.get(i);
+            TableDerived td = subqueryList.get(i);
 
             if (td.isCorrelated()) {
                 continue;
@@ -686,12 +686,12 @@ public class QueryExpression implements RangeGroup {
                 continue;
             }
 
-            OrderedHashSet refList  = new OrderedHashSet();
+            OrderedHashSet<HsqlName> refList  = new OrderedHashSet<>();
 
             qe.collectObjectNames(refList);
 
             for (int j = 0; j < refList.size(); j++) {
-                HsqlName name = (HsqlName) refList.get(j);
+                HsqlName name = refList.get(j);
 
                 if (name == recursiveWorkTable.tableName
                         || name == recursiveResultTable.tableName) {
@@ -776,9 +776,9 @@ public class QueryExpression implements RangeGroup {
         return result;
     }
 
-    public OrderedHashSet getSubqueries() {
+    public OrderedHashSet<TableDerived> getSubqueries() {
 
-        OrderedHashSet subqueries = leftQueryExpression.getSubqueries();
+        OrderedHashSet<TableDerived> subqueries = leftQueryExpression.getSubqueries();
 
         subqueries =
             OrderedHashSet.addAll(subqueries,
@@ -864,7 +864,7 @@ public class QueryExpression implements RangeGroup {
         return sb.toString();
     }
 
-    public List getUnresolvedExpressions() {
+    public List<Expression> getUnresolvedExpressions() {
         return unresolvedExpressions;
     }
 
@@ -875,7 +875,7 @@ public class QueryExpression implements RangeGroup {
         }
 
         for (int i = 0; i < unresolvedExpressions.size(); i++) {
-            Expression e = (Expression) unresolvedExpressions.get(i);
+            Expression e = unresolvedExpressions.get(i);
 
             if (e.getRangeVariable() == null) {
                 return false;
@@ -922,8 +922,8 @@ public class QueryExpression implements RangeGroup {
         return unionCorrespondingColumns.size();
     }
 
-    public OrderedHashSet collectAllExpressions(OrderedHashSet set,
-            OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
+    public OrderedHashSet<Expression> collectAllExpressions(OrderedHashSet<Expression> set,
+                                                OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
 
         set = leftQueryExpression.collectAllExpressions(set, typeSet,
                 stopAtTypeSet);
@@ -936,8 +936,8 @@ public class QueryExpression implements RangeGroup {
         return set;
     }
 
-    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVars,
-                                         OrderedHashSet set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(RangeVariable[] rangeVars,
+                                                        OrderedHashSet<RangeVariable> set) {
 
         set = leftQueryExpression.collectRangeVariables(rangeVars, set);
 
@@ -948,7 +948,7 @@ public class QueryExpression implements RangeGroup {
         return set;
     }
 
-    OrderedHashSet collectRangeVariables(OrderedHashSet set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(OrderedHashSet<RangeVariable> set) {
 
         set = leftQueryExpression.collectRangeVariables(set);
 
@@ -959,7 +959,7 @@ public class QueryExpression implements RangeGroup {
         return set;
     }
 
-    public void collectObjectNames(Set set) {
+    public void collectObjectNames(Set<HsqlName> set) {
 
         leftQueryExpression.collectObjectNames(set);
 
@@ -968,7 +968,7 @@ public class QueryExpression implements RangeGroup {
         }
     }
 
-    public OrderedHashMap getColumns() {
+    public OrderedHashMap<String, ColumnSchema> getColumns() {
 
         TableDerived table = (TableDerived) getResultTable();
 
@@ -989,7 +989,7 @@ public class QueryExpression implements RangeGroup {
     /**
      * Used in views after full type resolution
      */
-    public void setTableColumnNames(OrderedHashMap list) {
+    public void setTableColumnNames(OrderedHashMap<String, ColumnSchema> list) {
 
         if (resultTable != null) {
             ((TableDerived) resultTable).columnList = list;
@@ -1022,7 +1022,7 @@ public class QueryExpression implements RangeGroup {
     void createResultTable(Session session) {
 
         HsqlName       tableName;
-        OrderedHashMap columnList;
+        OrderedHashMap<String, ColumnSchema> columnList;
         int            tableType;
 
         tableName = session.database.nameManager.getSubqueryTableName();
@@ -1071,16 +1071,15 @@ public class QueryExpression implements RangeGroup {
         leftQueryExpression.setReturningResultSet();
     }
 
-    private OrderedHashMap getUnionColumns() {
+    private OrderedHashMap<String, ColumnSchema> getUnionColumns() {
 
         if (unionCorresponding || leftQueryExpression == null) {
-            OrderedHashMap columns = ((TableDerived) resultTable).columnList;
-            OrderedHashMap list    = new OrderedHashMap();
+            OrderedHashMap<String, ColumnSchema> columns = ((TableDerived) resultTable).columnList;
+            OrderedHashMap<String, ColumnSchema> list    = new OrderedHashMap<>();
 
             for (int i = 0; i < unionColumnMap.length; i++) {
-                ColumnSchema column =
-                    (ColumnSchema) columns.get(unionColumnMap[i]);
-                String name = (String) columns.getKeyAt(unionColumnMap[i]);
+                ColumnSchema column = columns.get(unionColumnMap[i]);
+                String name = columns.getKeyAt(unionColumnMap[i]);
 
                 list.add(name, column);
             }
@@ -1097,11 +1096,11 @@ public class QueryExpression implements RangeGroup {
             return leftQueryExpression.getResultColumnNames();
         }
 
-        OrderedHashMap list = ((TableDerived) resultTable).columnList;
+        OrderedHashMap<String, ColumnSchema> list = ((TableDerived) resultTable).columnList;
         HsqlName[]     resultColumnNames = new HsqlName[list.size()];
 
         for (int i = 0; i < resultColumnNames.length; i++) {
-            resultColumnNames[i] = ((ColumnSchema) list.get(i)).getName();
+            resultColumnNames[i] = list.get(i).getName();
         }
 
         return resultColumnNames;
@@ -1147,14 +1146,10 @@ public class QueryExpression implements RangeGroup {
             return true;
         }
 
-        if (rightQueryExpression.hasReference(range)) {
-            return true;
-        }
-
-        return false;
+        return rightQueryExpression.hasReference(range);
     }
 
-    void getBaseTableNames(OrderedHashSet set) {
+    void getBaseTableNames(OrderedHashSet<HsqlName> set) {
         leftQueryExpression.getBaseTableNames(set);
         rightQueryExpression.getBaseTableNames(set);
     }
@@ -1184,7 +1179,7 @@ public class QueryExpression implements RangeGroup {
     /**
      * non-working temp code for replacing aggregate functions with simple column
      */
-    public void replaceExpressions(OrderedHashSet expressions,
+    public void replaceExpressions(OrderedHashSet<Expression> expressions,
                                    int resultRangePosition) {
 
         leftQueryExpression.replaceExpressions(expressions,

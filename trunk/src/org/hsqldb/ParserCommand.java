@@ -78,9 +78,9 @@ public class ParserCommand extends ParserDDL {
         throw unexpectedToken();
     }
 
-    HsqlArrayList compileStatements(String sql, Result cmd) {
+    HsqlArrayList<Statement> compileStatements(String sql, Result cmd) {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Statement> list = new HsqlArrayList<>();
         Statement     cs   = null;
 
         reset(session, sql);
@@ -721,10 +721,10 @@ public class ParserCommand extends ParserDDL {
                 read();
                 readThis(Tokens.COLLATION);
 
-                HsqlArrayList charsets = null;
+                HsqlArrayList<SchemaObject> charsets = null;
 
                 if (readIfThis(Tokens.FOR)) {
-                    charsets = new HsqlArrayList();
+                    charsets = new HsqlArrayList<>();
 
                     while (true) {
                         SchemaObject charset =
@@ -758,10 +758,10 @@ public class ParserCommand extends ParserDDL {
                     throw Error.error(ErrorCode.X_2H000);
                 }
 
-                HsqlArrayList charsets = null;
+                HsqlArrayList<SchemaObject> charsets = null;
 
                 if (readIfThis(Tokens.FOR)) {
-                    charsets = new HsqlArrayList();
+                    charsets = new HsqlArrayList<>();
 
                     while (true) {
                         SchemaObject charset =
@@ -1123,7 +1123,7 @@ public class ParserCommand extends ParserDDL {
                 read();
                 readThis(Tokens.ON);
 
-                OrderedHashSet set = new OrderedHashSet();
+                OrderedHashSet<String> set = new OrderedHashSet<>();
 
                 readThis(Tokens.OPENBRACKET);
                 readSimpleColumnNames(set, table, false);
@@ -2047,8 +2047,8 @@ public class ParserCommand extends ParserDDL {
 
     private Statement compileLockTable() {
 
-        OrderedHashSet readSet  = new OrderedHashSet();
-        OrderedHashSet writeSet = new OrderedHashSet();
+        OrderedHashSet<HsqlName> readSet  = new OrderedHashSet<>();
+        OrderedHashSet<HsqlName> writeSet = new OrderedHashSet<>();
 
         while (true) {
             Table table = readTableName(true);
@@ -2287,7 +2287,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.INTERVAL : {
                 e = XreadIntervalValueExpression();
 
-                List unresolved = e.resolveColumnReferences(session,
+                List<Expression> unresolved = e.resolveColumnReferences(session,
                     RangeGroup.emptyGroup, RangeGroup.emptyArray, null);
 
                 ExpressionColumn.checkColumnsResolved(unresolved);

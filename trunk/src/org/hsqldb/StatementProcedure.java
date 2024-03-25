@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import java.sql.Connection;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -46,7 +47,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for callable procedures.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class StatementProcedure extends StatementDMQL {
@@ -303,7 +304,7 @@ public class StatementProcedure extends StatementDMQL {
 
     TableDerived[] getSubqueries(Session session) {
 
-        OrderedHashSet subQueries = null;
+        OrderedHashSet<TableDerived> subQueries = null;
 
         if (expression != null) {
             subQueries = expression.collectAllSubqueries(subQueries);
@@ -394,7 +395,7 @@ public class StatementProcedure extends StatementDMQL {
         return meta;
     }
 
-    void collectTableNamesForRead(OrderedHashSet set) {
+    void collectTableNamesForRead(OrderedHashSet<HsqlName> set) {
 
         if (expression == null) {
             set.addAll(procedure.getTableNamesForRead());
@@ -411,7 +412,7 @@ public class StatementProcedure extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForWrite(OrderedHashSet set) {
+    void collectTableNamesForWrite(OrderedHashSet<HsqlName> set) {
 
         if (expression == null) {
             set.addAll(procedure.getTableNamesForWrite());

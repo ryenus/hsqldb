@@ -66,20 +66,18 @@ public class FunctionSQLInvoked extends Expression {
         this.nodes = newNodes;
     }
 
-    public List resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            List unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(Session session,
+                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
 
-        List conditionSet = condition.resolveColumnReferences(session,
+        List<Expression> conditionSet = condition.resolveColumnReferences(session,
             rangeGroup, rangeCount, rangeGroups, null, false);
 
-        if (conditionSet != null) {
-            ExpressionColumn.checkColumnsResolved(conditionSet);
-        }
+        ExpressionColumn.checkColumnsResolved(conditionSet);
 
         if (isSelfAggregate()) {
             if (unresolvedSet == null) {
-                unresolvedSet = new ArrayListIdentity();
+                unresolvedSet = new ArrayListIdentity<>();
             }
 
             unresolvedSet.add(this);
@@ -217,7 +215,7 @@ public class FunctionSQLInvoked extends Expression {
         return Result.newPSMResult(value);
     }
 
-    void collectObjectNames(Set set) {
+    void collectObjectNames(Set<HsqlName> set) {
         set.add(routine.getSpecificName());
     }
 
@@ -292,8 +290,7 @@ public class FunctionSQLInvoked extends Expression {
         return currValue;
     }
 
-    public Object getAggregatedValue(Session session,
-                                     SetFunction currValue) {
+    public Object getAggregatedValue(Session session, SetFunction currValue) {
 
         if (currValue == null) {
             currValue = new SetFunctionValueUser();

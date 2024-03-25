@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ import org.hsqldb.types.LobData;
  * Session semi-persistent data structures.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class SessionData {
@@ -75,14 +75,14 @@ public class SessionData {
     public PersistentStoreCollectionSession persistentStoreCollection;
 
     // large results
-    LongKeyHashMap resultMap;
+    LongKeyHashMap<Result> resultMap;
 
     // VALUE
     Object currentValue;
 
     // SEQUENCE
-    HashMap sequenceMap;
-    HashMap sequenceUpdateMap;
+    HashMap<HsqlName, Number>       sequenceMap;
+    HashMap<NumberSequence, Number> sequenceUpdateMap;
 
     // lobs in results
     LongKeyLongValueHashMap resultLobs = new LongKeyLongValueHashMap();
@@ -206,7 +206,7 @@ public class SessionData {
 
         if (hold) {
             if (resultMap == null) {
-                resultMap = new LongKeyHashMap();
+                resultMap = new LongKeyHashMap<>();
             }
 
             resultMap.put(result.getResultId(), result);
@@ -224,7 +224,7 @@ public class SessionData {
 
     Result getDataResultSlice(long id, int offset, int count) {
 
-        Result          result = (Result) resultMap.get(id);
+        Result          result = resultMap.get(id);
         RowSetNavigator source = result.getNavigator();
 
         if (offset + count > source.getSize()) {
@@ -236,14 +236,14 @@ public class SessionData {
 
     Result getDataResult(long id) {
 
-        Result result = (Result) resultMap.get(id);
+        Result result = resultMap.get(id);
 
         return result;
     }
 
     RowSetNavigatorClient getRowSetSlice(long id, int offset, int count) {
 
-        Result          result = (Result) resultMap.get(id);
+        Result          result = resultMap.get(id);
         RowSetNavigator source = result.getNavigator();
 
         if (offset + count > source.getSize()) {
@@ -255,7 +255,7 @@ public class SessionData {
 
     public void closeNavigator(long id) {
 
-        Result result = (Result) resultMap.remove(id);
+        Result result = resultMap.remove(id);
 
         if (result != null) {
             result.getNavigator().release();
@@ -268,10 +268,10 @@ public class SessionData {
             return;
         }
 
-        Iterator it = resultMap.values().iterator();
+        Iterator<Result> it = resultMap.values().iterator();
 
         while (it.hasNext()) {
-            Result result = (Result) it.next();
+            Result result = it.next();
 
             result.getNavigator().release();
         }
@@ -285,10 +285,10 @@ public class SessionData {
             return;
         }
 
-        Iterator it = resultMap.values().iterator();
+        Iterator<Result> it = resultMap.values().iterator();
 
         while (it.hasNext()) {
-            Result result = (Result) it.next();
+            Result result = it.next();
 
             if (!ResultProperties.isHoldable(result.rsProperties)) {
                 result.getNavigator().release();
@@ -668,15 +668,15 @@ public class SessionData {
         }
     }
 
-    public Object getSequenceValue(NumberSequence sequence) {
+    public Number getSequenceValue(NumberSequence sequence) {
 
         if (sequenceMap == null) {
-            sequenceMap       = new HashMap();
-            sequenceUpdateMap = new HashMap();
+            sequenceMap       = new HashMap<>();
+            sequenceUpdateMap = new HashMap<>();
         }
 
         HsqlName key   = sequence.getName();
-        Object   value = sequenceMap.get(key);
+        Number value = sequenceMap.get(key);
 
         if (value == null) {
             value = sequence.getValueObject();
@@ -688,7 +688,7 @@ public class SessionData {
         return value;
     }
 
-    public Object getSequenceCurrent(NumberSequence sequence) {
+    public Number getSequenceCurrent(NumberSequence sequence) {
         return sequenceUpdateMap == null ? null
                                          : sequenceUpdateMap.get(sequence);
     }

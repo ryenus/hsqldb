@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -373,7 +373,7 @@ public class StatementSchema extends Statement {
 
                         object = table.getColumn(index);
                     } else {
-                        object = schemaManager.getSchemaObject(name);
+                        object = schemaManager.findSchemaObject(name);
 
                         if (object == null) {
                             throw Error.error(ErrorCode.X_42501, name.name);
@@ -437,7 +437,7 @@ public class StatementSchema extends Statement {
                 try {
                     constraint =
                         (Constraint) session.database.schemaManager
-                            .getSchemaObject(name);
+                            .findSchemaObject(name);
 
                     constraint.extendFKIndexColumns(session, newColumns);
 
@@ -454,7 +454,7 @@ public class StatementSchema extends Statement {
 
                 try {
                     index =
-                        (Index) session.database.schemaManager.getSchemaObject(
+                        (Index) session.database.schemaManager.findSchemaObject(
                             name);
 
                     TableWorks tableWorks = new TableWorks(session, table);
@@ -486,18 +486,18 @@ public class StatementSchema extends Statement {
                     Type domain  = (Type) arguments[1];
                     Expression domainDefault =
                         domain.userTypeModifier.getDefaultClause();
-                    OrderedHashSet refSet =
+                    OrderedHashSet<HsqlName> refSet =
                         session.database.schemaManager.getReferencesTo(
                             domain.getName());
-                    OrderedHashSet tableSet = new OrderedHashSet();
+                    OrderedHashSet<SchemaObject> tableSet = new OrderedHashSet<>();
 
                     for (int i = 0; i < refSet.size(); i++) {
-                        HsqlName objectName = (HsqlName) refSet.get(i);
+                        HsqlName objectName = refSet.get(i);
                         HsqlName tableName  = objectName.parent;
 
                         if (tableName.type == SchemaObject.TABLE) {
                             SchemaObject table =
-                                session.database.schemaManager.getSchemaObject(
+                                session.database.schemaManager.findSchemaObject(
                                     tableName);
 
                             tableSet.add(table);
@@ -637,10 +637,10 @@ public class StatementSchema extends Statement {
                             break;
                         }
                         case StatementTypes.ADD_COLUMN : {
-                            ColumnSchema  column = (ColumnSchema) arguments[2];
+                            ColumnSchema column = (ColumnSchema) arguments[2];
                             int colIndex = ((Integer) arguments[3]).intValue();
-                            HsqlArrayList list = (HsqlArrayList) arguments[4];
-                            Boolean       ifNotExists = (Boolean) arguments[5];
+                            HsqlArrayList<Constraint> list = (HsqlArrayList<Constraint>) arguments[4];
+                            Boolean ifNotExists = (Boolean) arguments[5];
                             TableWorks tableWorks = new TableWorks(session,
                                                                    table);
 
@@ -825,7 +825,7 @@ public class StatementSchema extends Statement {
 
                 try {
                     Routine oldRoutine =
-                        (Routine) schemaManager.getSchemaObject(
+                        (Routine) schemaManager.findSchemaObject(
                             routine.getSpecificName());
 
                     schemaManager.replaceReferences(oldRoutine, routine);
@@ -848,7 +848,7 @@ public class StatementSchema extends Statement {
                                                    view.getSchemaName());
 
                     View oldView =
-                        (View) schemaManager.getSchemaObject(view.getName());
+                        (View) schemaManager.findSchemaObject(view.getName());
 
                     if (oldView == null) {
                         throw Error.error(ErrorCode.X_42501,
@@ -858,7 +858,7 @@ public class StatementSchema extends Statement {
                     view.setName(oldView.getName());
                     view.compile(session, null);
 
-                    OrderedHashSet dependents =
+                    OrderedHashSet<HsqlName> dependents =
                         schemaManager.getReferencesTo(oldView.getName());
 
                     if (dependents.getCommonElementCount(view.getReferences())
@@ -870,7 +870,7 @@ public class StatementSchema extends Statement {
 
                     schemaManager.setTable(i, view);
 
-                    OrderedHashSet set = new OrderedHashSet();
+                    OrderedHashSet<Table> set = new OrderedHashSet<>();
 
                     set.add(view);
 
@@ -976,7 +976,7 @@ public class StatementSchema extends Statement {
                                                            name.schema);
 
                             SchemaObject object =
-                                schemaManager.getSchemaObject(name);
+                                schemaManager.findSchemaObject(name);
 
                             if (object == null) {
                                 if (ifExists) {
@@ -1069,7 +1069,7 @@ public class StatementSchema extends Statement {
             case StatementTypes.REVOKE : {
                 try {
                     boolean        grant       = type == StatementTypes.GRANT;
-                    OrderedHashSet granteeList = (OrderedHashSet) arguments[0];
+                    OrderedHashSet<String> granteeList = (OrderedHashSet<String>) arguments[0];
                     HsqlName       name        = (HsqlName) arguments[1];
 
                     setSchemaName(session, null, name);
@@ -1078,7 +1078,7 @@ public class StatementSchema extends Statement {
                             name.name, name.type, true);
 
                     SchemaObject schemaObject =
-                        schemaManager.getSchemaObject(name);
+                        schemaManager.findSchemaObject(name);
                     Right   right   = (Right) arguments[2];
                     Grantee grantor = (Grantee) arguments[3];
                     boolean cascade = ((Boolean) arguments[4]).booleanValue();
@@ -1138,8 +1138,8 @@ public class StatementSchema extends Statement {
             case StatementTypes.REVOKE_ROLE : {
                 try {
                     boolean        grant = type == StatementTypes.GRANT_ROLE;
-                    OrderedHashSet granteeList = (OrderedHashSet) arguments[0];
-                    OrderedHashSet roleList    = (OrderedHashSet) arguments[1];
+                    OrderedHashSet<String> granteeList = (OrderedHashSet<String>) arguments[0];
+                    OrderedHashSet<String> roleList    = (OrderedHashSet<String>) arguments[1];
                     Grantee        grantor     = (Grantee) arguments[2];
                     boolean cascade = ((Boolean) arguments[3]).booleanValue();
                     GranteeManager gm = session.database.granteeManager;
@@ -1147,28 +1147,27 @@ public class StatementSchema extends Statement {
                     gm.checkGranteeList(granteeList);
 
                     for (int i = 0; i < granteeList.size(); i++) {
-                        String grantee = (String) granteeList.get(i);
+                        String grantee = granteeList.get(i);
 
                         gm.checkRoleList(grantee, roleList, grantor, grant);
                     }
 
                     if (grant) {
                         for (int i = 0; i < granteeList.size(); i++) {
-                            String grantee = (String) granteeList.get(i);
+                            String grantee = granteeList.get(i);
 
                             for (int j = 0; j < roleList.size(); j++) {
-                                String roleName = (String) roleList.get(j);
+                                String roleName = roleList.get(j);
 
                                 gm.grant(grantee, roleName, grantor);
                             }
                         }
                     } else {
                         for (int i = 0; i < granteeList.size(); i++) {
-                            String grantee = (String) granteeList.get(i);
+                            String grantee = granteeList.get(i);
 
                             for (int j = 0; j < roleList.size(); j++) {
-                                gm.revoke(grantee, (String) roleList.get(j),
-                                          grantor);
+                                gm.revoke(grantee, roleList.get(j), grantor);
                             }
                         }
                     }
@@ -1354,11 +1353,11 @@ public class StatementSchema extends Statement {
             }
             case StatementTypes.CREATE_TABLE : {
                 Table         table              = (Table) arguments[0];
-                HsqlArrayList tempConstraints = (HsqlArrayList) arguments[1];
-                HsqlArrayList tempIndexes = (HsqlArrayList) arguments[2];
+                HsqlArrayList<Constraint> tempConstraints = (HsqlArrayList<Constraint>) arguments[1];
+                HsqlArrayList<Constraint> tempIndexes = (HsqlArrayList<Constraint>) arguments[2];
                 StatementDMQL statement = (StatementDMQL) arguments[3];
                 Boolean       ifNotExists        = (Boolean) arguments[4];
-                HsqlArrayList foreignConstraints = null;
+                HsqlArrayList<Constraint> foreignConstraints = null;
 
                 try {
                     setOrCheckObjectName(session, null, table.getName(), true);
@@ -1372,10 +1371,10 @@ public class StatementSchema extends Statement {
 
                 try {
                     if (isSchemaDefinition) {
-                        foreignConstraints = new HsqlArrayList();
+                        foreignConstraints = new HsqlArrayList<>();
                     }
 
-                    if (tempConstraints.size() != 0) {
+                    if (tempConstraints.size() > 0) {
                         table =
                             ParserDDL.addTableConstraintDefinitions(session,
                                 table, tempConstraints, foreignConstraints,
@@ -1390,7 +1389,7 @@ public class StatementSchema extends Statement {
                         TableWorks tableWorks = new TableWorks(session, table);
 
                         for (int i = 0; i < tempIndexes.size(); i++) {
-                            Constraint c = (Constraint) tempIndexes.get(i);
+                            Constraint c = tempIndexes.get(i);
 
                             tableWorks.addIndex(c.getMainColumns(),
                                                 c.getName(), false);
@@ -1448,7 +1447,7 @@ public class StatementSchema extends Statement {
                     if (otherName != null) {
                         setOrCheckObjectName(session, null, otherName, false);
 
-                        if (schemaManager.getSchemaObject(otherName) == null) {
+                        if (schemaManager.findSchemaObject(otherName) == null) {
                             throw Error.error(ErrorCode.X_42501,
                                               otherName.name);
                         }
@@ -1665,7 +1664,7 @@ public class StatementSchema extends Statement {
         checkSchemaUpdateAuthorisation(session, name.schema);
 
         Type distinct =
-            (Type) session.database.schemaManager.getSchemaObject(name);
+            (Type) session.database.schemaManager.findSchemaObject(name);
 
         session.database.schemaManager.removeSchemaObject(name, cascade);
 
@@ -1676,19 +1675,19 @@ public class StatementSchema extends Statement {
                                    boolean cascade) {
 
         Type domain =
-            (Type) session.database.schemaManager.getSchemaObject(name);
-        OrderedHashSet set =
+            (Type) session.database.schemaManager.findSchemaObject(name);
+        OrderedHashSet<HsqlName> set =
             session.database.schemaManager.getReferencesTo(domain.getName());
 
         if (!cascade && set.size() > 0) {
-            HsqlName objectName = (HsqlName) set.get(0);
+            HsqlName objectName = set.get(0);
 
             throw Error.error(ErrorCode.X_42502,
                               objectName.getSchemaQualifiedStatementName());
         }
 
         Constraint[]   constraints = domain.userTypeModifier.getConstraints();
-        OrderedHashSet constraintNames = new OrderedHashSet();
+        OrderedHashSet<HsqlName> constraintNames = new OrderedHashSet<>();
 
         for (int i = 0; i < constraints.length; i++) {
             constraintNames.add(constraints[i].getName());
@@ -1707,9 +1706,9 @@ public class StatementSchema extends Statement {
         Grantee role = session.database.getGranteeManager().getRole(name.name);
 
         if (!cascade && session.database.schemaManager.hasSchemas(role)) {
-            HsqlArrayList list =
+            HsqlArrayList<Schema> list =
                 session.database.schemaManager.getSchemas(role);
-            Schema schema = (Schema) list.get(0);
+            Schema schema = list.get(0);
 
             throw Error.error(ErrorCode.X_42502,
                               schema.getName().statementName);
@@ -1729,9 +1728,9 @@ public class StatementSchema extends Statement {
         }
 
         if (!cascade && session.database.schemaManager.hasSchemas(grantee)) {
-            HsqlArrayList list =
+            HsqlArrayList<Schema> list =
                 session.database.schemaManager.getSchemas(grantee);
-            Schema schema = (Schema) list.get(0);
+            Schema schema = list.get(0);
 
             throw Error.error(ErrorCode.X_42502,
                               schema.getName().statementName);
