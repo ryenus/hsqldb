@@ -36,7 +36,6 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -618,7 +617,7 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         InputStream result;
         
-        final List streams = m_streams;
+        final List<Object> streams = m_streams;
 
         try {
             result = new InputStreamAdapter(m_file, pos - 1, length) {

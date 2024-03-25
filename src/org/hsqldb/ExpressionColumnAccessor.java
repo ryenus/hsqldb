@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.List;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
@@ -40,7 +41,7 @@ import org.hsqldb.types.Type;
  * Implementation of column used as assignment target.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.7.3
  * @since 2.0.0
  */
 public class ExpressionColumnAccessor extends Expression {
@@ -59,7 +60,7 @@ public class ExpressionColumnAccessor extends Expression {
         return column.getNameString();
     }
 
-    void collectObjectNames(Set set) {
+    void collectObjectNames(Set<HsqlName> set) {
 
         set.add(column.getName());
 
@@ -80,9 +81,9 @@ public class ExpressionColumnAccessor extends Expression {
         return null;
     }
 
-    public List resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            List unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(Session session,
+                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
         return unresolvedSet;
     }
 
@@ -100,15 +101,15 @@ public class ExpressionColumnAccessor extends Expression {
         return column.getName().name;
     }
 
-    public OrderedHashSet getUnkeyedColumns(OrderedHashSet unresolvedSet) {
+    public OrderedHashSet<Expression> getUnkeyedColumns(OrderedHashSet<Expression> unresolvedSet) {
         return unresolvedSet;
     }
 
     /**
      * collects all range variables in expression tree
      */
-    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVariables,
-                                         OrderedHashSet set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(RangeVariable[] rangeVariables,
+                                                        OrderedHashSet<RangeVariable> set) {
         return set;
     }
 

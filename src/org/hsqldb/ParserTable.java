@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL table definition
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class ParserTable extends ParserDML {
@@ -87,8 +87,8 @@ public class ParserTable extends ParserDML {
 
     StatementSchema compileCreateTableBody(Table table, boolean ifNot) {
 
-        HsqlArrayList tempConstraints = new HsqlArrayList();
-        HsqlArrayList tempIndexes     = new HsqlArrayList();
+        HsqlArrayList<Constraint> tempConstraints = new HsqlArrayList<>();
+        HsqlArrayList<Constraint> tempIndexes     = new HsqlArrayList<>();
         Statement     statement       = null;
         HsqlName[]    readLockNames   = null;
         boolean isTable = readTableContentsSource(table, tempConstraints,
@@ -133,10 +133,10 @@ public class ParserTable extends ParserDML {
         readTableOnCommitClause(table);
 
         if (database.sqlSyntaxMys) {
-            OrderedHashMap list = super.readPropertyValuePairs(true, false);
+            OrderedHashMap<String, Token> list = super.readPropertyValuePairs(true, false);
 
             if (list != null) {
-                Token value = (Token) list.get(Tokens.T_COMMENT);
+                Token value = list.get(Tokens.T_COMMENT);
 
                 if (value != null) {
                     String comment = value.tokenString;
@@ -146,12 +146,12 @@ public class ParserTable extends ParserDML {
             }
         }
 
-        OrderedHashSet names = new OrderedHashSet();
+        OrderedHashSet<HsqlName> names = new OrderedHashSet<>();
 
         names.add(database.getCatalogName());
 
         for (int i = 0; i < tempConstraints.size(); i++) {
-            Constraint c    = (Constraint) tempConstraints.get(i);
+            Constraint c    = tempConstraints.get(i);
             HsqlName   name = c.getMainTableName();
 
             if (name != null) {
@@ -178,8 +178,8 @@ public class ParserTable extends ParserDML {
     }
 
     boolean readTableContentsSource(Table table,
-                                    HsqlArrayList tempConstraints,
-                                    HsqlArrayList tempIndexes) {
+                                    HsqlArrayList<Constraint> tempConstraints,
+                                    HsqlArrayList<Constraint> tempIndexes) {
 
         int position = getPosition();
 
@@ -354,7 +354,7 @@ public class ParserTable extends ParserDML {
             return;
         }
 
-        OrderedHashSet set         = period.columnNames;
+        OrderedHashSet<String> set         = period.columnNames;
         ColumnSchema   startColumn = null;
         ColumnSchema   endColumn   = null;
         HsqlName       name        = period.getName();
@@ -365,7 +365,7 @@ public class ParserTable extends ParserDML {
         }
 
         for (int i = 0; i < 2; i++) {
-            String columnName = (String) set.get(i);
+            String columnName = set.get(i);
 
             index = table.findColumn(columnName);
 
@@ -430,7 +430,7 @@ public class ParserTable extends ParserDML {
             return;
         }
 
-        OrderedHashSet set   = period.columnNames;
+        OrderedHashSet<String> set   = period.columnNames;
         HsqlName       name  = period.getName();
         int            index = table.findColumn(name.name);
 
@@ -439,7 +439,7 @@ public class ParserTable extends ParserDML {
         }
 
         for (int i = 0; i < 2; i++) {
-            String columnName = (String) set.get(i);
+            String columnName = set.get(i);
 
             index = table.findColumn(columnName);
 
@@ -637,7 +637,7 @@ public class ParserTable extends ParserDML {
         }
 
         Object[] args = new Object[] {
-            table, new HsqlArrayList(), new HsqlArrayList(), statement,
+            table, new HsqlArrayList<Constraint>(), new HsqlArrayList<Constraint>(), statement,
             Boolean.valueOf(ifNotExists)
         };
         String     sql            = getLastPart();
@@ -665,10 +665,10 @@ public class ParserTable extends ParserDML {
      * Adds a list of temp constraints to a new table
      */
     static Table addTableConstraintDefinitions(Session session, Table table,
-            HsqlArrayList tempConstraints, HsqlArrayList constraintList,
+            HsqlArrayList<Constraint> tempConstraints, HsqlArrayList<Constraint> constraintList,
             boolean addToSchema) {
 
-        Constraint c = (Constraint) tempConstraints.get(0);
+        Constraint c = tempConstraints.get(0);
         HsqlName indexName =
             session.database.nameManager.newConstraintIndexName(
                 table.getName(), c.getName(),
@@ -690,7 +690,7 @@ public class ParserTable extends ParserDML {
         }
 
         for (int i = 1; i < tempConstraints.size(); i++) {
-            c = (Constraint) tempConstraints.get(i);
+            c = tempConstraints.get(i);
 
             switch (c.getConstraintType()) {
 
@@ -762,7 +762,7 @@ public class ParserTable extends ParserDML {
     }
 
     static void addForeignKey(Session session, Table table, Constraint c,
-                              HsqlArrayList constraintList) {
+                              HsqlArrayList<Constraint> constraintList) {
 
         HsqlName mainTableName = c.getMainTableName();
 
@@ -834,10 +834,10 @@ public class ParserTable extends ParserDML {
     }
 
     Constraint readFKReferences(Table refTable, HsqlName constraintName,
-                                OrderedHashSet refColSet) {
+                                OrderedHashSet<String> refColSet) {
 
         HsqlName       mainTableName;
-        OrderedHashSet mainColSet = null;
+        OrderedHashSet<String> mainColSet = null;
 
         readThis(Tokens.REFERENCES);
 
@@ -1026,7 +1026,7 @@ public class ParserTable extends ParserDML {
      * @return a Column object with indicated attributes
      */
     ColumnSchema readColumnDefinitionOrNull(Table table, HsqlName hsqlName,
-            HsqlArrayList constraintList) {
+                                            HsqlArrayList<Constraint> constraintList) {
 
         boolean    isGenerated     = false;
         boolean    isIdentity      = false;
@@ -1363,7 +1363,7 @@ public class ParserTable extends ParserDML {
         }
 
         if (isPKIdentity && !column.isPrimaryKey()) {
-            OrderedHashSet set = new OrderedHashSet();
+            OrderedHashSet<String> set = new OrderedHashSet<>();
 
             set.add(column.getName().name);
 
@@ -1461,7 +1461,7 @@ public class ParserTable extends ParserDML {
 
         periodName.parent = table.getName();
 
-        OrderedHashSet set = readColumnNames(false);
+        OrderedHashSet<String> set = readColumnNames(false);
 
         if (set.size() != 2) {
             throw Error.error(ErrorCode.X_42593);
@@ -1490,7 +1490,7 @@ public class ParserTable extends ParserDML {
      * @param constraintList list of constraints
      */
     void readConstraint(SchemaObject schemaObject,
-                        HsqlArrayList constraintList) {
+                        HsqlArrayList<Constraint> constraintList) {
 
         HsqlName constName = null;
 
@@ -1514,7 +1514,7 @@ public class ParserTable extends ParserDML {
 
                 Constraint mainConst;
 
-                mainConst = (Constraint) constraintList.get(0);
+                mainConst = constraintList.get(0);
 
                 if (mainConst.getConstraintType()
                         == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
@@ -1529,7 +1529,7 @@ public class ParserTable extends ParserDML {
                             schemaObject.getName(), SchemaObject.CONSTRAINT);
                 }
 
-                OrderedHashSet set = readColumnNames(false);
+                OrderedHashSet<String> set = readColumnNames(false);
                 Constraint c =
                     new Constraint(constName, set,
                                    SchemaObject.ConstraintTypes.PRIMARY_KEY);
@@ -1551,7 +1551,7 @@ public class ParserTable extends ParserDML {
                     }
                 }
 
-                OrderedHashSet set = readColumnNames(false);
+                OrderedHashSet<String> set = readColumnNames(false);
 
                 if (constName == null) {
                     constName = database.nameManager.newAutoName("CT",
@@ -1575,7 +1575,7 @@ public class ParserTable extends ParserDML {
                 read();
                 readThis(Tokens.KEY);
 
-                OrderedHashSet set = readColumnNames(false);
+                OrderedHashSet<String> set = readColumnNames(false);
                 Constraint c = readFKReferences((Table) schemaObject,
                                                 constName, set);
 
@@ -1613,7 +1613,7 @@ public class ParserTable extends ParserDML {
      * Reads column constraints
      */
     void readColumnConstraints(Table table, ColumnSchema column,
-                               HsqlArrayList constraintList) {
+                               HsqlArrayList<Constraint> constraintList) {
 
         boolean end                  = false;
         boolean hasNotNullConstraint = false;
@@ -1668,15 +1668,14 @@ public class ParserTable extends ParserDML {
                     read();
                     readThis(Tokens.KEY);
 
-                    Constraint existingConst =
-                        (Constraint) constraintList.get(0);
+                    Constraint existingConst = constraintList.get(0);
 
                     if (existingConst.getConstraintType()
                             == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                         throw Error.error(ErrorCode.X_42532);
                     }
 
-                    OrderedHashSet set = new OrderedHashSet();
+                    OrderedHashSet<String> set = new OrderedHashSet<>();
 
                     set.add(column.getName().name);
 
@@ -1700,7 +1699,7 @@ public class ParserTable extends ParserDML {
                 case Tokens.UNIQUE : {
                     read();
 
-                    OrderedHashSet set = new OrderedHashSet();
+                    OrderedHashSet<String> set = new OrderedHashSet<>();
 
                     set.add(column.getName().name);
 
@@ -1725,7 +1724,7 @@ public class ParserTable extends ParserDML {
 
                 // fall through
                 case Tokens.REFERENCES : {
-                    OrderedHashSet set = new OrderedHashSet();
+                    OrderedHashSet<String> set = new OrderedHashSet<>();
 
                     set.add(column.getName().name);
 
@@ -1750,7 +1749,7 @@ public class ParserTable extends ParserDML {
 
                     readCheckConstraintCondition(c);
 
-                    OrderedHashSet set = c.getCheckColumnExpressions();
+                    OrderedHashSet<Expression> set = c.getCheckColumnExpressions();
 
                     for (int i = 0; i < set.size(); i++) {
                         ExpressionColumn e = (ExpressionColumn) set.get(i);
@@ -2288,7 +2287,7 @@ public class ParserTable extends ParserDML {
         sequence.checkValues();
     }
 
-    private void readIndex(Table table, HsqlArrayList indexList) {
+    private void readIndex(Table table, HsqlArrayList<Constraint> indexList) {
 
         HsqlName indexHsqlName;
 
@@ -2356,13 +2355,13 @@ public class ParserTable extends ParserDML {
         readThis(Tokens.ADD);
         readIfThis(Tokens.COLUMN);
 
-        String nameString = (String) period.columnNames.get(0);
+        String nameString = period.columnNames.get(0);
 
         if (!token.tokenString.equals(nameString)) {
             throw unexpectedToken();
         }
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Constraint> list = new HsqlArrayList<>();
         HsqlName hsqlName =
             database.nameManager.newColumnHsqlName(table.getName(),
                 token.tokenString, isDelimitedIdentifier());
@@ -2385,7 +2384,7 @@ public class ParserTable extends ParserDML {
         readIfThis(Tokens.COLUMN);
         checkIsSimpleName();
 
-        nameString = (String) period.columnNames.get(1);
+        nameString = period.columnNames.get(1);
 
         if (!token.tokenString.equals(nameString)) {
             throw unexpectedToken();

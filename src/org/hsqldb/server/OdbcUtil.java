@@ -183,8 +183,8 @@ public class OdbcUtil {
     static final int ODBC_SEVERITY_INFO = 7;
     static final int ODBC_SEVERITY_LOG = 8;
 
-    static final org.hsqldb.lib.IntKeyHashMap odbcSeverityMap =
-        new org.hsqldb.lib.IntKeyHashMap();
+    static final org.hsqldb.lib.IntKeyHashMap<String> odbcSeverityMap =
+        new org.hsqldb.lib.IntKeyHashMap<>();
 
     static {
         odbcSeverityMap.put(ODBC_SEVERITY_FATAL, "FATAL");

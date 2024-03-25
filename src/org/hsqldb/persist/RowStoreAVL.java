@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     boolean[]             nullsList;
     double[][]            searchCost;
     boolean               isSchemaStore;
-    public LongKeyHashMap rowActionMap;
+    public LongKeyHashMap<RowAction> rowActionMap;
 
     //
     ReadWriteLock lock;

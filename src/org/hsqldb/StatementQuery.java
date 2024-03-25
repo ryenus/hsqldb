@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.result.ResultProperties;
  * Implementation of Statement for query expressions.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class StatementQuery extends StatementDMQL {
@@ -90,7 +90,7 @@ public class StatementQuery extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForRead(OrderedHashSet set) {
+    void collectTableNamesForRead(OrderedHashSet<HsqlName> set) {
 
         queryExpression.getBaseTableNames(set);
 
@@ -105,7 +105,7 @@ public class StatementQuery extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForWrite(OrderedHashSet set) {
+    void collectTableNamesForWrite(OrderedHashSet<HsqlName> set) {
 
         if (queryExpression.isUpdatable) {
             queryExpression.getBaseTableNames(set);

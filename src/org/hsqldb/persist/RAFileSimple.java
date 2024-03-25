@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ final class RAFileSimple implements RandomAccessInterface {
     final EventLogInterface logger;
 
     RAFileSimple(EventLogInterface logger, String name,
-                 String openMode) throws FileNotFoundException, IOException {
+                 String openMode) throws IOException {
 
         this.file   = new RandomAccessFile(name, openMode);
         this.logger = logger;

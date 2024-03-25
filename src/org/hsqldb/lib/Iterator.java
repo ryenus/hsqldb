@@ -46,13 +46,13 @@ public interface Iterator<E> {
 
     default int nextInt() {
         throw new UnsupportedOperationException();
-    };
+    }
 
     default long nextLong() {
         throw new UnsupportedOperationException();
-    };
+    }
 
     default void remove() {
         throw new UnsupportedOperationException();
-    };
+    }
 }

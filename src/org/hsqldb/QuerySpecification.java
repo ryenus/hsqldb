@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.6.1
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -82,13 +82,13 @@ public class QuerySpecification extends QueryExpression {
     public boolean        isOrderSensitive;
     public boolean        isSimpleDistinct;
     RangeVariable[]       rangeVariables;
-    private HsqlArrayList rangeVariableList;
+    private HsqlArrayList<RangeVariable> rangeVariableList;
     int                   startInnerRange = -1;
     int                   endInnerRange   = -1;
     Expression            queryCondition;
     Expression            checkQueryCondition;
     Expression[]          exprColumns;
-    HsqlArrayList         exprColumnList;
+    HsqlArrayList<Expression> exprColumnList;
     GroupSet              groupSet;
     private int           groupByColumnCount;    // columns in 'group by'
     private int           havingColumnCount;     // columns in 'having' (0 or 1)
@@ -108,17 +108,17 @@ public class QuerySpecification extends QueryExpression {
 
     //
     Type[]                    resultColumnTypes;
-    private ArrayListIdentity aggregateSet;
+    private ArrayListIdentity<Expression> aggregateSet;
 
     //
-    private ArrayListIdentity resolvedSubqueryExpressions = null;
+    private ArrayListIdentity<Expression> resolvedSubqueryExpressions = null;
 
     //
     //
     private boolean[] aggregateCheck;
 
     //
-    private OrderedHashSet tempSet = new OrderedHashSet();
+    private OrderedHashSet<Expression> tempSet = new OrderedHashSet<>();
 
     //
     int[]         columnMap;
@@ -158,8 +158,8 @@ public class QuerySpecification extends QueryExpression {
         super(compileContext);
 
         resultRangePosition = compileContext.getNextResultRangeVarIndex();
-        rangeVariableList   = new HsqlArrayList();
-        exprColumnList      = new HsqlArrayList();
+        rangeVariableList   = new HsqlArrayList<>();
+        exprColumnList      = new HsqlArrayList<>();
         sortAndSlice        = SortAndSlice.noSort;
         isBaseMergeable     = true;
         isMergeable         = true;
@@ -176,7 +176,7 @@ public class QuerySpecification extends QueryExpression {
 
             if (rangeVariables == null) {
                 if (rangeVariableList.size() == 1) {
-                    range = (RangeVariable) rangeVariableList.get(0);
+                    range = rangeVariableList.get(0);
                 }
             } else if (rangeVariables.length == 1) {
                 range = rangeVariables[0];
@@ -242,7 +242,7 @@ public class QuerySpecification extends QueryExpression {
                 }
             }
 
-            Expression first = ((Expression) exprColumnList.get(0));
+            Expression first = exprColumnList.get(0);
 
             if (first.opType == OpTypes.MULTICOLUMN
                     && ((ExpressionColumn) first).getTableName() == null) {
@@ -325,10 +325,10 @@ public class QuerySpecification extends QueryExpression {
         tempSet.clear();
         addGroupingExpressions(groupExpressions, tempSet);
 
-        Iterator it = tempSet.iterator();
+        Iterator<Expression> it = tempSet.iterator();
 
         while (it.hasNext()) {
-            Expression e = (Expression) it.next();
+            Expression e = it.next();
 
             if (e.getType() == OpTypes.ROW) {
                 throw Error.error(ErrorCode.X_42564);
@@ -348,7 +348,7 @@ public class QuerySpecification extends QueryExpression {
      * collect all expressions in an extended group by expression
      * set the flags for grouping set and group by
      */
-    void addGroupingExpressions(Expression[] nodes, OrderedHashSet set) {
+    void addGroupingExpressions(Expression[] nodes, OrderedHashSet<Expression> set) {
 
         for (int i = 0; i < nodes.length; i++) {
             Expression e = nodes[i];
@@ -366,7 +366,7 @@ public class QuerySpecification extends QueryExpression {
                     continue;
                 }
 
-                nodes[i]  = (Expression) set.getOrAdd(e);
+                nodes[i]  = set.getOrAdd(e);
                 isGrouped = true;
             }
         }
@@ -414,8 +414,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = 0; i < unresolvedExpressions.size(); i++) {
-            if (((Expression) unresolvedExpressions.get(i)).hasReference(
-                    range)) {
+            if (unresolvedExpressions.get(i).hasReference(range)) {
                 return true;
             }
         }
@@ -592,17 +591,17 @@ public class QuerySpecification extends QueryExpression {
                                                rangeGroups, acceptsSequences);
 
             if (!isGrouped && !isDistinctSelect) {
-                List list = exprColumns[i].collectAllSubqueries(null);
+                List<TableDerived> list = exprColumns[i].collectAllSubqueries(null);
 
                 if (list != null) {
                     isMergeable = false;
                 }
 
-                list = exprColumns[i].collectAllExpressions(null,
+                List<Expression> set = exprColumns[i].collectAllExpressions(null,
                         OpTypes.sequenceExpressionSet,
                         OpTypes.subqueryAggregateExpressionSet);
 
-                if (list != null) {
+                if (set != null) {
                     isOrderSensitive = true;
                     isMergeable      = false;
                     isBaseMergeable  = false;
@@ -693,7 +692,7 @@ public class QuerySpecification extends QueryExpression {
     private void resolveColumnReferencesForAsterisk() {
 
         for (int pos = 0; pos < indexLimitVisible; ) {
-            Expression e = (Expression) (exprColumnList.get(pos));
+            Expression e = exprColumnList.get(pos);
 
             if (e.getType() == OpTypes.MULTICOLUMN) {
                 exprColumnList.remove(pos);
@@ -710,7 +709,7 @@ public class QuerySpecification extends QueryExpression {
                             rangeVariables[i].getRangeForTableName(tablename);
 
                         if (range != null) {
-                            HashSet exclude = getAllNamedJoinColumns();
+                            HashSet<String> exclude = getAllNamedJoinColumns();
 
                             rangeVariables[i].addTableColumns(range, e,
                                                               exclude);
@@ -747,17 +746,17 @@ public class QuerySpecification extends QueryExpression {
             return;
         }
 
-        List list = expression.resolveColumnReferences(session, this, count,
+        List<Expression> list = expression.resolveColumnReferences(session, this, count,
             rangeGroups, null, withSequences);
 
         if (list != null) {
             for (int i = 0; i < list.size(); i++) {
-                Expression e        = (Expression) list.get(i);
+                Expression e        = list.get(i);
                 boolean    resolved = true;
 
                 if (e.isSelfAggregate()) {
                     for (int j = 0; j < e.nodes.length; j++) {
-                        List colList = e.nodes[j].resolveColumnReferences(
+                        List<Expression> colList = e.nodes[j].resolveColumnReferences(
                             session, this, count, RangeGroup.emptyArray, null,
                             false);
 
@@ -783,13 +782,13 @@ public class QuerySpecification extends QueryExpression {
                     }
 
                     if (resolvedSubqueryExpressions == null) {
-                        resolvedSubqueryExpressions = new ArrayListIdentity();
+                        resolvedSubqueryExpressions = new ArrayListIdentity<Expression>();
                     }
 
                     resolvedSubqueryExpressions.add(e);
                 } else {
                     if (unresolvedExpressions == null) {
-                        unresolvedExpressions = new ArrayListIdentity();
+                        unresolvedExpressions = new ArrayListIdentity<>();
                     }
 
                     unresolvedExpressions.add(e);
@@ -801,7 +800,7 @@ public class QuerySpecification extends QueryExpression {
     private void addAggregateToSet(Expression parent, Expression e) {
 
         if (aggregateSet == null) {
-            aggregateSet = new ArrayListIdentity();
+            aggregateSet = new ArrayListIdentity<>();
         }
 
         aggregateSet.add(e);
@@ -812,16 +811,16 @@ public class QuerySpecification extends QueryExpression {
         e.setCorrelatedReferences(this);
     }
 
-    private HashSet getAllNamedJoinColumns() {
+    private HashSet<String> getAllNamedJoinColumns() {
 
-        HashSet set = null;
+        HashSet<String> set = null;
 
         for (int i = 0; i < rangeVariableList.size(); i++) {
-            RangeVariable range = (RangeVariable) rangeVariableList.get(i);
+            RangeVariable range = rangeVariableList.get(i);
 
             if (range.namedJoinColumns != null) {
                 if (set == null) {
-                    set = new HashSet();
+                    set = new HashSet<>();
                 }
 
                 set.addAll(range.namedJoinColumns);
@@ -831,19 +830,19 @@ public class QuerySpecification extends QueryExpression {
         return set;
     }
 
-    public Expression getEquiJoinExpressions(OrderedHashSet nameSet,
+    public Expression getEquiJoinExpressions(OrderedHashSet<String> nameSet,
             RangeVariable rightRange, boolean fullList) {
 
-        HashSet        set             = new HashSet();
+        HashSet<String> set             = new HashSet<>();
         Expression     result          = null;
-        OrderedHashSet joinColumnNames = new OrderedHashSet();
+        OrderedHashSet<String> joinColumnNames = new OrderedHashSet<>();
 
         for (int i = rangeVariableList.size() - 1; i >= 0; i--) {
-            RangeVariable  range = (RangeVariable) rangeVariableList.get(i);
-            OrderedHashMap columnList = range.rangeTable.columnList;
+            RangeVariable  range = rangeVariableList.get(i);
+            OrderedHashMap<String, ColumnSchema> columnList = range.rangeTable.columnList;
 
             for (int j = 0; j < columnList.size(); j++) {
-                ColumnSchema column       = (ColumnSchema) columnList.get(j);
+                ColumnSchema column       = columnList.get(j);
                 String       name         = range.getColumnAlias(j).name;
                 boolean      columnInList = nameSet.contains(name);
                 boolean namedJoin = range.namedJoinColumns != null
@@ -912,7 +911,7 @@ public class QuerySpecification extends QueryExpression {
 
     private void addAllJoinedColumns(Expression e) {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Expression> list = new HsqlArrayList<>();
 
         for (int i = 0; i < rangeVariables.length; i++) {
             rangeVariables[i].addTableColumns(list);
@@ -928,7 +927,7 @@ public class QuerySpecification extends QueryExpression {
     private void setColumnIndexes() {
 
         for (int i = 0; i < indexLimitVisible; i++) {
-            Expression e = (Expression) exprColumnList.get(i);
+            Expression e = exprColumnList.get(i);
 
             e.resultTableColumnIndex = i;
         }
@@ -952,7 +951,7 @@ public class QuerySpecification extends QueryExpression {
         if (sortAndSlice.hasOrder()) {
             for (int i = 0; i < sortAndSlice.getOrderLength(); i++) {
                 exprColumns[indexStartOrderBy + i] =
-                    (Expression) sortAndSlice.exprList.get(i);
+                    sortAndSlice.exprList.get(i);
             }
         }
     }
@@ -980,8 +979,8 @@ public class QuerySpecification extends QueryExpression {
         throw Error.error(ErrorCode.X_42576);
     }
 
-    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVars,
-                                         OrderedHashSet set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(RangeVariable[] rangeVars,
+                                                        OrderedHashSet<RangeVariable> set) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
             set = exprColumns[i].collectRangeVariables(rangeVars, set);
@@ -998,7 +997,7 @@ public class QuerySpecification extends QueryExpression {
         return set;
     }
 
-    OrderedHashSet collectRangeVariables(OrderedHashSet set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(OrderedHashSet<RangeVariable> set) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
             set = exprColumns[i].collectRangeVariables(set);
@@ -1095,7 +1094,7 @@ public class QuerySpecification extends QueryExpression {
 
             for (int i = indexStartAggregates, j = 0;
                     i < indexLimitExpressions; i++, j++) {
-                Expression e = (Expression) tempSet.get(j);
+                Expression e = tempSet.get(j);
 
                 exprColumns[i]          = e.duplicate();
                 exprColumns[i].nodes    = e.nodes;    // keep original nodes
@@ -1314,7 +1313,7 @@ public class QuerySpecification extends QueryExpression {
         // - references to table / correlation and column list in correlation
         //   names are handled according to the Standard
         //  fredt@users
-        OrderedHashSet extraSet = null;
+        OrderedHashSet<Expression> extraSet = null;
 
         tempSet.clear();
 
@@ -1327,7 +1326,7 @@ public class QuerySpecification extends QueryExpression {
 
                 if (!tempSet.isEmpty()) {
                     throw Error.error(ErrorCode.X_42572,
-                                      ((Expression) tempSet.get(0)).getSQL());
+                                      tempSet.get(0).getSQL());
                 }
             }
 
@@ -1343,10 +1342,10 @@ public class QuerySpecification extends QueryExpression {
             if (!tempSet.isEmpty()) {
                 if (!resolveForGroupBy(tempSet)) {
                     throw Error.error(ErrorCode.X_42574,
-                                      ((Expression) tempSet.get(0)).getSQL());
+                                      (tempSet.get(0)).getSQL());
                 }
 
-                extraSet = new OrderedHashSet();
+                extraSet = new OrderedHashSet<>();
 
                 extraSet.addAll(tempSet);
             }
@@ -1357,7 +1356,7 @@ public class QuerySpecification extends QueryExpression {
                     OpTypes.aggregateFunctionSet);
 
                 for (int j = 0; j < tempSet.size(); j++) {
-                    Expression e = (Expression) tempSet.get(j);
+                    Expression e = tempSet.get(j);
 
                     for (int k = 0; k < rangeVariables.length; k++) {
                         if (rangeVariables[k] == e.getRangeVariable()) {
@@ -1398,7 +1397,7 @@ public class QuerySpecification extends QueryExpression {
             int orderCount = sortAndSlice.getOrderLength();
 
             for (int i = 0; i < orderCount; i++) {
-                Expression e = (Expression) sortAndSlice.exprList.get(i);
+                Expression e = sortAndSlice.exprList.get(i);
 
                 if (e.resultTableColumnIndex != -1) {
                     continue;
@@ -1415,7 +1414,7 @@ public class QuerySpecification extends QueryExpression {
             int orderCount = sortAndSlice.getOrderLength();
 
             for (int i = 0; i < orderCount; i++) {
-                Expression e = (Expression) sortAndSlice.exprList.get(i);
+                Expression e = sortAndSlice.exprList.get(i);
 
                 if (e.resultTableColumnIndex != -1) {
                     continue;
@@ -1431,7 +1430,7 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        OrderedHashSet expressions = new OrderedHashSet();
+        OrderedHashSet<Expression> expressions = new OrderedHashSet<>();
 
         for (int i = indexStartAggregates; i < indexLimitExpressions; i++) {
             Expression e = exprColumns[i];
@@ -1461,7 +1460,7 @@ public class QuerySpecification extends QueryExpression {
         int orderCount = sortAndSlice.getOrderLength();
 
         for (int i = 0; i < orderCount; i++) {
-            Expression e = (Expression) sortAndSlice.exprList.get(i);
+            Expression e = sortAndSlice.exprList.get(i);
 
             if (e.getLeftNode().hasAggregate()) {
                 e.setAggregate();
@@ -1488,7 +1487,7 @@ public class QuerySpecification extends QueryExpression {
 
         if (resolvedSubqueryExpressions != null) {
             for (int i = 0; i < resolvedSubqueryExpressions.size(); i++) {
-                Expression e = (Expression) resolvedSubqueryExpressions.get(i);
+                Expression e = resolvedSubqueryExpressions.get(i);
 
                 e.replaceExpressions(expressions, resultRangePosition);
             }
@@ -1529,7 +1528,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    boolean resolveForGroupBy(List unresolvedSet) {
+    boolean resolveForGroupBy(List<Expression> unresolvedSet) {
 
         for (int i = indexLimitVisible;
                 i < indexLimitVisible + groupByColumnCount; i++) {
@@ -1551,10 +1550,10 @@ public class QuerySpecification extends QueryExpression {
                     range.columnsInGroupBy) != null;
         }
 
-        OrderedHashSet set = null;
+        OrderedHashSet<Expression> set = null;
 
         for (int i = 0; i < unresolvedSet.size(); i++) {
-            Expression e = (Expression) unresolvedSet.get(i);
+            Expression e = unresolvedSet.get(i);
 
             set = e.getUnkeyedColumns(set);
         }
@@ -1971,7 +1970,7 @@ public class QuerySpecification extends QueryExpression {
 
         accessibleColumns = new boolean[indexLimitVisible];
 
-        IntValueHashMap aliases = new IntValueHashMap();
+        IntValueHashMap<String> aliases = new IntValueHashMap<>();
 
         for (int i = 0; i < indexLimitVisible; i++) {
             Expression expression = exprColumns[i];
@@ -2153,7 +2152,7 @@ public class QuerySpecification extends QueryExpression {
         int tableType = persistenceScope == TableBase.SCOPE_STATEMENT
                         ? TableBase.SYSTEM_SUBQUERY
                         : TableBase.RESULT_TABLE;
-        OrderedHashMap columnList = new OrderedHashMap();
+        OrderedHashMap<String, ColumnSchema> columnList = new OrderedHashMap<>();
 
         for (int i = 0; i < indexLimitVisible; i++) {
             Expression e          = exprColumns[i];
@@ -2347,8 +2346,7 @@ public class QuerySpecification extends QueryExpression {
             sb.append(b).append("order by=[\n");
 
             for (int i = 0; i < sortAndSlice.exprList.size(); i++) {
-                sb.append(b).append(
-                    ((Expression) sortAndSlice.exprList.get(i)).describe(
+                sb.append(b).append(sortAndSlice.exprList.get(i).describe(
                         session, blanks));
             }
 
@@ -2440,21 +2438,22 @@ public class QuerySpecification extends QueryExpression {
             return;
         }
 
-        IntValueHashMap columns = new IntValueHashMap();
+        IntValueHashMap<String> columns = new IntValueHashMap<>();
         boolean[]       checkList;
         int[]           baseColumnMap = table.getBaseTableColumnMap();
         int[]           columnMap     = new int[indexLimitVisible];
 
         if (queryCondition != null) {
-            tempSet.clear();
-            collectSubQueriesAndReferences(tempSet, queryCondition);
+            HashSet<HsqlName> nameSet = collectReferencesInSubQueries(queryCondition);
 
-            if (tempSet.contains(table.getName())
-                    || tempSet.contains(baseTable.getName())) {
-                isUpdatable  = false;
-                isInsertable = false;
+            if (nameSet != null) {
+                if (nameSet.contains(table.getName())
+                        || nameSet.contains(baseTable.getName())) {
+                    isUpdatable = false;
+                    isInsertable = false;
 
-                return;
+                    return;
+                }
             }
         }
 
@@ -2472,14 +2471,15 @@ public class QuerySpecification extends QueryExpression {
 
                 columns.put(name, 0);
             } else {
-                tempSet.clear();
-                collectSubQueriesAndReferences(tempSet, expression);
+                HashSet<HsqlName> nameSet = collectReferencesInSubQueries(expression);
 
-                if (tempSet.contains(table.getName())) {
-                    isUpdatable  = false;
-                    isInsertable = false;
+                if (nameSet != null) {
+                    if (nameSet.contains(table.getName())) {
+                        isUpdatable = false;
+                        isInsertable = false;
 
-                    return;
+                        return;
+                    }
                 }
             }
         }
@@ -2522,8 +2522,8 @@ public class QuerySpecification extends QueryExpression {
                 ColumnSchema column = baseTable.getColumn(i);
 
                 if (column.isIdentity() || column.isGenerated()
-                        || column.hasDefault() || column.isNullable()) {}
-                else {
+                        || column.hasDefault() || column.isNullable()) {
+                } else {
                     isInsertable = false;
 
                     break;
@@ -2621,24 +2621,32 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    static void collectSubQueriesAndReferences(OrderedHashSet set,
-            Expression expression) {
+    private HashSet<HsqlName> collectReferencesInSubQueries(Expression expression) {
 
-        expression.collectAllExpressions(set, OpTypes.subqueryExpressionSet,
+        tempSet.clear();
+
+        expression.collectAllExpressions(tempSet, OpTypes.subqueryExpressionSet,
                                          OpTypes.emptyExpressionSet);
 
-        int size = set.size();
-
-        for (int i = 0; i < size; i++) {
-            Expression e = (Expression) set.get(i);
-
-            e.collectObjectNames(set);
+        if (tempSet.isEmpty()) {
+            return null;
         }
+
+        HashSet<HsqlName> nameSet = new HashSet<>();
+
+        for (int i = 0; i < tempSet.size(); i++) {
+            Expression e = tempSet.get(i);
+
+            e.collectObjectNames(nameSet);
+
+        }
+
+        return nameSet;
     }
 
-    public OrderedHashSet getSubqueries() {
+    public OrderedHashSet<TableDerived> getSubqueries() {
 
-        OrderedHashSet set = null;
+        OrderedHashSet<TableDerived> set = null;
 
         for (int i = 0; i < indexLimitExpressions; i++) {
             set = exprColumns[i].collectAllSubqueries(set);
@@ -2649,7 +2657,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            OrderedHashSet temp = rangeVariables[i].getSubqueries();
+            OrderedHashSet<TableDerived> temp = rangeVariables[i].getSubqueries();
 
             set = OrderedHashSet.addAll(set, temp);
         }
@@ -2661,8 +2669,8 @@ public class QuerySpecification extends QueryExpression {
         return baseTable;
     }
 
-    public OrderedHashSet collectOuterColumnExpressions(OrderedHashSet set,
-            OrderedHashSet exclude) {
+    public OrderedHashSet<Expression> collectOuterColumnExpressions(OrderedHashSet<Expression> set,
+                                                        OrderedHashSet<Expression> exclude) {
 
         set = collectAllExpressions(set, OpTypes.columnExpressionSet,
                                     OpTypes.subqueryAggregateExpressionSet);
@@ -2672,7 +2680,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = set.size() - 1; i >= 0; i--) {
-            Expression col = (Expression) set.get(i);
+            Expression col = set.get(i);
 
             if (ArrayUtil.find(rangeVariables, col.getRangeVariable()) >= 0) {
                 set.remove(i);
@@ -2690,8 +2698,8 @@ public class QuerySpecification extends QueryExpression {
         return set;
     }
 
-    public OrderedHashSet collectAllExpressions(OrderedHashSet set,
-            OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
+    public OrderedHashSet<Expression> collectAllExpressions(OrderedHashSet<Expression> set,
+                                                OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
             set = exprColumns[i].collectAllExpressions(set, typeSet,
@@ -2711,7 +2719,7 @@ public class QuerySpecification extends QueryExpression {
         return set;
     }
 
-    public void collectObjectNames(Set set) {
+    public void collectObjectNames(Set<HsqlName> set) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
             exprColumns[i].collectObjectNames(set);
@@ -2762,7 +2770,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    public void replaceExpressions(OrderedHashSet expressions,
+    public void replaceExpressions(OrderedHashSet<Expression> expressions,
                                    int resultRangePosition) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
@@ -2836,7 +2844,7 @@ public class QuerySpecification extends QueryExpression {
         return queryCondition;
     }
 
-    void getBaseTableNames(OrderedHashSet set) {
+    void getBaseTableNames(OrderedHashSet<HsqlName> set) {
 
         for (int i = 0; i < rangeVariables.length; i++) {
             Table    rangeTable = rangeVariables[i].rangeTable;

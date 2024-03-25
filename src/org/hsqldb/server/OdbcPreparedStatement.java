@@ -63,7 +63,7 @@ class OdbcPreparedStatement {
      * Connection Session, and adds the new instance to the specified map.
      */
     public OdbcPreparedStatement(String handle, String query,
-                                 Map containingMap,
+                                 Map<String, OdbcPreparedStatement> containingMap,
                                  Session session)
                                  throws RecoverableOdbcFailure {
 

@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2021, The HSQL Development Group
+ * Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -141,7 +141,7 @@ public class RowAVLDisk extends RowAVL {
      */
     public RowAVLDisk(PersistentStore store, RowInputInterface in) {
 
-        super(store.getTable(), (Object[]) null);
+        super(store.getTable(), null);
 
         position    = in.getFilePosition();
         storageSize = in.getSize();
@@ -162,7 +162,7 @@ public class RowAVLDisk extends RowAVL {
     }
 
     RowAVLDisk(TableBase t) {
-        super(t, (Object[]) null);
+        super(t, null);
     }
 
     public NodeAVL insertNode(int index) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -269,7 +269,7 @@ public class TestAcl extends TestCase {
         ServerAcl acl;
 
         for (int i = 0; i < aclDenyAlls.length; i++) {
-            acl = (ServerAcl) aclDenyAlls[i];
+            acl = aclDenyAlls[i];
 
             assertFalse("Permitting access from localhost with deny-all ACL",
                         acl.permitAccess(localhostByName.getAddress()));

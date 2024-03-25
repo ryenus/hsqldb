@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -405,7 +405,7 @@ public class TextFileReader8 implements TextFileReader {
 
     static abstract class StringCreator {
 
-        static StringCreator getStringCreator(Class cl, String encoding) {
+        static StringCreator getStringCreator(Class<?> cl, String encoding) {
 
             if (byte.class.equals(cl)) {
                 return new StringCreatorBytes(encoding);

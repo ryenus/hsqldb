@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ import java.io.Reader;
  * streams, overall performance considerations require the use a circular buffer
  * of the same size as the search pattern to hold data from the searched stream
  * as it is being compared in reverse order to the search pattern. Hence,
- * Boyer-Moore requires at minimum twice the memory required by 
+ * Boyer-Moore requires at minimum twice the memory required by
  * Knuth-Morris-Pratt to search for the same pattern and that factor has the 
  * greatest impact precisely on the same class of patterns (larger) for which it
  * is most outperforms Knuth-Morris-Pratt.
@@ -141,7 +141,7 @@ public class KMPSearchAlgorithm {
         return table;
     }
 
-     /**
+    /**
      * computes the table used to optimize octet pattern search
      *
      * @param pattern for which to compute the table.
@@ -184,7 +184,7 @@ public class KMPSearchAlgorithm {
         return table;
     }
 
-     /**
+    /**
      * computes the table used to optimize octet pattern search
      *
      * @param pattern for which to compute the table.

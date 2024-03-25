@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import org.hsqldb.lib.HsqlArrayList;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class LobStoreMem implements LobStore {
@@ -43,13 +43,13 @@ public class LobStoreMem implements LobStore {
     final int     lobBlockSize;
     int           blocksInLargeBlock = 128;
     int           largeBlockSize;
-    HsqlArrayList byteStoreList;
+    HsqlArrayList<byte[]> byteStoreList;
 
     public LobStoreMem(int lobBlockSize) {
 
         this.lobBlockSize = lobBlockSize;
         largeBlockSize    = lobBlockSize * blocksInLargeBlock;
-        byteStoreList     = new HsqlArrayList();
+        byteStoreList     = new HsqlArrayList<>();
     }
 
     public byte[] getBlockBytes(int blockAddress, int blockCount) {
@@ -59,7 +59,7 @@ public class LobStoreMem implements LobStore {
 
         while (blockCount > 0) {
             int    largeBlockIndex   = blockAddress / blocksInLargeBlock;
-            byte[] largeBlock = (byte[]) byteStoreList.get(largeBlockIndex);
+            byte[] largeBlock = byteStoreList.get(largeBlockIndex);
             int    blockOffset       = blockAddress % blocksInLargeBlock;
             int    currentBlockCount = blockCount;
 
@@ -91,7 +91,7 @@ public class LobStoreMem implements LobStore {
                 byteStoreList.add(new byte[largeBlockSize]);
             }
 
-            byte[] largeBlock = (byte[]) byteStoreList.get(largeBlockIndex);
+            byte[] largeBlock = byteStoreList.get(largeBlockIndex);
             int    blockOffset       = blockAddress % blocksInLargeBlock;
             int    currentBlockCount = blockCount;
 
@@ -119,7 +119,7 @@ public class LobStoreMem implements LobStore {
                 byteStoreList.add(new byte[largeBlockSize]);
             }
 
-            byte[] largeBlock = (byte[]) byteStoreList.get(largeBlockIndex);
+            byte[] largeBlock = byteStoreList.get(largeBlockIndex);
             int    offsetInLargeBlock = (int) (position % largeBlockSize);
             int    currentLength      = length;
 

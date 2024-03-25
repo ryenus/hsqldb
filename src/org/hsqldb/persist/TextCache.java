@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ import org.hsqldb.rowio.RowOutputTextQuoted;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class TextCache extends DataFileCache {
@@ -76,7 +76,7 @@ public class TextCache extends DataFileCache {
     //state of Cache
     protected String          header;
     protected Table           table;
-    private LongKeyHashMap    uncommittedCache;
+    private LongKeyHashMap<CachedObject>    uncommittedCache;
     HsqlByteArrayOutputStream buffer = new HsqlByteArrayOutputStream(128);
 
     //
@@ -94,7 +94,7 @@ public class TextCache extends DataFileCache {
         super(table.database, name);
 
         this.table       = table;
-        uncommittedCache = new LongKeyHashMap();
+        uncommittedCache = new LongKeyHashMap<>();
     }
 
     protected void initParams(Database database, String settingsString,
@@ -250,7 +250,7 @@ public class TextCache extends DataFileCache {
 
         try {
             long         pos = object.getPos();
-            CachedObject row = (CachedObject) uncommittedCache.remove(pos);
+            CachedObject row = uncommittedCache.remove(pos);
 
             if (row != null) {
                 return;

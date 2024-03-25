@@ -402,8 +402,8 @@ class ServerConnection implements Runnable {
          * If the user/app runs in non-autocommit mode and says to run a
          * COMMIT followed by an INSERT, the driver will handle the user/app's
          * facade of autocommittedness, and will send the server <OL>
-         *   <LI>COMMIT (which will cause us to set session.setAutoCommit(true)
-         *   <LI>BEGIN (which will cause us to set session.setAutoCommit(false)
+         *   <LI>COMMIT (which will cause us to set session.setAutoCommit(true))
+         *   <LI>BEGIN (which will cause us to set session.setAutoCommit(false))
          *   <LI>INSERT...
          * </OL>
          */

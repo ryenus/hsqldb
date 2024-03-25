@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -42,7 +43,7 @@ import org.hsqldb.result.Result;
  * Implementation of Statement for PSM statements with expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class StatementExpression extends StatementDMQL {
@@ -93,7 +94,7 @@ public class StatementExpression extends StatementDMQL {
 
     TableDerived[] getSubqueries(Session session) {
 
-        OrderedHashSet subQueries = null;
+        OrderedHashSet<TableDerived> subQueries = null;
 
         if (expression != null) {
             subQueries = expression.collectAllSubqueries(subQueries);
@@ -180,7 +181,7 @@ public class StatementExpression extends StatementDMQL {
         return getSQL();
     }
 
-    void collectTableNamesForRead(OrderedHashSet set) {
+    void collectTableNamesForRead(OrderedHashSet<HsqlName> set) {
 
         for (int i = 0; i < subqueries.length; i++) {
             if (subqueries[i].queryExpression != null) {
@@ -193,5 +194,5 @@ public class StatementExpression extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForWrite(OrderedHashSet set) {}
+    void collectTableNamesForWrite(OrderedHashSet<HsqlName> set) {}
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -692,7 +692,7 @@ public class TestCacheSize {
 
             rs.next();
 
-            long time = (long) sw.elapsedTime();
+            long time = sw.elapsedTime();
             long rate = ((long) bigrows * 1000) / (time + 1);
 
             storeResult("count (index on zip)", rs.getInt(1), time, rate);

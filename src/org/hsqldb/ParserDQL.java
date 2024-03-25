@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.1
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -762,7 +762,7 @@ public class ParserDQL extends ParserBase {
         return t;
     }
 
-    void readSimpleColumnNames(OrderedHashSet columns, RangeVariable rangeVar,
+    void readSimpleColumnNames(OrderedHashSet<String> columns, RangeVariable rangeVar,
                                boolean withPrefix) {
 
         while (true) {
@@ -784,7 +784,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    void readTargetSpecificationList(OrderedHashSet targets,
+    void readTargetSpecificationList(OrderedHashSet<Expression> targets,
                                      RangeVariable[] rangeVars,
                                      LongDeque colIndexList) {
 
@@ -825,12 +825,12 @@ public class ParserDQL extends ParserBase {
      */
     int[] readColumnList(Table table, boolean ascOrDesc) {
 
-        OrderedHashSet set = readColumnNames(ascOrDesc);
+        OrderedHashSet<String> set = readColumnNames(ascOrDesc);
 
         return table.getColumnIndexes(set);
     }
 
-    void readSimpleColumnNames(OrderedHashSet columns, Table table,
+    void readSimpleColumnNames(OrderedHashSet<String> columns, Table table,
                                boolean withPrefix) {
 
         while (true) {
@@ -855,11 +855,11 @@ public class ParserDQL extends ParserBase {
     HsqlName[] readColumnNames(HsqlName tableName) {
 
         BitMap         quotedFlags = new BitMap(0, true);
-        OrderedHashSet set         = readColumnNames(quotedFlags, false);
+        OrderedHashSet<String> set         = readColumnNames(quotedFlags, false);
         HsqlName[]     colList     = new HsqlName[set.size()];
 
         for (int i = 0; i < colList.length; i++) {
-            String  name   = (String) set.get(i);
+            String  name   = set.get(i);
             boolean quoted = quotedFlags.isSet(i);
 
             colList[i] = database.nameManager.newHsqlName(tableName.schema,
@@ -869,15 +869,15 @@ public class ParserDQL extends ParserBase {
         return colList;
     }
 
-    OrderedHashSet readColumnNames(boolean readAscDesc) {
+    OrderedHashSet<String> readColumnNames(boolean readAscDesc) {
         return readColumnNames(null, readAscDesc);
     }
 
-    OrderedHashSet readColumnNames(BitMap quotedFlags, boolean readAscDesc) {
+    OrderedHashSet<String> readColumnNames(BitMap quotedFlags, boolean readAscDesc) {
 
         readThis(Tokens.OPENBRACKET);
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet<String> set = new OrderedHashSet<>();
 
         readColumnNameList(set, quotedFlags, readAscDesc);
         readThis(Tokens.CLOSEBRACKET);
@@ -885,7 +885,7 @@ public class ParserDQL extends ParserBase {
         return set;
     }
 
-    void readColumnNameList(OrderedHashSet set, BitMap quotedFlags,
+    void readColumnNameList(OrderedHashSet<String> set, BitMap quotedFlags,
                             boolean readAscDesc) {
 
         int i = 0;
@@ -928,7 +928,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    SimpleName[] readColumnNameList(OrderedHashSet set) {
+    SimpleName[] readColumnNameList(OrderedHashSet<String> set) {
 
         BitMap columnNameQuoted = new BitMap(0, true);
 
@@ -940,7 +940,7 @@ public class ParserDQL extends ParserBase {
 
         for (int i = 0; i < set.size(); i++) {
             SimpleName name =
-                HsqlNameManager.getSimpleName((String) set.get(i),
+                HsqlNameManager.getSimpleName(set.get(i),
                                               columnNameQuoted.isSet(i));
 
             columnNameList[i] = name;
@@ -1014,7 +1014,7 @@ public class ParserDQL extends ParserBase {
             if (token.tokenType == Tokens.BY) {
                 read();
 
-                OrderedHashSet names = readColumnNames(false);
+                OrderedHashSet<String> names = readColumnNames(false);
 
                 queryExpression.setUnionCorrespondingColumns(names);
             }
@@ -1038,8 +1038,7 @@ public class ParserDQL extends ParserBase {
                     }
 
                     for (int i = 0; i < sortAndSlice.exprList.size(); i++) {
-                        Expression e =
-                            (Expression) sortAndSlice.exprList.get(i);
+                        Expression e = sortAndSlice.exprList.get(i);
 
                         queryExpression.sortAndSlice.addOrderExpression(e);
                     }
@@ -1181,7 +1180,7 @@ public class ParserDQL extends ParserBase {
                 settings = new RecursiveQuerySettings();
             }
 
-            OrderedHashSet set = new OrderedHashSet();
+            OrderedHashSet<String> set = new OrderedHashSet<>();
 
             readColumnNameList(set, null, false);
 
@@ -1333,8 +1332,7 @@ public class ParserDQL extends ParserBase {
 
                         for (int i = 0; i < sortAndSlice.exprList.size();
                                 i++) {
-                            Expression e =
-                                (Expression) sortAndSlice.exprList.get(i);
+                            Expression e = sortAndSlice.exprList.get(i);
 
                             queryExpression.sortAndSlice.addOrderExpression(e);
                         }
@@ -1654,7 +1652,7 @@ public class ParserDQL extends ParserBase {
                     }
 
                     if (natural) {
-                        OrderedHashSet columns =
+                        OrderedHashSet<String> columns =
                             rightRange.getUniqueColumnNameSet();
 
                         condition = select.getEquiJoinExpressions(columns,
@@ -1665,7 +1663,7 @@ public class ParserDQL extends ParserBase {
                     } else if (using) {
                         read();
 
-                        OrderedHashSet columns = new OrderedHashSet();
+                        OrderedHashSet<String> columns = new OrderedHashSet<>();
 
                         readThis(Tokens.OPENBRACKET);
                         readSimpleColumnNames(columns, rightRange, false);
@@ -1695,12 +1693,12 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    Expression getRowExpression(OrderedHashSet columnNames) {
+    Expression getRowExpression(OrderedHashSet<String> columnNames) {
 
         Expression[] elements = new Expression[columnNames.size()];
 
         for (int i = 0; i < elements.length; i++) {
-            String name = (String) columnNames.get(i);
+            String name = columnNames.get(i);
 
             elements[i] = new ExpressionColumn(null, null, name);
         }
@@ -1730,7 +1728,7 @@ public class ParserDQL extends ParserBase {
                 readIfThis(Tokens.ALL);
             }
 
-            HsqlArrayList expressions = new HsqlArrayList();
+            HsqlArrayList<Expression> expressions = new HsqlArrayList<>();
 
             while (true) {
                 Expression e = XreadGroupByExpressionPrimary();
@@ -2176,7 +2174,7 @@ public class ParserDQL extends ParserBase {
         Table              table          = null;
         SimpleName         alias          = null;
         SimpleName[]       columnNameList = null;
-        OrderedHashSet     columnList     = null;
+        OrderedHashSet<String> columnList     = null;
         ExpressionPeriodOp sysPeriodSpec  = null;
         boolean            joinedTable    = false;
         boolean            isLateral      = false;
@@ -2270,7 +2268,7 @@ public class ParserDQL extends ParserBase {
             read();
 
             if (token.tokenType == Tokens.OPENBRACKET) {
-                columnList     = new OrderedHashSet();
+                columnList     = new OrderedHashSet<>();
                 columnNameList = readColumnNameList(columnList);
             } else if (!hasAs && limit) {
                 if (token.tokenType == Tokens.COLON
@@ -3257,7 +3255,7 @@ public class ParserDQL extends ParserBase {
 
     Expression readJSONArray() {
 
-        HsqlArrayList list       = new HsqlArrayList();
+        HsqlArrayList<Expression> list = new HsqlArrayList<>();
         Expression    qe         = null;
         boolean       nullOnNull = true;
         Type          dataType   = Type.SQL_VARCHAR_LONG;
@@ -3361,7 +3359,7 @@ public class ParserDQL extends ParserBase {
 
     Expression readJSONObject() {
 
-        OrderedHashMap map          = new OrderedHashMap();
+        OrderedHashMap<Expression, Expression> map = new OrderedHashMap<>();
         boolean        nullOnNull   = true;
         boolean        uniqueKeys   = false;
         Type           dataType     = Type.SQL_VARCHAR_LONG;
@@ -3766,7 +3764,7 @@ public class ParserDQL extends ParserBase {
             readThis(Tokens.SETS);
             readThis(Tokens.OPENBRACKET);
 
-            HsqlArrayList list = new HsqlArrayList();
+            HsqlArrayList<Expression> list = new HsqlArrayList<>();
 
             while (true) {
                 Expression e = XreadGroupByExpressionPrimary();
@@ -5001,7 +4999,7 @@ public class ParserDQL extends ParserBase {
 
     Expression XreadInValueList(int degree) {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Expression> list = new HsqlArrayList<>();
 
         while (true) {
             Expression e = XreadValueExpression();
@@ -5328,7 +5326,7 @@ public class ParserDQL extends ParserBase {
     Expression XreadRowElementList(boolean multiple) {
 
         Expression    e;
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Expression> list = new HsqlArrayList<>();
 
         while (true) {
             e = XreadValueExpression();
@@ -5786,7 +5784,7 @@ public class ParserDQL extends ParserBase {
     private TableDerived prepareSubqueryTable(Expression e,
             HsqlName[] colNames) {
 
-        List unresolved = e.resolveColumnReferences(session,
+        List<Expression> unresolved = e.resolveColumnReferences(session,
             RangeGroup.emptyGroup, compileContext.getOuterRanges(), null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
@@ -5920,7 +5918,7 @@ public class ParserDQL extends ParserBase {
         readThis(Tokens.OPENBRACKET);
         compileContext.incrementDepth();
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Expression> list = new HsqlArrayList<>();
 
         while (true) {
             Expression e = XreadValueExpression();
@@ -6136,7 +6134,7 @@ public class ParserDQL extends ParserBase {
             readThis(Tokens.END);
             readIfThis(Tokens.CASE);
         } else {
-            elseExpr = new ExpressionValue((Object) null, (Type) null);
+            elseExpr = new ExpressionValue(null, null);
 
             readThis(Tokens.END);
             readIfThis(Tokens.CASE);
@@ -6348,7 +6346,7 @@ public class ParserDQL extends ParserBase {
             throw Error.error(ErrorCode.X_42501, name);
         }
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Expression> list = new HsqlArrayList<>();
 
         readThis(Tokens.OPENBRACKET);
 
@@ -6412,9 +6410,7 @@ public class ParserDQL extends ParserBase {
             if (function != null) {
                 Expression e = readSQLFunction(function);
 
-                if (e != null) {
-                    return e;
-                }
+                return e;
             }
         }
 
@@ -6430,7 +6426,7 @@ public class ParserDQL extends ParserBase {
         } else {
             readThis(Tokens.LEFTBRACKET);
 
-            HsqlArrayList list = new HsqlArrayList();
+            HsqlArrayList<Expression> list = new HsqlArrayList<>();
 
             for (int i = 0; ; i++) {
                 if (token.tokenType == Tokens.RIGHTBRACKET) {
@@ -6555,7 +6551,7 @@ public class ParserDQL extends ParserBase {
 
     private Expression readConcatSeparatorExpressionOrNull() {
 
-        HsqlArrayList array    = new HsqlArrayList();
+        HsqlArrayList<Expression> array = new HsqlArrayList<>();
         int           position = getPosition();
 
         read();
@@ -6682,7 +6678,7 @@ public class ParserDQL extends ParserBase {
         readThis(Tokens.COMMA);
 
         Expression alternative = new ExpressionOp(OpTypes.ALTERNATIVE,
-            new ExpressionValue((Object) null, (Type) null), c);
+            new ExpressionValue(null, null), c);
 
         c = new ExpressionLogical(c, XreadValueExpression());
         c = new ExpressionOp(OpTypes.CASEWHEN, c, alternative);
@@ -6782,8 +6778,7 @@ public class ParserDQL extends ParserBase {
                 break;
             }
 
-            Expression expressionNull = new ExpressionValue((Object) null,
-                (Type) null);
+            Expression expressionNull = new ExpressionValue(null, null);
             Expression condition = new ExpressionLogical(OpTypes.IS_NULL,
                 current);
             Expression alt = new ExpressionOp(OpTypes.ALTERNATIVE,
@@ -6822,7 +6817,7 @@ public class ParserDQL extends ParserBase {
             return function;
         }
 
-        HsqlArrayList exprList      = new HsqlArrayList();
+        HsqlArrayList<Expression> exprList = new HsqlArrayList<>();
         boolean       isOpenBracket = token.tokenType == Tokens.OPENBRACKET;
 
         if (!isOpenBracket) {
@@ -6848,7 +6843,7 @@ public class ParserDQL extends ParserBase {
             read();
 
             parseList = function.parseListAlt;
-            exprList  = new HsqlArrayList();
+            exprList  = new HsqlArrayList<>();
 
             readExpression(exprList, parseList, 0, parseList.length, false);
 
@@ -6863,7 +6858,7 @@ public class ParserDQL extends ParserBase {
         return function.getFunctionExpression();
     }
 
-    void readExpression(HsqlArrayList exprList, short[] parseList, int start,
+    void readExpression(HsqlArrayList<Expression> exprList, short[] parseList, int start,
                         int count, boolean isOption) {
 
         for (int i = start; i < start + count; i++) {
@@ -7268,7 +7263,7 @@ public class ParserDQL extends ParserBase {
                     SchemaObject.TABLE);
 
                 if (reference != null) {
-                    table = (Table) database.schemaManager.getSchemaObject(
+                    table = (Table) database.schemaManager.findSchemaObject(
                         reference.getTarget());
                     lastSynonym = reference.getName();
                 }
@@ -7549,7 +7544,7 @@ public class ParserDQL extends ParserBase {
     StatementQuery compileCursorSpecification(RangeGroup[] rangeGroups,
             int props, boolean isRoutine) {
 
-        OrderedHashSet  colNames        = null;
+        OrderedHashSet<String> colNames = null;
         QueryExpression queryExpression = XreadQueryExpression();
 
         if (token.tokenType == Tokens.FOR) {
@@ -7569,7 +7564,7 @@ public class ParserDQL extends ParserBase {
                 if (token.tokenType == Tokens.OF) {
                     readThis(Tokens.OF);
 
-                    colNames = new OrderedHashSet();
+                    colNames = new OrderedHashSet<>();
 
                     readColumnNameList(colNames, null, false);
                 }
@@ -7709,15 +7704,15 @@ public class ParserDQL extends ParserBase {
 
         //
         private int           subqueryDepth;
-        private HsqlArrayList namedSubqueries;
+        private HsqlArrayList<OrderedHashMap<String, TableDerived>> namedSubqueries;
 
         //
-        private OrderedIntKeyHashMap parameters = new OrderedIntKeyHashMap();
-        private HsqlArrayList usedSequences     = new HsqlArrayList(16, true);
-        private HsqlArrayList usedRoutines      = new HsqlArrayList(16, true);
-        private OrderedIntKeyHashMap rangeVariables =
-            new OrderedIntKeyHashMap();
-        private HsqlArrayList usedTypes = new HsqlArrayList(16, true);
+        private final OrderedIntKeyHashMap<ExpressionColumn> parameters = new OrderedIntKeyHashMap<>();
+        private final HsqlArrayList<SchemaObject> usedSequences     = new HsqlArrayList<>(16, true);
+        private final HsqlArrayList<FunctionSQLInvoked> usedRoutines      = new HsqlArrayList<>(16, true);
+        private final OrderedIntKeyHashMap<RangeVariable> rangeVariables =
+            new OrderedIntKeyHashMap<>();
+        private final HsqlArrayList<SchemaObject> usedTypes = new HsqlArrayList<>(16, true);
         Type                  currentDomain;
         boolean               contextuallyTypedExpression;
         boolean               onDuplicateTypedExpression;
@@ -7845,7 +7840,7 @@ public class ParserDQL extends ParserBase {
                 return;
             }
 
-            Iterator it = parameters.keySet().iterator();
+            Iterator<Integer> it = parameters.keySet().iterator();
 
             while (it.hasNext()) {
                 int pos = it.nextInt();
@@ -7930,7 +7925,7 @@ public class ParserDQL extends ParserBase {
 
         public RangeVariable[] getAllRangeVariables() {
 
-            HsqlArrayList list = new HsqlArrayList();
+            HsqlArrayList<RangeVariable> list = new HsqlArrayList<>();
 
             for (int i = 0; i < rangeVariables.size(); i++) {
                 RangeVariable range =
@@ -7980,11 +7975,10 @@ public class ParserDQL extends ParserBase {
                 return Routine.emptyArray;
             }
 
-            OrderedHashSet set = new OrderedHashSet();
+            OrderedHashSet<Routine> set = new OrderedHashSet<>();
 
             for (int i = 0; i < usedRoutines.size(); i++) {
-                FunctionSQLInvoked function =
-                    (FunctionSQLInvoked) usedRoutines.get(i);
+                FunctionSQLInvoked function = usedRoutines.get(i);
 
                 if (function.routine != null) {
                     set.add(function.routine);
@@ -8005,18 +7999,18 @@ public class ParserDQL extends ParserBase {
         private void initSubqueryNames() {
 
             if (namedSubqueries == null) {
-                namedSubqueries = new HsqlArrayList();
+                namedSubqueries = new HsqlArrayList<>();
             }
 
             if (namedSubqueries.size() <= subqueryDepth) {
                 namedSubqueries.setSize(subqueryDepth + 1);
             }
 
-            OrderedHashMap set =
-                (OrderedHashMap) namedSubqueries.get(subqueryDepth);
+            OrderedHashMap<String, TableDerived> set =
+                    namedSubqueries.get(subqueryDepth);
 
             if (set == null) {
-                set = new OrderedHashMap();
+                set = new OrderedHashMap<>();
 
                 namedSubqueries.set(subqueryDepth, set);
             }
@@ -8026,8 +8020,8 @@ public class ParserDQL extends ParserBase {
 
             if (namedSubqueries != null) {
                 if (namedSubqueries.size() > subqueryDepth) {
-                    OrderedHashMap set =
-                        (OrderedHashMap) namedSubqueries.get(subqueryDepth);
+                    OrderedHashMap<String, TableDerived> set =
+                            namedSubqueries.get(subqueryDepth);
 
                     if (set != null) {
                         set.clear();
@@ -8040,8 +8034,8 @@ public class ParserDQL extends ParserBase {
 
             initSubqueryNames();
 
-            OrderedHashMap set =
-                (OrderedHashMap) namedSubqueries.get(subqueryDepth);
+            OrderedHashMap<String, TableDerived> set =
+                    namedSubqueries.get(subqueryDepth);
             boolean added = set.add(name, null);
 
             if (!added) {
@@ -8051,8 +8045,8 @@ public class ParserDQL extends ParserBase {
 
         private void registerSubquery(String name, TableDerived td) {
 
-            OrderedHashMap set =
-                (OrderedHashMap) namedSubqueries.get(subqueryDepth);
+            OrderedHashMap<String, TableDerived> set =
+                    namedSubqueries.get(subqueryDepth);
 
             set.put(name, td);
         }
@@ -8064,7 +8058,7 @@ public class ParserDQL extends ParserBase {
             }
 
             for (int i = subqueryDepth; i < namedSubqueries.size(); i++) {
-                OrderedHashMap set = (OrderedHashMap) namedSubqueries.get(i);
+                OrderedHashMap<String, TableDerived> set = namedSubqueries.get(i);
 
                 if (set != null) {
                     set.clear();
@@ -8091,14 +8085,14 @@ public class ParserDQL extends ParserBase {
                     continue;
                 }
 
-                OrderedHashMap set = (OrderedHashMap) namedSubqueries.get(i);
+                OrderedHashMap<String, TableDerived> set = namedSubqueries.get(i);
 
                 if (set == null) {
                     continue;
                 }
 
                 if (set.getIndex(name) >= 0) {
-                    TableDerived td = (TableDerived) set.get(name);
+                    TableDerived td = set.get(name);
 
                     if (td == null) {
                         HsqlException ex = Error.error(ErrorCode.X_42501,
@@ -8151,18 +8145,18 @@ public class ParserDQL extends ParserBase {
             return result;
         }
 
-        public OrderedHashSet getSchemaObjectNames() {
+        public OrderedHashSet<HsqlName> getSchemaObjectNames() {
 
-            OrderedHashSet set = new OrderedHashSet();
+            OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
             for (int i = 0; i < usedSequences.size(); i++) {
-                SchemaObject object = (SchemaObject) usedSequences.get(i);
+                SchemaObject object = usedSequences.get(i);
 
                 set.add(object.getName());
             }
 
             for (int i = 0; i < usedTypes.size(); i++) {
-                SchemaObject object = (SchemaObject) usedTypes.get(i);
+                SchemaObject object = usedTypes.get(i);
 
                 set.add(object.getName());
             }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashMap;
@@ -49,8 +48,12 @@ import org.hsqldb.lib.OrderedHashSet;
  */
 public class SchemaObjectSet {
 
-    HashMap map;
-    int     type;
+    static final int addErrorCode = ErrorCode.X_42504;
+    static final int getErrorCode = ErrorCode.X_42501;
+
+    private final OrderedHashMap<String, SchemaObject> map;
+    private final OrderedHashMap<String, HsqlName> nameMap;
+    private final int type;
 
     SchemaObjectSet(int type) {
 
@@ -58,27 +61,28 @@ public class SchemaObjectSet {
 
         switch (type) {
 
-            case SchemaObject.VIEW :
-            case SchemaObject.TABLE :
-            case SchemaObject.SEQUENCE :
-            case SchemaObject.CHARSET :
-            case SchemaObject.DOMAIN :
-            case SchemaObject.TYPE :
-            case SchemaObject.COLLATION :
-            case SchemaObject.PROCEDURE :
-            case SchemaObject.FUNCTION :
-            case SchemaObject.SPECIFIC_ROUTINE :
             case SchemaObject.ASSERTION :
-            case SchemaObject.TRIGGER :
-            case SchemaObject.REFERENCE :
+            case SchemaObject.CHARSET :
+            case SchemaObject.COLLATION :
+            case SchemaObject.DOMAIN :
             case SchemaObject.EXCEPTION :
+            case SchemaObject.FUNCTION :
             case SchemaObject.MODULE :
-                map = new OrderedHashMap();
+            case SchemaObject.PROCEDURE :
+            case SchemaObject.REFERENCE :
+            case SchemaObject.SEQUENCE :
+            case SchemaObject.SPECIFIC_ROUTINE :
+            case SchemaObject.TABLE :    // includes VIEW
+            case SchemaObject.TRIGGER :
+            case SchemaObject.TYPE :
+                map = new OrderedHashMap<>();
+                nameMap = null;
                 break;
 
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
-                map = new HashMap();
+                map = null;
+                nameMap = new OrderedHashMap<>();
                 break;
 
             default :
@@ -86,63 +90,74 @@ public class SchemaObjectSet {
         }
     }
 
+    OrderedHashMap<String, ? extends SchemaObject> getMap() {
+        return map;
+    }
+
     HsqlName getName(String name) {
 
         switch (type) {
-
-            case SchemaObject.VIEW :
-            case SchemaObject.TABLE :
-            case SchemaObject.SEQUENCE :
-            case SchemaObject.CHARSET :
-            case SchemaObject.DOMAIN :
-            case SchemaObject.TYPE :
-            case SchemaObject.COLLATION :
-            case SchemaObject.PROCEDURE :
-            case SchemaObject.SPECIFIC_ROUTINE :
-            case SchemaObject.FUNCTION :
-            case SchemaObject.ASSERTION :
-            case SchemaObject.TRIGGER :
-            case SchemaObject.REFERENCE :
-            case SchemaObject.EXCEPTION :
-            case SchemaObject.MODULE :
-                SchemaObject object = ((SchemaObject) map.get(name));
+            default :
+                SchemaObject object = map.get(name);
 
                 return object == null ? null
                                       : object.getName();
 
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX : {
-                return (HsqlName) map.get(name);
+                return nameMap.get(name);
             }
-            default :
-                return (HsqlName) map.get(name);
         }
     }
 
     public SchemaObject getObject(String name) {
 
         switch (type) {
+            default:
+                return map.get(name);
 
-            case SchemaObject.VIEW :
-            case SchemaObject.TABLE :
-            case SchemaObject.SEQUENCE :
-            case SchemaObject.CHARSET :
-            case SchemaObject.DOMAIN :
-            case SchemaObject.TYPE :
-            case SchemaObject.COLLATION :
-            case SchemaObject.PROCEDURE :
-            case SchemaObject.SPECIFIC_ROUTINE :
-            case SchemaObject.FUNCTION :
-            case SchemaObject.ASSERTION :
-            case SchemaObject.TRIGGER :
-            case SchemaObject.REFERENCE :
-            case SchemaObject.EXCEPTION :
-            case SchemaObject.MODULE :
-                return (SchemaObject) map.get(name);
-
-            default :
+            case SchemaObject.CONSTRAINT :
+            case SchemaObject.INDEX :
                 throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
         }
+    }
+
+    public Iterator<SchemaObject> getIterator() {
+
+        switch (type) {
+            default :
+                return map.values().iterator();
+
+            case SchemaObject.CONSTRAINT :
+            case SchemaObject.INDEX :
+                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
+        }
+    }
+
+    public Iterator<HsqlName> getNameIterator() {
+
+        switch (type) {
+            default :
+                return nameIterator(map.values().iterator());
+
+            case SchemaObject.CONSTRAINT :
+            case SchemaObject.INDEX :
+                return nameMap.values().iterator();
+        }
+    }
+
+    private Iterator<HsqlName> nameIterator(Iterator<SchemaObject> it) {
+        return new Iterator<HsqlName>() {
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public HsqlName next() {
+                return it.next().getName();
+            }
+        };
     }
 
     public boolean contains(String name) {
@@ -151,23 +166,49 @@ public class SchemaObjectSet {
 
     void checkAdd(HsqlName name) {
 
-        if (map.containsKey(name.name)) {
-            int code = getAddErrorCode(name.type);
+        switch (type) {
+            default:
+                if (map.containsKey(name.name)) {
+                    throw Error.error(addErrorCode, name.name);
+                }
+                break;
 
-            throw Error.error(code, name.name);
+            case SchemaObject.CONSTRAINT:
+            case SchemaObject.INDEX:
+                if (nameMap.containsKey(name.name)) {
+                    throw Error.error(addErrorCode, name.name);
+                }
+                break;
         }
-    }
-
-    boolean isEmpty() {
-        return map.isEmpty();
     }
 
     void checkExists(String name) {
 
-        if (!map.containsKey(name)) {
-            int code = getGetErrorCode(type);
+        switch (type) {
+            default:
+                if (!map.containsKey(name)) {
+                    throw Error.error(getErrorCode, name);
+                }
+                break;
 
-            throw Error.error(code, name);
+            case SchemaObject.CONSTRAINT:
+            case SchemaObject.INDEX:
+                if (!nameMap.containsKey(name)) {
+                    throw Error.error(getErrorCode, name);
+                }
+                break;
+        }
+    }
+
+    boolean isEmpty() {
+
+        switch (type) {
+            default:
+                return map.isEmpty();
+
+            case SchemaObject.CONSTRAINT:
+            case SchemaObject.INDEX:
+                return nameMap.isEmpty();
         }
     }
 
@@ -179,259 +220,184 @@ public class SchemaObjectSet {
             name = ((Routine) object).getSpecificName();
         }
 
-        if (!replace && map.containsKey(name.name)) {
-            int code = getAddErrorCode(name.type);
+        switch (type) {
 
-            throw Error.error(code, name.name);
-        }
+            default :
+                if (!replace && map.containsKey(name.name)) {
+                    throw Error.error(addErrorCode, name.name);
+                }
 
-        Object value = object;
-
-        switch (name.type) {
+                map.put(name.name, object);
+                break;
 
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
-                value = name;
+                if (!replace && nameMap.containsKey(name.name)) {
+                    throw Error.error(addErrorCode, name.name);
+                }
+
+                nameMap.put(name.name, name);
                 break;
-
-            default :
         }
-
-        map.put(name.name, value);
     }
 
     void remove(String name) {
-        map.remove(name);
+        switch (type) {
+            default :
+                map.remove(name);
+                break;
+
+            case SchemaObject.CONSTRAINT :
+            case SchemaObject.INDEX :
+                nameMap.remove(name);
+                break;
+        }
     }
 
     void removeParent(HsqlName parent) {
 
-        Iterator it = map.values().iterator();
+        switch (type) {
+            default : {
+                Iterator<SchemaObject> it = map.values().iterator();
 
-        while (it.hasNext()) {
-            if (type == SchemaObject.TRIGGER
-                    || type == SchemaObject.SPECIFIC_ROUTINE) {
-                SchemaObject object = (SchemaObject) it.next();
-
-                if (object.getName().parent == parent) {
-                    it.remove();
+                while (it.hasNext()) {
+                    SchemaObject object = it.next();
+                    if (object.getName().parent.equals(parent)) {
+                        it.remove();
+                    }
                 }
-            } else {
-                HsqlName name = (HsqlName) it.next();
+                break;
+            }
+            case SchemaObject.CONSTRAINT :
+            case SchemaObject.INDEX : {
+                Iterator<HsqlName> it = nameMap.values().iterator();
 
-                if (name.parent == parent) {
-                    it.remove();
+                while (it.hasNext()) {
+                    HsqlName name = it.next();
+                    if (name.parent.equals(parent)) {
+                        it.remove();
+                    }
                 }
+                break;
             }
         }
     }
 
     void rename(HsqlName name, HsqlName newName) {
 
-        if (map.containsKey(newName.name)) {
-            int code = getAddErrorCode(name.type);
-
-            throw Error.error(code, newName.name);
-        }
+        HsqlName objectName;
 
         switch (newName.type) {
+            default : {
+                SchemaObject object = map.get(name.name);
 
-            case SchemaObject.VIEW :
-            case SchemaObject.TABLE :
-            case SchemaObject.SEQUENCE :
-            case SchemaObject.CHARSET :
-            case SchemaObject.COLLATION :
-            case SchemaObject.PROCEDURE :
-            case SchemaObject.FUNCTION :
-            case SchemaObject.DOMAIN :
-            case SchemaObject.TYPE :
-            case SchemaObject.ASSERTION :
-            case SchemaObject.TRIGGER :
-            case SchemaObject.ROUTINE :
-            case SchemaObject.REFERENCE :
-            case SchemaObject.EXCEPTION :
-            case SchemaObject.MODULE : {
-                int i = ((OrderedHashMap) map).getIndex(name.name);
-
-                if (i == -1) {
-                    int code = getGetErrorCode(name.type);
-
-                    throw Error.error(code, name.name);
+                if (object == null) {
+                    throw Error.error(getErrorCode, name.name);
+                } else if (type == SchemaObject.SPECIFIC_ROUTINE) {
+                    objectName = ((Routine) object).getSpecificName();
+                } else {
+                    objectName = object.getName();
                 }
-
-                SchemaObject object =
-                    (SchemaObject) ((OrderedHashMap) map).get(i);
-
-                object.getName().rename(newName);
-                ((OrderedHashMap) map).setKeyAt(i, newName.name);
-
-                break;
-            }
-            case SchemaObject.SPECIFIC_ROUTINE : {
-                int i = ((OrderedHashMap) map).getIndex(name.name);
-
-                if (i == -1) {
-                    int code = getGetErrorCode(name.type);
-
-                    throw Error.error(code, name.name);
+                if (map.containsKey(newName.name)) {
+                    throw Error.error(addErrorCode, newName.name);
                 }
+                int i = map.getIndex(name.name);
 
-                Routine routine = (Routine) ((OrderedHashMap) map).get(i);
+                map.setKeyAt(i, newName.name);
 
-                routine.getSpecificName().rename(newName);
-                ((OrderedHashMap) map).setKeyAt(i, newName.name);
-
+                objectName.rename(newName);
                 break;
             }
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX : {
-                map.remove(name.name);
-                name.rename(newName);
-                map.put(name.name, name);
+                objectName = nameMap.get(name.name);
+                if (objectName == null) {
+                    throw Error.error(getErrorCode, name.name);
+                }
+                if (nameMap.containsKey(newName.name)) {
+                    throw Error.error(addErrorCode, newName.name);
+                }
+                int i = nameMap.getIndex(name.name);
 
+                nameMap.setKeyAt(i, newName.name);
+
+                objectName.rename(newName);
                 break;
             }
-            default :
         }
-    }
-
-    static int getAddErrorCode(int type) {
-
-        int code;
-
-        switch (type) {
-
-            case SchemaObject.VIEW :
-            case SchemaObject.TABLE :
-            case SchemaObject.SEQUENCE :
-            case SchemaObject.CHARSET :
-            case SchemaObject.DOMAIN :
-            case SchemaObject.TYPE :
-            case SchemaObject.COLLATION :
-            case SchemaObject.PROCEDURE :
-            case SchemaObject.FUNCTION :
-            case SchemaObject.SPECIFIC_ROUTINE :
-            case SchemaObject.ASSERTION :
-            case SchemaObject.TRIGGER :
-            case SchemaObject.REFERENCE :
-            case SchemaObject.EXCEPTION :
-            case SchemaObject.MODULE :
-            case SchemaObject.CONSTRAINT :
-            case SchemaObject.INDEX :
-                code = ErrorCode.X_42504;
-                break;
-
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
-        }
-
-        return code;
-    }
-
-    static int getGetErrorCode(int type) {
-
-        int code;
-
-        switch (type) {
-
-            case SchemaObject.VIEW :
-            case SchemaObject.TABLE :
-            case SchemaObject.SEQUENCE :
-            case SchemaObject.CHARSET :
-            case SchemaObject.DOMAIN :
-            case SchemaObject.TYPE :
-            case SchemaObject.COLLATION :
-            case SchemaObject.PROCEDURE :
-            case SchemaObject.FUNCTION :
-            case SchemaObject.SPECIFIC_ROUTINE :
-            case SchemaObject.ASSERTION :
-            case SchemaObject.TRIGGER :
-            case SchemaObject.REFERENCE :
-            case SchemaObject.EXCEPTION :
-            case SchemaObject.MODULE :
-            case SchemaObject.CONSTRAINT :
-            case SchemaObject.INDEX :
-                code = ErrorCode.X_42501;
-                break;
-
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
-        }
-
-        return code;
     }
 
     public static String getName(int type) {
 
         switch (type) {
 
-            case SchemaObject.VIEW :
-                return Tokens.T_VIEW;
-
-            case SchemaObject.TABLE :
-                return Tokens.T_TABLE;
-
-            case SchemaObject.SEQUENCE :
-                return Tokens.T_SEQUENCE;
+            case SchemaObject.ASSERTION :
+                return Tokens.T_ASSERTION;
 
             case SchemaObject.CHARSET :
                 return Tokens.T_CHARACTER + ' ' + Tokens.T_SET;
 
-            case SchemaObject.DOMAIN :
-                return Tokens.T_DOMAIN;
-
-            case SchemaObject.TYPE :
-                return Tokens.T_TYPE;
-
             case SchemaObject.COLLATION :
                 return Tokens.T_COLLATION;
-
-            case SchemaObject.PROCEDURE :
-                return Tokens.T_PROCEDURE;
-
-            case SchemaObject.FUNCTION :
-                return Tokens.T_FUNCTION;
-
-            case SchemaObject.SPECIFIC_ROUTINE :
-                return Tokens.T_SPECIFIC + ' ' + Tokens.T_ROUTINE;
-
-            case SchemaObject.ASSERTION :
-                return Tokens.T_ASSERTION;
-
-            case SchemaObject.TRIGGER :
-                return Tokens.T_TRIGGER;
-
-            case SchemaObject.EXCEPTION :
-                return Tokens.T_EXCEPTION;
-
-            case SchemaObject.MODULE :
-                return Tokens.T_MODULE;
-
-            case SchemaObject.REFERENCE :
-                return Tokens.T_SYNONYM;
-
-            case SchemaObject.PARAMETER :
-                return Tokens.T_PARAMETER;
 
             case SchemaObject.CONSTRAINT :
                 return Tokens.T_CONSTRAINT;
 
+            case SchemaObject.DOMAIN :
+                return Tokens.T_DOMAIN;
+
+            case SchemaObject.EXCEPTION :
+                return Tokens.T_EXCEPTION;
+
+            case SchemaObject.FUNCTION :
+                return Tokens.T_FUNCTION;
+
             case SchemaObject.INDEX :
                 return Tokens.T_INDEX;
 
+            case SchemaObject.MODULE :
+                return Tokens.T_MODULE;
+
+            case SchemaObject.PARAMETER :
+                return Tokens.T_PARAMETER;
+
             case SchemaObject.PERIOD :
                 return Tokens.T_PERIOD;
+
+            case SchemaObject.PROCEDURE :
+                return Tokens.T_PROCEDURE;
+
+            case SchemaObject.REFERENCE :
+                return Tokens.T_SYNONYM;
+
+            case SchemaObject.SEQUENCE :
+                return Tokens.T_SEQUENCE;
+
+            case SchemaObject.SPECIFIC_ROUTINE :
+                return Tokens.T_SPECIFIC + ' ' + Tokens.T_ROUTINE;
+
+            case SchemaObject.TABLE :
+                return Tokens.T_TABLE;
+
+            case SchemaObject.TRIGGER :
+                return Tokens.T_TRIGGER;
+
+            case SchemaObject.TYPE :
+                return Tokens.T_TYPE;
+
+            case SchemaObject.VIEW :
+                return Tokens.T_VIEW;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
         }
     }
 
-    void getSQL(HsqlArrayList list, OrderedHashSet resolved,
-                OrderedHashSet unresolved) {
+    void getSQL(HsqlArrayList<String> list, OrderedHashSet<HsqlName> resolved,
+                OrderedHashSet<SchemaObject> unresolved) {
 
-        // HashMap lists are not persisted with this method
-        if (!(map instanceof OrderedHashMap)) {
+        // HsqlName lists are not persisted with this method
+        if (type == SchemaObject.CONSTRAINT || type == SchemaObject.INDEX) {
             return;
         }
 
@@ -439,10 +405,10 @@ public class SchemaObjectSet {
             return;
         }
 
-        Iterator it = map.values().iterator();
+        Iterator<SchemaObject> it = map.values().iterator();
 
         if (type == SchemaObject.FUNCTION || type == SchemaObject.PROCEDURE) {
-            OrderedHashSet set = new OrderedHashSet();
+            OrderedHashSet<SchemaObject> set = new OrderedHashSet<>();
 
             while (it.hasNext()) {
                 RoutineSchema routineSchema = (RoutineSchema) it.next();
@@ -460,14 +426,14 @@ public class SchemaObjectSet {
         addAllSQL(resolved, unresolved, list, it, null);
     }
 
-    static void addAllSQL(OrderedHashSet resolved, OrderedHashSet unresolved,
-                          HsqlArrayList list, Iterator it,
-                          OrderedHashSet newResolved) {
+    static void addAllSQL(OrderedHashSet<HsqlName> resolved, OrderedHashSet<SchemaObject> unresolved,
+                          HsqlArrayList<String> list, Iterator<SchemaObject> it,
+                          OrderedHashSet<SchemaObject> newResolved) {
 
         while (it.hasNext()) {
-            SchemaObject   object     = (SchemaObject) it.next();
+            SchemaObject   object     = it.next();
             boolean        isResolved = true;
-            OrderedHashSet references;
+            OrderedHashSet<HsqlName> references;
 
             if (object.getType() == SchemaObject.TABLE) {
                 ((Table) object).setForwardConstraints(resolved);
@@ -478,7 +444,7 @@ public class SchemaObjectSet {
             }
 
             for (int j = 0; j < references.size(); j++) {
-                HsqlName name = (HsqlName) references.get(j);
+                HsqlName name = references.get(j);
 
                 if (SqlInvariants.isSchemaNameSystem(name)) {
                     continue;
@@ -534,13 +500,13 @@ public class SchemaObjectSet {
                         }
 
                     // fall through
-                    case SchemaObject.TYPE :
-                    case SchemaObject.DOMAIN :
                     case SchemaObject.COLLATION :
+                    case SchemaObject.DOMAIN :
                     case SchemaObject.FUNCTION :
                     case SchemaObject.PROCEDURE :
-                    case SchemaObject.SPECIFIC_ROUTINE :
                     case SchemaObject.SEQUENCE :
+                    case SchemaObject.SPECIFIC_ROUTINE :
+                    case SchemaObject.TYPE :
                         if (!resolved.contains(name)) {
                             isResolved = false;
                         }
@@ -671,12 +637,12 @@ public class SchemaObjectSet {
     }
 
     static boolean isChildObjectResolved(SchemaObject object,
-                                         OrderedHashSet resolved) {
+                                         OrderedHashSet<HsqlName> resolved) {
 
-        OrderedHashSet refs = object.getReferences();
+        OrderedHashSet<HsqlName> refs = object.getReferences();
 
         for (int i = 0; i < refs.size(); i++) {
-            HsqlName name = (HsqlName) refs.get(i);
+            HsqlName name = refs.get(i);
 
             if (SqlInvariants.isSchemaNameSystem(name)) {
                 continue;

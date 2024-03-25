@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.1
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class TableDerived extends Table {
@@ -108,7 +108,7 @@ public class TableDerived extends Table {
     }
 
     public TableDerived(Database database, HsqlName name, int type,
-                        Type[] columnTypes, OrderedHashMap columnList,
+                        Type[] columnTypes, OrderedHashMap<String, ColumnSchema> columnList,
                         int[] pkColumns) {
 
         this(database, name, type);
@@ -220,8 +220,7 @@ public class TableDerived extends Table {
             return false;
         }
 
-        return queryExpression == null ? false
-                                       : queryExpression.isInsertable();
+        return queryExpression != null && queryExpression.isInsertable();
     }
 
     public boolean isUpdatable() {
@@ -230,8 +229,7 @@ public class TableDerived extends Table {
             return false;
         }
 
-        return queryExpression == null ? false
-                                       : queryExpression.isUpdatable();
+        return queryExpression != null && queryExpression.isUpdatable();
     }
 
     public int[] getUpdatableColumns() {
@@ -320,10 +318,10 @@ public class TableDerived extends Table {
                 throw Error.error(ErrorCode.X_42593);
             }
 
-            OrderedHashMap newColumnList = new OrderedHashMap();
+            OrderedHashMap<String, ColumnSchema> newColumnList = new OrderedHashMap<>();
 
             for (int i = 0; i < columnCount; i++) {
-                ColumnSchema col = (ColumnSchema) columnList.get(i);
+                ColumnSchema col = columnList.get(i);
 
                 col.setName(columns[i]);
                 newColumnList.add(columns[i].name, col);
@@ -444,11 +442,7 @@ public class TableDerived extends Table {
         if (canRecompile && queryExpression instanceof QuerySpecification) {
             QuerySpecification qs = (QuerySpecification) queryExpression;
 
-            if (qs.isAggregated || qs.isGrouped || qs.isOrderSensitive) {
-                return false;
-            } else {
-                return true;
-            }
+            return !qs.isAggregated && !qs.isGrouped && !qs.isOrderSensitive;
         }
 
         return false;

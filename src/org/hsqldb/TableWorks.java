@@ -50,12 +50,12 @@ import org.hsqldb.types.Types;
  * existing table which may result in a new Table object
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class TableWorks {
 
-    OrderedHashSet   emptySet = new OrderedHashSet();
+    OrderedHashSet<HsqlName> emptySet = new OrderedHashSet<>();
     private Database database;
     private Table    table;
     private Session  session;
@@ -292,7 +292,7 @@ public class TableWorks {
     }
 
     void addColumn(ColumnSchema column, int colIndex,
-                   HsqlArrayList constraints) {
+                   HsqlArrayList<Constraint> constraints) {
 
         Index      index          = null;
         Constraint mainConstraint = null;
@@ -302,7 +302,7 @@ public class TableWorks {
 
         checkAddColumn(column);
 
-        Constraint c = (Constraint) constraints.get(0);
+        Constraint c = constraints.get(0);
 
         if (c.getConstraintType()
                 == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
@@ -329,7 +329,7 @@ public class TableWorks {
                                         emptySet);
 
         for (int i = 1; i < constraints.size(); i++) {
-            c = (Constraint) constraints.get(i);
+            c = constraints.get(i);
 
             switch (c.getConstraintType()) {
 
@@ -474,17 +474,17 @@ public class TableWorks {
         table = tn;
     }
 
-    void updateConstraints(OrderedHashSet tableSet,
-                           OrderedHashSet dropConstraints) {
+    void updateConstraints(OrderedHashSet<Table> tableSet,
+                           OrderedHashSet<HsqlName> dropConstraints) {
 
         for (int i = 0; i < tableSet.size(); i++) {
-            Table t = (Table) tableSet.get(i);
+            Table t = tableSet.get(i);
 
             updateConstraints(t, dropConstraints);
         }
     }
 
-    void updateConstraints(Table t, OrderedHashSet dropConstraints) {
+    void updateConstraints(Table t, OrderedHashSet<HsqlName> dropConstraints) {
 
         for (int i = t.constraintList.length - 1; i >= 0; i--) {
             Constraint c = t.constraintList[i];
@@ -523,13 +523,13 @@ public class TableWorks {
         }
     }
 
-    OrderedHashSet dropConstraintsAndIndexes(OrderedHashSet tableSet,
-            OrderedHashSet dropConstraintSet, OrderedHashSet dropIndexSet) {
+    OrderedHashSet<Table> dropConstraintsAndIndexes(OrderedHashSet<Table> tableSet,
+            OrderedHashSet<HsqlName> dropConstraintSet, OrderedHashSet<HsqlName> dropIndexSet) {
 
-        OrderedHashSet newSet = new OrderedHashSet();
+        OrderedHashSet<Table> newSet = new OrderedHashSet<>();
 
         for (int i = 0; i < tableSet.size(); i++) {
-            Table      t  = (Table) tableSet.get(i);
+            Table t = tableSet.get(i);
             TableWorks tw = new TableWorks(session, t);
 
             tw.dropConstraintsAndIndexes(dropConstraintSet, dropIndexSet);
@@ -544,8 +544,8 @@ public class TableWorks {
      * Uses sets of names which may contain names that are unrelated to
      * this table.
      */
-    void dropConstraintsAndIndexes(OrderedHashSet dropConstraintSet,
-                                   OrderedHashSet dropIndexSet) {
+    void dropConstraintsAndIndexes(OrderedHashSet<HsqlName> dropConstraintSet,
+                                   OrderedHashSet<HsqlName> dropIndexSet) {
 
         Table tn = table.moveDefinition(session, table.tableType,
                                         ColumnSchema.emptyArray, null, null,
@@ -793,7 +793,7 @@ public class TableWorks {
         if (table.isIndexingMutable()) {
             table.dropIndex(session, index.getPosition());
         } else {
-            OrderedHashSet indexSet = new OrderedHashSet();
+            OrderedHashSet<HsqlName> indexSet = new OrderedHashSet<>();
 
             indexSet.add(table.getIndex(indexName).getName());
 
@@ -824,14 +824,14 @@ public class TableWorks {
             throw Error.error(ErrorCode.X_42517);
         }
 
-        OrderedHashSet constraintNameSet = new OrderedHashSet();
-        OrderedHashSet dependentConstraints =
+        OrderedHashSet<HsqlName> constraintNameSet = new OrderedHashSet<>();
+        OrderedHashSet<Constraint> dependentConstraints =
             table.getDependentConstraints(colIndex);
-        OrderedHashSet cascadingConstraints =
+        OrderedHashSet<Constraint> cascadingConstraints =
             table.getContainingConstraints(colIndex);
-        OrderedHashSet indexNameSet = table.getContainingIndexNames(colIndex);
+        OrderedHashSet<HsqlName> indexNameSet = table.getContainingIndexNames(colIndex);
         HsqlName       columnName   = column.getName();
-        OrderedHashSet referencingObjects =
+        OrderedHashSet<HsqlName> referencingObjects =
             database.schemaManager.getReferencesTo(table.getName(),
                 columnName);
 
@@ -854,7 +854,7 @@ public class TableWorks {
 
         if (!cascade) {
             if (!cascadingConstraints.isEmpty()) {
-                Constraint c    = (Constraint) cascadingConstraints.get(0);
+                Constraint c    = cascadingConstraints.get(0);
                 HsqlName   name = c.getName();
 
                 if (c.getConstraintType()
@@ -869,15 +869,14 @@ public class TableWorks {
             if (!referencingObjects.isEmpty()) {
                 mainLoop:
                 for (int i = 0; i < referencingObjects.size(); i++) {
-                    HsqlName name = (HsqlName) referencingObjects.get(i);
+                    HsqlName name = referencingObjects.get(i);
 
                     if (name == columnName) {
                         continue;
                     }
 
                     for (int j = 0; j < dependentConstraints.size(); j++) {
-                        Constraint c =
-                            (Constraint) dependentConstraints.get(j);
+                        Constraint c = dependentConstraints.get(j);
 
                         if (c.getName() == name) {
                             continue mainLoop;
@@ -893,10 +892,10 @@ public class TableWorks {
         dependentConstraints.addAll(cascadingConstraints);
         cascadingConstraints.clear();
 
-        OrderedHashSet tableSet = new OrderedHashSet();
+        OrderedHashSet<Table> tableSet = new OrderedHashSet<>();
 
         for (int i = 0; i < dependentConstraints.size(); i++) {
-            Constraint c = (Constraint) dependentConstraints.get(i);
+            Constraint c = dependentConstraints.get(i);
 
             if (c.getConstraintType()
                     == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
@@ -940,10 +939,10 @@ public class TableWorks {
         table = tn;
     }
 
-    void registerConstraintNames(HsqlArrayList constraints) {
+    void registerConstraintNames(HsqlArrayList<Constraint> constraints) {
 
         for (int i = 0; i < constraints.size(); i++) {
-            Constraint c = (Constraint) constraints.get(i);
+            Constraint c = constraints.get(i);
 
             switch (c.getConstraintType()) {
 
@@ -971,12 +970,12 @@ public class TableWorks {
             case SchemaObject.ConstraintTypes.UNIQUE : {
                 checkModifyTable(false);
 
-                OrderedHashSet dependentConstraints =
+                OrderedHashSet<Constraint> dependentConstraints =
                     table.getDependentConstraints(constraint);
 
                 // throw if unique constraint is referenced by foreign key
                 if (!cascade && !dependentConstraints.isEmpty()) {
-                    Constraint c = (Constraint) dependentConstraints.get(0);
+                    Constraint c = dependentConstraints.get(0);
                     HsqlName   constraintName = c.getName();
 
                     if (c.getConstraintType()
@@ -989,12 +988,12 @@ public class TableWorks {
                         constraintName.getSchemaQualifiedStatementName());
                 }
 
-                OrderedHashSet tableSet          = new OrderedHashSet();
-                OrderedHashSet constraintNameSet = new OrderedHashSet();
-                OrderedHashSet indexNameSet      = new OrderedHashSet();
+                OrderedHashSet<Table> tableSet = new OrderedHashSet<>();
+                OrderedHashSet<HsqlName> constraintNameSet = new OrderedHashSet<>();
+                OrderedHashSet<HsqlName> indexNameSet = new OrderedHashSet<>();
 
                 for (int i = 0; i < dependentConstraints.size(); i++) {
-                    Constraint c = (Constraint) dependentConstraints.get(i);
+                    Constraint c = dependentConstraints.get(i);
                     Table      t = c.getMain();
 
                     if (t != table) {
@@ -1060,14 +1059,14 @@ public class TableWorks {
             case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
                 checkModifyTable(false);
 
-                OrderedHashSet constraints = new OrderedHashSet();
+                OrderedHashSet<HsqlName> constraints = new OrderedHashSet<>();
                 Table          mainTable   = constraint.getMain();
                 HsqlName       mainName    = constraint.getMainName();
 
                 constraints.add(mainName);
                 constraints.add(constraint.getRefName());
 
-                OrderedHashSet indexes = new OrderedHashSet();
+                OrderedHashSet<HsqlName> indexes = new OrderedHashSet<>();
 
                 indexes.add(constraint.getRefIndex().getName());
 
@@ -1346,7 +1345,7 @@ public class TableWorks {
     }
 
     /**
-     * Changes the type of a table
+     * Changes the type of the table
      *
      * @param newType int
      * @return boolean
@@ -1430,10 +1429,10 @@ public class TableWorks {
         }
 
         // references in conditions and to the columns
-        OrderedHashSet referencingObjects =
+        OrderedHashSet<HsqlName> referencingObjects =
             database.schemaManager.getReferencesTo(table.getName(),
                 table.systemPeriod.startColumn.getName());
-        OrderedHashSet endReferences =
+        OrderedHashSet<HsqlName> endReferences =
             database.schemaManager.getReferencesTo(table.getName(),
                 table.systemPeriod.startColumn.getName());
 
@@ -1441,7 +1440,7 @@ public class TableWorks {
 
         if (cascade) {
             if (!referencingObjects.isEmpty()) {
-                HsqlName objectName = (HsqlName) referencingObjects.get(0);
+                HsqlName objectName = referencingObjects.get(0);
 
                 throw Error.error(
                     ErrorCode.X_42502,
@@ -1449,7 +1448,7 @@ public class TableWorks {
             }
         } else {
             if (!referencingObjects.isEmpty()) {
-                HsqlName objectName = (HsqlName) referencingObjects.get(0);
+                HsqlName objectName = referencingObjects.get(0);
 
                 throw Error.error(
                     ErrorCode.X_42502,
@@ -1478,13 +1477,13 @@ public class TableWorks {
     void dropSystemVersioning(boolean cascade) {
 
         // references in range variable conditions
-        OrderedHashSet referencingObjects =
+        OrderedHashSet<HsqlName> referencingObjects =
             database.schemaManager.getReferencesTo(table.getName(),
                 table.systemPeriod.getName());
 
         if (cascade) {
             if (!referencingObjects.isEmpty()) {
-                HsqlName objectName = (HsqlName) referencingObjects.get(0);
+                HsqlName objectName = referencingObjects.get(0);
 
                 throw Error.error(
                     ErrorCode.X_42502,
@@ -1492,7 +1491,7 @@ public class TableWorks {
             }
         } else {
             if (!referencingObjects.isEmpty()) {
-                HsqlName objectName = (HsqlName) referencingObjects.get(0);
+                HsqlName objectName = referencingObjects.get(0);
 
                 throw Error.error(
                     ErrorCode.X_42502,
@@ -1501,10 +1500,10 @@ public class TableWorks {
         }
     }
 
-    void setNewTablesInSchema(OrderedHashSet tableSet) {
+    void setNewTablesInSchema(OrderedHashSet<Table> tableSet) {
 
         for (int i = 0; i < tableSet.size(); i++) {
-            Table t = (Table) tableSet.get(i);
+            Table t = tableSet.get(i);
 
             setNewTableInSchema(t);
         }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 
@@ -249,7 +249,7 @@ public class StatementDML extends StatementDMQL {
     }
 
     // this fk references -> other  :  other read lock
-    void collectTableNamesForRead(OrderedHashSet set) {
+    void collectTableNamesForRead(OrderedHashSet<HsqlName> set) {
 
         if (baseTable.isView()) {
             getTriggerTableNames(set, false);
@@ -330,7 +330,7 @@ public class StatementDML extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForWrite(OrderedHashSet set) {
+    void collectTableNamesForWrite(OrderedHashSet<HsqlName> set) {
 
         // other fk references this :  if constraint trigger action  : other write lock
         if (baseTable.isView()) {
@@ -481,7 +481,7 @@ public class StatementDML extends StatementDMQL {
         return generatedResultMetaData;
     }
 
-    void getTriggerTableNames(OrderedHashSet set, boolean write) {
+    void getTriggerTableNames(OrderedHashSet<HsqlName> set, boolean write) {
 
         for (int i = 0; i < baseTable.triggerList.length; i++) {
             TriggerDef td = baseTable.triggerList[i];
@@ -1082,7 +1082,7 @@ public class StatementDML extends StatementDMQL {
         navigator.beforeFirst();
 
         if (table.fkMainConstraints.length > 0) {
-            HashSet path = session.sessionContext.getConstraintPath();
+            HashSet<Constraint> path = session.sessionContext.getConstraintPath();
 
             for (int i = 0; i < rowCount; i++) {
                 navigator.next();
@@ -1177,7 +1177,7 @@ public class StatementDML extends StatementDMQL {
 
         navigator.beforeFirst();
 
-        OrderedHashSet extraUpdateTables = null;
+        OrderedHashSet<Table> extraUpdateTables = null;
         boolean hasAfterRowTriggers =
             table.triggerLists[Trigger.UPDATE_AFTER_ROW].length > 0;
 
@@ -1192,7 +1192,7 @@ public class StatementDML extends StatementDMQL {
 
             if (currentTable != table) {
                 if (extraUpdateTables == null) {
-                    extraUpdateTables = new OrderedHashSet();
+                    extraUpdateTables = new OrderedHashSet<>();
                 }
 
                 extraUpdateTables.add(currentTable);
@@ -1225,7 +1225,7 @@ public class StatementDML extends StatementDMQL {
 
         if (extraUpdateTables != null) {
             for (int i = 0; i < extraUpdateTables.size(); i++) {
-                Table currentTable = (Table) extraUpdateTables.get(i);
+                Table currentTable = extraUpdateTables.get(i);
 
                 currentTable.fireTriggers(session, Trigger.UPDATE_AFTER,
                                           navigator);
@@ -1356,7 +1356,7 @@ public class StatementDML extends StatementDMQL {
         navigator.beforeFirst();
 
         if (table.fkMainConstraints.length > 0) {
-            HashSet path = session.sessionContext.getConstraintPath();
+            HashSet<Constraint> path = session.sessionContext.getConstraintPath();
 
             if (table.cascadingDeletes > 0) {
                 for (int i = 0; i < rowCount; i++) {
@@ -1469,8 +1469,8 @@ public class StatementDML extends StatementDMQL {
             navigator.beforeFirst();
         }
 
-        OrderedHashSet extraUpdateTables = null;
-        OrderedHashSet extraDeleteTables = null;
+        OrderedHashSet<Table> extraUpdateTables = null;
+        OrderedHashSet<Table> extraDeleteTables = null;
         boolean hasAfterRowTriggers =
             table.triggerLists[Trigger.DELETE_AFTER_ROW].length > 0;
 
@@ -1495,7 +1495,7 @@ public class StatementDML extends StatementDMQL {
                         }
 
                         if (extraDeleteTables == null) {
-                            extraDeleteTables = new OrderedHashSet();
+                            extraDeleteTables = new OrderedHashSet<>();
                         }
 
                         extraDeleteTables.add(currentTable);
@@ -1506,7 +1506,7 @@ public class StatementDML extends StatementDMQL {
                         }
 
                         if (extraUpdateTables == null) {
-                            extraUpdateTables = new OrderedHashSet();
+                            extraUpdateTables = new OrderedHashSet<>();
                         }
 
                         extraUpdateTables.add(currentTable);
@@ -1542,7 +1542,7 @@ public class StatementDML extends StatementDMQL {
 
         if (extraUpdateTables != null) {
             for (int i = 0; i < extraUpdateTables.size(); i++) {
-                Table currentTable = (Table) extraUpdateTables.get(i);
+                Table currentTable = extraUpdateTables.get(i);
 
                 currentTable.fireTriggers(session, Trigger.UPDATE_AFTER,
                                           navigator);
@@ -1551,7 +1551,7 @@ public class StatementDML extends StatementDMQL {
 
         if (extraDeleteTables != null) {
             for (int i = 0; i < extraDeleteTables.size(); i++) {
-                Table currentTable = (Table) extraDeleteTables.get(i);
+                Table currentTable = extraDeleteTables.get(i);
 
                 currentTable.fireTriggers(session, Trigger.DELETE_AFTER,
                                           navigator);
@@ -1609,7 +1609,7 @@ public class StatementDML extends StatementDMQL {
     static void performReferentialActions(Session session,
                                           RowSetNavigatorDataChange navigator,
                                           Row row, Object[] data,
-                                          int[] changedCols, HashSet path,
+                                          int[] changedCols, HashSet<Constraint> path,
                                           boolean deleteCascade) {
 
         if (!session.database.isReferentialIntegrity()) {

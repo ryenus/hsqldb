@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -517,7 +517,7 @@ implements RowInputInterface {
             throw Error.error(ErrorCode.X_42584);
         }
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Object> list = new HsqlArrayList<>();
 
         noSeparators = true;
 

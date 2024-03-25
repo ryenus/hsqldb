@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public class TransactionManagerMVCC extends TransactionManagerCommon
 implements TransactionManager {
 
     // functional unit - merged committed transactions
-    HsqlDeque committedTransactions    = new HsqlDeque();
+    HsqlDeque<RowAction[]> committedTransactions    = new HsqlDeque<>();
     LongDeque committedTransactionSCNs = new LongDeque();
 
     // locks
@@ -117,7 +117,7 @@ implements TransactionManager {
             int limit = session.rowActionList.size();
 
             for (int i = 0; i < limit; i++) {
-                RowAction action = (RowAction) session.rowActionList.get(i);
+                RowAction action = session.rowActionList.get(i);
 
                 if (!action.canCommit(session)) {
 
@@ -129,14 +129,14 @@ implements TransactionManager {
             session.actionSCN = getNextSystemChangeNumber();
 
             for (int i = 0; i < limit; i++) {
-                RowAction action = (RowAction) session.rowActionList.get(i);
+                RowAction action = session.rowActionList.get(i);
 
                 action.prepareCommit(session);
             }
 
+            // this is vestigial from the time when conflicts were found at commit
             for (int i = 0; i < session.actionSet.size(); i++) {
-                Session current =
-                    ((RowActionBase) session.actionSet.get(i)).session;
+                Session current = session.actionSet.get(i).session;
 
                 current.abortTransaction = true;
             }
@@ -160,7 +160,7 @@ implements TransactionManager {
             int limit = session.rowActionList.size();
 
             for (int i = 0; i < limit; i++) {
-                RowAction action = (RowAction) session.rowActionList.get(i);
+                RowAction action = session.rowActionList.get(i);
 
                 if (!action.canCommit(session)) {
 
@@ -176,14 +176,13 @@ implements TransactionManager {
             endTransaction(session);
 
             for (int i = 0; i < limit; i++) {
-                RowAction action = (RowAction) session.rowActionList.get(i);
+                RowAction action = session.rowActionList.get(i);
 
                 action.commit(session);
             }
 
             for (int i = 0; i < session.actionSet.size(); i++) {
-                Session current =
-                    ((RowActionBase) session.actionSet.get(i)).session;
+                Session current = session.actionSet.get(i).session;
 
                 current.abortTransaction = true;
             }
@@ -194,7 +193,7 @@ implements TransactionManager {
             int newLimit = session.rowActionList.size();
 
             if (newLimit > limit) {
-                Object[] list = session.rowActionList.getArray();
+                RowAction[] list = session.rowActionList.getArray();
 
                 mergeTransaction(list, limit, newLimit, session.actionSCN);
                 finaliseRows(session, list, limit, newLimit);
@@ -205,13 +204,13 @@ implements TransactionManager {
             if (session == lobSession
                     || getFirstLiveTransactionTimestamp()
                        > session.actionSCN) {
-                Object[] list = session.rowActionList.getArray();
+                RowAction[] list = session.rowActionList.getArray();
 
                 mergeTransaction(list, 0, limit, session.actionSCN);
                 finaliseRows(session, list, 0, limit);
             } else {
                 if (session.rowActionList.size() > 0) {
-                    Object[] list = session.rowActionList.toArray();
+                    RowAction[] list = session.rowActionList.toArray(RowAction.emptyArray);
 
                     addToCommittedQueue(session, list);
                 }
@@ -257,7 +256,7 @@ implements TransactionManager {
     public void rollbackSavepoint(Session session, int index) {
 
         long timestamp = session.sessionContext.savepointTimestamps.get(index);
-        Integer oi = (Integer) session.sessionContext.savepoints.get(index);
+        Integer oi = session.sessionContext.savepoints.get(index);
         int     start  = oi.intValue();
 
         while (session.sessionContext.savepoints.size() > index + 1) {
@@ -286,7 +285,7 @@ implements TransactionManager {
         }
 
         for (int i = limit - 1; i >= start; i--) {
-            RowAction action = (RowAction) session.rowActionList.get(i);
+            RowAction action = session.rowActionList.get(i);
 
             if (action == null || action.type == RowActionBase.ACTION_NONE
                     || action.type == RowActionBase.ACTION_DELETE_FINAL) {
@@ -378,8 +377,7 @@ implements TransactionManager {
                 redoAction = !session.actionSet.isEmpty();
 
                 if (redoAction) {
-                    actionSession =
-                        ((RowActionBase) session.actionSet.get(0)).session;
+                    actionSession = session.actionSet.get(0).session;
 
                     session.actionSet.clear();
 
@@ -459,8 +457,7 @@ implements TransactionManager {
         try {
             rollbackAction(session);
 
-            RowActionBase otherAction =
-                (RowActionBase) session.actionSet.get(0);
+            RowActionBase otherAction = session.actionSet.get(0);
 
             actionSession = otherAction.session;
 
@@ -582,7 +579,7 @@ implements TransactionManager {
     /**
      * add a list of actions to the end of queue
      */
-    void addToCommittedQueue(Session session, Object[] list) {
+    void addToCommittedQueue(Session session, RowAction[] list) {
 
         synchronized (committedTransactionSCNs) {
 
@@ -608,7 +605,7 @@ implements TransactionManager {
 
         while (true) {
             long     commitTimestamp;
-            Object[] actions;
+            RowAction[] actions;
 
             synchronized (committedTransactionSCNs) {
                 if (committedTransactionSCNs.isEmpty()) {
@@ -620,7 +617,7 @@ implements TransactionManager {
                 if (commitTimestamp < timestamp) {
                     committedTransactionSCNs.removeFirst();
 
-                    actions = (Object[]) committedTransactions.removeFirst();
+                    actions = committedTransactions.removeFirst();
                 } else {
                     break;
                 }
@@ -731,7 +728,7 @@ implements TransactionManager {
     private void countDownLatches(Session session) {
 
         for (int i = 0; i < session.waitingSessions.size(); i++) {
-            Session current = (Session) session.waitingSessions.get(i);
+            Session current = session.waitingSessions.get(i);
 
             current.waitedSessions.remove(session);
             current.latch.setCount(current.waitedSessions.size());
@@ -752,7 +749,7 @@ implements TransactionManager {
         Session nextSession = null;
 
         for (int i = 0; i < session.waitingSessions.size(); i++) {
-            Session   current = (Session) session.waitingSessions.get(i);
+            Session   current = session.waitingSessions.get(i);
             Statement st      = current.sessionContext.currentStatement;
 
             if (st != null && st.isCatalogLock(txModel)) {
@@ -767,7 +764,7 @@ implements TransactionManager {
             isLockedMode        = false;
         } else {
             for (int i = 0; i < session.waitingSessions.size(); i++) {
-                Session current = (Session) session.waitingSessions.get(i);
+                Session current = session.waitingSessions.get(i);
 
                 if (current != nextSession) {
                     current.waitedSessions.add(nextSession);

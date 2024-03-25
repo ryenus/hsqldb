@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,12 +44,13 @@ import org.hsqldb.map.ValuePool;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class ParserBase {
@@ -64,7 +65,7 @@ public class ParserBase {
     protected boolean       isSchemaDefinition;
     protected boolean       isViewDefinition;
     protected boolean       isRecording;
-    protected HsqlArrayList recordedStatement;
+    protected HsqlArrayList<Token> recordedStatement;
     static final BigDecimal LONG_MAX_VALUE_INCREMENT =
         BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.valueOf(1));
 
@@ -77,7 +78,7 @@ public class ParserBase {
 
         this.scanner           = scanner;
         this.token             = scanner.token;
-        this.recordedStatement = new HsqlArrayList(256);
+        this.recordedStatement = new HsqlArrayList<>(256);
     }
 
     public Scanner getScanner() {
@@ -131,7 +132,7 @@ public class ParserBase {
             int i = recordedStatement.size() - 1;
 
             for (; i >= 0; i--) {
-                Token token = (Token) recordedStatement.get(i);
+                Token token = recordedStatement.get(i);
 
                 if (token.position < position) {
                     break;
@@ -222,7 +223,7 @@ public class ParserBase {
     Token getRecordedToken() {
 
         if (isRecording) {
-            return (Token) recordedStatement.get(recordedStatement.size() - 1);
+            return recordedStatement.get(recordedStatement.size() - 1);
         } else {
             return token.duplicate();
         }
@@ -648,7 +649,7 @@ public class ParserBase {
 
                 read();
 
-                Object date = scanner.newDate(s);
+                TimestampData date = scanner.newDate(s);
 
                 return new ExpressionValue(date, Type.SQL_DATE);
             }
@@ -681,7 +682,7 @@ public class ParserBase {
 
                 read();
 
-                Object date     = scanner.newTimestamp(s);
+                TimestampData date     = scanner.newTimestamp(s);
                 Type   dataType = scanner.dateTimeType;
 
                 return new ExpressionValue(date, dataType);
@@ -979,10 +980,10 @@ public class ParserBase {
      * read list of comma separated prop = value pairs as tokens
      * optionalEquals, requireEquals for use of '='
      */
-    OrderedHashMap readPropertyValuePairs(boolean optionalEquals,
-                                          boolean requireEquals) {
+    OrderedHashMap<String, Token> readPropertyValuePairs(boolean optionalEquals,
+                                                         boolean requireEquals) {
 
-        OrderedHashMap list = null;
+        OrderedHashMap<String, Token> list = null;
         String         prop;
         Token          value;
         int            pos;
@@ -1024,7 +1025,7 @@ public class ParserBase {
             value = token.duplicate();
 
             if (list == null) {
-                list = new OrderedHashMap();
+                list = new OrderedHashMap<>();
             }
 
             list.put(prop, value);

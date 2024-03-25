@@ -234,7 +234,7 @@ import org.hsqldb.types.HsqlDateTime.SystemTimeString;
  * is started as part of a larger framework.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class Server implements HsqlSocketRequestHandler, Notified {
@@ -394,7 +394,6 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      */
     public synchronized void signalCloseAllServerConnections() {
 
-        Iterator           it;
         ServerConnection[] array;
 
         printWithThread("signalCloseAllServerConnections() entered");
@@ -1830,10 +1829,10 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         final String  prefix       = ServerProperties.sc_key_dbname + ".";
         final int     prefixLen    = prefix.length();
         IntKeyHashMap<String> idToAliasMap = new IntKeyHashMap<>();
-        Enumeration   en           = serverProperties.propertyNames();
+        Enumeration<String> en = serverProperties.propertyNames();
 
         while (en.hasMoreElements()) {
-            String key = (String) en.nextElement();
+            String key = en.nextElement();
 
             if (!key.startsWith(prefix)) {
                 continue;
@@ -1960,7 +1959,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      */
     protected void printProperties() {
 
-        Enumeration e;
+        Enumeration<String> e;
         String      key;
         String      value;
 
@@ -1973,7 +1972,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         e = serverProperties.propertyNames();
 
         while (e.hasMoreElements()) {
-            key   = (String) e.nextElement();
+            key   = e.nextElement();
             value = serverProperties.getProperty(key);
 
             printWithThread(key + "=" + value);

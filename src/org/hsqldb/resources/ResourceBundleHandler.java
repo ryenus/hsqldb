@@ -64,10 +64,10 @@ public final class ResourceBundleHandler {
     private static Locale locale = Locale.getDefault();
 
     /** Map:  Integer object handle maps to: {@code ResourceBundle} object. */
-    private static HashMap bundleHandleMap = new HashMap();
+    private static HashMap<String, Integer> bundleHandleMap = new HashMap<>();
 
     /** List whose elements are {@code ResourceBundle} objects */
-    private static HsqlArrayList bundleList = new HsqlArrayList();
+    private static HsqlArrayList<ResourceBundle> bundleList = new HsqlArrayList<>();
 
     /**
      * The resource path prefix of the {@code ResourceBundle} objects
@@ -133,7 +133,7 @@ public final class ResourceBundleHandler {
 
         synchronized (mutex) {
             bundleKey    = locale.toString() + bundleName;
-            bundleHandle = (Integer) bundleHandleMap.get(bundleKey);
+            bundleHandle = bundleHandleMap.get(bundleKey);
 
             if (bundleHandle == null) {
                 bundle = getBundle(bundleName, locale, cl);
@@ -170,7 +170,7 @@ public final class ResourceBundleHandler {
             if (handle < 0 || handle >= bundleList.size() || key == null) {
                 bundle = null;
             } else {
-                bundle = (ResourceBundle) bundleList.get(handle);
+                bundle = bundleList.get(handle);
             }
         }
 
@@ -193,7 +193,7 @@ public final class ResourceBundleHandler {
      */
     private static Method getNewGetBundleMethod() {
 
-        Class   clazz;
+        Class<ResourceBundle> clazz;
         Class[] args;
 
         clazz = ResourceBundle.class;

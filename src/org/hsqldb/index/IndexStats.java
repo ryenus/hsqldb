@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class IndexStats {
     public long            loopCount;
     public long            goodRowCount;
     public boolean         reindexed;    // set after a reindex
-    HsqlArrayList          unorderedList = new HsqlArrayList();
+    HsqlArrayList<String>  unorderedList = new HsqlArrayList<>();
 
     public static Result newEmptyResult() {
 
@@ -124,7 +124,7 @@ public class IndexStats {
 
         for (int i = 0; i < unorderedList.size(); i++) {
             Object[] data = new Object[] {
-                "", "", (Object) unorderedList.get(i)
+                "", "", unorderedList.get(i)
             };
 
             result.navigator.add(data);

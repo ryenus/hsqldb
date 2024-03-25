@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.HsqlException;
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Table;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
@@ -42,13 +43,13 @@ import org.hsqldb.lib.Iterator;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.7.3
  * @since 1.7.0
  */
 public class TextTableStorageManager {
 
     //
-    private HashMap textCacheList = new HashMap();
+    private HashMap<HsqlName, TextCache> textCacheList = new HashMap<>();
 
     TextTableStorageManager() {}
 
@@ -73,7 +74,7 @@ public class TextTableStorageManager {
      */
     public void closeTextCache(Table table) {
 
-        TextCache c = (TextCache) textCacheList.remove(table.getName());
+        TextCache c = textCacheList.remove(table.getName());
 
         if (c != null) {
             try {
@@ -84,10 +85,10 @@ public class TextTableStorageManager {
 
     public void closeAllTextCaches(boolean delete) {
 
-        Iterator it = textCacheList.values().iterator();
+        Iterator<TextCache> it = textCacheList.values().iterator();
 
         while (it.hasNext()) {
-            TextCache textCache = ((TextCache) it.next());
+            TextCache textCache = it.next();
 
             // use textCache.table to cover both cache and table readonly
             if (delete && !textCache.table.isDataReadOnly()) {
@@ -100,10 +101,10 @@ public class TextTableStorageManager {
 
     public boolean isAnyTextCacheModified() {
 
-        Iterator it = textCacheList.values().iterator();
+        Iterator<TextCache> it = textCacheList.values().iterator();
 
         while (it.hasNext()) {
-            if (((TextCache) it.next()).isModified()) {
+            if (it.next().isModified()) {
                 return true;
             }
         }

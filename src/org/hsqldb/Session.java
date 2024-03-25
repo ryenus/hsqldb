@@ -108,12 +108,12 @@ public class Session implements SessionInterface {
     volatile boolean        abortAction;
     volatile boolean        abortTransaction;
     volatile boolean        redoAction;
-    HsqlArrayList           rowActionList;
+    HsqlArrayList<RowAction> rowActionList;
     volatile boolean        tempUnlocked;
-    public OrderedHashSet   waitedSessions;
-    public OrderedHashSet   waitingSessions;
-    OrderedHashSet          tempSet;
-    OrderedHashSet          actionSet;
+    public OrderedHashSet<Session> waitedSessions;
+    public OrderedHashSet<Session> waitingSessions;
+    OrderedHashSet<Session> tempSet;
+    OrderedHashSet<RowActionBase> actionSet;
     public CountUpDownLatch latch = new CountUpDownLatch();
     TimeoutManager          timeoutManager;
 
@@ -174,11 +174,11 @@ public class Session implements SessionInterface {
         this.timeZone         = zone;
         this.currentTimeZone  = zone;
         this.zoneString       = zone.getID();
-        rowActionList         = new HsqlArrayList(new RowAction[128], 0, true);
-        waitedSessions        = new OrderedHashSet();
-        waitingSessions       = new OrderedHashSet();
-        tempSet               = new OrderedHashSet();
-        actionSet             = new OrderedHashSet();
+        rowActionList         = new HsqlArrayList<>(new RowAction[128], 0, true);
+        waitedSessions        = new OrderedHashSet<>();
+        waitingSessions       = new OrderedHashSet<>();
+        tempSet               = new OrderedHashSet<>();
+        actionSet             = new OrderedHashSet<>();
         isolationLevelDefault = database.defaultIsolationLevel;
         ignoreCase            = database.sqlIgnoreCase;
         isolationLevel        = isolationLevelDefault;
@@ -474,7 +474,7 @@ public class Session implements SessionInterface {
         }
     }
 
-    public HsqlArrayList getRowActionList() {
+    public HsqlArrayList<RowAction> getRowActionList() {
         return rowActionList;
     }
 
@@ -1211,7 +1211,7 @@ public class Session implements SessionInterface {
     public Result executeDirectStatement(Result cmd) {
 
         String        sql = cmd.getMainString();
-        HsqlArrayList list;
+        HsqlArrayList<Statement> list;
         int           maxRows = cmd.getUpdateCount();
 
         if (maxRows == -1) {
@@ -1234,7 +1234,7 @@ public class Session implements SessionInterface {
         HsqlName originalSchema = getCurrentSchemaHsqlName();
 
         for (int i = 0; i < list.size(); i++) {
-            Statement cs = (Statement) list.get(i);
+            Statement cs = list.get(i);
 
             if (isClosed) {
                 result = Result.newErrorResult(Error.error(ErrorCode.X_08503));
@@ -2150,12 +2150,12 @@ public class Session implements SessionInterface {
     }
 
     // warnings
-    HsqlDeque sqlWarnings;
+    HsqlDeque<HsqlException> sqlWarnings;
 
     public void addWarning(HsqlException warning) {
 
         if (sqlWarnings == null) {
-            sqlWarnings = new HsqlDeque();
+            sqlWarnings = new HsqlDeque<>();
         }
 
         if (sqlWarnings.size() > 9) {
@@ -2191,7 +2191,7 @@ public class Session implements SessionInterface {
             return null;
         }
 
-        return (HsqlException) sqlWarnings.getLast();
+        return sqlWarnings.getLast();
     }
 
     public void clearWarnings() {
@@ -2261,16 +2261,16 @@ public class Session implements SessionInterface {
     // logging and SEQUENCE current values
     void logSequences() {
 
-        HashMap map = sessionData.sequenceUpdateMap;
+        HashMap<NumberSequence, Number> map = sessionData.sequenceUpdateMap;
 
         if (map == null || map.isEmpty()) {
             return;
         }
 
-        Iterator it = map.keySet().iterator();
+        Iterator<NumberSequence> it = map.keySet().iterator();
 
         for (int i = 0, size = map.size(); i < size; i++) {
-            NumberSequence sequence = (NumberSequence) it.next();
+            NumberSequence sequence = it.next();
 
             database.logger.writeSequenceStatement(this, sequence);
         }

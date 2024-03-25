@@ -66,7 +66,7 @@ import org.hsqldb.types.Types;
  */
 public class SetFunctionValueAggregate implements SetFunction {
 
-    private HashSet       distinctValues;
+    private HashSet<Object>       distinctValues;
     private final boolean isDistinct;
 
     //
@@ -109,10 +109,10 @@ public class SetFunctionValueAggregate implements SetFunction {
 
                 comparator.setType(type, null);
 
-                distinctValues = new HashSet(32, comparator);
+                distinctValues = new HashSet<>(32, comparator);
             } else {
                 comparator     = null;
-                distinctValues = new HashSet(32);
+                distinctValues = new HashSet<>(32);
             }
         } else {
             comparator = null;
@@ -321,8 +321,8 @@ public class SetFunctionValueAggregate implements SetFunction {
         SetFunctionValueAggregate item = (SetFunctionValueAggregate) group;
 
         if (isDistinct) {
-            HashSet  otherSet = item.distinctValues;
-            Iterator it       = otherSet.iterator();
+            HashSet<Object>  otherSet = item.distinctValues;
+            Iterator<Object> it       = otherSet.iterator();
 
             while (it.hasNext()) {
                 Object value = it.next();

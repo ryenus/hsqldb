@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public class RowAVLDiskData extends RowAVL {
     public RowAVLDiskData(RowStoreAVLDiskData store, TableBase t,
                           RowInputInterface in) {
 
-        super(t, (Object[]) null);
+        super(t, null);
 
         setNewNodes(store);
 

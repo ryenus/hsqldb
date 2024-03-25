@@ -58,7 +58,7 @@ public class View extends TableDerived {
     /**
      * Names of SCHEMA objects referenced in VIEW
      */
-    private OrderedHashSet schemaObjectNames;
+    private OrderedHashSet<HsqlName> schemaObjectNames;
 
     /**
      * check option

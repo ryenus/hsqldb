@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,12 +57,12 @@ implements RowSetNavigatorDataChange {
         new RowSetNavigatorDataChangeMemory(null);
     int                   size;
     int                   currentPos = -1;
-    OrderedLongKeyHashMap list;
+    OrderedLongKeyHashMap<Row> list;
     Session               session;
 
     public RowSetNavigatorDataChangeMemory(Session session) {
         this.session = session;
-        list         = new OrderedLongKeyHashMap(64, true);
+        list         = new OrderedLongKeyHashMap<>(64, true);
     }
 
     public void release() {
@@ -102,7 +102,7 @@ implements RowSetNavigatorDataChange {
     }
 
     public Row getCurrentRow() {
-        return (Row) list.getValueAt(currentPos);
+        return list.getValueAt(currentPos);
     }
 
     public Object[] getCurrentChangedData() {
@@ -175,7 +175,7 @@ implements RowSetNavigatorDataChange {
 
             return data;
         } else {
-            Object[] rowData = ((Row) list.getValueAt(lookup)).getData();
+            Object[] rowData = list.getValueAt(lookup).getData();
             Object[] currentData =
                 (Object[]) list.getSecondValueAt(lookup);
 
@@ -237,7 +237,7 @@ implements RowSetNavigatorDataChange {
 
         outerloop:
         for (int i = 0; i < size; i++) {
-            Row oldRow = (Row) list.getValueAt(i);
+            Row oldRow = list.getValueAt(i);
 
             if (oldRow.getTable() != row.getTable()) {
                 continue;

@@ -142,7 +142,7 @@ import org.hsqldb.types.Types;
  * (fredt@users) <p>
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 class DatabaseInformationMain extends DatabaseInformation {
@@ -161,7 +161,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         new boolean[sysTableNames.length];
 
     /** Set: { names of system tables that are not to be cached } */
-    protected static final HashSet nonCachedTablesSet;
+    protected static final HashSet<String> nonCachedTablesSet;
 
     /** The table types HSQLDB supports. */
     protected static final String[] tableTypes = new String[] {
@@ -171,7 +171,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     /* Provides naming support. */
     static {
         synchronized (DatabaseInformationMain.class) {
-            nonCachedTablesSet = new HashSet();
+            nonCachedTablesSet = new HashSet<>();
             sysTableHsqlNames  = new HsqlName[sysTableNames.length];
 
             for (int i = 0; i < sysTableNames.length; i++) {
@@ -246,11 +246,15 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return an enumeration over all the tables in this database
      */
-    protected final Iterator allTables() {
+    protected final Iterator<Table> allTables() {
 
-        return new WrapperIterator(
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE),
-            new WrapperIterator(sysTables, true));
+        return new WrapperIterator<Table>(
+            database.schemaManager.databaseTableIterator(),
+            new WrapperIterator<Table>(sysTables, true));
+    }
+
+    protected final Iterator<Table> allUserTables() {
+        return database.schemaManager.databaseTableIterator();
     }
 
     /**
@@ -675,7 +679,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         //-------------------------------------------
         // Intermediate holders
-        Iterator       tables;
+        Iterator<Table>       tables;
         Table          table;
         DITableInfo    ti;
         int[]          cols;
@@ -699,14 +703,13 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         // Initialization
         ti = new DITableInfo();
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         boolean translateTTI = database.sqlTranslateTTI;
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             /* @todo - requires access to the actual columns */
             if (table.isView() || !isAccessible(session, table)) {
@@ -867,7 +870,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         // intermediate holders
         int         columnCount;
-        Iterator    tables;
+        Iterator<Table>    tables;
         Table       table;
         Object[]    row;
         DITableInfo ti;
@@ -910,10 +913,10 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             /* requires access to the actual columns */
-            OrderedHashSet colNameSet =
+            OrderedHashSet<HsqlName> colNameSet =
                 session.getGrantee().getColumnsForAllPrivileges(table);
 
             if (!isAccessible(session, table)) {
@@ -1105,7 +1108,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         Integer deferrability;
 
         // Intermediate holders
-        Iterator      tables;
+        Iterator<Table>      tables;
         Table         table;
         Table         fkTable;
         Table         pkTable;
@@ -1115,7 +1118,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         Constraint[]  constraints;
         Constraint    constraint;
         int           constraintCount;
-        HsqlArrayList fkConstraintsList;
+        HsqlArrayList<Constraint> fkConstraintsList;
         Object[]      row;
 
         // column number mappings
@@ -1134,8 +1137,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int ipk_name        = 12;
         final int ideferrability  = 13;
 
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         // We must consider all the constraints in all the user tables, since
         // this is where reference relationships are recorded.  However, we
@@ -1145,10 +1147,10 @@ class DatabaseInformationMain extends DatabaseInformation {
         // referencing table.  Also, we skip constraints where either
         // the referenced, referencing or both tables are not accessible
         // relative to the session of the calling context
-        fkConstraintsList = new HsqlArrayList();
+        fkConstraintsList = new HsqlArrayList<>();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView() || !isAccessible(session, table)) {
                 continue;
@@ -1174,7 +1176,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         // imported/exported column pair of each constraint.
         // Do it.
         for (int i = 0; i < fkConstraintsList.size(); i++) {
-            constraint     = (Constraint) fkConstraintsList.get(i);
+            constraint     = fkConstraintsList.get(i);
             pkTable        = constraint.getMain();
             pkTableName    = pkTable.getName().name;
             fkTable        = constraint.getRef();
@@ -1310,7 +1312,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         Integer rowCardinality;
 
         // Intermediate holders
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         int      indexCount;
         int[]    cols;
@@ -1335,12 +1337,11 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int irow_cardinality  = 13;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView() || !isAccessible(session, table)) {
                 continue;
@@ -1471,7 +1472,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         String primaryKeyName;
 
         // Intermediate holders
-        Iterator   tables;
+        Iterator<Table>   tables;
         Table      table;
         Object[]   row;
         Constraint constraint;
@@ -1487,11 +1488,10 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int ipk_name     = 5;
 
         // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView() || !isAccessible(session, table)
                     || !table.hasPrimaryKey()) {
@@ -1669,7 +1669,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         // intermediate holders
         int           columnCount;
-        Iterator      routines;
+        Iterator<SchemaObject>      routines;
         RoutineSchema routineSchema;
         Routine       routine;
         Object[]      row;
@@ -1856,7 +1856,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int function_type     = 9;
 
         //
-        Iterator it = database.schemaManager.databaseObjectIterator(
+        Iterator<SchemaObject> it = database.schemaManager.databaseObjectIterator(
             SchemaObject.SPECIFIC_ROUTINE);
 
         while (it.hasNext()) {
@@ -1927,10 +1927,10 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int imax_len       = 1;
         final int idefault_value = 2;
         final int idescription   = 3;
-        Iterator  it = HsqlDatabaseProperties.getUrlUserConnectionProperties();
+        Iterator<PropertyMeta> it = HsqlDatabaseProperties.getUrlUserConnectionProperties();
 
         while (it.hasNext()) {
-            PropertyMeta meta     = (PropertyMeta) it.next();
+            PropertyMeta meta     = it.next();
             int          propType = meta.propType;
 
             row = t.getEmptyRowData();
@@ -1975,7 +1975,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *      (["BUILTIN" | "USER DEFINED"] "ROUTINE" | "TRIGGER") | "ALIAS", etc.
      *
      */
-    protected void addProcRows(Session session, Table t, HsqlArrayList l,
+    protected void addProcRows(Session session, Table t, HsqlArrayList<String> l,
                                String cat, String schem, String pName,
                                Integer ip, Integer op, Integer rs,
                                String remark, Integer pType,
@@ -2014,7 +2014,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             for (int i = 0; i < size; i++) {
                 row                = t.getEmptyRowData();
-                pName              = (String) l.get(i);
+                pName              = l.get(i);
                 row[icat]          = cat;
                 row[ischem]        = schem;
                 row[ipname]        = pName;
@@ -2062,7 +2062,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @param specificName the specific name of the procedure (typically but
      *   not limited to a fully qualified Java Method name and signature)
      */
-    protected void addPColRows(Session session, Table t, HsqlArrayList l,
+    protected void addPColRows(Session session, Table t, HsqlArrayList<String> l,
                                String cat, String schem, String pName,
                                String cName, Integer cType, Integer dType,
                                String tName, Integer prec, Integer len,
@@ -2134,7 +2134,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             for (int i = 0; i < size; i++) {
                 row             = t.getEmptyRowData();
-                pName           = (String) l.get(i);
+                pName           = l.get(i);
                 row[icat]       = cat;
                 row[ischem]     = schem;
                 row[iname]      = pName;
@@ -2307,7 +2307,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         }
 
         // intermediate holders
-        Iterator    tables;
+        Iterator<Table>    tables;
         Table       table;
         Object[]    row;
         HsqlName    accessKey;
@@ -2339,7 +2339,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (!isAccessible(session, table)) {
                 continue;
@@ -2549,11 +2549,11 @@ class DatabaseInformationMain extends DatabaseInformation {
         //------------------------------------------
         final int iinterval_precision = 18;
         Object[]  row;
-        Iterator  it           = Type.typeNames.keySet().iterator();
+        Iterator<String> it           = Type.typeNames.keySet().iterator();
         boolean   translateTTI = database.sqlTranslateTTI;
 
         while (it.hasNext()) {
-            String typeName = (String) it.next();
+            String typeName = it.next();
             int    typeCode = Type.typeNames.get(typeName);
             Type   type     = Type.getDefaultType(typeCode);
 
@@ -2786,7 +2786,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int data_type    = 4;
         final int remarks      = 5;
         final int base_type    = 6;
-        Iterator it =
+        Iterator<SchemaObject> it =
             database.schemaManager.databaseObjectIterator(SchemaObject.TYPE);
 
         while (it.hasNext()) {
@@ -2908,15 +2908,14 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int table_name     = 10;
 
         //
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         Object[] row;
 
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        tables = allUserTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (table.isView()
                     || !session.getGrantee().isFullyAccessibleByRole(
@@ -2991,7 +2990,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         }
 
         // Intermediate holders
-        HsqlArrayList users;
+        HsqlArrayList<User> users;
         User          user;
         Object[]      row;
         HsqlName      initialSchema;
@@ -3002,7 +3001,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         // Do it.
         for (int i = 0; i < users.size(); i++) {
             row           = t.getEmptyRowData();
-            user          = (User) users.get(i);
+            user          = users.get(i);
             initialSchema = user.getInitialSchema();
             row[0]        = user.getName().getNameString();
             row[1]        = user.isAdmin() ? Boolean.TRUE
@@ -3087,7 +3086,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
 // intermediate holders
         User     user;
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         Object[] row;
 
@@ -3102,24 +3101,24 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int is_grantable   = 7;
 
         // enumerations
-        OrderedHashSet grantees =
+        OrderedHashSet<Grantee> grantees =
             session.getGrantee().getGranteeAndAllRolesWithPublic();
 
 // Initialization
         tables = allTables();
 
         while (tables.hasNext()) {
-            table        = (Table) tables.next();
+            table        = tables.next();
             tableName    = table.getName().name;
             tableCatalog = database.getCatalogName().name;
             tableSchema  = table.getSchemaName().name;
 
             for (int i = 0; i < grantees.size(); i++) {
-                granteeObject = (Grantee) grantees.get(i);
+                granteeObject = grantees.get(i);
 
-                OrderedHashSet rights =
+                OrderedHashSet<Right> rights =
                     granteeObject.getAllDirectPrivileges(table);
-                OrderedHashSet grants =
+                OrderedHashSet<Right> grants =
                     granteeObject.getAllGrantedPrivileges(table);
 
                 if (!grants.isEmpty()) {
@@ -3129,20 +3128,20 @@ class DatabaseInformationMain extends DatabaseInformation {
                 }
 
                 for (int j = 0; j < rights.size(); j++) {
-                    Right right          = (Right) rights.get(j);
+                    Right right          = rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
                     for (int k = 0; k < Right.tablePrivilegeTypes.length;
                             k++) {
-                        OrderedHashSet columnList =
+                        OrderedHashSet<HsqlName> columnList =
                             right.getColumnsForPrivilege(
                                 table, Right.tablePrivilegeTypes[k]);
-                        OrderedHashSet grantableList =
+                        OrderedHashSet<HsqlName> grantableList =
                             grantableRight.getColumnsForPrivilege(table,
                                 Right.tablePrivilegeTypes[k]);
 
                         for (int l = 0; l < columnList.size(); l++) {
-                            HsqlName fullName = ((HsqlName) columnList.get(l));
+                            HsqlName fullName = columnList.get(l);
 
                             row                 = t.getEmptyRowData();
                             row[grantor] = right.getGrantor().getName().name;
@@ -3293,7 +3292,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int next_value                 = 16;
 
         //
-        Iterator       it;
+        Iterator<SchemaObject>       it;
         Object[]       row;
         NumberSequence sequence;
 
@@ -3398,7 +3397,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int next_value                 = 15;
 
         //
-        Iterator       it;
+        Iterator<SchemaObject>       it;
         Object[]       row;
         NumberSequence sequence;
 
@@ -3509,7 +3508,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         String  privilege;
 
         // intermediate holders
-        Iterator tables;
+        Iterator<Table> tables;
         Table    table;
         Object[] row;
 
@@ -3522,23 +3521,23 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int privilege_type = 5;
         final int is_grantable   = 6;
         final int with_hierarchy = 7;
-        OrderedHashSet grantees =
+        OrderedHashSet<Grantee> grantees =
             session.getGrantee().getGranteeAndAllRolesWithPublic();
 
         tables = allTables();
 
         while (tables.hasNext()) {
-            table        = (Table) tables.next();
+            table        = tables.next();
             tableName    = table.getName().name;
             tableCatalog = table.getCatalogName().name;
             tableSchema  = table.getSchemaName().name;
 
             for (int i = 0; i < grantees.size(); i++) {
-                granteeObject = (Grantee) grantees.get(i);
+                granteeObject = grantees.get(i);
 
-                OrderedHashSet rights =
+                OrderedHashSet<Right> rights =
                     granteeObject.getAllDirectPrivileges(table);
-                OrderedHashSet grants =
+                OrderedHashSet<Right> grants =
                     granteeObject.getAllGrantedPrivileges(table);
 
                 if (!grants.isEmpty()) {
@@ -3548,7 +3547,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 }
 
                 for (int j = 0; j < rights.size(); j++) {
-                    Right right          = (Right) rights.get(j);
+                    Right right          = rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
                     for (int k = 0; k < Right.tablePrivilegeTypes.length;
@@ -3615,7 +3614,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         }
 
         // intermediate holders
-        Iterator  tables;
+        Iterator<Table>  tables;
         Table     table;
         Object[]  row;
         final int table_catalog                = 0;
@@ -3636,7 +3635,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         // Do it.
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table = tables.next();
 
             if (!isAccessible(session, table)) {
                 continue;

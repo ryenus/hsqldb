@@ -460,7 +460,7 @@ public class RowAction extends RowActionBase {
      * when READ COMMITTED, false result always means repeat action and adds
      * to set parameter the sessions to wait on (may be no wait)
      */
-    synchronized boolean complete(Session session, OrderedHashSet set) {
+    synchronized boolean complete(Session session, OrderedHashSet<Session> set) {
 
         RowActionBase action;
         boolean readCommitted = session.isolationLevel

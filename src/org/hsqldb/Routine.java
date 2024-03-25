@@ -668,7 +668,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
             if (name.type == SchemaObject.SPECIFIC_ROUTINE) {
                 Routine routine =
-                    (Routine) session.database.schemaManager.getSchemaObject(
+                    (Routine) session.database.schemaManager.findSchemaObject(
                         name);
 
                 if (routine.dataImpact == Routine.READS_SQL) {
@@ -863,7 +863,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                 data[i + extraArg] = types[i].convertSQLToJava(session, value);
             } else {
                 Object jdbcValue = types[i].convertSQLToJava(session, value);
-                Class  cl        = types[i].getJDBCClass();
+                Class<?>  cl        = types[i].getJDBCClass();
                 Object array     = java.lang.reflect.Array.newInstance(cl, 1);
 
                 java.lang.reflect.Array.set(array, 0, jdbcValue);
@@ -1077,7 +1077,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             hasConnection[0] = false;
 
             Method  method = methods[i];
-            Class[] params = method.getParameterTypes();
+            Class<?>[] params = method.getParameterTypes();
             int     matchedParamCount;
 
             if (params.length > 0
@@ -1141,7 +1141,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
             for (int j = 0; j < routine.parameterTypes.length; j++) {
                 boolean isInOut = false;
-                Class   param   = params[j + offset];
+                Class<?>   param   = params[j + offset];
 
                 if (param.isArray()) {
                     if (!byte[].class.equals(param)) {
@@ -1225,7 +1225,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
         String   className  = name.substring(0, i);
         String   methodname = name.substring(i + 1);
-        Class    cl;
+        Class<?>    cl;
         Method[] methods = null;
 
         if (!HsqlDatabaseProperties.supportsJavaMethod(name)) {
@@ -1269,7 +1269,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                 continue;
             }
 
-            Class[] params = methods[i].getParameterTypes();
+            Class<?>[] params = methods[i].getParameterTypes();
 
             if (params.length > 0
                     && params[0].equals(java.sql.Connection.class)) {
@@ -1277,7 +1277,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             }
 
             for (int j = offset; j < params.length; j++) {
-                Class param = params[j];
+                Class<?> param = params[j];
 
                 if (param.isArray()) {
                     if (!byte[].class.equals(param)) {
@@ -1365,7 +1365,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
     public static Routine newRoutine(Session session, Method method) {
 
         Routine       routine   = new Routine(SchemaObject.FUNCTION);
-        Class[]       params    = method.getParameterTypes();
+        Class<?>[]       params    = method.getParameterTypes();
         String        className = method.getDeclaringClass().getName();
         String        name;
         int           offset;

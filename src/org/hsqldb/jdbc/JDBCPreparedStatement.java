@@ -443,7 +443,7 @@ implements PreparedStatement {
      */
     public synchronized void setFloat(int parameterIndex,
                                       float x) throws SQLException {
-        setDouble(parameterIndex, (double) x);
+        setDouble(parameterIndex, x);
     }
 
     /**

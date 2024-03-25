@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.3
  * @since 2.3.0
  */
 public class DataSpaceManagerBlocks implements DataSpaceManager {
@@ -55,7 +55,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     final TableSpaceManagerBlocks directorySpaceManager;
 
     //
-    final IntKeyHashMap spaceManagerList;
+    final IntKeyHashMap<TableSpaceManager> spaceManagerList;
 
     //
     final BlockObjectStore rootStore;
@@ -105,7 +105,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         bitmapStorageSize = bitmapStoreSizeTemp;
         ba                = new BlockAccessor();
-        spaceManagerList  = new IntKeyHashMap();
+        spaceManagerList  = new IntKeyHashMap<>();
         emptySpaceList    = new IntIndex(32, false);
 
         //
@@ -521,8 +521,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         cache.writeLock.lock();
 
         try {
-            TableSpaceManager tableSpace =
-                (TableSpaceManager) spaceManagerList.get(spaceId);
+            TableSpaceManager tableSpace = spaceManagerList.get(spaceId);
 
             if (tableSpace != null) {
                 tableSpace.reset();
@@ -589,7 +588,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     private void freeTableSpacePart(long position, int units) {
 
-        for (; units > 0; ) {
+        while (units > 0) {
 
             // count can cover more than one file block
             int blockIndex   = (int) (position / fileBlockItemCount);
@@ -733,7 +732,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         cache.writeLock.lock();
 
         try {
-            Iterator it = spaceManagerList.values().iterator();
+            Iterator<TableSpaceManager> it = spaceManagerList.values().iterator();
 
             while (it.hasNext()) {
                 TableSpaceManagerBlocks tableSpace =
@@ -754,7 +753,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         cache.writeLock.lock();
 
         try {
-            Iterator it = spaceManagerList.values().iterator();
+            Iterator<TableSpaceManager> it = spaceManagerList.values().iterator();
 
             while (it.hasNext()) {
                 TableSpaceManagerBlocks tableSpace =
@@ -951,9 +950,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
             if (result) {
                 if (ba.getTableId() == spaceId) {
-                    if (ba.getFreeBlockValue() > 0) {
-                        return true;
-                    }
+                    return ba.getFreeBlockValue() > 0;
                 }
             }
 
@@ -971,7 +968,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         ba.initialise(false);
 
         try {
-            for (; ba.nextBlockForTable(spaceId); ) {
+            while (ba.nextBlockForTable(spaceId)) {
 
                 // find the largest free
                 int currentFree = ba.getFreeBlockValue();

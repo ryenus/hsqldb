@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Implementation of aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class ExpressionAggregate extends Expression {
@@ -205,11 +205,11 @@ public class ExpressionAggregate extends Expression {
         return sb.toString();
     }
 
-    public List resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            List unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(Session session,
+                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
 
-        List conditionSet = nodes[RIGHT].resolveColumnReferences(session,
+        List<Expression> conditionSet = nodes[RIGHT].resolveColumnReferences(session,
             rangeGroup, rangeCount, rangeGroups, null, false);
 
         if (conditionSet != null) {
@@ -217,7 +217,7 @@ public class ExpressionAggregate extends Expression {
         }
 
         if (unresolvedSet == null) {
-            unresolvedSet = new ArrayListIdentity();
+            unresolvedSet = new ArrayListIdentity<>();
         }
 
         unresolvedSet.add(this);

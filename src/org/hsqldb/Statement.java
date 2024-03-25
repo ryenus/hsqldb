@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.result.ResultProperties;
  * Base class for compiled statement objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public abstract class Statement {
@@ -90,13 +90,13 @@ public abstract class Statement {
     HsqlName[] writeTableNames = HsqlName.emptyArray;
 
     //
-    OrderedHashSet references;
+    OrderedHashSet<HsqlName> references;
 
     //
     int cursorPropertiesRequest;
 
     /**
-     * Parse-order array of Expression objects, all of type PARAMETER ,
+     * Parse-order array of Expression objects, all of type PARAMETER,
      * involved in some way in any INSERT_XXX, UPDATE, DELETE, SELECT or
      * CALL CompiledStatement
      */
@@ -150,7 +150,7 @@ public abstract class Statement {
         return sql;
     }
 
-    public OrderedHashSet getReferences() {
+    public OrderedHashSet<HsqlName> getReferences() {
         return references;
     }
 

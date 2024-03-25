@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Parser for SQL stored procedures and functions - PSM
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public class ParserRoutine extends ParserTable {
@@ -80,7 +80,7 @@ public class ParserRoutine extends ParserTable {
 
     Statement compileSelectSingleRowStatement(RangeGroup[] rangeGroups) {
 
-        OrderedHashSet     variableNames = new OrderedHashSet();
+        OrderedHashSet<Expression> variableNames = new OrderedHashSet<>();
         Type[]             targetTypes;
         LongDeque          colIndexList = new LongDeque();
         QuerySpecification select;
@@ -147,8 +147,8 @@ public class ParserRoutine extends ParserTable {
         read();
         readThis(Tokens.DIAGNOSTICS);
 
-        OrderedHashSet  targetSet    = new OrderedHashSet();
-        HsqlArrayList   exprList     = new HsqlArrayList();
+        OrderedHashSet<Expression> targetSet = new OrderedHashSet<>();
+        HsqlArrayList<Expression>  exprList  = new HsqlArrayList<>();
         LongDeque       colIndexList = new LongDeque();
         RangeVariable[] rangeVars    = rangeGroups[0].getRangeVariables();
 
@@ -159,7 +159,7 @@ public class ParserRoutine extends ParserTable {
                                    scanner.getLineNumber());
         }
 
-        Expression expression = (Expression) exprList.get(0);
+        Expression expression = exprList.get(0);
 
         if (expression.getDegree() != targetSet.size()) {
             throw Error.error(ErrorCode.X_42546, Tokens.T_SET);
@@ -207,8 +207,8 @@ public class ParserRoutine extends ParserTable {
     StatementSet compileSetStatement(RangeGroup[] rangeGroups,
                                      RangeVariable[] rangeVars) {
 
-        OrderedHashSet targetSet    = new OrderedHashSet();
-        HsqlArrayList  exprList     = new HsqlArrayList();
+        OrderedHashSet<Expression> targetSet    = new OrderedHashSet<>();
+        HsqlArrayList<Expression>  exprList     = new HsqlArrayList<>();
         LongDeque      colIndexList = new LongDeque();
 
         readSetClauseList(rangeGroups, rangeVars, targetSet, colIndexList,
@@ -219,7 +219,7 @@ public class ParserRoutine extends ParserTable {
                                    scanner.getLineNumber());
         }
 
-        Expression expression = (Expression) exprList.get(0);
+        Expression expression = exprList.get(0);
 
         if (expression.getDegree() != targetSet.size()) {
             throw Error.error(ErrorCode.X_42546, Tokens.T_SET);
@@ -271,8 +271,8 @@ public class ParserRoutine extends ParserTable {
 
         Expression[]   updateExpressions;
         int[]          columnMap;
-        OrderedHashSet targetSet = new OrderedHashSet();
-        HsqlArrayList  exprList  = new HsqlArrayList();
+        OrderedHashSet<Expression> targetSet = new OrderedHashSet<>();
+        HsqlArrayList<Expression>  exprList  = new HsqlArrayList<>();
         RangeVariable[] targetRangeVars = new RangeVariable[]{
             rangeGroups[0].getRangeVariables()[TriggerDef.NEW_ROW] };
         LongDeque colIndexList = new LongDeque();
@@ -318,7 +318,7 @@ public class ParserRoutine extends ParserTable {
         restrict = readIfThis(Tokens.RESTRICT);
 
         if (restrict) {
-            OrderedHashSet set = database.schemaManager.getReferencesTo(
+            OrderedHashSet<HsqlName> set = database.schemaManager.getReferencesTo(
                 routine.getSpecificName());
 
             if (!set.isEmpty()) {
@@ -834,7 +834,7 @@ public class ParserRoutine extends ParserTable {
     Object[] readLocalDeclarationList(Routine routine,
                                       StatementCompound context) {
 
-        HsqlArrayList list                = new HsqlArrayList();
+        HsqlArrayList<Object> list = new HsqlArrayList<>();
         final int     table               = 0;
         final int     variableOrCondition = 1;
         final int     cursor              = 2;
@@ -848,38 +848,36 @@ public class ParserRoutine extends ParserTable {
         compileContext.setOuterRanges(rangeGroups);
 
         while (token.tokenType == Tokens.DECLARE) {
-            Object var = null;
-
             if (objectType == table) {
-                var = readLocalTableVariableDeclarationOrNull(routine);
+                Table tab = readLocalTableVariableDeclarationOrNull(routine);
 
-                if (var == null) {
+                if (tab == null) {
                     objectType = variableOrCondition;
                 } else {
-                    list.add(var);
+                    list.add(tab);
                     readThis(Tokens.SEMICOLON);
                 }
             } else if (objectType == variableOrCondition) {
-                var = readLocalVariableDeclarationOrNull();
+                ColumnSchema[] vars = readLocalVariableDeclarationOrNull();
 
-                if (var == null) {
+                if (vars == null) {
                     objectType = cursor;
                 } else {
-                    list.addAll((Object[]) var);
+                    list.addAll(vars);
                 }
             } else if (objectType == cursor) {
-                var = compileDeclareCursorOrNull(rangeGroups, true);
+                Statement s = compileDeclareCursorOrNull(rangeGroups, true);
 
-                if (var == null) {
+                if (s == null) {
                     objectType = handler;
                 } else {
-                    list.add(var);
+                    list.add(s);
                     readThis(Tokens.SEMICOLON);
                 }
             } else if (objectType == handler) {
-                var = compileLocalHandlerDeclaration(routine, context);
+                StatementHandler hand = compileLocalHandlerDeclaration(routine, context);
 
-                list.add(var);
+                list.add(hand);
             }
         }
 
@@ -1743,7 +1741,7 @@ public class ParserRoutine extends ParserTable {
 
     Statement compileIf(Routine routine, StatementCompound context) {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList<Statement> list = new HsqlArrayList<>();
 
         readThis(Tokens.IF);
 
@@ -1817,7 +1815,7 @@ public class ParserRoutine extends ParserTable {
 
     Statement compileCase(Routine routine, StatementCompound context) {
 
-        HsqlArrayList list;
+        HsqlArrayList<Statement> list;
         Expression    condition = null;
         Statement     statement;
         Statement[]   statements;
@@ -1862,10 +1860,10 @@ public class ParserRoutine extends ParserTable {
         return result;
     }
 
-    HsqlArrayList readSimpleCaseWhen(Routine routine,
-                                     StatementCompound context) {
+    HsqlArrayList<Statement> readSimpleCaseWhen(Routine routine,
+                                                StatementCompound context) {
 
-        HsqlArrayList list      = new HsqlArrayList();
+        HsqlArrayList<Statement> list = new HsqlArrayList<>();
         Expression    condition = null;
         Statement     statement;
         Statement[]   statements;
@@ -1920,9 +1918,9 @@ public class ParserRoutine extends ParserTable {
         return list;
     }
 
-    HsqlArrayList readCaseWhen(Routine routine, StatementCompound context) {
+    HsqlArrayList<Statement> readCaseWhen(Routine routine, StatementCompound context) {
 
-        HsqlArrayList list      = new HsqlArrayList();
+        HsqlArrayList<Statement> list = new HsqlArrayList<>();
         Expression    condition = null;
         Statement     statement;
         Statement[]   statements;
@@ -2100,7 +2098,7 @@ public class ParserRoutine extends ParserTable {
         TriggerDef     td;
         HsqlName       name;
         HsqlName       otherName           = null;
-        OrderedHashSet columns             = null;
+        OrderedHashSet<String> columns     = null;
         int[]          updateColumnIndexes = null;
 
         read();
@@ -2147,7 +2145,7 @@ public class ParserRoutine extends ParserTable {
                         && beforeOrAfterType != TriggerDef.INSTEAD) {
                     read();
 
-                    columns = new OrderedHashSet();
+                    columns = new OrderedHashSet<>();
 
                     readColumnNameList(columns, null, false);
                 }
@@ -2196,8 +2194,7 @@ public class ParserRoutine extends ParserTable {
 
             for (int i = 0; i < updateColumnIndexes.length; i++) {
                 if (updateColumnIndexes[i] == -1) {
-                    throw Error.error(ErrorCode.X_42544,
-                                      (String) columns.get(i));
+                    throw Error.error(ErrorCode.X_42544, columns.get(i));
                 }
             }
         }
@@ -2435,7 +2432,7 @@ public class ParserRoutine extends ParserTable {
 
             readThis(Tokens.CLOSEBRACKET);
 
-            List unresolved = condition.resolveColumnReferences(session,
+            List<Expression> unresolved = condition.resolveColumnReferences(session,
                 rangeGroups[0], rangeGroups, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);

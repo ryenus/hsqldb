@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -125,10 +125,10 @@ public interface ExpressionJSON {
 
     class ExpressionJSONArrayFromValues extends Expression {
 
-        final HsqlArrayList exprList;
+        final HsqlArrayList<Expression> exprList;
         final boolean       nullOnNull;
 
-        public ExpressionJSONArrayFromValues(HsqlArrayList expressionList,
+        public ExpressionJSONArrayFromValues(HsqlArrayList<Expression> expressionList,
                                              boolean nullOnNull,
                                              Type dataType) {
 
@@ -244,11 +244,11 @@ public interface ExpressionJSON {
 
     class ExpressionJSONObject extends Expression {
 
-        final OrderedHashMap exprMap;
+        final OrderedHashMap<Expression, Expression> exprMap;
         final boolean        nullOnNull;
         final boolean        uniqueKeys;
 
-        public ExpressionJSONObject(OrderedHashMap exprMap,
+        public ExpressionJSONObject(OrderedHashMap<Expression, Expression> exprMap,
                                     boolean nullOnNull, boolean uniqueKeys,
                                     Type dataType) {
 
@@ -262,8 +262,8 @@ public interface ExpressionJSON {
             nodes           = new Expression[exprMap.size() * 2];
 
             for (int i = 0; i < exprMap.size(); i++) {
-                nodes[i * 2]     = (Expression) exprMap.getKeyAt(i);
-                nodes[i * 2 + 1] = (Expression) exprMap.get(i);
+                nodes[i * 2]     = exprMap.getKeyAt(i);
+                nodes[i * 2 + 1] = exprMap.get(i);
             }
         }
 
@@ -280,7 +280,7 @@ public interface ExpressionJSON {
 
             StringBuilder  sb     = new StringBuilder();
             int            count  = 0;
-            OrderedHashSet keySet = new OrderedHashSet();
+            OrderedHashSet<String> keySet = new OrderedHashSet<>();
 
             sb.append('{');
 
@@ -386,7 +386,7 @@ public interface ExpressionJSON {
             Object[]       values = (Object[]) nodes[RIGHT].getValue(session);
             Type nameType         = nodes[LEFT].dataType.collectionBaseType();
             Type valueType        = nodes[RIGHT].dataType.collectionBaseType();
-            OrderedHashSet keySet = new OrderedHashSet();
+            OrderedHashSet<String> keySet = new OrderedHashSet<>();
 
             sb.append('{');
 
@@ -427,7 +427,7 @@ public interface ExpressionJSON {
                 sb.append(':');
 
                 if (isValueJSON) {
-                    sb.append((String) value);
+                    sb.append(value);
                 } else {
                     valueType.convertToJSON(value, sb);
                 }

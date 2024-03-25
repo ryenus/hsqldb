@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -230,6 +230,8 @@ public class TestLibSpeed {
             System.out.println("DoubleIntTable Lookup " + sw.elapsedTime());
             sw.zero();
             System.out.println("Object Cache Test " + sw.elapsedTime());
+
+            java.util.ArrayList list;
         }
     }
 
