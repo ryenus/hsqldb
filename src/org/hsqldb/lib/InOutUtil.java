@@ -62,8 +62,10 @@ public final class InOutUtil {
      * @throws IOException on failure
      * @return int
      */
-    public static int readLine(InputStream in,
-                               OutputStream out) throws IOException {
+    public static int readLine(
+            InputStream in,
+            OutputStream out)
+            throws IOException {
 
         int count = 0;
 
@@ -113,8 +115,10 @@ public final class InOutUtil {
      * @throws IOException on failure
      * @throws ClassNotFoundException if not found
      */
-    public static Serializable deserialize(byte[] ba)
-    throws IOException, ClassNotFoundException {
+    public static Serializable deserialize(
+            byte[] ba)
+            throws IOException,
+                   ClassNotFoundException {
 
         HsqlByteArrayInputStream bi = new HsqlByteArrayInputStream(ba);
         ObjectInputStream        is = new ObjectInputStream(bi);
@@ -133,10 +137,14 @@ public final class InOutUtil {
      * @throws IOException on failure
      * @return long
      */
-    public static long copy(final InputStream inputStream,
-                            final OutputStream outputStream)
-                            throws IOException {
-        return copy(inputStream, outputStream, DEFAULT_COPY_AMOUNT,
+    public static long copy(
+            final InputStream inputStream,
+            final OutputStream outputStream)
+            throws IOException {
+
+        return copy(inputStream,
+                    outputStream,
+                    DEFAULT_COPY_AMOUNT,
                     DEFAULT_COPY_BUFFER_SIZE);
     }
 
@@ -149,10 +157,15 @@ public final class InOutUtil {
      * @throws IOException on failure
      * @return long
      */
-    public static long copy(final InputStream inputStream,
-                            final OutputStream outputStream,
-                            final long amount) throws IOException {
-        return copy(inputStream, outputStream, amount,
+    public static long copy(
+            final InputStream inputStream,
+            final OutputStream outputStream,
+            final long amount)
+            throws IOException {
+
+        return copy(inputStream,
+                    outputStream,
+                    amount,
                     DEFAULT_COPY_BUFFER_SIZE);
     }
 
@@ -167,10 +180,12 @@ public final class InOutUtil {
      * @return the number of bytes <i>actually</i> transferred.
      * @throws IOException if any, thrown by either of the given stream objects
      */
-    public static long copy(final InputStream inputStream,
-                            final OutputStream outputStream,
-                            final long amount,
-                            final int bufferSize) throws IOException {
+    public static long copy(
+            final InputStream inputStream,
+            final OutputStream outputStream,
+            final long amount,
+            final int bufferSize)
+            throws IOException {
 
         //
         int maxBytesToRead = (int) Math.min(bufferSize, amount);
@@ -183,8 +198,9 @@ public final class InOutUtil {
         int  bytesRead;
 
         while ((bytesCopied < amount)
-                && -1 != (bytesRead = inputStream.read(buffer, 0,
-                    maxBytesToRead))) {
+                && -1 != (bytesRead = inputStream.read(buffer,
+                        0,
+                        maxBytesToRead))) {
 
             //
             outputStream.write(buffer, 0, bytesRead);
@@ -216,9 +232,14 @@ public final class InOutUtil {
      * @throws IOException on failure
      * @return long
      */
-    public static long copy(final Reader reader,
-                            final Writer writer) throws IOException {
-        return copy(reader, writer, DEFAULT_COPY_AMOUNT,
+    public static long copy(
+            final Reader reader,
+            final Writer writer)
+            throws IOException {
+
+        return copy(reader,
+                    writer,
+                    DEFAULT_COPY_AMOUNT,
                     DEFAULT_COPY_BUFFER_SIZE);
     }
 
@@ -231,8 +252,11 @@ public final class InOutUtil {
      * @throws IOException on failure
      * @return long
      */
-    public static long copy(final Reader reader, final Writer writer,
-                            final long amount) throws IOException {
+    public static long copy(
+            final Reader reader,
+            final Writer writer,
+            final long amount)
+            throws IOException {
         return copy(reader, writer, amount, DEFAULT_COPY_BUFFER_SIZE);
     }
 
@@ -247,9 +271,12 @@ public final class InOutUtil {
      * @return the number of characters <i>actually</i> transferred.
      * @throws IOException if any, thrown by either of the given stream objects
      */
-    public static long copy(final Reader reader, final Writer writer,
-                            final long amount,
-                            final int bufferSize) throws IOException {
+    public static long copy(
+            final Reader reader,
+            final Writer writer,
+            final long amount,
+            final int bufferSize)
+            throws IOException {
 
         //
         int maxCharsToRead = (int) Math.min(bufferSize, amount);
@@ -262,8 +289,7 @@ public final class InOutUtil {
         int  charsRead;
 
         while ((charsCopied < amount)
-                && -1 != (charsRead = reader.read(buffer, 0,
-                    maxCharsToRead))) {
+                && -1 != (charsRead = reader.read(buffer, 0, maxCharsToRead))) {
 
             //
             writer.write(buffer, 0, charsRead);

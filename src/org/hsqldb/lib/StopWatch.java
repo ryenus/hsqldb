@@ -55,13 +55,11 @@ public class StopWatch {
      */
     private long startTime;
     private long lastStart;
-
     /**
      * The accumulated running time of this object since
      * it was last zeroed.
      */
     private long total;
-
     /** Flags if this object is started or stopped. */
     boolean running = false;
 
@@ -209,14 +207,14 @@ public class StopWatch {
         return prefix + " in " + currentElapsedTime() + " ms.";
     }
 
-   /**
-    * Retrieves prefix + " in " + elapsedTime() + " ns."
-    * @param prefix The string to use as a prefix
-    * @return prefix + " in " + elapsedTime() + " ns."
-    */
-   public String currentElapsedNanosToMessage(String prefix) {
-       return prefix + " in " + currentElapsedNanos() + " ns.";
-   }
+    /**
+     * Retrieves prefix + " in " + elapsedTime() + " ns."
+     * @param prefix The string to use as a prefix
+     * @return prefix + " in " + elapsedTime() + " ns."
+     */
+    public String currentElapsedNanosToMessage(String prefix) {
+        return prefix + " in " + currentElapsedNanos() + " ns.";
+    }
 
     /**
      * Retrieves the internal state of this object, as a String.

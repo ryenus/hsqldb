@@ -51,10 +51,9 @@ public class WrapperIterator<E> implements Iterator<E> {
     private int                   i;
 
     // chained iterators
-    private boolean  chained;
+    private boolean     chained;
     private Iterator<E> it1;
     private Iterator<E> it2;
-
     /** return only not null elements */
     private boolean notNull;
 

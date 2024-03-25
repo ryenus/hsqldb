@@ -59,8 +59,11 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
     }
 
     public LongKeyHashMap(int initialCapacity) throws IllegalArgumentException {
-        super(initialCapacity, BaseHashMap.longKeyOrValue,
-              BaseHashMap.objectKeyOrValue, false);
+
+        super(initialCapacity,
+              BaseHashMap.longKeyOrValue,
+              BaseHashMap.objectKeyOrValue,
+              false);
     }
 
     public Lock getReadLock() {
@@ -74,7 +77,6 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
     public boolean containsKey(Object key) {
 
         if (key instanceof Long) {
-
             long longKey = ((Long) key).longValue();
 
             return containsLongKey(longKey);
@@ -112,7 +114,6 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
     public V get(Long key) {
 
         if (key instanceof Long) {
-
             long longKey = key.longValue();
 
             return get(longKey);
@@ -165,8 +166,8 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
     }
 
     public V remove(Object key) {
-        if (key instanceof Long) {
 
+        if (key instanceof Long) {
             long longKey = ((Long) key).longValue();
 
             return remove(longKey);
@@ -292,6 +293,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
     }
 
     public Set<Map.Entry<Long, V>> entrySet() {
+
         if (entries == null) {
             entries = new EntrySet();
         }
@@ -299,7 +301,9 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
         return entries;
     }
 
-    private class EntrySet extends AbstractReadOnlyCollection<Map.Entry<Long, V>> implements Set<Map.Entry<Long, V>> {
+    private class EntrySet
+            extends AbstractReadOnlyCollection<Map.Entry<Long, V>>
+            implements Set<Map.Entry<Long, V>> {
 
         public Iterator<Entry<Long, V>> iterator() {
             return LongKeyHashMap.this.new EntrySetIterator();
@@ -314,13 +318,15 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
         }
     }
 
-    private class EntrySetIterator extends BaseHashIterator{
+
+    private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
             super(true);
         }
 
         public Entry<Long, V> next() {
+
             Long key   = super.nextLong();
             V    value = (V) objectValueTable[lookup];
 
@@ -328,7 +334,9 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
         }
     }
 
-    private class KeySet extends AbstractReadOnlyCollection<Long> implements Set<Long> {
+
+    private class KeySet extends AbstractReadOnlyCollection<Long>
+            implements Set<Long> {
 
         public PrimitiveIterator<Long> iterator() {
             return LongKeyHashMap.this.new BaseHashIterator(true);
@@ -342,6 +350,7 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
             return size() == 0;
         }
     }
+
 
     private class Values extends AbstractReadOnlyCollection<V> {
 

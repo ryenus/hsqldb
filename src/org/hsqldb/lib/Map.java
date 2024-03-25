@@ -38,7 +38,8 @@ package org.hsqldb.lib;
  * @version 2.7.3
  * @since 2.6.0
  */
-public interface Map<K,V> {
+public interface Map<K, V> {
+
     int size();
 
     boolean isEmpty();
@@ -64,7 +65,7 @@ public interface Map<K,V> {
     /**
      * Interface for a key - value pair.
      */
-    interface Entry<K,V> {
+    interface Entry<K, V> {
 
         K getKey();
 

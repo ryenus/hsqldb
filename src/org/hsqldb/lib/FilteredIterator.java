@@ -44,33 +44,37 @@ public class FilteredIterator<E> implements Iterator<E> {
 
     private final Iterator<E> it;
     private final Filter<E>   filter;
-    private       E           nextValue;
+    private E                 nextValue;
 
-    public FilteredIterator (Iterator<E> iterator, Filter<E> filter ) {
-        this.it = iterator;
+    public FilteredIterator(Iterator<E> iterator, Filter<E> filter) {
+
+        this.it     = iterator;
         this.filter = filter;
 
         moveNext();
     }
 
     public boolean hasNext() {
-
         return nextValue != null;
     }
 
     public E next() throws NoSuchElementException {
+
         E returnValue = nextValue;
 
         moveNext();
+
         return returnValue;
     }
 
     private void moveNext() {
-        while(it.hasNext()) {
+
+        while (it.hasNext()) {
             E unfilteredValue = it.next();
 
             if (filter.test(unfilteredValue)) {
                 nextValue = unfilteredValue;
+
                 return;
             }
         }
@@ -81,5 +85,4 @@ public class FilteredIterator<E> implements Iterator<E> {
     public interface Filter<E> {
         boolean test(E object);
     }
-
 }

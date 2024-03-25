@@ -57,16 +57,12 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
 
     /** The priority queue for the scheduled tasks. */
     final TaskQueue taskQueue = new TaskQueue(16, this);
-
     /** The inner runnable that executes tasks in the background thread. */
     final TaskRunner taskRunner = new TaskRunner();
-
     /** The background thread. */
     Thread taskRunnerThread;
-
     /** The factory that produces the background threads. */
     final ThreadFactory threadFactory;
-
     /**
      * Whether this timer should disallow all further processing.
      *
@@ -92,8 +88,10 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      *      by this class will be used.
      */
     public HsqlTimer(final ThreadFactory threadFactory) {
-        this.threadFactory = (threadFactory == null) ? this
-                                                     : threadFactory;
+
+        this.threadFactory = (threadFactory == null)
+                             ? this
+                             : threadFactory;
     }
 
     /**
@@ -108,9 +106,11 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         final long awhen = ((Task) a).getNextScheduled();
         final long bwhen = ((Task) b).getNextScheduled();
 
-        return (awhen < bwhen) ? -1
-                               : (awhen == bwhen) ? 0
-                                                  : 1;
+        return (awhen < bwhen)
+               ? -1
+               : (awhen == bwhen)
+                 ? 0
+                 : 1;
     }
 
     /**
@@ -174,9 +174,10 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @return opaque reference to the internal task
      * @throws IllegalArgumentException if runnable is null
      */
-    public Object scheduleAfter(final long delay,
-                                final Runnable runnable)
-                                throws IllegalArgumentException {
+    public Object scheduleAfter(
+            final long delay,
+            final Runnable runnable)
+            throws IllegalArgumentException {
 
         if (runnable == null) {
             throw new IllegalArgumentException("runnable == null");
@@ -194,9 +195,10 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @return opaque reference to the internal task
      * @throws IllegalArgumentException if date or runnable is null
      */
-    public Object scheduleAt(final Date date,
-                             final Runnable runnable)
-                             throws IllegalArgumentException {
+    public Object scheduleAt(
+            final Date date,
+            final Runnable runnable)
+            throws IllegalArgumentException {
 
         if (date == null) {
             throw new IllegalArgumentException("date == null");
@@ -219,10 +221,12 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @throws IllegalArgumentException if date or runnable is null, or
      *      period is {@code <= 0}
      */
-    public Object schedulePeriodicallyAt(final Date date, final long period,
-                                         final Runnable runnable,
-                                         final boolean relative)
-                                         throws IllegalArgumentException {
+    public Object schedulePeriodicallyAt(
+            final Date date,
+            final long period,
+            final Runnable runnable,
+            final boolean relative)
+            throws IllegalArgumentException {
 
         if (date == null) {
             throw new IllegalArgumentException("date == null");
@@ -246,9 +250,12 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @param runnable the Runnable to execute.
      * @throws IllegalArgumentException if runnable is null or period is {@code <= 0}
      */
-    public Object schedulePeriodicallyAfter(final long delay,
-            final long period, final Runnable runnable,
-            final boolean relative) throws IllegalArgumentException {
+    public Object schedulePeriodicallyAfter(
+            final long delay,
+            final long period,
+            final Runnable runnable,
+            final boolean relative)
+            throws IllegalArgumentException {
 
         if (period <= 0) {
             throw new IllegalArgumentException("period <= 0");
@@ -332,8 +339,10 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @return true if referenced task is cancelled
      */
     public static boolean isCancelled(final Object task) {
-        return (task instanceof Task) ? ((Task) task).isCancelled()
-                                      : true;
+
+        return (task instanceof Task)
+               ? ((Task) task).isCancelled()
+               : true;
     }
 
     /**
@@ -380,8 +389,10 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @return true if the task is scheduled for periodic execution
      */
     public static boolean isPeriodic(final Object task) {
-        return (task instanceof Task) ? (((Task) task).period > 0)
-                                      : false;
+
+        return (task instanceof Task)
+               ? (((Task) task).period > 0)
+               : false;
     }
 
     /**
@@ -397,8 +408,9 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
             final Task ltask = (Task) task;
             final long last  = ltask.getLastScheduled();
 
-            return (last == 0) ? null
-                               : new Date(last);
+            return (last == 0)
+                   ? null
+                   : new Date(last);
         } else {
             return null;
         }
@@ -424,8 +436,10 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @param period the new period
      */
     public static Object setPeriod(final Object task, final long period) {
-        return (task instanceof Task) ? ((Task) task).setPeriod(period)
-                                      : task;
+
+        return (task instanceof Task)
+               ? ((Task) task).setPeriod(period)
+               : task;
     }
 
     /**
@@ -439,11 +453,13 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
 
         if (task instanceof Task) {
             final Task ltask = (Task) task;
-            final long next  = ltask.isCancelled() ? 0
-                                                   : ltask.getNextScheduled();
+            final long next  = ltask.isCancelled()
+                               ? 0
+                               : ltask.getNextScheduled();
 
-            return next == 0 ? null
-                             : new Date(next);
+            return next == 0
+                   ? null
+                   : new Date(next);
         } else {
             return null;
         }
@@ -459,8 +475,11 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @param relative if true, use fixed rate else use fixed delay scheduling
      * @return an opaque reference to the internal task
      */
-    Task addTask(final long first, final Runnable runnable,
-                           final long period, boolean relative) {
+    Task addTask(
+            final long first,
+            final Runnable runnable,
+            final long period,
+            boolean relative) {
 
         if (this.isShutdown) {
             throw new IllegalStateException("shutdown");
@@ -525,7 +544,6 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
                         // at most until the time when the peeked task is
                         // next supposed to execute
                         this.taskQueue.park(wait);
-
                         continue;           // to top of loop
                     } else {
                         this.taskQueue.removeTask();
@@ -648,6 +666,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         }
     }
 
+
     /**
      * Encapsulates a Runnable and its scheduling attributes.
      *
@@ -659,26 +678,20 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
 
         /** What to run. */
         Runnable runnable;
-
         /** The periodic interval, or 0 if one-shot. */
         long period;
-
         /** The time this task was last executed, or 0 if never. */
         long last;
-
         /** The next time this task is scheduled to execute. */
         long next;
-
         /**
          * Whether to silently remove this task instead of running it,
          * the next time (if ever) it makes its way to the head of the
          * timer queue.
          */
         boolean cancelled = false;
-
         /** Serializes concurrent access to the cancelled field. */
         private final Object cancel_mutex = new Object();
-
         /**
          * Scheduling policy flag. <p>
          *
@@ -701,7 +714,10 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
          * @param period the periodicity of execution
          * @param relative if true, use fixed rate scheduling else fixed delay
          */
-        Task(final long first, final Runnable runnable, final long period,
+        Task(
+                final long first,
+                final Runnable runnable,
+                final long period,
                 final boolean relative) {
 
             this.next     = first;
@@ -711,7 +727,6 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         }
 
         // fixed reported race condition
-
         /** Sets this task's cancelled flag true and signals its taskQueue. */
         void cancel() {
 
@@ -801,11 +816,14 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
             } else {
                 this.cancel();
 
-                return HsqlTimer.this.addTask(now(), this.runnable, newPeriod,
+                return HsqlTimer.this.addTask(now(),
+                                              this.runnable,
+                                              newPeriod,
                                               this.relative);
             }
         }
     }
+
 
     /**
      * Heap-based priority queue.
@@ -876,8 +894,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
          *    interrupted the current thread.  The <i>interrupted status</i> of
          *    the current thread is cleared when this exception is thrown.
          */
-        synchronized void park(final long timeout)
-        throws InterruptedException {
+        synchronized void park(final long timeout) throws InterruptedException {
             this.wait(timeout);
         }
 

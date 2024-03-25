@@ -34,6 +34,7 @@ package org.hsqldb.lib;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+
 import java.util.Objects;
 
 /**
@@ -70,11 +71,11 @@ public class AsciiOutputStream extends OutputStream {
      * see https://www.fileformat.info/info/unicode/char/fffd/index.htm
      */
     public static final int NON_ASCII_REPLACEMENT = '\uFFFD';
-
-    private final Writer writer;
+    private final Writer    writer;
 
     public AsciiOutputStream(Writer writer) {
-        this.writer = Objects.requireNonNull(writer, "writer must not be null.");
+        this.writer = Objects.requireNonNull(writer,
+                "writer must not be null.");
     }
 
     @Override
@@ -89,7 +90,9 @@ public class AsciiOutputStream extends OutputStream {
 
     @Override
     public void write(int b) throws IOException {
-        writer.write(b < NON_ASCII_MIN ? b & ASCII_MASK : NON_ASCII_REPLACEMENT);
-    }
 
+        writer.write(b < NON_ASCII_MIN
+                     ? b & ASCII_MASK
+                     : NON_ASCII_REPLACEMENT);
+    }
 }

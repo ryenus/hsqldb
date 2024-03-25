@@ -54,7 +54,9 @@ public class StringUtil {
      * @param maxSize int
      * @return String
      */
-    public static String toZeroPaddedString(long value, int precision,
+    public static String toZeroPaddedString(
+            long value,
+            int precision,
             int maxSize) {
 
         StringBuilder sb = new StringBuilder();
@@ -82,8 +84,11 @@ public class StringUtil {
         return sb.toString();
     }
 
-    public static String toPaddedString(String source, int length, char pad,
-                                        boolean trailing) {
+    public static String toPaddedString(
+            String source,
+            int length,
+            char pad,
+            boolean trailing) {
 
         int len = source.length();
 
@@ -108,8 +113,11 @@ public class StringUtil {
         return sb.toString();
     }
 
-    public static String toPaddedString(String source, int length, String pad,
-                                        boolean trailing) {
+    public static String toPaddedString(
+            String source,
+            int length,
+            String pad,
+            boolean trailing) {
 
         int len = source.length();
 
@@ -309,8 +317,7 @@ public class StringUtil {
      * @param quote the {@code String} with which to quote the list elements
      * @param s the array of {@code String} array objects
      */
-    public static String getList(String[][] s, String separator,
-                                 String quote) {
+    public static String getList(String[][] s, String separator, String quote) {
 
         int           len = s.length;
         StringBuilder sb  = new StringBuilder(len * 16);
@@ -335,8 +342,9 @@ public class StringUtil {
      */
     public static boolean isEmpty(String s) {
 
-        int i = s == null ? 0
-                          : s.length();
+        int i = s == null
+                ? 0
+                : s.length();
 
         while (i > 0) {
             if (s.charAt(--i) > ' ') {
@@ -399,7 +407,7 @@ public class StringUtil {
     public static String[] split(String s, String separator) {
 
         HsqlArrayList<String> list      = new HsqlArrayList<>();
-        int           currindex = 0;
+        int                   currindex = 0;
 
         for (boolean more = true; more; ) {
             int nextindex = s.indexOf(separator, currindex);

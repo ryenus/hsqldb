@@ -39,6 +39,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import java.util.Random;
 
 import org.hsqldb.lib.java.JavaSystem;
@@ -66,16 +67,19 @@ public class FileUtil implements FileAccess {
     }
 
     public static FileAccess getFileAccess(boolean isResource) {
-        return isResource ? fileAccessRes
-                          : fileUtil;
+
+        return isResource
+               ? fileAccessRes
+               : fileUtil;
     }
 
     public boolean isStreamElement(String elementName) {
         return new File(elementName).exists();
     }
 
-    public InputStream openInputStreamElement(String streamName)
-    throws IOException {
+    public InputStream openInputStreamElement(
+            String streamName)
+            throws IOException {
 
         try {
             return new FileInputStream(streamName);
@@ -101,8 +105,10 @@ public class FileUtil implements FileAccess {
         return renameWithOverwrite(oldName, newName);
     }
 
-    public boolean renameElementOrCopy(String oldName, String newName,
-                                       EventLogInterface logger) {
+    public boolean renameElementOrCopy(
+            String oldName,
+            String newName,
+            EventLogInterface logger) {
 
         if (renameWithOverwrite(oldName, newName)) {
             return true;
@@ -118,9 +124,11 @@ public class FileUtil implements FileAccess {
             InOutUtil.copy(inputStream, outputStream);
             getFileSync(outputStream).sync();
         } catch (IOException e) {
-            String message = String.format(
-                "Platform does not allow renaming files and failed to copy file contents from %s to %s",
-                oldName, newName);
+            String message =
+                String.format(
+                    "Platform does not allow renaming files and failed to copy file contents from %s to %s",
+                    oldName,
+                    newName);
 
             logger.logSevereEvent(message, e);
 
@@ -148,22 +156,26 @@ public class FileUtil implements FileAccess {
                                    null);
         }
 
-        String message = String.format(
-            "Platform does not allow renaming files. Copied file from %s to %s instead",
-            oldName, newName);
+        String message =
+            String.format(
+                "Platform does not allow renaming files. Copied file from %s to %s instead",
+                oldName,
+                newName);
 
         logger.logDetailEvent(message);
 
         return true;
     }
 
-    public OutputStream openOutputStreamElement(String streamName)
-    throws IOException {
+    public OutputStream openOutputStreamElement(
+            String streamName)
+            throws IOException {
         return new FileOutputStream(streamName, false);
     }
 
-    public OutputStream openOutputStreamElementAppend(String streamName)
-    throws IOException {
+    public OutputStream openOutputStreamElementAppend(
+            String streamName)
+            throws IOException {
         return new FileOutputStream(streamName, true);
     }
 
@@ -176,13 +188,13 @@ public class FileUtil implements FileAccess {
     // even if, unlike for File.getCanonicalPath(), (new File("a")).exists() or
     // (new File("A")).exits(), regardless of the hosting system's
     // file path case sensitivity policy.
-    public final boolean fsIsIgnoreCase =
-        (new File("A")).equals(new File("a"));
+    public final boolean fsIsIgnoreCase = (new File("A")).equals(new File("a"));
 
     // posix separator normalized to File.separator?
     // CHECKME: is this true for every file system under Java?
-    public final boolean fsNormalizesPosixSeparator =
-        (new File("/")).getPath().endsWith(File.separator);
+    public final boolean fsNormalizesPosixSeparator = (new File("/")).getPath()
+                                                                     .endsWith(
+                                                                         File.separator);
 
     // for JDK 1.1 createTempFile
     final Random random = new Random(System.currentTimeMillis());
@@ -232,8 +244,9 @@ public class FileUtil implements FileAccess {
             return false;
         }
 
-        return resource ? null != cla.getResource(fileName)
-                        : FileUtil.getFileUtil().exists(fileName);
+        return resource
+               ? null != cla.getResource(fileName)
+               : FileUtil.getFileUtil().exists(fileName);
     }
 
     /**
@@ -377,8 +390,9 @@ public class FileUtil implements FileAccess {
         }
     }
 
-    public FileAccess.FileSync getFileSync(java.io.OutputStream os)
-    throws IOException {
+    public FileAccess.FileSync getFileSync(
+            java.io.OutputStream os)
+            throws IOException {
         return new FileSync((FileOutputStream) os);
     }
 
@@ -395,6 +409,7 @@ public class FileUtil implements FileAccess {
         }
     }
 
+
     /**
      * Utility method for user applications. Attempts to delete all the files
      * for the database as listed by the getDatabaseFileList() method. If any
@@ -408,7 +423,7 @@ public class FileUtil implements FileAccess {
     public static boolean deleteOrRenameDatabaseFiles(String dbNamePath) {
 
         DatabaseFilenameFilter filter = new DatabaseFilenameFilter(dbNamePath);
-        File[] fileList = filter.getExistingFileListInDirectory();
+        File[] fileList               = filter.getExistingFileListInDirectory();
 
         for (int i = 0; i < fileList.length; i++) {
             fileList[i].delete();
@@ -475,7 +490,7 @@ public class FileUtil implements FileAccess {
     public static File[] getDatabaseMainFileList(String dbNamePath) {
 
         DatabaseFilenameFilter filter = new DatabaseFilenameFilter(dbNamePath,
-            false);
+                                                                   false);
 
         return filter.getExistingFileListInDirectory();
     }
@@ -485,8 +500,11 @@ public class FileUtil implements FileAccess {
     public static String newDiscardFileName(String filename) {
 
         String timestamp = StringUtil.toPaddedString(
-            Integer.toHexString((int) System.currentTimeMillis()),
-            discardSuffixLength - 1, '0', true);
+                               Integer.toHexString(
+                                   (int) System.currentTimeMillis()),
+                               discardSuffixLength - 1,
+                               '0',
+                               true);
         String discardName = filename + "." + timestamp + ".old";
 
         return discardName;
@@ -494,12 +512,10 @@ public class FileUtil implements FileAccess {
 
     static class DatabaseFilenameFilter implements FilenameFilter {
 
-        String[]        suffixes      = new String[] {
+        String[]        suffixes = new String[] {
             ".backup", ".properties", ".script", ".data", ".log", ".lobs"
         };
-        String[]        extraSuffixes = new String[] {
-            ".lck", ".sql.log", ".app.log"
-        };
+        String[] extraSuffixes = new String[]{ ".lck", ".sql.log", ".app.log" };
         private String  dbName;
         private File    parent;
         private File    canonicalFile;
@@ -535,7 +551,7 @@ public class FileUtil implements FileAccess {
 
         public File[] getExistingMainFileSetList() {
 
-            File[]        fileList = getCompleteMainFileSetList();
+            File[]              fileList = getCompleteMainFileSetList();
             HsqlArrayList<File> list     = new HsqlArrayList<>();
 
             for (int i = 0; i < fileList.length; i++) {
@@ -555,8 +571,9 @@ public class FileUtil implements FileAccess {
 
             File[] list = parent.listFiles(this);
 
-            return list == null ? new File[]{}
-                                : list;
+            return list == null
+                   ? new File[]{}
+                   : list;
         }
 
         /**

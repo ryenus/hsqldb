@@ -47,22 +47,29 @@ public class IntHashSet extends BaseHashMap {
     }
 
     public IntHashSet(int initialCapacity) throws IllegalArgumentException {
-        super(initialCapacity, BaseHashMap.intKeyOrValue,
-              BaseHashMap.noKeyOrValue, false);
+
+        super(initialCapacity,
+              BaseHashMap.intKeyOrValue,
+              BaseHashMap.noKeyOrValue,
+              false);
     }
 
     public IntHashSet(int[] elements) {
 
-        super(elements.length, BaseHashMap.intKeyOrValue,
-              BaseHashMap.noKeyOrValue, false);
+        super(elements.length,
+              BaseHashMap.intKeyOrValue,
+              BaseHashMap.noKeyOrValue,
+              false);
 
         addAll(elements);
     }
 
     public IntHashSet(int[] elementsA, int[] elementsB) {
 
-        super(elementsA.length + elementsB.length, BaseHashMap.intKeyOrValue,
-              BaseHashMap.noKeyOrValue, false);
+        super(elementsA.length + elementsB.length,
+              BaseHashMap.intKeyOrValue,
+              BaseHashMap.noKeyOrValue,
+              false);
 
         addAll(elementsA);
         addAll(elementsB);
@@ -71,7 +78,6 @@ public class IntHashSet extends BaseHashMap {
     public boolean contains(Object o) {
 
         if (o instanceof Integer) {
-
             int intKey = ((Integer) o).intValue();
 
             return containsIntKey(intKey);
@@ -118,8 +124,8 @@ public class IntHashSet extends BaseHashMap {
 
     public boolean addAll(Collection<Integer> col) {
 
-        int      oldSize = size();
-        Iterator<Integer> it = col.iterator();
+        int               oldSize = size();
+        Iterator<Integer> it      = col.iterator();
 
         while (it.hasNext()) {
             add(it.next());
@@ -130,9 +136,8 @@ public class IntHashSet extends BaseHashMap {
 
     public boolean addAll(IntHashSet s) {
 
-        boolean result = false;
-
-        Iterator<Integer> it = s.iterator();
+        boolean           result = false;
+        Iterator<Integer> it     = s.iterator();
 
         while (it.hasNext()) {
             result |= add(it.nextInt());
@@ -153,6 +158,7 @@ public class IntHashSet extends BaseHashMap {
     }
 
     public boolean containsAll(IntHashSet c) {
+
         Iterator<Integer> it = c.iterator();
 
         while (it.hasNext()) {
@@ -165,9 +171,9 @@ public class IntHashSet extends BaseHashMap {
     }
 
     public boolean retainAll(IntHashSet c) {
-        int      oldSize = size();
 
-        Iterator<Integer> it = iterator();
+        int               oldSize = size();
+        Iterator<Integer> it      = iterator();
 
         while (it.hasNext()) {
             if (!c.contains(it.nextInt())) {
@@ -179,8 +185,9 @@ public class IntHashSet extends BaseHashMap {
     }
 
     public boolean removeAll(IntHashSet c) {
-        int      oldSize = size();
-        Iterator<Integer> it = c.iterator();
+
+        int               oldSize = size();
+        Iterator<Integer> it      = c.iterator();
 
         while (it.hasNext()) {
             int value = it.nextInt();

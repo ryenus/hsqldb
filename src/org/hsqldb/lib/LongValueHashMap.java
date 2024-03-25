@@ -55,12 +55,19 @@ public class LongValueHashMap<K> extends BaseHashMap {
         this(8);
     }
 
-    public LongValueHashMap(int initialCapacity) throws IllegalArgumentException {
-        super(initialCapacity, BaseHashMap.objectKeyOrValue,
-              BaseHashMap.longKeyOrValue, false);
+    public LongValueHashMap(
+            int initialCapacity)
+            throws IllegalArgumentException {
+
+        super(initialCapacity,
+              BaseHashMap.objectKeyOrValue,
+              BaseHashMap.longKeyOrValue,
+              false);
     }
 
-    public LongValueHashMap(int initialCapacity, ObjectComparator<K> comparator) {
+    public LongValueHashMap(
+            int initialCapacity,
+            ObjectComparator<K> comparator) {
 
         this(initialCapacity);
 
@@ -156,6 +163,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
     }
 
     public boolean containsKey(Object key) {
+
         if (key == null) {
             throw new NullPointerException();
         }
@@ -197,6 +205,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
     }
 
     public Set<Entry<K, Long>> entrySet() {
+
         if (entries == null) {
             entries = new EntrySet();
         }
@@ -204,7 +213,8 @@ public class LongValueHashMap<K> extends BaseHashMap {
         return entries;
     }
 
-    private class EntrySet extends AbstractReadOnlyCollection<Entry<K, Long>> implements Set<Entry<K, Long>> {
+    private class EntrySet extends AbstractReadOnlyCollection<Entry<K, Long>>
+            implements Set<Entry<K, Long>> {
 
         public Iterator<Entry<K, Long>> iterator() {
             return LongValueHashMap.this.new EntrySetIterator();
@@ -219,13 +229,15 @@ public class LongValueHashMap<K> extends BaseHashMap {
         }
     }
 
-    private class EntrySetIterator extends BaseHashIterator{
+
+    private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
             super(true);
         }
 
         public Entry<K, Long> next() {
+
             K    key   = (K) super.next();
             Long value = longValueTable[lookup];
 
@@ -233,7 +245,9 @@ public class LongValueHashMap<K> extends BaseHashMap {
         }
     }
 
-    private class KeySet extends AbstractReadOnlyCollection<K> implements Set<K> {
+
+    private class KeySet extends AbstractReadOnlyCollection<K>
+            implements Set<K> {
 
         public Iterator<K> iterator() {
             return LongValueHashMap.this.new BaseHashIterator(true);
@@ -247,6 +261,7 @@ public class LongValueHashMap<K> extends BaseHashMap {
             return size() == 0;
         }
     }
+
 
     private class Values extends AbstractReadOnlyCollection<Long> {
 

@@ -41,11 +41,12 @@ import org.hsqldb.lib.Map.Entry;
  * @since 2.6.0
  */
 public class MapEntry<K, V> implements Entry<K, V> {
+
     K key;
     V value;
 
     MapEntry(K key, V value) {
-        this.key = key;
+        this.key   = key;
         this.value = value;
     }
 
@@ -58,23 +59,32 @@ public class MapEntry<K, V> implements Entry<K, V> {
     }
 
     public String toString() {
-        String valueString = value == null ? null
+
+        String valueString = value == null
+                             ? null
                              : value.toString();
+
         return key.toString() + "->" + valueString;
     }
 
     public boolean equals(Object o) {
+
         if (o instanceof Entry) {
-            Entry<K, V> other = (Entry<K, V>) o;
-            V otherValue = other.getValue();
-            return key.equals(other.getKey()) &&
-                (value == otherValue ||
-                 (value != null && value.equals(otherValue)));
+            Entry<K, V> other      = (Entry<K, V>) o;
+            V           otherValue = other.getValue();
+
+            return key.equals(other.getKey())
+                   && (value == otherValue
+                       || (value != null && value.equals(otherValue)));
         }
+
         return false;
     }
 
     public int hashCode() {
-        return key.hashCode() + (value == null ? 0 : value.hashCode());
+
+        return key.hashCode() + (value == null
+                                 ? 0
+                                 : value.hashCode());
     }
 }

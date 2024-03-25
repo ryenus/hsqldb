@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb.lib;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.nio.charset.Charset;
 
 /**
@@ -86,23 +87,22 @@ public class LineReader {
 
                 case '\r' : {
                     wasCR = true;
-
                     break;
                 }
+
                 case '\n' : {
                     if (wasCR) {
                         wasCR = false;
-
                         continue;
                     } else {
                         break;
                     }
                 }
+
                 default : {
                     baOS.write(c);
 
                     wasCR = false;
-
                     continue;
                 }
             }

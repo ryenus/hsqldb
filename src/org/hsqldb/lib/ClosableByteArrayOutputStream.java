@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,6 @@ import java.io.UnsupportedEncodingException;
  * @todo - finer-grained synchronization to reduce average
  * potential monitor contention
  */
-
 /**
  * Provides true Closable semantics ordinarily missing in a
  * {@link java.io.ByteArrayOutputStream}. <p>
@@ -77,17 +76,14 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * Data buffer.
      */
     protected byte[] buf;
-
     /**
      * # of valid bytes in buffer.
      */
     protected int count;
-
     /**
      * Whether this stream is closed.
      */
     protected boolean closed;
-
     /**
      * Whether this stream is freed.
      */
@@ -110,8 +106,9 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * @param size the initial size.
      * @exception IllegalArgumentException if size is negative.
      */
-    public ClosableByteArrayOutputStream(int size)
-    throws IllegalArgumentException {
+    public ClosableByteArrayOutputStream(
+            int size)
+            throws IllegalArgumentException {
 
         if (size < 0) {
             throw new IllegalArgumentException("Negative initial size: "
@@ -153,13 +150,19 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #close() closed}.
      */
-    public synchronized void write(byte[] b, int off,
-                                   int len) throws IOException {
+    public synchronized void write(
+            byte[] b,
+            int off,
+            int len)
+            throws IOException {
 
         checkClosed();
 
-        if ((off < 0) || (off > b.length) || (len < 0)
-                || ((off + len) > b.length) || ((off + len) < 0)) {
+        if ((off < 0)
+                || (off > b.length)
+                || (len < 0)
+                || ((off + len) > b.length)
+                || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
         } else if (len == 0) {
             return;
@@ -315,12 +318,13 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      if this output stream has been {@link #free() freed}.
      */
     public synchronized ByteArrayInputStream toByteArrayInputStream()
-    throws IOException {
+            throws IOException {
 
         checkFreed();
 
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(buf, 0,
-            count);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(buf,
+                                                                    0,
+                                                                    count);
 
         free();
 
@@ -357,8 +361,10 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * @throws UnsupportedEncodingException If the named encoding is not
      *      supported.
      */
-    public synchronized String toString(String enc)
-    throws IOException, UnsupportedEncodingException {
+    public synchronized String toString(
+            String enc)
+            throws IOException,
+                   UnsupportedEncodingException {
 
         checkFreed();
 
@@ -412,7 +418,6 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     protected synchronized void checkClosed() throws IOException {
 
         if (closed) {
-
             throw new IOException("stream is closed.");    // NOI18N
         }
     }
@@ -441,7 +446,10 @@ public class ClosableByteArrayOutputStream extends OutputStream {
 
         byte[] copy = new byte[newLength];
 
-        System.arraycopy(original, 0, copy, 0,
+        System.arraycopy(original,
+                         0,
+                         copy,
+                         0,
                          Math.min(original.length, newLength));
 
         return copy;

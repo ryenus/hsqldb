@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import java.io.UTFDataFormatException;
  * @since 1.9.0
  */
 public class DataOutputStream extends java.io.BufferedOutputStream
-implements DataOutput {
+        implements DataOutput {
 
     byte[] tempBuffer = new byte[8];
 
@@ -124,8 +124,7 @@ implements DataOutput {
         return write(inputStream, length * 2) / 2;
     }
 
-    public long write(InputStream inputStream,
-                      long length) throws IOException {
+    public long write(InputStream inputStream, long length) throws IOException {
 
         byte[] data       = new byte[1024];
         long   totalCount = 0;
@@ -153,8 +152,9 @@ implements DataOutput {
 
     public void writeBoolean(boolean v) throws IOException {
 
-        int val = v ? 1
-                    : 0;
+        int val = v
+                  ? 1
+                  : 0;
 
         write(val);
     }

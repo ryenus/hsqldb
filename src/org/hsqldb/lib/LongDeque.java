@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -238,7 +238,10 @@ public class LongDeque {
                 firstindex = 0;
             }
         } else if (target > firstindex) {
-            System.arraycopy(list, firstindex, list, firstindex + 1,
+            System.arraycopy(list,
+                             firstindex,
+                             list,
+                             firstindex + 1,
                              target - firstindex);
 
             list[firstindex] = 0;
@@ -249,7 +252,10 @@ public class LongDeque {
                 firstindex = 0;
             }
         } else {
-            System.arraycopy(list, target + 1, list, target,
+            System.arraycopy(list,
+                             target + 1,
+                             list,
+                             target,
                              endindex - target - 1);
 
             endindex--;
@@ -335,7 +341,10 @@ public class LongDeque {
 
         long[] newList = new long[list.length * 2];
 
-        System.arraycopy(list, firstindex, newList, firstindex,
+        System.arraycopy(list,
+                         firstindex,
+                         newList,
+                         firstindex,
                          list.length - firstindex);
 
         if (endindex <= firstindex) {

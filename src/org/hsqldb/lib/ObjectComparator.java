@@ -56,8 +56,7 @@ public interface ObjectComparator<T> {
 
     long longKey(T a);
 
-    ObjectComparator defaultComparator = new DefaultComparator();
-
+    ObjectComparator defaultComparator  = new DefaultComparator();
     ObjectComparator identityComparator = new IdentityComparator();
 
     /**
@@ -70,14 +69,17 @@ public interface ObjectComparator<T> {
         }
 
         public int hashCode(T a) {
-            return a == null ? 0 :
-                               a.hashCode();
+
+            return a == null
+                   ? 0
+                   : a.hashCode();
         }
 
         public long longKey(T a) {
             return 0L;
         }
     }
+
 
     /**
      * Comparator that uses the equals and hash code methods of Objects.
@@ -89,13 +91,14 @@ public interface ObjectComparator<T> {
         }
 
         public int hashCode(T a) {
-            return a == null ? 0 :
-                               a.hashCode();
+
+            return a == null
+                   ? 0
+                   : a.hashCode();
         }
 
         public long longKey(T a) {
             return 0L;
         }
     }
-
 }

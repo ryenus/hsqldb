@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,6 @@ import java.io.Writer;
  * @todo - finer-grained synchronization to reduce average
  * potential monitor contention
  */
-
 /**
  * Provides Closable semantics ordinarily missing in a
  * {@link java.io.CharArrayWriter}. <p>
@@ -73,17 +72,14 @@ public class ClosableCharArrayWriter extends Writer {
      * Data buffer.
      */
     protected char[] buf;
-
     /**
      * # of valid characters in buffer.
      */
     protected int count;
-
     /**
      * Whether this writer is closed.
      */
     protected boolean closed;
-
     /**
      * Whether this writer is freed.
      */
@@ -148,13 +144,19 @@ public class ClosableCharArrayWriter extends Writer {
      *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #close() closed}.
      */
-    public synchronized void write(char[] c, int off,
-                                   int len) throws IOException {
+    public synchronized void write(
+            char[] c,
+            int off,
+            int len)
+            throws IOException {
 
         checkClosed();
 
-        if ((off < 0) || (off > c.length) || (len < 0)
-                || ((off + len) > c.length) || ((off + len) < 0)) {
+        if ((off < 0)
+                || (off > c.length)
+                || (len < 0)
+                || ((off + len) > c.length)
+                || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
         } else if (len == 0) {
             return;
@@ -184,14 +186,20 @@ public class ClosableCharArrayWriter extends Writer {
      *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #close() closed}.
      */
-    public synchronized void write(String str, int off,
-                                   int len) throws IOException {
+    public synchronized void write(
+            String str,
+            int off,
+            int len)
+            throws IOException {
 
         checkClosed();
 
         int strlen = str.length();
 
-        if ((off < 0) || (off > strlen) || (len < 0) || ((off + len) > strlen)
+        if ((off < 0)
+                || (off > strlen)
+                || (len < 0)
+                || ((off + len) > strlen)
                 || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
         } else if (len == 0) {
@@ -351,8 +359,7 @@ public class ClosableCharArrayWriter extends Writer {
      *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #free() freed}.
      */
-    public synchronized CharArrayReader toCharArrayReader()
-    throws IOException {
+    public synchronized CharArrayReader toCharArrayReader() throws IOException {
 
         checkFreed();
 
@@ -450,7 +457,10 @@ public class ClosableCharArrayWriter extends Writer {
 
         char[] copy = new char[newLength];
 
-        System.arraycopy(original, 0, copy, 0,
+        System.arraycopy(original,
+                         0,
+                         copy,
+                         0,
                          Math.min(original.length, newLength));
 
         return copy;

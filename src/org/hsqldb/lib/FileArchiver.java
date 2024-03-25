@@ -35,6 +35,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
@@ -76,15 +77,24 @@ public class FileArchiver {
                 infilename, outfilename, storage, COMPRESSION_NONE);
     }
     */
-    public static void copyFile(String infilename, String outfilename,
-                                FileAccess storage) throws IOException {
-        FileArchiver.archive(infilename, outfilename, storage,
+    public static void copyFile(
+            String infilename,
+            String outfilename,
+            FileAccess storage)
+            throws IOException {
+
+        FileArchiver.archive(infilename,
+                             outfilename,
+                             storage,
                              COMPRESSION_NONE);
     }
 
-    public static void archive(String infilename, String outfilename,
-                               FileAccess storage,
-                               int compressionType) throws IOException {
+    public static void archive(
+            String infilename,
+            String outfilename,
+            FileAccess storage,
+            int compressionType)
+            throws IOException {
 
         InputStream          in        = null;
         OutputStream         f         = null;
@@ -108,7 +118,8 @@ public class FileArchiver {
 
                 case COMPRESSION_ZIP :
                     f = deflater = new DeflaterOutputStream(f,
-                            new Deflater(Deflater.BEST_SPEED), b.length);
+                            new Deflater(Deflater.BEST_SPEED),
+                            b.length);
                     break;
 
                 case COMPRESSION_GZIP :
@@ -163,9 +174,12 @@ public class FileArchiver {
         }
     }
 
-    public static void unarchive(String infilename, String outfilename,
-                                 FileAccess storage,
-                                 int compressionType) throws IOException {
+    public static void unarchive(
+            String infilename,
+            String outfilename,
+            FileAccess storage,
+            int compressionType)
+            throws IOException {
 
         InputStream  f         = null;
         OutputStream outstream = null;

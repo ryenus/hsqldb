@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,9 +62,13 @@ public final class ArrayCounter {
      * @param limit int
      * @return int[]
      */
-    public static int[] countSegments(int[] array, int elementCount,
-                                      int segments, int interval, int start,
-                                      int limit) {
+    public static int[] countSegments(
+            int[] array,
+            int elementCount,
+            int segments,
+            int interval,
+            int start,
+            int limit) {
 
         int[] counts = new int[segments];
         int   index;
@@ -111,8 +115,13 @@ public final class ArrayCounter {
      * @param margin int
      * @return int
      */
-    public static int rank(int[] array, int elements, int target, int start,
-                           int limit, int margin) {
+    public static int rank(
+            int[] array,
+            int elements,
+            int target,
+            int start,
+            int limit,
+            int margin) {
 
         final int segments     = 256;
         int       elementCount = 0;
@@ -120,8 +129,12 @@ public final class ArrayCounter {
 
         for (;;) {
             int interval = calcInterval(segments, start, currentLimit);
-            int[] counts = countSegments(array, elements, segments, interval,
-                                         start, currentLimit);
+            int[] counts = countSegments(array,
+                                         elements,
+                                         segments,
+                                         interval,
+                                         start,
+                                         currentLimit);
 
             for (int i = 0; i < counts.length; i++) {
                 if (elementCount + counts[i] < target) {
@@ -140,8 +153,9 @@ public final class ArrayCounter {
                 return start;
             }
 
-            currentLimit = start + interval < limit ? (start + interval)
-                                                    : limit;
+            currentLimit = start + interval < limit
+                           ? (start + interval)
+                           : limit;
         }
     }
 
@@ -163,8 +177,9 @@ public final class ArrayCounter {
             return 0;
         }
 
-        int partSegment = (range % segments) == 0 ? 0
-                                                  : 1;
+        int partSegment = (range % segments) == 0
+                          ? 0
+                          : 1;
 
         return (range / segments) + partSegment;
     }

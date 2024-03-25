@@ -212,8 +212,9 @@ public final class DoubleLongIndex implements LongLookup {
 
         int index = findFirstGreaterEqualSlotIndex(value);
 
-        return index == count ? -1
-                              : index;
+        return index == count
+               ? -1
+               : index;
     }
 
     /**
@@ -316,8 +317,9 @@ public final class DoubleLongIndex implements LongLookup {
             }
         }
 
-        return found == count ? -1
-                              : found;
+        return found == count
+               ? -1
+               : found;
     }
 
     /**
@@ -548,7 +550,6 @@ public final class DoubleLongIndex implements LongLookup {
      * @return true or false
      */
     private boolean lessThan(int i, int j) {
-
         return keys[i] < keys[j];
     }
 
