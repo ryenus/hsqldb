@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,6 @@ public class RowOutputBinaryEncode extends RowOutputBinary {
     final Crypto crypto;
 
     public RowOutputBinaryEncode(Crypto crypto, int initialSize, int scale) {
-
         super(initialSize, scale);
 
         this.crypto = crypto;
@@ -63,9 +62,12 @@ public class RowOutputBinaryEncode extends RowOutputBinary {
             super.writeData(row, types);
 
             int origLength = count - start - INT_STORE_SIZE;
-            int newLength = crypto.encode(buffer, start + INT_STORE_SIZE,
-                                          origLength, buffer,
-                                          start + INT_STORE_SIZE);
+            int newLength = crypto.encode(
+                buffer,
+                start + INT_STORE_SIZE,
+                origLength,
+                buffer,
+                start + INT_STORE_SIZE);
 
             writeIntData(newLength, start);
 
@@ -84,8 +86,8 @@ public class RowOutputBinaryEncode extends RowOutputBinary {
         int size = super.getSize(row);
 
         if (crypto != null) {
-            size = crypto.getEncodedSize(size - INT_STORE_SIZE)
-                   + INT_STORE_SIZE * 2;
+            size = crypto.getEncodedSize(
+                size - INT_STORE_SIZE) + INT_STORE_SIZE * 2;
         }
 
         return size;

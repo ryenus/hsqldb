@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,6 @@ import org.hsqldb.lib.FileUtil;
 public class DataFileCacheSession extends DataFileCache {
 
     public DataFileCacheSession(Database db, String baseFileName) {
-
         super(db, baseFileName);
 
         logEvents = false;
@@ -55,8 +54,10 @@ public class DataFileCacheSession extends DataFileCache {
     /**
      * Initial external parameters are set here. The size if fixed.
      */
-    protected void initParams(Database database, String baseFileName,
-                              boolean defrag) {
+    protected void initParams(
+            Database database,
+            String baseFileName,
+            boolean defrag) {
 
         this.dataFileName = baseFileName + ".data.tmp";
         this.database     = database;
@@ -74,22 +75,28 @@ public class DataFileCacheSession extends DataFileCache {
     public void open(boolean readonly) {
 
         try {
-            dataFile = new RAFile(database.logger, dataFileName, false, false,
-                                  false);
+            dataFile = new RAFile(
+                database.logger,
+                dataFileName,
+                false,
+                false,
+                false);
             fileFreePosition = dataFileScale;
 
             initBuffers();
 
             spaceManager = new DataSpaceManagerSimple(this, false);
         } catch (Throwable t) {
-            database.logger.logWarningEvent("Failed to open Session RA file",
-                                            t);
+            database.logger.logWarningEvent(
+                "Failed to open Session RA file",
+                t);
             release();
 
-            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_DataFileCache_open, new String[] {
-                t.toString(), dataFileName
-            });
+            throw Error.error(
+                t,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_DataFileCache_open,
+                new String[]{ t.toString(), dataFileName });
         }
     }
 
@@ -114,13 +121,15 @@ public class DataFileCacheSession extends DataFileCache {
                 deleteDataFile();
             }
         } catch (Throwable t) {
-            database.logger.logWarningEvent("Failed to close Session RA file",
-                                            t);
+            database.logger.logWarningEvent(
+                "Failed to close Session RA file",
+                t);
 
-            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_DataFileCache_close, new String[] {
-                t.toString(), dataFileName
-            });
+            throw Error.error(
+                t,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_DataFileCache_close,
+                new String[]{ t.toString(), dataFileName });
         } finally {
             writeLock.unlock();
         }

@@ -105,10 +105,12 @@ public class ExpressionArithmetic extends Expression {
                 return dataType.convertToSQLString(valueData);
         }
 
-        String left  = getContextSQL(nodes.length > 0 ? nodes[LEFT]
-                                                      : null);
-        String right = getContextSQL(nodes.length > 1 ? nodes[RIGHT]
-                                                      : null);
+        String left  = getContextSQL(nodes.length > 0
+                                     ? nodes[LEFT]
+                                     : null);
+        String right = getContextSQL(nodes.length > 1
+                                     ? nodes[RIGHT]
+                                     : null);
 
         switch (opType) {
 
@@ -163,8 +165,8 @@ public class ExpressionArithmetic extends Expression {
         switch (opType) {
 
             case OpTypes.VALUE :
-                sb.append("VALUE = ").append(
-                    dataType.convertToSQLString(valueData));
+                sb.append("VALUE = ")
+                  .append(dataType.convertToSQLString(valueData));
                 sb.append(", TYPE = ").append(dataType.getNameString());
 
                 return sb.toString();
@@ -180,6 +182,7 @@ public class ExpressionArithmetic extends Expression {
                     sb.append(nodes[i].describe(session, blanks + blanks));
                     sb.append(' ');
                 }
+
                 break;
 
             case OpTypes.NEGATE :
@@ -230,11 +233,13 @@ public class ExpressionArithmetic extends Expression {
         return sb.toString();
     }
 
-    public List<Expression> resolveColumnReferences(Session session,
-                                                    RangeGroup rangeGroup, int rangeCount,
-                                                    RangeGroup[] rangeGroups,
-                                                    List<Expression> unresolvedSet,
-                                                    boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(
+            Session session,
+            RangeGroup rangeGroup,
+            int rangeCount,
+            RangeGroup[] rangeGroups,
+            List<Expression> unresolvedSet,
+            boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -245,9 +250,13 @@ public class ExpressionArithmetic extends Expression {
                 continue;
             }
 
-            unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeGroup, rangeCount, rangeGroups, unresolvedSet,
-                    acceptsSequences);
+            unresolvedSet = nodes[i].resolveColumnReferences(
+                session,
+                rangeGroup,
+                rangeCount,
+                rangeGroups,
+                unresolvedSet,
+                acceptsSequences);
         }
 
         return unresolvedSet;
@@ -281,24 +290,23 @@ public class ExpressionArithmetic extends Expression {
                 if (nodes[LEFT].opType == OpTypes.VALUE) {
                     setAsConstantValue(session, parent);
                 }
+
                 break;
 
             case OpTypes.ADD :
                 if (session.database.sqlSyntaxOra) {
                     resolveTypesForArithmetic(session, parent);
-
                     break;
                 }
 
                 // special case for concat using +
-                if ((nodes[LEFT].dataType != null && nodes[LEFT].dataType
-                        .isCharacterType()) || (nodes[RIGHT].dataType != null
-                                                && nodes[RIGHT].dataType
-                                                    .isCharacterType())) {
+                if ((nodes[LEFT].dataType != null
+                        && nodes[LEFT].dataType.isCharacterType())
+                        || (nodes[RIGHT].dataType != null
+                            && nodes[RIGHT].dataType.isCharacterType())) {
                     opType = OpTypes.CONCAT;
 
                     resolveTypesForConcat(session, parent);
-
                     break;
                 }
 
@@ -367,8 +375,7 @@ public class ExpressionArithmetic extends Expression {
                             for (int i = 0; i < parent.nodes.length; i++) {
                                 if (parent.nodes[i] != this) {
                                     if (parent.nodes[i].dataType != null
-                                            && parent.nodes[i].dataType
-                                                .isDateTimeType()) {
+                                            && parent.nodes[i].dataType.isDateTimeType()) {
                                         nodes[LEFT].dataType =
                                             parent.nodes[i].dataType;
                                     }
@@ -376,6 +383,7 @@ public class ExpressionArithmetic extends Expression {
                                     break;
                                 }
                             }
+
                             break;
 
                         default :
@@ -391,6 +399,7 @@ public class ExpressionArithmetic extends Expression {
                             nodes[LEFT].dataType =
                                 Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
                         }
+
                         break;
 
                     case OpTypes.ADD :
@@ -398,17 +407,16 @@ public class ExpressionArithmetic extends Expression {
                             if (nodes[RIGHT].dataType.typeComparisonGroup
                                     == Types.SQL_DATE) {
                                 nodes[LEFT].dataType =
-                                    Type
-                                    .SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION;
+                                    Type.SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION;
                             } else {
                                 nodes[LEFT].dataType =
-                                    Type
-                                    .SQL_INTERVAL_DAY_TO_SECOND_MAX_PRECISION;
+                                    Type.SQL_INTERVAL_DAY_TO_SECOND_MAX_PRECISION;
                             }
                         } else if (nodes[RIGHT].dataType.isIntervalType()) {
                             nodes[LEFT].dataType =
                                 Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
                         }
+
                         break;
 
                     default :
@@ -432,6 +440,7 @@ public class ExpressionArithmetic extends Expression {
                     } else {
                         nodes[RIGHT].dataType = nodes[LEFT].dataType;
                     }
+
                     break;
 
                 case OpTypes.SUBTRACT :
@@ -452,6 +461,7 @@ public class ExpressionArithmetic extends Expression {
                     } else {
                         nodes[RIGHT].dataType = nodes[LEFT].dataType;
                     }
+
                     break;
             }
         }
@@ -486,8 +496,10 @@ public class ExpressionArithmetic extends Expression {
                         throw Error.error(ErrorCode.X_42562);
                     }
                 } else {
-                    Type type = nodes[LEFT].dataType.getCombinedType(session,
-                        nodes[RIGHT].dataType, opType);
+                    Type type = nodes[LEFT].dataType.getCombinedType(
+                        session,
+                        nodes[RIGHT].dataType,
+                        opType);
 
                     if (type == null) {
                         throw Error.error(ErrorCode.X_42562);
@@ -498,9 +510,8 @@ public class ExpressionArithmetic extends Expression {
                             throw Error.error(ErrorCode.X_42562);
                         }
                     } else if (type.isNumberType()) {
-                        nodes[LEFT] = new ExpressionOp(nodes[LEFT], dataType);
-                        nodes[RIGHT] = new ExpressionOp(nodes[RIGHT],
-                                                        dataType);
+                        nodes[LEFT]  = new ExpressionOp(nodes[LEFT], dataType);
+                        nodes[RIGHT] = new ExpressionOp(nodes[RIGHT], dataType);
 
                         nodes[LEFT].resolveTypes(session, this);
                         nodes[RIGHT].resolveTypes(session, this);
@@ -513,13 +524,16 @@ public class ExpressionArithmetic extends Expression {
             if (session.database.sqlSyntaxOra) {
                 if (nodes[LEFT].dataType.isNumberType()
                         && nodes[RIGHT].dataType.isCharacterType()) {
-                    nodes[RIGHT] = new ExpressionOp(nodes[RIGHT],
-                                                    nodes[LEFT].dataType);
+                    nodes[RIGHT] = new ExpressionOp(
+                        nodes[RIGHT],
+                        nodes[LEFT].dataType);
                 }
             }
 
-            dataType = nodes[LEFT].dataType.getCombinedType(session,
-                    nodes[RIGHT].dataType, opType);
+            dataType = nodes[LEFT].dataType.getCombinedType(
+                session,
+                nodes[RIGHT].dataType,
+                opType);
 
             if (dataType.isDateTimeType()) {
                 if (nodes[LEFT].dataType.isIntervalType()) {
@@ -597,12 +611,15 @@ public class ExpressionArithmetic extends Expression {
                 throw Error.error(ErrorCode.X_42562);
             }
 
-            Type newType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+            Type newType = CharacterType.getCharacterType(
+                Types.SQL_VARCHAR,
                 nodes[RIGHT].dataType.displaySize(),
                 nodes[LEFT].dataType.getCollation());
 
-            nodes[RIGHT] = ExpressionOp.getCastExpression(session,
-                    nodes[RIGHT], newType);
+            nodes[RIGHT] = ExpressionOp.getCastExpression(
+                session,
+                nodes[RIGHT],
+                newType);
         }
 
         if (nodes[RIGHT].dataType.isCharacterType()
@@ -611,16 +628,21 @@ public class ExpressionArithmetic extends Expression {
                 throw Error.error(ErrorCode.X_42562);
             }
 
-            Type newType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+            Type newType = CharacterType.getCharacterType(
+                Types.SQL_VARCHAR,
                 nodes[LEFT].dataType.displaySize(),
                 nodes[RIGHT].dataType.getCollation());
 
-            nodes[LEFT] = ExpressionOp.getCastExpression(session, nodes[LEFT],
-                    newType);
+            nodes[LEFT] = ExpressionOp.getCastExpression(
+                session,
+                nodes[LEFT],
+                newType);
         }
 
-        dataType = nodes[LEFT].dataType.getCombinedType(session,
-                nodes[RIGHT].dataType, OpTypes.CONCAT);
+        dataType = nodes[LEFT].dataType.getCombinedType(
+            session,
+            nodes[RIGHT].dataType,
+            OpTypes.CONCAT);
 
         if (nodes[LEFT].opType == OpTypes.VALUE
                 && nodes[RIGHT].opType == OpTypes.VALUE) {
@@ -670,8 +692,8 @@ public class ExpressionArithmetic extends Expression {
                 return valueData;
 
             case OpTypes.NEGATE :
-                return dataType.negate(nodes[LEFT].getValue(session,
-                        nodes[LEFT].dataType));
+                return dataType.negate(
+                    nodes[LEFT].getValue(session, nodes[LEFT].dataType));
         }
 
         Object a = nodes[LEFT].getValue(session);

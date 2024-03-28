@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,51 +59,79 @@ public class TypeInvariants {
     static {
         HsqlName name;
 
-        name = HsqlNameManager.newInfoSchemaObjectName("CARDINAL_NUMBER",
-                false, SchemaObject.DOMAIN);
+        name = HsqlNameManager.newInfoSchemaObjectName(
+            "CARDINAL_NUMBER",
+            false,
+            SchemaObject.DOMAIN);
         CARDINAL_NUMBER = new NumberType(Types.SQL_BIGINT, 0, 0);
-        CARDINAL_NUMBER.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, CARDINAL_NUMBER);
+        CARDINAL_NUMBER.userTypeModifier = new UserTypeModifier(
+            name,
+            SchemaObject.DOMAIN,
+            CARDINAL_NUMBER);
 
         //
-        name = HsqlNameManager.newInfoSchemaObjectName("YES_OR_NO", false,
-                SchemaObject.DOMAIN);
+        name = HsqlNameManager.newInfoSchemaObjectName(
+            "YES_OR_NO",
+            false,
+            SchemaObject.DOMAIN);
         YES_OR_NO = new CharacterType(Types.SQL_VARCHAR, 3);
-        YES_OR_NO.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, YES_OR_NO);
+        YES_OR_NO.userTypeModifier = new UserTypeModifier(
+            name,
+            SchemaObject.DOMAIN,
+            YES_OR_NO);
 
         //
-        name = HsqlNameManager.newInfoSchemaObjectName("CHARACTER_DATA",
-                false, SchemaObject.DOMAIN);
+        name = HsqlNameManager.newInfoSchemaObjectName(
+            "CHARACTER_DATA",
+            false,
+            SchemaObject.DOMAIN);
         CHARACTER_DATA = new CharacterType(Types.SQL_VARCHAR, (1 << 16));
-        CHARACTER_DATA.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, CHARACTER_DATA);
+        CHARACTER_DATA.userTypeModifier = new UserTypeModifier(
+            name,
+            SchemaObject.DOMAIN,
+            CHARACTER_DATA);
 
         //
-        name = HsqlNameManager.newInfoSchemaObjectName("SQL_IDENTIFIER",
-                false, SchemaObject.DOMAIN);
+        name = HsqlNameManager.newInfoSchemaObjectName(
+            "SQL_IDENTIFIER",
+            false,
+            SchemaObject.DOMAIN);
         SQL_IDENTIFIER = new CharacterType(Types.SQL_VARCHAR, 128);
-        SQL_IDENTIFIER.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, SQL_IDENTIFIER);
+        SQL_IDENTIFIER.userTypeModifier = new UserTypeModifier(
+            name,
+            SchemaObject.DOMAIN,
+            SQL_IDENTIFIER);
 
         //
-        name = HsqlNameManager.newInfoSchemaObjectName("TIME_STAMP", false,
-                SchemaObject.DOMAIN);
-        TIME_STAMP = new DateTimeType(Types.SQL_TIMESTAMP,
-                                      Types.SQL_TIMESTAMP_WITH_TIME_ZONE, 6);
-        TIME_STAMP.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, TIME_STAMP);
-
-       name = HsqlNameManager.newInfoSchemaObjectName("NCNAME",
-                false, SchemaObject.DOMAIN);
+        name = HsqlNameManager.newInfoSchemaObjectName(
+            "TIME_STAMP",
+            false,
+            SchemaObject.DOMAIN);
+        TIME_STAMP = new DateTimeType(
+            Types.SQL_TIMESTAMP,
+            Types.SQL_TIMESTAMP_WITH_TIME_ZONE,
+            6);
+        TIME_STAMP.userTypeModifier = new UserTypeModifier(
+            name,
+            SchemaObject.DOMAIN,
+            TIME_STAMP);
+        name = HsqlNameManager.newInfoSchemaObjectName(
+            "NCNAME",
+            false,
+            SchemaObject.DOMAIN);
         NCNAME = new CharacterType(Types.SQL_VARCHAR, (1 << 12));
-        NCNAME.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, NCNAME);
-
-        name = HsqlNameManager.newInfoSchemaObjectName("URI",
-                false, SchemaObject.DOMAIN);
+        NCNAME.userTypeModifier = new UserTypeModifier(
+            name,
+            SchemaObject.DOMAIN,
+            NCNAME);
+        name = HsqlNameManager.newInfoSchemaObjectName(
+            "URI",
+            false,
+            SchemaObject.DOMAIN);
         URI = new CharacterType(Types.SQL_VARCHAR, (1 << 12));
-        URI.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, URI);
+        URI.userTypeModifier = new UserTypeModifier(
+            name,
+            SchemaObject.DOMAIN,
+            URI);
     }
 }

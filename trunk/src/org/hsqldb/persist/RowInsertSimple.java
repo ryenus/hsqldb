@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,6 @@ public class RowInsertSimple implements RowInsertInterface {
     final int         mode;
 
     public RowInsertSimple(Session session, ErrorLogger callback, int mode) {
-
         this.session  = session;
         this.callback = callback;
         this.mode     = mode;
@@ -100,13 +99,14 @@ public class RowInsertSimple implements RowInsertInterface {
             try {
 
                 // todo - write line number etc
-                scrwriter.writeInsertStatement(null, row,
-                                               (Table) row.getTable());
+                scrwriter.writeInsertStatement(
+                    null,
+                    row,
+                    (Table) row.getTable());
             } catch (Throwable t) {}
         }
 
         public void close() {
-
             if (scrwriter != null) {
                 scrwriter.close();
             }
@@ -119,8 +119,12 @@ public class RowInsertSimple implements RowInsertInterface {
                     new java.util.Date());
                 String name = fileNamePath + "." + timestamp + ".reject";
 
-                scrwriter = new ScriptWriterText(database, name, false, false,
-                                                 true);
+                scrwriter = new ScriptWriterText(
+                    database,
+                    name,
+                    false,
+                    false,
+                    true);
             }
         }
     }

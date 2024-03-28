@@ -74,6 +74,7 @@ public final class UserManager {
      */
     private OrderedHashMap<String, User> userList;
     private GranteeManager               granteeManager;
+
     /**
      * The function for password complexity.
      */
@@ -155,10 +156,11 @@ public final class UserManager {
             return true;
         }
 
-        Result result = pwCheckFunction.invoke(session,
-                                               new Object[]{ password },
-                                               null,
-                                               true);
+        Result result = pwCheckFunction.invoke(
+            session,
+            new Object[]{ password },
+            null,
+            true);
         Boolean check = (Boolean) result.getValueObject();
 
         if (check == null || !check.booleanValue()) {
@@ -217,17 +219,18 @@ public final class UserManager {
             isQuoted = false;
         }
 
-        HsqlName name =
-            granteeManager.database.nameManager.newHsqlName(username,
-                                                            isQuoted,
-                                                            SchemaObject.GRANTEE);
+        HsqlName name = granteeManager.database.nameManager.newHsqlName(
+            username,
+            isQuoted,
+            SchemaObject.GRANTEE);
         User user = createUser(null, name, password, false);
 
         user.isLocalOnly = true;
 
-        granteeManager.grant(name.name,
-                             SqlInvariants.DBA_ADMIN_ROLE_NAME,
-                             granteeManager.getDBARole());
+        granteeManager.grant(
+            name.name,
+            SqlInvariants.DBA_ADMIN_ROLE_NAME,
+            granteeManager.getDBARole());
     }
 
     /**
@@ -261,11 +264,9 @@ public final class UserManager {
          * When not null, ignore if user exists. Otherwise create a user and
          * assign the list of roles to the user.
          */
-        Result result =
-            extAuthenticationFunction.invokeJavaMethodDirect(new String[]{
-                granteeManager.database.getNameString(),
-                name,
-                password });
+        Result result = extAuthenticationFunction.invokeJavaMethodDirect(
+            new String[]{ granteeManager.database.getNameString(), name,
+                          password });
 
         if (result.isError()) {
             throw Error.error(ErrorCode.X_28501, result.getMainString());
@@ -274,10 +275,10 @@ public final class UserManager {
         Object[] roles = (Object[]) result.getValueObject();
 
         if (user == null) {
-            HsqlName hsqlName =
-                granteeManager.database.nameManager.newHsqlName(name,
-                                                                true,
-                                                                SchemaObject.GRANTEE);
+            HsqlName hsqlName = granteeManager.database.nameManager.newHsqlName(
+                name,
+                true,
+                SchemaObject.GRANTEE);
 
             user                = createUser(null, hsqlName, "", false);
             user.isExternalOnly = true;
@@ -305,7 +306,7 @@ public final class UserManager {
 
         for (int i = 0; i < roles.length; i++) {
             Schema schema = granteeManager.database.schemaManager.findSchema(
-                                (String) roles[i]);
+                (String) roles[i]);
 
             if (schema != null) {
                 user.setInitialSchema(schema.getName());
@@ -325,7 +326,6 @@ public final class UserManager {
     }
 
     public boolean exists(String name) {
-
         return userList.get(name) == null
                ? false
                : true;
@@ -462,21 +462,32 @@ public final class UserManager {
         if (pwCheckFunction != null) {
             StringBuilder sb = new StringBuilder();
 
-            sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
-            sb.append(' ').append(Tokens.T_PASSWORD).append(' ');
-            sb.append(Tokens.T_CHECK).append(' ').append(Tokens.T_FUNCTION);
-            sb.append(' ');
-            sb.append(pwCheckFunction.getSQLBodyDefinition());
+            sb.append(Tokens.T_SET)
+              .append(' ')
+              .append(Tokens.T_DATABASE)
+              .append(' ')
+              .append(Tokens.T_PASSWORD)
+              .append(' ')
+              .append(Tokens.T_CHECK)
+              .append(' ')
+              .append(Tokens.T_FUNCTION)
+              .append(' ')
+              .append(pwCheckFunction.getSQLBodyDefinition());
             list.add(sb.toString());
         }
 
         if (extAuthenticationFunction != null) {
             StringBuilder sb = new StringBuilder();
 
-            sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
-            sb.append(' ').append(Tokens.T_AUTHENTICATION).append(' ');
-            sb.append(Tokens.T_FUNCTION).append(' ');
-            sb.append(extAuthenticationFunction.getSQLBodyDefinition());
+            sb.append(Tokens.T_SET)
+              .append(' ')
+              .append(Tokens.T_DATABASE)
+              .append(' ')
+              .append(Tokens.T_AUTHENTICATION)
+              .append(' ')
+              .append(Tokens.T_FUNCTION)
+              .append(' ')
+              .append(extAuthenticationFunction.getSQLBodyDefinition());
             list.add(sb.toString());
         }
 

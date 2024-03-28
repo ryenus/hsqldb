@@ -59,15 +59,16 @@ public class ParserBase {
     protected Token   token;
 
     //
-    protected int           partPosition;
-    protected HsqlException lastError;
-    protected HsqlName      lastSynonym;
-    protected boolean       isSchemaDefinition;
-    protected boolean       isViewDefinition;
-    protected boolean       isRecording;
+    protected int                  partPosition;
+    protected HsqlException        lastError;
+    protected HsqlName             lastSynonym;
+    protected boolean              isSchemaDefinition;
+    protected boolean              isViewDefinition;
+    protected boolean              isRecording;
     protected HsqlArrayList<Token> recordedStatement;
-    static final BigDecimal LONG_MAX_VALUE_INCREMENT =
-        BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.valueOf(1));
+    static final BigDecimal LONG_MAX_VALUE_INCREMENT = BigDecimal.valueOf(
+        Long.MAX_VALUE)
+            .add(BigDecimal.valueOf(1));
 
     /**
      * Constructs a new BaseParser object with the given context.
@@ -75,7 +76,6 @@ public class ParserBase {
      * @param scanner the token source from which to parse commands
      */
     ParserBase(Scanner scanner) {
-
         this.scanner           = scanner;
         this.token             = scanner.token;
         this.recordedStatement = new HsqlArrayList<>(256);
@@ -169,8 +169,7 @@ public class ParserBase {
             read();
         }
 
-        String sql = scanner.getPart(startPosition,
-                                     scanner.getTokenPosition());
+        String sql = scanner.getPart(startPosition, scanner.getTokenPosition());
 
         return sql;
     }
@@ -202,8 +201,7 @@ public class ParserBase {
             tokenIndex++;
         }
 
-        String sql = scanner.getPart(startPosition,
-                                     scanner.getTokenPosition());
+        String sql = scanner.getPart(startPosition, scanner.getTokenPosition());
 
         return sql;
     }
@@ -330,35 +328,30 @@ public class ParserBase {
     }
 
     boolean isNonReservedIdentifier() {
-
         return !token.isReservedIdentifier
                && (token.isUndelimitedIdentifier
                    || token.isDelimitedIdentifier);
     }
 
     void checkIsNonReservedIdentifier() {
-
         if (!isNonReservedIdentifier()) {
             throw unexpectedToken();
         }
     }
 
     boolean isNonCoreReservedIdentifier() {
-
         return !token.isCoreReservedIdentifier
                && (token.isUndelimitedIdentifier
                    || token.isDelimitedIdentifier);
     }
 
     void checkIsNonCoreReservedIdentifier() {
-
         if (!isNonCoreReservedIdentifier()) {
             throw unexpectedToken();
         }
     }
 
     void checkIsIrregularCharInIdentifier() {
-
         if (token.hasIrregularChar) {
             throw unexpectedToken();
         }
@@ -369,7 +362,6 @@ public class ParserBase {
     }
 
     void checkIsIdentifier() {
-
         if (!isIdentifier()) {
             throw unexpectedToken();
         }
@@ -380,35 +372,30 @@ public class ParserBase {
     }
 
     void checkIsDelimitedIdentifier() {
-
         if (!token.isDelimitedIdentifier) {
             throw Error.error(ErrorCode.X_42569);
         }
     }
 
     void checkIsUndelimitedIdentifier() {
-
         if (!token.isUndelimitedIdentifier) {
             throw unexpectedToken();
         }
     }
 
     void checkIsValue() {
-
         if (token.tokenType != Tokens.X_VALUE) {
             throw unexpectedToken();
         }
     }
 
     void checkIsIntegral() {
-
         if (!isIntegral()) {
             throw unexpectedTokenRequire("an integer");
         }
     }
 
     void checkIsQuotedString() {
-
         if (!isQuotedString()) {
             throw unexpectedTokenRequire("a quoted string");
         }
@@ -450,7 +437,6 @@ public class ParserBase {
     }
 
     void checkIsSimpleName() {
-
         if (!isSimpleName()) {
             throw unexpectedToken();
         }
@@ -527,8 +513,10 @@ public class ParserBase {
 
     void checkIsAny(int id1, int id2, int id3, int id4) {
 
-        if (token.tokenType == id1 || token.tokenType == id2
-                || token.tokenType == id3 || token.tokenType == id4) {
+        if (token.tokenType == id1
+                || token.tokenType == id2
+                || token.tokenType == id3
+                || token.tokenType == id4) {
             return;
         }
 
@@ -554,7 +542,6 @@ public class ParserBase {
     }
 
     Integer readIntegerObject() {
-
         int value = readInteger();
 
         return ValuePool.getInt(value);
@@ -572,7 +559,8 @@ public class ParserBase {
 
         checkIsIntegral();
 
-        if (minus && token.dataType.typeCode == Types.SQL_BIGINT
+        if (minus
+                && token.dataType.typeCode == Types.SQL_BIGINT
                 && ((Number) token.tokenValue).longValue()
                    == -(long) Integer.MIN_VALUE) {
             read();
@@ -607,7 +595,8 @@ public class ParserBase {
 
         checkIsValue();
 
-        if (token.dataType.typeCode == Types.SQL_NUMERIC || token.dataType.typeCode == Types.SQL_DECIMAL) {
+        if (token.dataType.typeCode == Types.SQL_NUMERIC
+                || token.dataType.typeCode == Types.SQL_DECIMAL) {
             if (minus && LONG_MAX_VALUE_INCREMENT.equals(token.tokenValue)) {
                 read();
 
@@ -653,6 +642,7 @@ public class ParserBase {
 
                 return new ExpressionValue(date, Type.SQL_DATE);
             }
+
             case Tokens.TIME : {
                 read();
 
@@ -670,6 +660,7 @@ public class ParserBase {
 
                 return new ExpressionValue(value, dataType);
             }
+
             case Tokens.TIMESTAMP : {
                 read();
 
@@ -683,10 +674,11 @@ public class ParserBase {
                 read();
 
                 TimestampData date     = scanner.newTimestamp(s);
-                Type   dataType = scanner.dateTimeType;
+                Type          dataType = scanner.dateTimeType;
 
                 return new ExpressionValue(date, dataType);
             }
+
             case Tokens.INTERVAL : {
                 boolean minus = false;
 
@@ -725,6 +717,7 @@ public class ParserBase {
 
                 return new ExpressionValue(interval, dataType);
             }
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "ParserBase");
         }
@@ -734,8 +727,9 @@ public class ParserBase {
         return null;
     }
 
-    IntervalType readIntervalType(Session session,
-                                  boolean maxPrecisionDefault) {
+    IntervalType readIntervalType(
+            Session session,
+            boolean maxPrecisionDefault) {
 
         int    precision = -1;
         int    scale     = -1;
@@ -747,8 +741,9 @@ public class ParserBase {
 
         startToken       = endToken = token.tokenType;
         startTokenString = token.tokenString;
-        startIndex = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES,
-                                    startToken);
+        startIndex = ArrayUtil.find(
+            Tokens.SQL_INTERVAL_FIELD_CODES,
+            startToken);
 
         read();
 
@@ -783,8 +778,9 @@ public class ParserBase {
 
             read();
 
-            int end = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES,
-                                     token.tokenType);
+            int end = ArrayUtil.find(
+                Tokens.SQL_INTERVAL_FIELD_CODES,
+                token.tokenType);
 
             if (end > startIndex) {
                 endToken = token.tokenType;
@@ -822,17 +818,24 @@ public class ParserBase {
         }
 
         if (startIndex == -1 && session.database.sqlSyntaxMys) {
-            int type = FunctionCustom.getSQLTypeForToken(startTokenString);
+            int type      = FunctionCustom.getSQLTypeForToken(startTokenString);
             int startType = IntervalType.getStartIntervalType(type);
             int endType   = IntervalType.getEndIntervalType(type);
 
             return IntervalType.getIntervalType(
-                type, startType, endType, IntervalType.maxIntervalPrecision,
-                IntervalType.maxFractionPrecision, true);
+                type,
+                startType,
+                endType,
+                IntervalType.maxIntervalPrecision,
+                IntervalType.maxFractionPrecision,
+                true);
         }
 
-        return IntervalType.getIntervalType(startIndex, endIndex, precision,
-                                            scale);
+        return IntervalType.getIntervalType(
+            startIndex,
+            endIndex,
+            precision,
+            scale);
     }
 
     static int getExpressionType(int tokenT) {
@@ -847,7 +850,8 @@ public class ParserBase {
     }
 
     private static final IntKeyIntValueHashMap expressionTypeMap =
-        new IntKeyIntValueHashMap(37);
+        new IntKeyIntValueHashMap(
+            37);
 
     static {
 
@@ -879,26 +883,31 @@ public class ParserBase {
     }
 
     HsqlException unexpectedToken(String tokenS) {
-        return Error.parseError(ErrorCode.X_42581, tokenS,
-                                scanner.getLineNumber());
+
+        return Error.parseError(
+            ErrorCode.X_42581,
+            tokenS,
+            scanner.getLineNumber());
     }
 
     HsqlException unexpectedToken(int token) {
 
         String tokenS = Tokens.getKeyword(token);
 
-        return Error.parseError(ErrorCode.X_42581, tokenS,
-                                scanner.getLineNumber());
+        return Error.parseError(
+            ErrorCode.X_42581,
+            tokenS,
+            scanner.getLineNumber());
     }
 
     HsqlException unexpectedTokenRequire(String required) {
 
         if (token.tokenType == Tokens.X_ENDPARSE) {
-            return Error.parseError(ErrorCode.X_42590,
-                                    ErrorCode.TOKEN_REQUIRED,
-                                    scanner.getLineNumber(), new String[] {
-                "", required
-            });
+            return Error.parseError(
+                ErrorCode.X_42590,
+                ErrorCode.TOKEN_REQUIRED,
+                scanner.getLineNumber(),
+                new String[]{ "", required });
         }
 
         String tokenS;
@@ -915,17 +924,20 @@ public class ParserBase {
             tokenS = token.tokenString;
         }
 
-        return Error.parseError(ErrorCode.X_42581, ErrorCode.TOKEN_REQUIRED,
-                                scanner.getLineNumber(), new String[] {
-            tokenS, required
-        });
+        return Error.parseError(
+            ErrorCode.X_42581,
+            ErrorCode.TOKEN_REQUIRED,
+            scanner.getLineNumber(),
+            new String[]{ tokenS, required });
     }
 
     HsqlException unexpectedToken() {
 
         if (token.tokenType == Tokens.X_ENDPARSE) {
-            return Error.parseError(ErrorCode.X_42590, null,
-                                    scanner.getLineNumber());
+            return Error.parseError(
+                ErrorCode.X_42590,
+                null,
+                scanner.getLineNumber());
         }
 
         String tokenS;
@@ -942,8 +954,10 @@ public class ParserBase {
             tokenS = token.tokenString;
         }
 
-        return Error.parseError(ErrorCode.X_42581, tokenS,
-                                scanner.getLineNumber());
+        return Error.parseError(
+            ErrorCode.X_42581,
+            tokenS,
+            scanner.getLineNumber());
     }
 
     HsqlException tooManyIdentifiers() {
@@ -960,8 +974,10 @@ public class ParserBase {
             tokenS = token.tokenString;
         }
 
-        return Error.parseError(ErrorCode.X_42551, tokenS,
-                                scanner.getLineNumber());
+        return Error.parseError(
+            ErrorCode.X_42551,
+            tokenS,
+            scanner.getLineNumber());
     }
 
     HsqlException unsupportedFeature() {
@@ -980,13 +996,14 @@ public class ParserBase {
      * read list of comma separated prop = value pairs as tokens
      * optionalEquals, requireEquals for use of '='
      */
-    OrderedHashMap<String, Token> readPropertyValuePairs(boolean optionalEquals,
-                                                         boolean requireEquals) {
+    OrderedHashMap<String, Token> readPropertyValuePairs(
+            boolean optionalEquals,
+            boolean requireEquals) {
 
         OrderedHashMap<String, Token> list = null;
-        String         prop;
-        Token          value;
-        int            pos;
+        String                        prop;
+        Token                         value;
+        int                           pos;
 
         do {
             pos = getPosition();
@@ -1033,7 +1050,6 @@ public class ParserBase {
 
             if (!readIfThis(Tokens.COMMA)) {
                 pos = getPosition();
-
                 break;
             }
         } while (true);

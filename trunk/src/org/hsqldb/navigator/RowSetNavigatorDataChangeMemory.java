@@ -51,14 +51,15 @@ import org.hsqldb.types.Type;
  * @since 1.9.0
  */
 public class RowSetNavigatorDataChangeMemory
-implements RowSetNavigatorDataChange {
+        implements RowSetNavigatorDataChange {
 
     public static final RowSetNavigatorDataChangeMemory emptyRowSet =
-        new RowSetNavigatorDataChangeMemory(null);
-    int                   size;
-    int                   currentPos = -1;
+        new RowSetNavigatorDataChangeMemory(
+            null);
+    int                        size;
+    int                        currentPos = -1;
     OrderedLongKeyHashMap<Row> list;
-    Session               session;
+    Session                    session;
 
     public RowSetNavigatorDataChangeMemory(Session session) {
         this.session = session;
@@ -95,7 +96,6 @@ implements RowSetNavigatorDataChange {
     }
 
     public boolean beforeFirst() {
-
         currentPos = -1;
 
         return true;
@@ -160,8 +160,12 @@ implements RowSetNavigatorDataChange {
         return true;
     }
 
-    public Object[] addRow(Session session, Row row, Object[] data,
-                           Type[] types, int[] columnMap) {
+    public Object[] addRow(
+            Session session,
+            Row row,
+            Object[] data,
+            Type[] types,
+            int[] columnMap) {
 
         long rowId  = row.getId();
         int  lookup = list.getLookup(rowId);
@@ -175,9 +179,8 @@ implements RowSetNavigatorDataChange {
 
             return data;
         } else {
-            Object[] rowData = list.getValueAt(lookup).getData();
-            Object[] currentData =
-                (Object[]) list.getSecondValueAt(lookup);
+            Object[] rowData     = list.getValueAt(lookup).getData();
+            Object[] currentData = (Object[]) list.getSecondValueAt(lookup);
 
             if (currentData == null) {
                 if (session.database.sqlEnforceTDCD) {
@@ -191,8 +194,9 @@ implements RowSetNavigatorDataChange {
                 int j = columnMap[i];
 
                 if (types[j].compare(session, data[j], currentData[j]) != 0) {
-                    if (types[j].compare(session, rowData[j], currentData[j])
-                            != 0) {
+                    if (types[j].compare(session,
+                                         rowData[j],
+                                         currentData[j]) != 0) {
                         if (session.database.sqlEnforceTDCU) {
                             throw Error.error(ErrorCode.X_27000);
                         }
@@ -249,8 +253,7 @@ implements RowSetNavigatorDataChange {
             for (int j = 0; j < keys.length; j++) {
                 int pos = keys[j];
 
-                if (types[pos].compare(session, rowData[pos], data[pos])
-                        != 0) {
+                if (types[pos].compare(session, rowData[pos], data[pos]) != 0) {
                     continue outerloop;
                 }
             }
@@ -320,13 +323,11 @@ implements RowSetNavigatorDataChange {
         }
 
         public Object[] getCurrent() {
-            return RowSetNavigatorDataChangeMemory.this
-                .getCurrentChangedData();
+            return RowSetNavigatorDataChangeMemory.this.getCurrentChangedData();
         }
 
         public Object getField(int col) {
-            return RowSetNavigatorDataChangeMemory.this
-                .getCurrentChangedData()[col];
+            return RowSetNavigatorDataChangeMemory.this.getCurrentChangedData()[col];
         }
 
         public void setCurrent(Object[] data) {}

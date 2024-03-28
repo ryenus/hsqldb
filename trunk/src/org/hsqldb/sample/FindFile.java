@@ -71,6 +71,7 @@
 package org.hsqldb.sample;
 
 import java.io.File;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -113,9 +114,10 @@ class FindFile {
             // The database will be created automatically if it does not exist
             // 'testfiles' in the URL is the name of the database
             // "SA" is the user name and "" is the (empty) password
-            Connection conn =
-                DriverManager.getConnection("jdbc:hsqldb:testfiles", "SA",
-                                            "");
+            Connection conn = DriverManager.getConnection(
+                "jdbc:hsqldb:testfiles",
+                "SA",
+                "");
 
             // Check the command line parameters
             if (arg.length == 1) {
@@ -164,9 +166,9 @@ class FindFile {
         // Now execute the search query
         // UCASE: This is a case-insensitive search
         // ESCAPE ':' is used so we can search for any characters in file names
-        ResultSet result = stat.executeQuery("SELECT Path FROM Files WHERE "
-                                             + "UCASE(Path) LIKE '%" + name
-                                             + "%' ESCAPE ':'");
+        ResultSet result = stat.executeQuery(
+            "SELECT Path FROM Files WHERE " + "UCASE(Path) LIKE '%" + name
+            + "%' ESCAPE ':'");
 
         // Moves to the next record until no more records
         while (result.next()) {
@@ -183,8 +185,10 @@ class FindFile {
     /**
      * Re-create the database and fill the file names in     *
      */
-    static void fillFileNames(Connection conn,
-                              String root) throws SQLException {
+    static void fillFileNames(
+            Connection conn,
+            String root)
+            throws SQLException {
 
         System.out.println("Re-creating the database...");
 
@@ -194,19 +198,21 @@ class FindFile {
         // Try to drop the table
         try {
             stat.executeUpdate("DROP TABLE Files");
-        } catch (SQLException e) {    // Ignore Exception, because the table may not yet exist
+        } catch (SQLException e) {
+
+            // Ignore Exception, because the table may not yet exist
         }
 
         // The varchar size should be large enough for long paths
-        stat.execute("CREATE TABLE Files"
-                     + "(path VARCHAR(255),name VARCHAR(255))");
+        stat.execute(
+            "CREATE TABLE Files" + "(path VARCHAR(255),name VARCHAR(255))");
 
         // Close the Statement object, it is no longer used
         stat.close();
 
         // Use a PreparedStatement because Path and Name could contain the single quote character
-        PreparedStatement prep =
-            conn.prepareCall("INSERT INTO Files (path,name) VALUES (?,?)");
+        PreparedStatement prep = conn.prepareCall(
+            "INSERT INTO Files (path,name) VALUES (?,?)");
 
         // Start with the 'root' directory and recurse all subdirectories
         fillPath(root, "", prep);
@@ -219,8 +225,11 @@ class FindFile {
     /**
      * Fill the file names, using the PreparedStatement
      */
-    static void fillPath(String path, String name,
-                         PreparedStatement prep) throws SQLException {
+    static void fillPath(
+            String path,
+            String name,
+            PreparedStatement prep)
+            throws SQLException {
 
         File f = new File(path);
 

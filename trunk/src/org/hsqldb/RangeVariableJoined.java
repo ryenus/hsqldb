@@ -53,11 +53,12 @@ public class RangeVariableJoined extends RangeVariable {
 
     RangeVariable[] rangeArray;
 
-    public RangeVariableJoined(Table table, SimpleName alias,
-                               OrderedHashSet<String> columnList,
-                               SimpleName[] columnNameList,
-                               CompileContext compileContext) {
-
+    public RangeVariableJoined(
+            Table table,
+            SimpleName alias,
+            OrderedHashSet<String> columnList,
+            SimpleName[] columnNameList,
+            CompileContext compileContext) {
         super(table, alias, columnList, columnNameList, compileContext);
 
         setParameters();
@@ -116,7 +117,9 @@ public class RangeVariableJoined extends RangeVariable {
         super.addAllColumns();
     }
 
-    public void addNamedJoinColumnExpression(String name, Expression e,
+    public void addNamedJoinColumnExpression(
+            String name,
+            Expression e,
             int position) {
         super.addNamedJoinColumnExpression(name, e, position);
     }
@@ -163,8 +166,10 @@ public class RangeVariableJoined extends RangeVariable {
         return super.getUniqueColumnNameSet();
     }
 
-    public int findColumn(String schemaName, String tableName,
-                          String columnName) {
+    public int findColumn(
+            String schemaName,
+            String tableName,
+            String columnName) {
 
         if (tableAlias != null) {
             return super.findColumn(schemaName, tableName, columnName);
@@ -182,8 +187,10 @@ public class RangeVariableJoined extends RangeVariable {
         for (int i = 0; i < rangeArray.length; i++) {
             RangeVariable currentRange = rangeArray[i];
 
-            colIndex = currentRange.findColumn(schemaName, tableName,
-                                               columnName);
+            colIndex = currentRange.findColumn(
+                schemaName,
+                tableName,
+                columnName);
 
             if (currentRange.namedJoinColumnCheck == null) {
                 if (colIndex > -1) {
@@ -192,9 +199,9 @@ public class RangeVariableJoined extends RangeVariable {
                     count += currentRange.rangeTable.getColumnCount();
                 }
             } else {
-                int limit = colIndex > -1 ? colIndex
-                                          : currentRange.namedJoinColumnCheck
-                                              .length;
+                int limit = colIndex > -1
+                            ? colIndex
+                            : currentRange.namedJoinColumnCheck.length;
 
                 for (int j = 0; j < limit; j++) {
                     if (!currentRange.namedJoinColumnCheck[j]) {
@@ -258,18 +265,25 @@ public class RangeVariableJoined extends RangeVariable {
     /**
      * Add all columns to a list of expressions
      */
-    public int addTableColumns(HsqlArrayList<Expression> exprList, int position,
-                               HashSet<String> exclude) {
+    public int addTableColumns(
+            HsqlArrayList<Expression> exprList,
+            int position,
+            HashSet<String> exclude) {
         return super.addTableColumns(exprList, position, exclude);
     }
 
-    public void addTableColumns(RangeVariable subRange, Expression expression,
-                                HashSet<String> exclude) {
+    public void addTableColumns(
+            RangeVariable subRange,
+            Expression expression,
+            HashSet<String> exclude) {
 
         int index = getFirstColumnIndex(subRange);
 
-        addTableColumns(expression, index,
-                        subRange.rangeTable.getColumnCount(), exclude);
+        addTableColumns(
+            expression,
+            index,
+            subRange.rangeTable.getColumnCount(),
+            exclude);
     }
 
     protected int getFirstColumnIndex(RangeVariable subRange) {
@@ -316,16 +330,20 @@ public class RangeVariableJoined extends RangeVariable {
         super.resetConditions();
     }
 
-    public void replaceColumnReference(RangeVariable range,
-                                       Expression[] list) {}
+    public void replaceColumnReference(
+            RangeVariable range,
+            Expression[] list) {}
 
-    public void replaceRangeVariables(RangeVariable[] ranges,
-                                      RangeVariable[] newRanges) {
+    public void replaceRangeVariables(
+            RangeVariable[] ranges,
+            RangeVariable[] newRanges) {
         super.replaceRangeVariables(ranges, newRanges);
     }
 
-    public void resolveRangeTable(Session session, RangeGroup rangeGroup,
-                                  RangeGroup[] rangeGroups) {
+    public void resolveRangeTable(
+            Session session,
+            RangeGroup rangeGroup,
+            RangeGroup[] rangeGroups) {
         super.resolveRangeTable(session, rangeGroup, rangeGroups);
     }
 
@@ -340,10 +358,11 @@ public class RangeVariableJoined extends RangeVariable {
     public String describe(Session session, int blanks) {
 
         RangeVariableConditions[] conditionsArray = joinConditions;
-        StringBuilder             sb = new StringBuilder();
-        String b = ValuePool.spaceString.substring(0, blanks);
-
-        String temp = "INNER";
+        StringBuilder             sb              = new StringBuilder();
+        String                    b = ValuePool.spaceString.substring(
+            0,
+            blanks);
+        String                    temp            = "INNER";
 
         if (isLeftJoin) {
             temp = "LEFT OUTER";
@@ -355,9 +374,14 @@ public class RangeVariableJoined extends RangeVariable {
             temp = "RIGHT OUTER";
         }
 
-        sb.append(b).append("join type=").append(temp).append("\n");
-        sb.append(b).append("table=").append(rangeTable.getName().name).append(
-            "\n");
+        sb.append(b)
+          .append("join type=")
+          .append(temp)
+          .append("\n")
+          .append(b)
+          .append("table=")
+          .append(rangeTable.getName().name)
+          .append("\n");
 
         if (tableAlias != null) {
             sb.append(b).append("alias=").append(tableAlias.name).append("\n");
@@ -365,9 +389,9 @@ public class RangeVariableJoined extends RangeVariable {
 
         boolean fullScan = !conditionsArray[0].hasIndexCondition();
 
-        sb.append(b).append("access=").append(fullScan ? "FULL SCAN"
-                                                       : "INDEX PRED").append(
-                                                       "\n");
+        sb.append(b).append("access=").append(fullScan
+                ? "FULL SCAN"
+                : "INDEX PRED").append("\n");
 
         for (int i = 0; i < conditionsArray.length; i++) {
             RangeVariableConditions conditions = this.joinConditions[i];
@@ -378,8 +402,9 @@ public class RangeVariableJoined extends RangeVariable {
                 sb.append(b).append("condition = [");
             }
 
-            sb.append(conditions.describe(session, blanks + 2));
-            sb.append(b).append("]\n");
+            sb.append(conditions.describe(session, blanks + 2))
+              .append(b)
+              .append("]\n");
         }
 
         return sb.toString();

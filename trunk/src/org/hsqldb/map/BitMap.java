@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -108,7 +108,6 @@ public class BitMap {
      * Resets to bits not set with original size
      */
     public void reset() {
-
         Arrays.fill(map, 0);
 
         limitPos = initialSize;
@@ -185,18 +184,21 @@ public class BitMap {
 
             for (int i = windex + 1; i < windexend; i++) {
                 setCount += Integer.bitCount(map[i]);
-                map[i]   = set ? 0xffffffff
-                               : 0;
+                map[i]   = set
+                           ? 0xffffffff
+                           : 0;
             }
         }
 
-        return set ? count - setCount
-                   : setCount;
+        return set
+               ? count - setCount
+               : setCount;
     }
 
     public int setValue(int pos, boolean set) {
-        return set ? set(pos)
-                   : unset(pos);
+        return set
+               ? set(pos)
+               : unset(pos);
     }
 
     /**
@@ -209,8 +211,9 @@ public class BitMap {
         int windex = pos >> 5;
         int mask   = 0x80000000 >>> (pos & 0x1F);
         int word   = map[windex];
-        int result = (word & mask) == 0 ? 0
-                                        : 1;
+        int result = (word & mask) == 0
+                     ? 0
+                     : 1;
 
         map[windex] = (word | mask);
 
@@ -227,8 +230,9 @@ public class BitMap {
         int windex = pos >> 5;
         int mask   = 0x80000000 >>> (pos & 0x1F);
         int word   = map[windex];
-        int result = (word & mask) == 0 ? 0
-                                        : 1;
+        int result = (word & mask) == 0
+                     ? 0
+                     : 1;
 
         mask        = ~mask;
         map[windex] = (word & mask);
@@ -255,8 +259,9 @@ public class BitMap {
 
         int mask = 0x80000000 >>> (pos & 0x1F);
 
-        return (word & mask) == 0 ? 0
-                                  : 1;
+        return (word & mask) == 0
+               ? 0
+               : 1;
     }
 
     public boolean isSet(int pos) {
@@ -301,7 +306,6 @@ public class BitMap {
 
             if (word == -1) {
                 setCount += Integer.SIZE;
-
                 continue;
             }
 
@@ -329,14 +333,12 @@ public class BitMap {
         for (; windex >= 0; windex--) {
             if (map[windex] == 0xffffffff) {
                 count += Integer.SIZE;
-
                 continue;
             }
 
             int val = countSetBitsEnd(map[windex]);
 
             count += val;
-
             break;
         }
 
@@ -477,14 +479,12 @@ public class BitMap {
     }
 
     public static int set(int map, int pos) {
-
         int mask = 0x80000000 >>> pos;
 
         return (map | mask);
     }
 
     public static byte set(byte map, int pos) {
-
         int mask = 0x00000080 >>> pos;
 
         return (byte) (map | mask);
@@ -503,16 +503,18 @@ public class BitMap {
 
         int mask = 0x80000000 >>> pos;
 
-        return (map & mask) == 0 ? false
-                                 : true;
+        return (map & mask) == 0
+               ? false
+               : true;
     }
 
     public static boolean isSet(byte map, int pos) {
 
         int mask = 0x00000080 >>> pos;
 
-        return (map & mask) == 0 ? false
-                                 : true;
+        return (map & mask) == 0
+               ? false
+               : true;
     }
 
     public static boolean isSet(byte[] map, int pos) {
@@ -526,8 +528,9 @@ public class BitMap {
 
         byte b = map[index];
 
-        return (b & mask) == 0 ? false
-                               : true;
+        return (b & mask) == 0
+               ? false
+               : true;
     }
 
     public static void unset(byte[] map, int pos) {
@@ -681,10 +684,12 @@ public class BitMap {
 
     public static byte[] and(byte[] a, byte[] b) {
 
-        int    length      = a.length > b.length ? a.length
-                                                 : b.length;
-        int    shortLength = a.length > b.length ? b.length
-                                                 : a.length;
+        int    length      = a.length > b.length
+                             ? a.length
+                             : b.length;
+        int    shortLength = a.length > b.length
+                             ? b.length
+                             : a.length;
         byte[] map         = new byte[length];
 
         for (int i = 0; i < shortLength; i++) {
@@ -696,18 +701,25 @@ public class BitMap {
 
     public static byte[] or(byte[] a, byte[] b) {
 
-        int    length      = a.length > b.length ? a.length
-                                                 : b.length;
-        int    shortLength = a.length > b.length ? b.length
-                                                 : a.length;
+        int    length      = a.length > b.length
+                             ? a.length
+                             : b.length;
+        int    shortLength = a.length > b.length
+                             ? b.length
+                             : a.length;
         byte[] map         = new byte[length];
 
         if (length != shortLength) {
-            byte[] source = a.length > b.length ? a
-                                                : b;
+            byte[] source = a.length > b.length
+                            ? a
+                            : b;
 
-            System.arraycopy(source, shortLength, map, shortLength,
-                             length - shortLength);
+            System.arraycopy(
+                source,
+                shortLength,
+                map,
+                shortLength,
+                length - shortLength);
         }
 
         for (int i = 0; i < shortLength; i++) {
@@ -719,18 +731,25 @@ public class BitMap {
 
     public static byte[] xor(byte[] a, byte[] b) {
 
-        int    length      = a.length > b.length ? a.length
-                                                 : b.length;
-        int    shortLength = a.length > b.length ? b.length
-                                                 : a.length;
+        int    length      = a.length > b.length
+                             ? a.length
+                             : b.length;
+        int    shortLength = a.length > b.length
+                             ? b.length
+                             : a.length;
         byte[] map         = new byte[length];
 
         if (length != shortLength) {
-            byte[] source = a.length > b.length ? a
-                                                : b;
+            byte[] source = a.length > b.length
+                            ? a
+                            : b;
 
-            System.arraycopy(source, shortLength, map, shortLength,
-                             length - shortLength);
+            System.arraycopy(
+                source,
+                shortLength,
+                map,
+                shortLength,
+                length - shortLength);
         }
 
         for (int i = 0; i < shortLength; i++) {

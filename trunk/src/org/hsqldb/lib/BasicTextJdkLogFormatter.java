@@ -56,8 +56,8 @@ public class BasicTextJdkLogFormatter extends Formatter {
 
     public static final String LS       = System.getProperty("line.separator");
     protected boolean          withTime = true;
-    protected SimpleDateFormat sdf =
-        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    protected SimpleDateFormat sdf = new SimpleDateFormat(
+        "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     public BasicTextJdkLogFormatter(boolean withTime) {
         this.withTime = withTime;

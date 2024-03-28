@@ -57,14 +57,18 @@ import org.hsqldb.types.Type;
 */
 public class TextFileOps {
 
-    public static Result loadTextData(Session session, String fileSettings,
-                                      Table table, int mode) {
+    public static Result loadTextData(
+            Session session,
+            String fileSettings,
+            Table table,
+            int mode) {
 
-        TextFileReader reader;
-        Database       database = session.database;
-        FileUtil       fa       = FileUtil.getFileUtil();
-        TextFileSettings textFileSettings =
-            new TextFileSettings(database.getProperties(), fileSettings);
+        TextFileReader        reader;
+        Database              database     = session.database;
+        FileUtil              fa           = FileUtil.getFileUtil();
+        TextFileSettings textFileSettings = new TextFileSettings(
+            database.getProperties(),
+            fileSettings);
         String                dataFileName = textFileSettings.getFileName();
         RandomAccessInterface dataFile;
         RowInputInterface     rowIn;
@@ -79,22 +83,25 @@ public class TextFileOps {
         boolean exists = FileUtil.getFileUtil().exists(dataFileName);
 
         if (!exists) {
-            throw Error.error(null, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_TextCache_opening_file_error,
-                              new String[] {
-                dataFileName, "file does not exist"
-            });
+            throw Error.error(
+                null,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_TextCache_opening_file_error,
+                new String[]{ dataFileName, "file does not exist" });
         }
 
         try {
-            dataFile = RAFile.newScaledRAFile(database, dataFileName, true,
-                                              RAFile.DATA_FILE_TEXT);
+            dataFile = RAFile.newScaledRAFile(
+                database,
+                dataFileName,
+                true,
+                RAFile.DATA_FILE_TEXT);
         } catch (Throwable t) {
-            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_TextCache_opening_file_error,
-                              new String[] {
-                dataFileName, t.toString()
-            });
+            throw Error.error(
+                t,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_TextCache_opening_file_error,
+                new String[]{ dataFileName, t.toString() });
         }
 
         if (textFileSettings.isQuoted || textFileSettings.isAllQuoted) {
@@ -103,14 +110,18 @@ public class TextFileOps {
             rowIn = new RowInputText(textFileSettings);
         }
 
-        reader = TextFileReader8.newTextFileReader(dataFile, textFileSettings,
-                rowIn, true);
+        reader = TextFileReader8.newTextFileReader(
+            dataFile,
+            textFileSettings,
+            rowIn,
+            true);
 
         RowInsertInterface.ErrorLogger callback;
 
         if (mode == RowInsertInterface.modes.continueOnError) {
-            callback = new RowInsertSimple.InsertErrorHandler(database,
-                    dataFileName);
+            callback = new RowInsertSimple.InsertErrorHandler(
+                database,
+                dataFileName);
         } else {
             callback = new RowInsertSimple.DefaultErrorHandler();
         }
@@ -131,7 +142,6 @@ public class TextFileOps {
 
                 if (ignoreFirst) {
                     ignoreFirst = false;
-
                     continue;
                 }
 
@@ -154,9 +164,11 @@ public class TextFileOps {
         } catch (Throwable t) {
             long linenumber = reader.getLineNumber();
 
-            throw Error.error(t, ErrorCode.TEXT_FILE, 0, new String[] {
-                String.valueOf(linenumber), t.toString()
-            });
+            throw Error.error(
+                t,
+                ErrorCode.TEXT_FILE,
+                0,
+                new String[]{ String.valueOf(linenumber), t.toString() });
         } finally {
             rowInsert.close();
 
@@ -174,13 +186,16 @@ public class TextFileOps {
         return Result.newUpdateCountResult((int) reader.getLineNumber());
     }
 
-    public static Result unloadTextData(Session session, String fileSettings,
-                                        Table table) {
+    public static Result unloadTextData(
+            Session session,
+            String fileSettings,
+            Table table) {
 
-        Database database = session.database;
-        FileUtil fa       = FileUtil.getFileUtil();
-        TextFileSettings textFileSettings =
-            new TextFileSettings(database.getProperties(), fileSettings);
+        Database              database     = session.database;
+        FileUtil              fa           = FileUtil.getFileUtil();
+        TextFileSettings textFileSettings = new TextFileSettings(
+            database.getProperties(),
+            fileSettings);
         String                dataFileName = textFileSettings.getFileName();
         RandomAccessInterface dataFile;
         RowOutputInterface    rowOut;
@@ -195,19 +210,21 @@ public class TextFileOps {
         boolean exists = FileUtil.getFileUtil().exists(dataFileName);
 
         if (exists) {
-            throw Error.error(null, ErrorCode.TEXT_SOURCE_EXISTS,
-                              ErrorCode.M_TextCache_opening_file_error,
-                              new String[] {
-                dataFileName, "file exists"
-            });
+            throw Error.error(
+                null,
+                ErrorCode.TEXT_SOURCE_EXISTS,
+                ErrorCode.M_TextCache_opening_file_error,
+                new String[]{ dataFileName, "file exists" });
         }
 
         try {
             dataFile = new RAFileSimple(database.logger, dataFileName, "rw");
         } catch (Throwable t) {
-            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_TextCache_opening_file_error,
-                              new String[]{ dataFileName });
+            throw Error.error(
+                t,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_TextCache_opening_file_error,
+                new String[]{ dataFileName });
         }
 
         if (textFileSettings.isQuoted || textFileSettings.isAllQuoted) {
@@ -230,8 +247,10 @@ public class TextFileOps {
                 rowOut.writeData(row, types);
                 rowOut.writeEnd();
                 dataFile.seek(filePosition);
-                dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
-                               rowOut.getOutputStream().size());
+                dataFile.write(
+                    rowOut.getOutputStream().getBuffer(),
+                    0,
+                    rowOut.getOutputStream().size());
 
                 filePosition += rowOut.getOutputStream().size();
 
@@ -240,9 +259,11 @@ public class TextFileOps {
 
             dataFile.synch();
         } catch (Throwable t) {
-            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_TextCache_opening_file_error,
-                              new String[]{ dataFileName });
+            throw Error.error(
+                t,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_TextCache_opening_file_error,
+                new String[]{ dataFileName });
         } finally {
             try {
                 dataFile.close();

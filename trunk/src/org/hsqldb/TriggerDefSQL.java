@@ -46,14 +46,30 @@ public class TriggerDefSQL extends TriggerDef {
 
     OrderedHashSet<HsqlName> references;
 
-    public TriggerDefSQL(HsqlNameManager.HsqlName name, int when,
-                         int operation, boolean forEachRow, Table table,
-                         Table[] transitions, RangeVariable[] rangeVars,
-                         Expression condition, String conditionSQL,
-                         int[] updateColumns, Routine routine) {
+    public TriggerDefSQL(
+            HsqlNameManager.HsqlName name,
+            int when,
+            int operation,
+            boolean forEachRow,
+            Table table,
+            Table[] transitions,
+            RangeVariable[] rangeVars,
+            Expression condition,
+            String conditionSQL,
+            int[] updateColumns,
+            Routine routine) {
 
-        super(name, when, operation, forEachRow, table, transitions,
-              rangeVars, condition, conditionSQL, updateColumns);
+        super(
+            name,
+            when,
+            operation,
+            forEachRow,
+            table,
+            transitions,
+            rangeVars,
+            condition,
+            conditionSQL,
+            updateColumns);
 
         this.routine    = routine;
         this.references = routine.getReferences();
@@ -79,8 +95,10 @@ public class TriggerDefSQL extends TriggerDef {
         return transitions[NEW_TABLE] != null;
     }
 
-    synchronized void pushPair(Session session, Object[] oldData,
-                               Object[] newData) {
+    synchronized void pushPair(
+            Session session,
+            Object[] oldData,
+            Object[] newData) {
 
         Result result = Result.updateZeroResult;
 
@@ -95,8 +113,7 @@ public class TriggerDefSQL extends TriggerDef {
         if (condition.testCondition(session)) {
             int variableCount = routine.getVariableCount();
 
-            session.sessionContext.routineVariables =
-                new Object[variableCount];
+            session.sessionContext.routineVariables = new Object[variableCount];
             result = routine.statement.execute(session);
         }
 

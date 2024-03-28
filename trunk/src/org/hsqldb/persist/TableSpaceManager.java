@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,8 +58,10 @@ public interface TableSpaceManager {
 
     void addFileBlock(long blockFreePos, long blockLimit);
 
-    void initialiseFileBlock(LongLookup lookup, long blockFreePos,
-                             long blockLimit);
+    void initialiseFileBlock(
+            LongLookup lookup,
+            long blockFreePos,
+            long blockLimit);
 
     void reset();
 

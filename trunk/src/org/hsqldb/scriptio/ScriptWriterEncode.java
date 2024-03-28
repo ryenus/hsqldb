@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.hsqldb.scriptio;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
 import java.util.zip.GZIPOutputStream;
 
 import org.hsqldb.Database;
@@ -56,9 +57,12 @@ public class ScriptWriterEncode extends ScriptWriterText {
     HsqlByteArrayOutputStream byteOut;
     OutputStream              cryptOut;
 
-    public ScriptWriterEncode(Database db, OutputStream outputStream,
-                              FileAccess.FileSync descriptor,
-                              boolean includeCached, Crypto crypto) {
+    public ScriptWriterEncode(
+            Database db,
+            OutputStream outputStream,
+            FileAccess.FileSync descriptor,
+            boolean includeCached,
+            Crypto crypto) {
 
         super(db, outputStream, descriptor, includeCached);
 
@@ -67,15 +71,19 @@ public class ScriptWriterEncode extends ScriptWriterText {
             fileStreamOut = new GZIPOutputStream(cryptOut);
             isCrypt       = true;
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_Message_Pair, new String[] {
-                e.toString(), outFile
-            });
+            throw Error.error(
+                e,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_Message_Pair,
+                new String[]{ e.toString(), outFile });
         }
     }
 
-    public ScriptWriterEncode(Database db, String file, boolean includeCached,
-                              Crypto crypto) {
+    public ScriptWriterEncode(
+            Database db,
+            String file,
+            boolean includeCached,
+            Crypto crypto) {
 
         super(db, file, includeCached, true, false);
 
@@ -84,10 +92,11 @@ public class ScriptWriterEncode extends ScriptWriterText {
             fileStreamOut = new GZIPOutputStream(cryptOut);
             isCrypt       = true;
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_Message_Pair, new String[] {
-                e.toString(), outFile
-            });
+            throw Error.error(
+                e,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_Message_Pair,
+                new String[]{ e.toString(), outFile });
         }
     }
 
@@ -103,18 +112,20 @@ public class ScriptWriterEncode extends ScriptWriterText {
     protected void openFile() {
 
         try {
-            FileAccess   fa  = isUserScript ? FileUtil.getFileUtil()
-                                            : database.logger.getFileAccess();
+            FileAccess   fa  = isUserScript
+                               ? FileUtil.getFileUtil()
+                               : database.logger.getFileAccess();
             OutputStream fos = fa.openOutputStreamElementAppend(outFile);
 
             outDescriptor = fa.getFileSync(fos);
             fileStreamOut = fos;
             fileStreamOut = new BufferedOutputStream(fos, 1 << 14);
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_Message_Pair, new String[] {
-                e.toString(), outFile
-            });
+            throw Error.error(
+                e,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_Message_Pair,
+                new String[]{ e.toString(), outFile });
         }
     }
 
@@ -150,8 +161,12 @@ public class ScriptWriterEncode extends ScriptWriterText {
 
                 byteOut.ensureRoom(count + 4);
 
-                count = crypto.encode(rowOut.getBuffer(), 0, rowOut.size(),
-                                      byteOut.getBuffer(), 4);
+                count = crypto.encode(
+                    rowOut.getBuffer(),
+                    0,
+                    rowOut.size(),
+                    byteOut.getBuffer(),
+                    4);
 
                 byteOut.setPosition(0);
                 byteOut.writeInt(count);

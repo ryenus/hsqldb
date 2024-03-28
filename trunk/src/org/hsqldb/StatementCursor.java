@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
@@ -46,8 +47,10 @@ public class StatementCursor extends StatementQuery {
 
     public static final StatementCursor[] emptyArray = new StatementCursor[]{};
 
-    StatementCursor(Session session, QueryExpression query,
-                    CompileContext compileContext) {
+    StatementCursor(
+            Session session,
+            QueryExpression query,
+            CompileContext compileContext) {
         super(session, query, compileContext);
     }
 
@@ -97,6 +100,5 @@ public class StatementCursor extends StatementQuery {
     /**
      * always readonly
      */
-    void collectTableNamesForWrite(OrderedHashSet<HsqlNameManager.HsqlName> set) {}
-
+    void collectTableNamesForWrite(OrderedHashSet<HsqlName> set) {}
 }

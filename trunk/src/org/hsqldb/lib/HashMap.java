@@ -52,17 +52,17 @@ public class HashMap<K, V> extends BaseHashMap implements Map<K, V> {
 
     public HashMap(int initialCapacity) throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.objectKeyOrValue,
-              BaseHashMap.objectKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.objectKeyOrValue,
+            BaseHashMap.objectKeyOrValue,
+            false);
     }
 
     public HashMap(
             int initialCapacity,
             ObjectComparator<K> comparator)
             throws IllegalArgumentException {
-
         this(initialCapacity);
 
         this.comparator = comparator;
@@ -194,7 +194,6 @@ public class HashMap<K, V> extends BaseHashMap implements Map<K, V> {
         }
     }
 
-
     private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
@@ -209,7 +208,6 @@ public class HashMap<K, V> extends BaseHashMap implements Map<K, V> {
             return new MapEntry<K, V>(key, value);
         }
     }
-
 
     private class KeySet extends AbstractReadOnlyCollection<K>
             implements Set<K> {
@@ -226,7 +224,6 @@ public class HashMap<K, V> extends BaseHashMap implements Map<K, V> {
             return size() == 0;
         }
     }
-
 
     private class Values extends AbstractReadOnlyCollection<V> {
 

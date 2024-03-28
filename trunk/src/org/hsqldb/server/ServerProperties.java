@@ -34,6 +34,7 @@ package org.hsqldb.server;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+
 import java.util.Enumeration;
 
 import org.hsqldb.lib.HashMap;
@@ -78,27 +79,27 @@ public class ServerProperties extends HsqlProperties {
     static final int SYSTEM_PROPERTY       = 2;
 
     // keys to properties
-    static final String sc_key_prefix  = "server";
-    static final String sc_key_address = "server.address";
+    static final String sc_key_prefix             = "server";
+    static final String sc_key_address            = "server.address";
     static final String sc_key_autorestart_server =
         "server.restart_on_shutdown";
-    static final String sc_key_database         = "server.database";
-    static final String sc_key_dbname           = "server.dbname";
-    static final String sc_key_no_system_exit   = "server.no_system_exit";
-    static final String sc_key_port             = "server.port";
-    static final String sc_key_http_port        = "server.port";
-    static final String sc_key_silent           = "server.silent";
-    static final String sc_key_tls              = "server.tls";
-    static final String sc_key_trace            = "server.trace";
-    static final String sc_key_web_default_page = "server.default_page";
-    static final String sc_key_web_root         = "server.root";
-    static final String sc_key_max_connections  = "server.maxconnections";
-    static final String sc_key_remote_open_db   = "server.remote_open";
-    static final String sc_key_max_databases    = "server.maxdatabases";
-    static final String sc_key_acl              = "server.acl";
-    static final String sc_key_daemon           = "server.daemon";
-    static final String sc_key_props            = "server.props";
-    static final String sc_key_system           = "system";
+    static final String sc_key_database           = "server.database";
+    static final String sc_key_dbname             = "server.dbname";
+    static final String sc_key_no_system_exit     = "server.no_system_exit";
+    static final String sc_key_port               = "server.port";
+    static final String sc_key_http_port          = "server.port";
+    static final String sc_key_silent             = "server.silent";
+    static final String sc_key_tls                = "server.tls";
+    static final String sc_key_trace              = "server.trace";
+    static final String sc_key_web_default_page   = "server.default_page";
+    static final String sc_key_web_root           = "server.root";
+    static final String sc_key_max_connections    = "server.maxconnections";
+    static final String sc_key_remote_open_db     = "server.remote_open";
+    static final String sc_key_max_databases      = "server.maxdatabases";
+    static final String sc_key_acl                = "server.acl";
+    static final String sc_key_daemon             = "server.daemon";
+    static final String sc_key_props              = "server.props";
+    static final String sc_key_system             = "system";
 
     // web server page defaults
     static final String sc_default_web_mime = "text/html";
@@ -139,7 +140,6 @@ public class ServerProperties extends HsqlProperties {
     }
 
     ServerProperties(int protocol, String path, String extension) {
-
         super(path, extension);
 
         this.protocol = protocol;
@@ -154,7 +154,7 @@ public class ServerProperties extends HsqlProperties {
         Enumeration<?> en = stringProps.propertyNames();
 
         while (en.hasMoreElements()) {
-            String       key      = (String) en.nextElement();
+            String       key  = (String) en.nextElement();
             PropertyMeta meta = serverMeta.get(key);
 
             if (meta == null) {
@@ -165,7 +165,6 @@ public class ServerProperties extends HsqlProperties {
                 String error = "unsupported property: " + key;
 
                 super.addError(ANY_ERROR, error);
-
                 continue;
             }
 
@@ -182,12 +181,10 @@ public class ServerProperties extends HsqlProperties {
                     if (meta.propDefaultValue == null) {
                         error = "missing value for property: " + key;
                     } else {
-                        setProperty(key,
-                                    meta.propDefaultValue.toString());
+                        setProperty(key, meta.propDefaultValue.toString());
                     }
                 } else {
-                    error = HsqlProperties.validateProperty(key, value,
-                            meta);
+                    error = HsqlProperties.validateProperty(key, value, meta);
                 }
             }
 

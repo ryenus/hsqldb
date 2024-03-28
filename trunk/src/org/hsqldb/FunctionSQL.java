@@ -57,7 +57,7 @@ import org.hsqldb.types.Types;
  */
 public class FunctionSQL extends Expression {
 
-    protected static final int FUNC_POSITION_CHAR                    = 1;     // numeric
+    protected static final int FUNC_POSITION_CHAR                    = 1;
     private static final int   FUNC_POSITION_BINARY                  = 2;
     private static final int   FUNC_OCCURENCES_REGEX                 = 3;
     private static final int   FUNC_POSITION_REGEX                   = 4;
@@ -77,7 +77,7 @@ public class FunctionSQL extends Expression {
     private static final int   FUNC_FLOOR                            = 20;
     private static final int   FUNC_CEILING                          = 21;
     private static final int   FUNC_WIDTH_BUCKET                     = 22;
-    protected static final int FUNC_SUBSTRING_CHAR                   = 23;    // string
+    protected static final int FUNC_SUBSTRING_CHAR                   = 23;
     private static final int   FUNC_SUBSTRING_REG_EXPR               = 24;
     private static final int   FUNC_SUBSTRING_REGEX                  = 25;
     protected static final int FUNC_FOLD_LOWER                       = 26;
@@ -91,12 +91,12 @@ public class FunctionSQL extends Expression {
     private static final int   FUNC_SUBSTRING_BINARY                 = 40;
     private static final int   FUNC_TRIM_BINARY                      = 41;
     private static final int   FUNC_OVERLAY_BINARY                   = 42;
-    protected static final int FUNC_CURRENT_DATE                     = 43;    // datetime
+    protected static final int FUNC_CURRENT_DATE                     = 43;
     protected static final int FUNC_CURRENT_TIME                     = 44;
     protected static final int FUNC_CURRENT_TIMESTAMP                = 50;
     protected static final int FUNC_LOCALTIME                        = 51;
     protected static final int FUNC_LOCALTIMESTAMP                   = 52;
-    private static final int   FUNC_CURRENT_CATALOG                  = 53;    // general
+    private static final int   FUNC_CURRENT_CATALOG                  = 53;
     private static final int   FUNC_CURRENT_DEFAULT_TRANSFORM_GROUP  = 54;
     private static final int   FUNC_CURRENT_PATH                     = 55;
     private static final int   FUNC_CURRENT_ROLE                     = 56;
@@ -107,9 +107,8 @@ public class FunctionSQL extends Expression {
     private static final int   FUNC_SYSTEM_USER                      = 61;
     protected static final int FUNC_USER                             = 62;
     private static final int   FUNC_VALUE                            = 63;
-
-    //
-    static final short[] noParamList             = new short[]{};
+    //J-
+    static final short[] noParamList             = new short[] {};
     static final short[] emptyParamList          = new short[] {
         Tokens.OPENBRACKET, Tokens.CLOSEBRACKET
     };
@@ -145,13 +144,15 @@ public class FunctionSQL extends Expression {
         Tokens.CLOSEBRACKET
     };
 
-    //
-    static IntValueHashMap<String> valueFuncMap      = new IntValueHashMap<>();
-    static IntValueHashMap<String> regularFuncMap    = new IntValueHashMap<>();
+    //J+
+
+    static IntValueHashMap<String> valueFuncMap = new IntValueHashMap<>();
+    static IntValueHashMap<String> regularFuncMap = new IntValueHashMap<>();
     static OrderedIntHashSet nonDeterministicFuncSet = new OrderedIntHashSet();
 
     static {
         regularFuncMap.put(Tokens.T_POSITION, FUNC_POSITION_CHAR);
+
         /*
         regularFuncMap.put(Token.T_OCCURENCES_REGEX, FUNC_OCCURENCES_REGEX);
         */
@@ -162,8 +163,9 @@ public class FunctionSQL extends Expression {
         regularFuncMap.put(Tokens.T_CHARACTER_LENGTH, FUNC_CHAR_LENGTH);
         regularFuncMap.put(Tokens.T_OCTET_LENGTH, FUNC_OCTET_LENGTH);
         regularFuncMap.put(Tokens.T_CARDINALITY, FUNC_CARDINALITY);
-        regularFuncMap.put(Tokens.T_ARRAY_MAX_CARDINALITY,
-                           FUNC_MAX_CARDINALITY);
+        regularFuncMap.put(
+            Tokens.T_ARRAY_MAX_CARDINALITY,
+            FUNC_MAX_CARDINALITY);
         regularFuncMap.put(Tokens.T_MAX_CARDINALITY, FUNC_MAX_CARDINALITY);
         regularFuncMap.put(Tokens.T_TRIM_ARRAY, FUNC_TRIM_ARRAY);
         regularFuncMap.put(Tokens.T_ABS, FUNC_ABS);
@@ -177,6 +179,7 @@ public class FunctionSQL extends Expression {
         regularFuncMap.put(Tokens.T_CEIL, FUNC_CEILING);
         regularFuncMap.put(Tokens.T_WIDTH_BUCKET, FUNC_WIDTH_BUCKET);
         regularFuncMap.put(Tokens.T_SUBSTRING, FUNC_SUBSTRING_CHAR);
+
         /*
         regularFuncMap.put(Token.T_SUBSTRING_REG_EXPR,
                            FUNC_SUBSTRING_REG_EXPR);
@@ -184,6 +187,7 @@ public class FunctionSQL extends Expression {
         regularFuncMap.put(Tokens.T_SUBSTRING_REGEX, FUNC_SUBSTRING_REGEX);
         regularFuncMap.put(Tokens.T_LOWER, FUNC_FOLD_LOWER);
         regularFuncMap.put(Tokens.T_UPPER, FUNC_FOLD_UPPER);
+
         /*
         regularFuncMap.put(Token.T_TRANSCODING, FUNC_TRANSCODING);
         regularFuncMap.put(Token.T_TRANSLITERATION, FUNC_TRANSLITERATION);
@@ -192,6 +196,7 @@ public class FunctionSQL extends Expression {
         */
         regularFuncMap.put(Tokens.T_TRIM, FUNC_TRIM_CHAR);
         regularFuncMap.put(Tokens.T_OVERLAY, FUNC_OVERLAY_CHAR);
+
         /*
         regularFuncMap.put(Token.T_NORMALIZE, FUNC_CHAR_NORMALIZE);
         */
@@ -205,6 +210,7 @@ public class FunctionSQL extends Expression {
         valueFuncMap.put(Tokens.T_LOCALTIME, FUNC_LOCALTIME);
         valueFuncMap.put(Tokens.T_LOCALTIMESTAMP, FUNC_LOCALTIMESTAMP);
         valueFuncMap.put(Tokens.T_CURRENT_CATALOG, FUNC_CURRENT_CATALOG);
+
         /*
         valueFuncMap.put(Token.T_CURRENT_DEFAULT_TRANSFORM_GROUP,
                 FUNC_CURRENT_DEFAULT_TRANSFORM_GROUP);
@@ -212,6 +218,7 @@ public class FunctionSQL extends Expression {
         valueFuncMap.put(Tokens.T_CURRENT_PATH, FUNC_CURRENT_PATH);
         valueFuncMap.put(Tokens.T_CURRENT_ROLE, FUNC_CURRENT_ROLE);
         valueFuncMap.put(Tokens.T_CURRENT_SCHEMA, FUNC_CURRENT_SCHEMA);
+
         /*
         valueFuncMap.put(Token.T_CURRENT_TRANSFORM_GROUP_FOR_TYPE,
                 FUNC_CURRENT_TRANSFORM_GROUP_FOR_TYPE);
@@ -234,7 +241,8 @@ public class FunctionSQL extends Expression {
     short[] parseListAlt;
     boolean isSQLValueFunction;
 
-    public static FunctionSQL newSQLFunction(String token,
+    public static FunctionSQL newSQLFunction(
+            String token,
             CompileContext context) {
 
         int     id              = regularFuncMap.get(token, -1);
@@ -299,11 +307,11 @@ public class FunctionSQL extends Expression {
                     Tokens.MONTH, Tokens.DAY, Tokens.HOUR, Tokens.MINUTE,
                     Tokens.SECOND, Tokens.DAY_OF_WEEK, Tokens.WEEK_OF_YEAR,
                     Tokens.QUARTER, Tokens.DAY_OF_YEAR, Tokens.DAY_OF_MONTH,
-                    Tokens.ISO_WEEK_OF_YEAR, Tokens.DAY_NAME,
-                    Tokens.MONTH_NAME, Tokens.SECONDS_MIDNIGHT,
-                    Tokens.TIMEZONE_HOUR, Tokens.TIMEZONE_MINUTE,
-                    Tokens.MILLISECOND, Tokens.MICROSECOND, Tokens.NANOSECOND,
-                    Tokens.FROM, Tokens.QUESTION, Tokens.CLOSEBRACKET
+                    Tokens.ISO_WEEK_OF_YEAR, Tokens.DAY_NAME, Tokens.MONTH_NAME,
+                    Tokens.SECONDS_MIDNIGHT, Tokens.TIMEZONE_HOUR,
+                    Tokens.TIMEZONE_MINUTE, Tokens.MILLISECOND,
+                    Tokens.MICROSECOND, Tokens.NANOSECOND, Tokens.FROM,
+                    Tokens.QUESTION, Tokens.CLOSEBRACKET
                 };
                 break;
 
@@ -388,8 +396,8 @@ public class FunctionSQL extends Expression {
 
             case FUNC_SUBSTRING_CHAR :
             case FUNC_SUBSTRING_BINARY :
-                name      = Tokens.T_SUBSTRING;
-                parseList = new short[] {
+                name         = Tokens.T_SUBSTRING;
+                parseList    = new short[] {
                     Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.FROM,
                     Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.FOR,
                     Tokens.QUESTION, Tokens.X_OPTION, 5, Tokens.USING,
@@ -431,11 +439,9 @@ public class FunctionSQL extends Expression {
             case FUNC_TRIM_BINARY :
                 name      = Tokens.T_TRIM;
                 parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.X_OPTION, 11,    //
-                    Tokens.X_OPTION, 5,                         //
+                    Tokens.OPENBRACKET, Tokens.X_OPTION, 11, Tokens.X_OPTION, 5,
                     Tokens.X_KEYSET, 3, Tokens.LEADING, Tokens.TRAILING,
-                    Tokens.BOTH,                                //
-                    Tokens.X_OPTION, 1, Tokens.QUESTION,        //
+                    Tokens.BOTH, Tokens.X_OPTION, 1, Tokens.QUESTION,
                     Tokens.FROM, Tokens.QUESTION, Tokens.CLOSEBRACKET
                 };
                 break;
@@ -589,10 +595,13 @@ public class FunctionSQL extends Expression {
                     }
                 }
 
-                long result =
-                    ((CharacterType) nodes[1].dataType).position(
-                        session, data[1], data[0], nodes[0].dataType,
-                        offset) + 1;
+                CharacterType type = (CharacterType) nodes[1].dataType;
+                long result = type.position(
+                    session,
+                    data[1],
+                    data[0],
+                    nodes[0].dataType,
+                    offset) + 1;
 
                 if (nodes[2] != null
                         && ((Number) nodes[2].valueData).intValue()
@@ -602,15 +611,19 @@ public class FunctionSQL extends Expression {
 
                 return ValuePool.getLong(result);
             }
+
             case FUNC_POSITION_BINARY : {
                 if (data[0] == null || data[1] == null) {
                     return null;
                 }
 
-                long result =
-                    ((BinaryType) nodes[1].dataType).position(
-                        session, (BlobData) data[1], (BlobData) data[0],
-                        nodes[0].dataType, 0) + 1;
+                BinaryType type = (BinaryType) nodes[1].dataType;
+                long result = type.position(
+                    session,
+                    (BlobData) data[1],
+                    (BlobData) data[0],
+                    nodes[0].dataType,
+                    0) + 1;
 
                 if (nodes[2] != null
                         && ((Number) nodes[2].valueData).intValue()
@@ -620,6 +633,7 @@ public class FunctionSQL extends Expression {
 
                 return ValuePool.getLong(result);
             }
+
             /*
             case FUNC_OCCURENCES_REGEX :
             case FUNC_POSITION_REGEX :
@@ -627,16 +641,19 @@ public class FunctionSQL extends Expression {
             case FUNC_EXTRACT : {
                 return getExtractValue(session, data);
             }
+
             case FUNC_CHAR_LENGTH : {
                 if (data[0] == null) {
                     return null;
                 }
 
-                long result = ((CharacterType) nodes[0].dataType).size(session,
+                long result = ((CharacterType) nodes[0].dataType).size(
+                    session,
                     data[0]);
 
                 return ValuePool.getLong(result);
             }
+
             case FUNC_BIT_LENGTH : {
                 if (data[0] == null) {
                     return null;
@@ -647,13 +664,14 @@ public class FunctionSQL extends Expression {
                 if (nodes[0].dataType.isBinaryType()) {
                     result = ((BlobData) data[0]).bitLength(session);
                 } else {
-                    result =
-                        16 * ((CharacterType) nodes[0].dataType).size(session,
-                            data[0]);
+                    result = 16 * ((CharacterType) nodes[0].dataType).size(
+                        session,
+                        data[0]);
                 }
 
                 return ValuePool.getLong(result);
             }
+
             case FUNC_OCTET_LENGTH : {
                 if (data[0] == null) {
                     return null;
@@ -664,13 +682,14 @@ public class FunctionSQL extends Expression {
                 if (nodes[0].dataType.isBinaryType()) {
                     result = ((BlobData) data[0]).length(session);
                 } else {
-                    result =
-                        2 * ((CharacterType) nodes[0].dataType).size(session,
-                            data[0]);
+                    result = 2 * ((CharacterType) nodes[0].dataType).size(
+                        session,
+                        data[0]);
                 }
 
                 return ValuePool.getLong(result);
             }
+
             case FUNC_CARDINALITY : {
                 if (data[0] == null) {
                     return null;
@@ -680,6 +699,7 @@ public class FunctionSQL extends Expression {
 
                 return ValuePool.getInt(result);
             }
+
             case FUNC_MAX_CARDINALITY : {
                 if (data[0] == null) {
                     return null;
@@ -689,6 +709,7 @@ public class FunctionSQL extends Expression {
 
                 return ValuePool.getInt(result);
             }
+
             case FUNC_TRIM_ARRAY : {
                 if (data[0] == null) {
                     return null;
@@ -711,6 +732,7 @@ public class FunctionSQL extends Expression {
 
                 return newArray;
             }
+
             case FUNC_ABS : {
                 if (data[0] == null) {
                     return null;
@@ -718,22 +740,31 @@ public class FunctionSQL extends Expression {
 
                 return dataType.absolute(data[0]);
             }
+
             case FUNC_MOD : {
                 if (data[0] == null || data[1] == null) {
                     return null;
                 }
 
-                data[0] = nodeDataTypes[0].convertToType(session, data[0],
-                        nodes[0].dataType);
-                data[1] = nodeDataTypes[1].convertToType(session, data[1],
-                        nodes[1].dataType);
+                data[0] = nodeDataTypes[0].convertToType(
+                    session,
+                    data[0],
+                    nodes[0].dataType);
+                data[1] = nodeDataTypes[1].convertToType(
+                    session,
+                    data[1],
+                    nodes[1].dataType);
 
                 // result type is the same as nodes[1]
-                Object value = ((NumberType) nodeDataTypes[0]).modulo(session,
-                    data[0], data[1], nodeDataTypes[1]);
+                Object value = ((NumberType) nodeDataTypes[0]).modulo(
+                    session,
+                    data[0],
+                    data[1],
+                    nodeDataTypes[1]);
 
                 return value;
             }
+
             case FUNC_LN : {
                 if (data[0] == null) {
                     return null;
@@ -751,6 +782,7 @@ public class FunctionSQL extends Expression {
 
                 return ValuePool.getDouble(Double.doubleToLongBits(d));
             }
+
             case FUNC_EXP : {
                 if (data[0] == null) {
                     return null;
@@ -760,6 +792,7 @@ public class FunctionSQL extends Expression {
 
                 return ValuePool.getDouble(Double.doubleToLongBits(val));
             }
+
             case FUNC_POWER : {
                 if (data[0] == null || data[1] == null) {
                     return null;
@@ -783,6 +816,7 @@ public class FunctionSQL extends Expression {
 
                 return ValuePool.getDouble(Double.doubleToLongBits(val));
             }
+
             case FUNC_SQRT : {
                 if (data[0] == null) {
                     return null;
@@ -800,6 +834,7 @@ public class FunctionSQL extends Expression {
 
                 return ValuePool.getDouble(Double.doubleToLongBits(val));
             }
+
             case FUNC_FLOOR : {
                 if (data[0] == null) {
                     return null;
@@ -807,6 +842,7 @@ public class FunctionSQL extends Expression {
 
                 return ((NumberType) dataType).floor(data[0]);
             }
+
             case FUNC_CEILING : {
                 if (data[0] == null) {
                     return null;
@@ -814,22 +850,27 @@ public class FunctionSQL extends Expression {
 
                 return ((NumberType) dataType).ceiling(data[0]);
             }
+
             case FUNC_WIDTH_BUCKET : {
                 for (int i = 0; i < data.length; i++) {
                     if (data[i] == null) {
                         return null;
                     }
 
-                    data[i] = nodeDataTypes[i].convertToType(session, data[i],
-                            nodes[i].dataType);
+                    data[i] = nodeDataTypes[i].convertToType(
+                        session,
+                        data[i],
+                        nodes[i].dataType);
                 }
 
                 if (nodeDataTypes[3].isNegative(data[3])) {
                     throw Error.error(ErrorCode.X_2201G);
                 }
 
-                int compare = nodeDataTypes[1].compare(session, data[1],
-                                                       data[2]);
+                int compare = nodeDataTypes[1].compare(
+                    session,
+                    data[1],
+                    data[2]);
                 Type   subType;
                 Object temp;
                 Object temp2;
@@ -837,54 +878,77 @@ public class FunctionSQL extends Expression {
                 if (nodeDataTypes[0].isNumberType()) {
                     subType = nodeDataTypes[0];
                 } else {
-                    subType = nodeDataTypes[0].getCombinedType(session,
-                            nodeDataTypes[0], OpTypes.SUBTRACT);
+                    subType = nodeDataTypes[0].getCombinedType(
+                        session,
+                        nodeDataTypes[0],
+                        OpTypes.SUBTRACT);
                 }
 
                 switch (compare) {
 
                     case 0 :
                         throw Error.error(ErrorCode.X_2201G);
+
                     case -1 : {
-                        if (nodeDataTypes[0].compare(session, data[0], data[1])
-                                < 0) {
+                        if (nodeDataTypes[0].compare(session,
+                                                     data[0],
+                                                     data[1]) < 0) {
                             return ValuePool.INTEGER_0;
                         }
 
-                        if (nodeDataTypes[0].compare(session, data[0], data[2])
-                                >= 0) {
-                            return dataType.add(session, data[3],
-                                                ValuePool.INTEGER_1,
-                                                Type.SQL_INTEGER);
+                        if (nodeDataTypes[0].compare(session,
+                                                     data[0],
+                                                     data[2]) >= 0) {
+                            return dataType.add(
+                                session,
+                                data[3],
+                                ValuePool.INTEGER_1,
+                                Type.SQL_INTEGER);
                         }
 
-                        temp = subType.subtract(session, data[0], data[1],
-                                                nodeDataTypes[1]);
-                        temp2 = subType.subtract(session, data[2], data[1],
-                                                 nodeDataTypes[1]);
-
+                        temp = subType.subtract(
+                            session,
+                            data[0],
+                            data[1],
+                            nodeDataTypes[1]);
+                        temp2 = subType.subtract(
+                            session,
+                            data[2],
+                            data[1],
+                            nodeDataTypes[1]);
                         break;
                     }
+
                     case 1 : {
-                        if (nodeDataTypes[0].compare(session, data[0], data[1])
-                                > 0) {
+                        if (nodeDataTypes[0].compare(session,
+                                                     data[0],
+                                                     data[1]) > 0) {
                             return ValuePool.INTEGER_0;
                         }
 
-                        if (nodeDataTypes[0].compare(session, data[0], data[2])
-                                <= 0) {
-                            return dataType.add(session, data[3],
-                                                ValuePool.INTEGER_1,
-                                                Type.SQL_INTEGER);
+                        if (nodeDataTypes[0].compare(session,
+                                                     data[0],
+                                                     data[2]) <= 0) {
+                            return dataType.add(
+                                session,
+                                data[3],
+                                ValuePool.INTEGER_1,
+                                Type.SQL_INTEGER);
                         }
 
-                        temp = subType.subtract(session, data[1], data[0],
-                                                nodeDataTypes[0]);
-                        temp2 = subType.subtract(session, data[1], data[2],
-                                                 nodeDataTypes[2]);
-
+                        temp = subType.subtract(
+                            session,
+                            data[1],
+                            data[0],
+                            nodeDataTypes[0]);
+                        temp2 = subType.subtract(
+                            session,
+                            data[1],
+                            data[2],
+                            nodeDataTypes[2]);
                         break;
                     }
+
                     default :
                         throw Error.runtimeError(ErrorCode.U_S0500, "");
                 }
@@ -903,9 +967,13 @@ public class FunctionSQL extends Expression {
                 temp = opType.divide(session, temp, temp2);
                 temp = dataType.convertToDefaultType(session, temp);
 
-                return dataType.add(session, temp, ValuePool.INTEGER_1,
-                                    Type.SQL_INTEGER);
+                return dataType.add(
+                    session,
+                    temp,
+                    ValuePool.INTEGER_1,
+                    Type.SQL_INTEGER);
             }
+
             case FUNC_SUBSTRING_CHAR : {
                 long    length    = 0;
                 boolean hasLength = false;
@@ -921,19 +989,24 @@ public class FunctionSQL extends Expression {
 
                 Object value;
 
-                value = Type.SQL_BIGINT.convertToType(session, data[1],
-                                                      nodes[1].dataType);
+                value = Type.SQL_BIGINT.convertToType(
+                    session,
+                    data[1],
+                    nodes[1].dataType);
 
                 long offset = ((Number) value).longValue();
 
                 if (nodes[2] != null) {
                     hasLength = true;
-                    value = Type.SQL_BIGINT.convertToType(session, data[2],
-                                                          nodes[2].dataType);
-                    length = ((Number) value).longValue();
+                    value = Type.SQL_BIGINT.convertToType(
+                        session,
+                        data[2],
+                        nodes[2].dataType);
+                    length    = ((Number) value).longValue();
                 }
 
-                if (nodes.length > 3 && nodes[3] != null
+                if (nodes.length > 3
+                        && nodes[3] != null
                         && ((Number) nodes[2].valueData).intValue()
                            == Tokens.OCTETS) {
 
@@ -953,9 +1026,15 @@ public class FunctionSQL extends Expression {
 
                 offset--;
 
-                return ((CharacterType) dataType).substring(session, data[0],
-                        offset, length, hasLength, trailing);
+                return ((CharacterType) dataType).substring(
+                    session,
+                    data[0],
+                    offset,
+                    length,
+                    hasLength,
+                    trailing);
             }
+
             /*
             case FUNCTION_SUBSTRING_REG_EXPR :
                 break;
@@ -1007,8 +1086,9 @@ public class FunctionSQL extends Expression {
                         break;
 
                     default :
-                        throw Error.runtimeError(ErrorCode.U_S0500,
-                                                 "FunctionSQL");
+                        throw Error.runtimeError(
+                            ErrorCode.U_S0500,
+                            "FunctionSQL");
                 }
 
                 String string = (String) data[1];
@@ -1019,10 +1099,14 @@ public class FunctionSQL extends Expression {
 
                 char character = string.charAt(0);
 
-                return ((CharacterType) dataType).trim(session, data[2],
-                                                       character, leading,
-                                                       trailing);
+                return ((CharacterType) dataType).trim(
+                    session,
+                    data[2],
+                    character,
+                    leading,
+                    trailing);
             }
+
             case FUNC_OVERLAY_CHAR : {
                 if (data[0] == null || data[1] == null || data[2] == null) {
                     return null;
@@ -1030,8 +1114,10 @@ public class FunctionSQL extends Expression {
 
                 Object value;
 
-                value = Type.SQL_BIGINT.convertToType(session, data[2],
-                                                      nodes[2].dataType);
+                value = Type.SQL_BIGINT.convertToType(
+                    session,
+                    data[2],
+                    nodes[2].dataType);
 
                 long offset = ((Number) value).longValue() - 1;
                 long length = 0;
@@ -1041,14 +1127,22 @@ public class FunctionSQL extends Expression {
                         return null;
                     }
 
-                    value = Type.SQL_BIGINT.convertToType(session, data[3],
-                                                          nodes[3].dataType);
+                    value = Type.SQL_BIGINT.convertToType(
+                        session,
+                        data[3],
+                        nodes[3].dataType);
                     length = ((Number) value).longValue();
                 }
 
-                return ((CharacterType) dataType).overlay(session, data[0],
-                        data[1], offset, length, nodes[3] != null);
+                return ((CharacterType) dataType).overlay(
+                    session,
+                    data[0],
+                    data[1],
+                    offset,
+                    length,
+                    nodes[3] != null);
             }
+
             /*
             case FUNCTION_CHAR_NORMALIZE :
                 break;
@@ -1060,8 +1154,10 @@ public class FunctionSQL extends Expression {
 
                 Object value;
 
-                value = Type.SQL_BIGINT.convertToType(session, data[1],
-                                                      nodes[1].dataType);
+                value = Type.SQL_BIGINT.convertToType(
+                    session,
+                    data[1],
+                    nodes[1].dataType);
 
                 long offset = ((Number) value).longValue() - 1;
                 long length = 0;
@@ -1071,14 +1167,21 @@ public class FunctionSQL extends Expression {
                         return null;
                     }
 
-                    value = Type.SQL_BIGINT.convertToType(session, data[2],
-                                                          nodes[2].dataType);
+                    value = Type.SQL_BIGINT.convertToType(
+                        session,
+                        data[2],
+                        nodes[2].dataType);
                     length = ((Number) value).intValue();
                 }
 
-                return ((BinaryType) dataType).substring(session,
-                        (BlobData) data[0], offset, length, nodes[2] != null);
+                return ((BinaryType) dataType).substring(
+                    session,
+                    (BlobData) data[0],
+                    offset,
+                    length,
+                    nodes[2] != null);
             }
+
             case FUNC_TRIM_BINARY : {
                 if (data[1] == null || data[2] == null) {
                     return null;
@@ -1103,8 +1206,9 @@ public class FunctionSQL extends Expression {
                         break;
 
                     default :
-                        throw Error.runtimeError(ErrorCode.U_S0500,
-                                                 "FunctionSQL");
+                        throw Error.runtimeError(
+                            ErrorCode.U_S0500,
+                            "FunctionSQL");
                 }
 
                 BlobData string = (BlobData) data[1];
@@ -1115,11 +1219,14 @@ public class FunctionSQL extends Expression {
 
                 byte[] bytes = string.getBytes();
 
-                return ((BinaryType) dataType).trim(session,
-                                                    (BlobData) data[2],
-                                                    bytes[0], leading,
-                                                    trailing);
+                return ((BinaryType) dataType).trim(
+                    session,
+                    (BlobData) data[2],
+                    bytes[0],
+                    leading,
+                    trailing);
             }
+
             case FUNC_OVERLAY_BINARY : {
                 if (data[0] == null || data[1] == null || data[2] == null) {
                     return null;
@@ -1127,8 +1234,10 @@ public class FunctionSQL extends Expression {
 
                 Object value;
 
-                value = Type.SQL_BIGINT.convertToType(session, data[2],
-                                                      nodes[2].dataType);
+                value = Type.SQL_BIGINT.convertToType(
+                    session,
+                    data[2],
+                    nodes[2].dataType);
 
                 long offset = ((Number) value).longValue() - 1;
                 long length = 0;
@@ -1138,17 +1247,22 @@ public class FunctionSQL extends Expression {
                         return null;
                     }
 
-                    value = Type.SQL_BIGINT.convertToType(session, data[3],
-                                                          nodes[3].dataType);
+                    value = Type.SQL_BIGINT.convertToType(
+                        session,
+                        data[3],
+                        nodes[3].dataType);
                     length = ((Number) value).longValue();
                 }
 
-                return ((BinaryType) dataType).overlay(session,
-                                                       (BlobData) data[0],
-                                                       (BlobData) data[1],
-                                                       offset, length,
-                                                       nodes[3] != null);
+                return ((BinaryType) dataType).overlay(
+                    session,
+                    (BlobData) data[0],
+                    (BlobData) data[1],
+                    offset,
+                    length,
+                    nodes[3] != null);
             }
+
             case FUNC_CURRENT_CATALOG :
                 return session.database.getCatalogName().name;
 
@@ -1157,9 +1271,9 @@ public class FunctionSQL extends Expression {
             case FUNC_CURRENT_PATH :
             */
             case FUNC_CURRENT_ROLE :
-                return session.getRole() == null ? null
-                                                 : session.getRole().getName()
-                                                     .getNameString();
+                return session.getRole() == null
+                       ? null
+                       : session.getRole().getName().getNameString();
 
             case FUNC_CURRENT_SCHEMA :
                 return session.getCurrentSchemaHsqlName().name;
@@ -1185,26 +1299,31 @@ public class FunctionSQL extends Expression {
             case FUNC_CURRENT_DATE :
                 if (session.database.sqlSyntaxOra) {
                     return dataType.convertToTypeLimits(
-                        session, session.getLocalTimestamp());
+                        session,
+                        session.getLocalTimestamp());
                 }
 
                 return session.getCurrentDate();
 
             case FUNC_CURRENT_TIME :
                 return dataType.convertToTypeLimits(
-                    session, session.getCurrentTime());
+                    session,
+                    session.getCurrentTime());
 
             case FUNC_CURRENT_TIMESTAMP :
                 return dataType.convertToTypeLimits(
-                    session, session.getCurrentTimestamp());
+                    session,
+                    session.getCurrentTimestamp());
 
             case FUNC_LOCALTIME :
                 return dataType.convertToTypeLimits(
-                    session, session.getLocalTime());
+                    session,
+                    session.getLocalTime());
 
             case FUNC_LOCALTIMESTAMP :
                 return dataType.convertToTypeLimits(
-                    session, session.getLocalTimestamp());
+                    session,
+                    session.getLocalTimestamp());
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionSQL");
@@ -1271,9 +1390,9 @@ public class FunctionSQL extends Expression {
                 }
 
                 dataType = Type.SQL_BIGINT;
-
                 break;
             }
+
             /*
             case FUNC_OCCURENCES_REGEX :
             case FUNC_POSITION_REGEX :
@@ -1293,9 +1412,9 @@ public class FunctionSQL extends Expression {
 
                 part     = DTIType.getFieldNameTypeForToken(part);
                 dataType = type.getExtractType(part);
-
                 break;
             }
+
             case FUNC_BIT_LENGTH : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_BIT_VARYING_MAX_LENGTH;
@@ -1307,9 +1426,9 @@ public class FunctionSQL extends Expression {
                 }
 
                 dataType = Type.SQL_BIGINT;
-
                 break;
             }
+
             case FUNC_CHAR_LENGTH :
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR;
@@ -1331,9 +1450,9 @@ public class FunctionSQL extends Expression {
                 }
 
                 dataType = Type.SQL_BIGINT;
-
                 break;
             }
+
             case FUNC_CARDINALITY : {
                 if (nodes[0].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
@@ -1344,9 +1463,9 @@ public class FunctionSQL extends Expression {
                 }
 
                 dataType = Type.SQL_INTEGER;
-
                 break;
             }
+
             case FUNC_MAX_CARDINALITY : {
                 if (nodes[0].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
@@ -1357,9 +1476,9 @@ public class FunctionSQL extends Expression {
                 }
 
                 dataType = Type.SQL_INTEGER;
-
                 break;
             }
+
             case FUNC_TRIM_ARRAY : {
                 if (nodes[0].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
@@ -1378,9 +1497,9 @@ public class FunctionSQL extends Expression {
                 }
 
                 dataType = nodes[0].dataType;
-
                 break;
             }
+
             case FUNC_MOD : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = nodes[1].dataType;
@@ -1402,8 +1521,8 @@ public class FunctionSQL extends Expression {
                 nodeDataTypes = new Type[2];
 
                 if (session.database.sqlSyntaxOra) {
-                    nodeDataTypes[0] =
-                        nodes[0].dataType.getAggregateType(nodes[1].dataType);
+                    nodeDataTypes[0] = nodes[0].dataType.getAggregateType(
+                        nodes[1].dataType);
                     nodeDataTypes[1] = nodes[1].dataType;
                 } else {
                     nodeDataTypes[0] =
@@ -1413,9 +1532,9 @@ public class FunctionSQL extends Expression {
                 }
 
                 dataType = nodeDataTypes[1];
-
                 break;
             }
+
             case FUNC_POWER : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = nodes[1].dataType;
@@ -1435,9 +1554,9 @@ public class FunctionSQL extends Expression {
                 }
 
                 dataType = Type.SQL_DOUBLE;
-
                 break;
             }
+
             case FUNC_LN :
             case FUNC_EXP :
             case FUNC_SQRT : {
@@ -1450,14 +1569,13 @@ public class FunctionSQL extends Expression {
                 }
 
                 dataType = Type.SQL_DOUBLE;
-
                 break;
             }
+
             case FUNC_ABS :
                 if (nodes[0].dataType != null
                         && nodes[0].dataType.isIntervalType()) {
                     dataType = nodes[0].dataType;
-
                     break;
                 }
 
@@ -1477,20 +1595,24 @@ public class FunctionSQL extends Expression {
                 if (dataType.typeCode == Types.SQL_DECIMAL
                         || dataType.typeCode == Types.SQL_NUMERIC) {
                     if (dataType.scale > 0) {
-                        dataType = NumberType.getNumberType(dataType.typeCode,
-                                                            dataType.precision
-                                                            + 1, 0);
+                        dataType = NumberType.getNumberType(
+                            dataType.typeCode,
+                            dataType.precision + 1,
+                            0);
                     }
                 }
 
                 break;
             }
+
             case FUNC_WIDTH_BUCKET : {
                 nodeDataTypes = new Type[4];
-                nodeDataTypes[0] = Type.getAggregateType(nodes[0].dataType,
-                        nodes[1].dataType);
-                nodeDataTypes[0] = Type.getAggregateType(nodeDataTypes[0],
-                        nodes[2].dataType);
+                nodeDataTypes[0] = Type.getAggregateType(
+                    nodes[0].dataType,
+                    nodes[1].dataType);
+                nodeDataTypes[0] = Type.getAggregateType(
+                    nodeDataTypes[0],
+                    nodes[2].dataType);
 
                 if (nodeDataTypes[0] == null) {
                     throw Error.error(ErrorCode.X_42567);
@@ -1522,9 +1644,9 @@ public class FunctionSQL extends Expression {
 
                 nodeDataTypes[3] = nodes[3].dataType;
                 dataType         = nodes[3].dataType;
-
                 break;
             }
+
             case FUNC_SUBSTRING_CHAR :
             case FUNC_SUBSTRING_BINARY : {
                 if (nodes[0].dataType == null) {
@@ -1559,7 +1681,8 @@ public class FunctionSQL extends Expression {
 
                     if (dataType.typeCode == Types.SQL_CHAR) {
                         dataType = CharacterType.getCharacterType(
-                            Types.SQL_VARCHAR, dataType.precision,
+                            Types.SQL_VARCHAR,
+                            dataType.precision,
                             dataType.getCollation());
                     }
                 } else if (dataType.isBinaryType()) {
@@ -1575,6 +1698,7 @@ public class FunctionSQL extends Expression {
 
                 break;
             }
+
             /*
             case FUNCTION_SUBSTRING_REG_EXPR :
                 break;
@@ -1592,6 +1716,7 @@ public class FunctionSQL extends Expression {
                 if (!dataType.isCharacterType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
+
                 break;
 
             /*
@@ -1605,9 +1730,9 @@ public class FunctionSQL extends Expression {
             case FUNC_TRIM_CHAR :
             case FUNC_TRIM_BINARY :
                 if (nodes[0] == null) {
-                    nodes[0] =
-                        new ExpressionValue(ValuePool.getInt(Tokens.BOTH),
-                                            Type.SQL_INTEGER);
+                    nodes[0] = new ExpressionValue(
+                        ValuePool.getInt(Tokens.BOTH),
+                        Type.SQL_INTEGER);
                 }
 
                 if (nodes[2].dataType == null) {
@@ -1621,7 +1746,8 @@ public class FunctionSQL extends Expression {
 
                     if (dataType.typeCode == Types.SQL_CHAR) {
                         dataType = CharacterType.getCharacterType(
-                            Types.SQL_VARCHAR, dataType.precision,
+                            Types.SQL_VARCHAR,
+                            dataType.precision,
                             dataType.getCollation());
                     }
 
@@ -1639,6 +1765,7 @@ public class FunctionSQL extends Expression {
                 } else {
                     throw Error.error(ErrorCode.X_42563);
                 }
+
                 break;
 
             case FUNC_OVERLAY_CHAR :
@@ -1674,23 +1801,17 @@ public class FunctionSQL extends Expression {
 
                     if (nodes[0].dataType.typeCode == Types.SQL_CLOB
                             || nodes[1].dataType.typeCode == Types.SQL_CLOB) {
-                        dataType =
-                            CharacterType
-                                .getCharacterType(Types.SQL_CLOB,
-                                                  nodes[0].dataType.precision
-                                                  + nodes[1].dataType
-                                                      .precision, nodes[0]
-                                                      .dataType
-                                                      .getCollation());
+                        dataType = CharacterType.getCharacterType(
+                            Types.SQL_CLOB,
+                            nodes[0].dataType.precision
+                            + nodes[1].dataType.precision,
+                            nodes[0].dataType.getCollation());
                     } else {
-                        dataType =
-                            CharacterType
-                                .getCharacterType(Types.SQL_VARCHAR,
-                                                  nodes[0].dataType.precision
-                                                  + nodes[1].dataType
-                                                      .precision, nodes[0]
-                                                      .dataType
-                                                      .getCollation());
+                        dataType = CharacterType.getCharacterType(
+                            Types.SQL_VARCHAR,
+                            nodes[0].dataType.precision
+                            + nodes[1].dataType.precision,
+                            nodes[0].dataType.getCollation());
                     }
                 } else if (nodes[0].dataType.isBinaryType()
                            && nodes[1].dataType.isBinaryType()) {
@@ -1732,6 +1853,7 @@ public class FunctionSQL extends Expression {
 
                 break;
             }
+
             /*
             case FUNCTION_CHAR_NORMALIZE :
                 break;
@@ -1755,7 +1877,6 @@ public class FunctionSQL extends Expression {
             case FUNC_CURRENT_DATE :
                 if (session.database.sqlSyntaxOra) {
                     dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
-
                     break;
                 }
 
@@ -1769,12 +1890,12 @@ public class FunctionSQL extends Expression {
                     precision = ((Integer) nodes[0].valueData).intValue();
                 }
 
-                dataType =
-                    DateTimeType.getDateTimeType(Types.SQL_TIME_WITH_TIME_ZONE,
-                                                 precision);
-
+                dataType = DateTimeType.getDateTimeType(
+                    Types.SQL_TIME_WITH_TIME_ZONE,
+                    precision);
                 break;
             }
+
             case FUNC_CURRENT_TIMESTAMP : {
                 int precision = DateTimeType.defaultTimestampFractionPrecision;
 
@@ -1783,10 +1904,11 @@ public class FunctionSQL extends Expression {
                 }
 
                 dataType = DateTimeType.getDateTimeType(
-                    Types.SQL_TIMESTAMP_WITH_TIME_ZONE, precision);
-
+                    Types.SQL_TIMESTAMP_WITH_TIME_ZONE,
+                    precision);
                 break;
             }
+
             case FUNC_LOCALTIME : {
                 int precision = DateTimeType.defaultTimeFractionPrecision;
 
@@ -1794,11 +1916,12 @@ public class FunctionSQL extends Expression {
                     precision = ((Integer) nodes[0].valueData).intValue();
                 }
 
-                dataType = DateTimeType.getDateTimeType(Types.SQL_TIME,
-                        precision);
-
+                dataType = DateTimeType.getDateTimeType(
+                    Types.SQL_TIME,
+                    precision);
                 break;
             }
+
             case FUNC_LOCALTIMESTAMP : {
                 int precision = DateTimeType.defaultTimestampFractionPrecision;
 
@@ -1806,11 +1929,12 @@ public class FunctionSQL extends Expression {
                     precision = ((Integer) nodes[0].valueData).intValue();
                 }
 
-                dataType = DateTimeType.getDateTimeType(Types.SQL_TIMESTAMP,
-                        precision);
-
+                dataType = DateTimeType.getDateTimeType(
+                    Types.SQL_TIMESTAMP,
+                    precision);
                 break;
             }
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionSQL");
         }
@@ -1823,23 +1947,29 @@ public class FunctionSQL extends Expression {
         }
 
         int token = ((Number) nodes[0].valueData).intValue();
-
-        int part = DTIType.getFieldNameTypeForToken(token);
+        int part  = DTIType.getFieldNameTypeForToken(token);
 
         switch (part) {
 
             case Types.SQL_INTERVAL_SECOND : {
-                return ((DTIType) nodes[1].dataType).getSecondPart(session,
-                        data[1]);
+                return ((DTIType) nodes[1].dataType).getSecondPart(
+                    session,
+                    data[1]);
             }
+
             case Types.DTI_MONTH_NAME :
             case Types.DTI_DAY_NAME : {
                 return ((DateTimeType) nodes[1].dataType).getPartString(
-                    session, data[1], part);
+                    session,
+                    data[1],
+                    part);
             }
+
             default : {
-                int value = ((DTIType) nodes[1].dataType).getPart(session,
-                    data[1], part);
+                int value = ((DTIType) nodes[1].dataType).getPart(
+                    session,
+                    data[1],
+                    part);
 
                 return ValuePool.getInt(value);
             }
@@ -1854,21 +1984,26 @@ public class FunctionSQL extends Expression {
 
             case FUNC_POSITION_CHAR :
             case FUNC_POSITION_BINARY : {
-                sb.append(Tokens.T_POSITION).append('(')                 //
-                    .append(nodes[0].getSQL()).append(' ')               //
-                    .append(Tokens.T_IN).append(' ')                     //
-                    .append(nodes[1].getSQL());
+                sb.append(Tokens.T_POSITION)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(' ')
+                  .append(Tokens.T_IN)
+                  .append(' ')
+                  .append(nodes[1].getSQL());
 
                 if (nodes[2] != null
                         && Boolean.TRUE.equals(nodes[2].valueData)) {
-                    sb.append(' ').append(Tokens.T_USING).append(' ').append(
-                        Tokens.T_OCTETS);
+                    sb.append(' ')
+                      .append(Tokens.T_USING)
+                      .append(' ')
+                      .append(Tokens.T_OCTETS);
                 }
 
                 sb.append(')');
-
                 break;
             }
+
             case FUNC_OCCURENCES_REGEX :
                 break;
 
@@ -1882,124 +2017,172 @@ public class FunctionSQL extends Expression {
 
                 String token = DTIType.getFieldNameTokenForType(type);
 
-                sb.append(Tokens.T_EXTRACT).append('(').append(token)    //
-                    .append(' ').append(Tokens.T_FROM).append(' ')       //
-                    .append(nodes[1].getSQL()).append(')');
-
+                sb.append(Tokens.T_EXTRACT)
+                  .append('(')
+                  .append(token)
+                  .append(' ')
+                  .append(Tokens.T_FROM)
+                  .append(' ')
+                  .append(nodes[1].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_CHAR_LENGTH : {
-                sb.append(Tokens.T_CHAR_LENGTH).append('(')              //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_CHAR_LENGTH)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_BIT_LENGTH : {
-                sb.append(Tokens.T_BIT_LENGTH).append('(')               //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_BIT_LENGTH)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_OCTET_LENGTH : {
-                sb.append(Tokens.T_OCTET_LENGTH).append('(')             //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_OCTET_LENGTH)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_CARDINALITY : {
-                sb.append(Tokens.T_CARDINALITY).append('(')              //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_CARDINALITY)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_MAX_CARDINALITY : {
-                sb.append(Tokens.T_MAX_CARDINALITY).append('(')          //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_MAX_CARDINALITY)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_TRIM_ARRAY : {
-                sb.append(Tokens.T_TRIM_ARRAY).append('(')               //
-                    .append(nodes[0].getSQL()).append(',')               //
-                    .append(nodes[1].getSQL()).append(')');              //
-
+                sb.append(Tokens.T_TRIM_ARRAY)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(',')
+                  .append(nodes[1].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_ABS : {
-                sb.append(Tokens.T_ABS).append('(')                      //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_ABS)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_MOD : {
-                sb.append(Tokens.T_MOD).append('(')                      //
-                    .append(nodes[0].getSQL()).append(',')               //
-                    .append(nodes[1].getSQL()).append(')');
-
+                sb.append(Tokens.T_MOD)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(',')
+                  .append(nodes[1].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_LN : {
-                sb.append(Tokens.T_LN).append('(')                       //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_LN)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_EXP : {
-                sb.append(Tokens.T_EXP).append('(')                      //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_EXP)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_POWER : {
-                sb.append(Tokens.T_POWER).append('(')                    //
-                    .append(nodes[0].getSQL()).append(',')               //
-                    .append(nodes[1].getSQL()).append(')');
-
+                sb.append(Tokens.T_POWER)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(',')
+                  .append(nodes[1].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_SQRT : {
-                sb.append(Tokens.T_SQRT).append('(')                     //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_SQRT)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_FLOOR : {
-                sb.append(Tokens.T_FLOOR).append('(')                    //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_FLOOR)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_CEILING : {
-                sb.append(Tokens.T_CEILING).append('(')                  //
-                    .append(nodes[0].getSQL()).append(')');
-
+                sb.append(Tokens.T_CEILING)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_WIDTH_BUCKET : {
-                sb.append(Tokens.T_WIDTH_BUCKET).append('(')             //
-                    .append(nodes[0].getSQL()).append(',')               //
-                    .append(nodes[1].getSQL()).append(',')               //
-                    .append(nodes[2].getSQL()).append(',')               //
-                    .append(nodes[3].getSQL()).append(')');
-
+                sb.append(Tokens.T_WIDTH_BUCKET)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(',')
+                  .append(nodes[1].getSQL())
+                  .append(',')
+                  .append(nodes[2].getSQL())
+                  .append(',')
+                  .append(nodes[3].getSQL())
+                  .append(')');
                 break;
             }
+
             case FUNC_SUBSTRING_CHAR :
             case FUNC_SUBSTRING_BINARY :
-                sb.append(Tokens.T_SUBSTRING).append('(')                //
-                    .append(nodes[0].getSQL()).append(' ')               //
-                    .append(Tokens.T_FROM).append(' ')                   //
-                    .append(nodes[1].getSQL());
+                sb.append(Tokens.T_SUBSTRING)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(' ')
+                  .append(Tokens.T_FROM)
+                  .append(' ')
+                  .append(nodes[1].getSQL());
 
                 if (nodes[2] != null) {
-                    sb.append(' ').append(Tokens.T_FOR).append(' ')      //
-                        .append(nodes[2].getSQL());
+                    sb.append(' ')
+                      .append(Tokens.T_FOR)
+                      .append(' ')
+                      .append(nodes[2].getSQL());
                 }
 
                 if (nodes.length > 3 && nodes[3] != null) {
                     if (Boolean.TRUE.equals(nodes[3].valueData)) {
-                        sb.append(' ').append(Tokens.T_USING).append(
-                            ' ').append(Tokens.T_OCTETS);
+                        sb.append(' ')
+                          .append(Tokens.T_USING)
+                          .append(' ')
+                          .append(Tokens.T_OCTETS);
                     }
                 }
 
@@ -2011,13 +2194,17 @@ public class FunctionSQL extends Expression {
                 break;
             */
             case FUNC_FOLD_LOWER :
-                sb.append(Tokens.T_LOWER).append('(').append(
-                    nodes[0].getSQL()).append(')');
+                sb.append(Tokens.T_LOWER)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
 
             case FUNC_FOLD_UPPER :
-                sb.append(Tokens.T_UPPER).append('(').append(
-                    nodes[0].getSQL()).append(')');
+                sb.append(Tokens.T_UPPER)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(')');
                 break;
 
             /*
@@ -2030,22 +2217,31 @@ public class FunctionSQL extends Expression {
              */
             case FUNC_OVERLAY_CHAR :
             case FUNC_OVERLAY_BINARY :
-                sb.append(Tokens.T_OVERLAY).append('(')                  //
-                    .append(nodes[0].getSQL()).append(' ')               //
-                    .append(Tokens.T_PLACING).append(' ')                //
-                    .append(nodes[1].getSQL()).append(' ')               //
-                    .append(Tokens.T_FROM).append(' ')                   //
-                    .append(nodes[2].getSQL());
+                sb.append(Tokens.T_OVERLAY)
+                  .append('(')
+                  .append(nodes[0].getSQL())
+                  .append(' ')
+                  .append(Tokens.T_PLACING)
+                  .append(' ')
+                  .append(nodes[1].getSQL())
+                  .append(' ')
+                  .append(Tokens.T_FROM)
+                  .append(' ')
+                  .append(nodes[2].getSQL());
 
                 if (nodes[3] != null) {
-                    sb.append(' ').append(Tokens.T_FOR).append(' ').append(
-                        nodes[3].getSQL());
+                    sb.append(' ')
+                      .append(Tokens.T_FOR)
+                      .append(' ')
+                      .append(nodes[3].getSQL());
                 }
 
                 if (nodes[4] != null) {
                     if (Boolean.TRUE.equals(nodes[4].valueData)) {
-                        sb.append(' ').append(Tokens.T_USING).append(
-                            ' ').append(Tokens.T_OCTETS);
+                        sb.append(' ')
+                          .append(Tokens.T_USING)
+                          .append(' ')
+                          .append(Tokens.T_OCTETS);
                     }
                 }
 
@@ -2077,11 +2273,16 @@ public class FunctionSQL extends Expression {
                     default :
                 }
 
-                sb.append(Tokens.T_TRIM).append('(')                     //
-                    .append(spec).append(' ')                            //
-                    .append(nodes[1].getSQL()).append(' ')               //
-                    .append(Tokens.T_FROM).append(' ')                   //
-                    .append(nodes[2].getSQL()).append(')');
+                sb.append(Tokens.T_TRIM)
+                  .append('(')
+                  .append(spec)
+                  .append(' ')
+                  .append(nodes[1].getSQL())
+                  .append(' ')
+                  .append(Tokens.T_FROM)
+                  .append(' ')
+                  .append(nodes[2].getSQL())
+                  .append(')');
                 break;
 
             case FUNC_CURRENT_CATALOG :
@@ -2115,6 +2316,7 @@ public class FunctionSQL extends Expression {
 
                 return sb.toString();
             }
+
             case FUNC_LOCALTIMESTAMP :
             case FUNC_CURRENT_TIMESTAMP : {
                 int precision = DateTimeType.defaultTimestampFractionPrecision;
@@ -2133,6 +2335,7 @@ public class FunctionSQL extends Expression {
 
                 return sb.toString();
             }
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionSQL");
         }
@@ -2176,8 +2379,9 @@ public class FunctionSQL extends Expression {
                 continue;
             }
 
-            sb.append("[").append(nodes[i].describe(session,
-                    blanks)).append("]");
+            sb.append("[")
+              .append(nodes[i].describe(session, blanks))
+              .append("]");
         }
 
         sb.append(") returns ").append(dataType.getNameString());

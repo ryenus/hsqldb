@@ -120,7 +120,7 @@ import java.awt.image.MemoryImageSource;
   * @since Hypersonic SQL
  */
 public class Transfer extends Panel
-implements WindowListener, ActionListener, ItemListener, Traceable {
+        implements WindowListener, ActionListener, ItemListener, Traceable {
 
     Frame            fMain;
     Image            imgEmpty;
@@ -133,7 +133,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
     java.awt.List    lTable;
     String[]         sSourceSchemas;
     String           sSourceCatalog, sDestSchema, sDestCatalog;
-    TextField tSourceTable, tDestTable, tDestDropIndex, tDestCreateIndex;
+    TextField        tSourceTable, tDestTable, tDestDropIndex, tDestCreateIndex;
     TextField        tDestDrop, tDestCreate, tDestDelete, tDestAlter;
     TextField        tSourceSelect, tDestInsert;
     Checkbox         cTransfer, cDrop, cCreate, cDelete, cInsert, cAlter;
@@ -155,7 +155,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
 
     public void trace(String s) {
 
-        if ((s != null) &&!s.equals("")) {
+        if ((s != null) && !s.equals("")) {
             tMessage.setText(s);
 
             if (TRACE) {
@@ -165,14 +165,12 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
     }
 
     public void init() {
-
         Transfer m = new Transfer();
 
         m._main(null);
     }
 
     public static void work(String[] arg) {
-
         Transfer m = new Transfer();
 
         m._main(arg);
@@ -188,7 +186,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             work(arg);
         } catch (IllegalArgumentException iae) {
             throw new IllegalArgumentException(
-                    "Try:  java "+ Transfer.class.getName() + " --help");
+                "Try:  java " + Transfer.class.getName() + " --help");
         }
     }
 
@@ -219,8 +217,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                 bStart.invalidate();
                 bStart.setEnabled(true);
 
-                for (Enumeration e =
-                        result.elements(); e.hasMoreElements(); ) {
+                for (Enumeration e = result.elements(); e.hasMoreElements(); ) {
                     lTable.add(e.nextElement().toString());
                 }
 
@@ -299,8 +296,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                 bStart.invalidate();
                 bStart.setEnabled(true);
 
-                for (Enumeration e =
-                        result.elements(); e.hasMoreElements(); ) {
+                for (Enumeration e = result.elements(); e.hasMoreElements(); ) {
                     lTable.add(e.nextElement().toString());
                 }
 
@@ -341,8 +337,8 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         return (lTable.getItemCount() > 0);
     }
 
-    static private final String SYNTAX_MSG =
-        "java " + Transfer.class.getName() + " [--help|--dump|--restore]";
+    static private final String SYNTAX_MSG = "java " + Transfer.class.getName()
+        + " [--help|--dump|--restore]";
 
     /**
      * @throws IllegalArgumentException for the obvious reason
@@ -358,14 +354,17 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             if (arg.length != 1) {
                 throw new IllegalArgumentException();
             }
+
             if ((arg[0].equalsIgnoreCase("-r"))
                     || (arg[0].equalsIgnoreCase("--restore"))) {
-                iTransferMode = TRFM_RESTORE; } else if ((arg[0].equalsIgnoreCase("-d"))
+                iTransferMode = TRFM_RESTORE;
+            } else if ((arg[0].equalsIgnoreCase("-d"))
                        || (arg[0].equalsIgnoreCase("--dump"))) {
                 iTransferMode = TRFM_DUMP;
             } else if ((arg[0].equalsIgnoreCase("-h"))
                        || (arg[0].equalsIgnoreCase("--help"))) {
                 System.out.println(Transfer.SYNTAX_MSG);
+
                 return;
             } else {
                 throw new IllegalArgumentException();
@@ -373,8 +372,8 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         }
 
         fMain = new Frame("HSQL Transfer Tool");
-        imgEmpty = createImage(new MemoryImageSource(2, 2, new int[4 * 4], 2,
-                2));
+        imgEmpty = createImage(
+            new MemoryImageSource(2, 2, new int[4 * 4], 2, 2));
 
         fMain.setIconImage(imgEmpty);
         fMain.addWindowListener(this);
@@ -386,7 +385,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             "Insert 10 rows only", "Insert 1000 rows only", "Insert all rows",
             "-", "Load Settings...", "Save Settings...", "-", "Exit"
         };
-        Menu menu = new Menu("Options");
+        Menu     menu   = new Menu("Options");
 
         addMenuItems(menu, extras);
         bar.add(menu);
@@ -398,8 +397,9 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
 
         // (ulrivo): full size on screen with less than 640 width
         if (d.width >= 640) {
-            fMain.setLocation((d.width - size.width) / 2,
-                              (d.height - size.height) / 2);
+            fMain.setLocation(
+                (d.width - size.width) / 2,
+                (d.height - size.height) / 2);
         } else {
             fMain.setLocation(0, 0);
             fMain.setSize(d);
@@ -413,8 +413,8 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             if ((iTransferMode == TRFM_DUMP)
                     || (iTransferMode == TRFM_TRANSFER)) {
                 sourceDb = new TransferDb(
-                    ConnectionDialog.createConnection(
-                        fMain, "Source Database"), this);
+                    ConnectionDialog.createConnection(fMain, "Source Database"),
+                    this);
 
                 if (!sourceDb.isConnected()) {
                     exit();
@@ -422,8 +422,10 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                     return;
                 }
             } else {
-                FileDialog f = new FileDialog(fMain, "Restore FileName",
-                                              FileDialog.LOAD);
+                FileDialog f = new FileDialog(
+                    fMain,
+                    "Restore FileName",
+                    FileDialog.LOAD);
 
                 f.setVisible(true);
 
@@ -442,8 +444,8 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             if ((iTransferMode == TRFM_RESTORE)
                     || (iTransferMode == TRFM_TRANSFER)) {
                 targetDb = new TransferDb(
-                    ConnectionDialog.createConnection(
-                        fMain, "Target Database"), this);
+                    ConnectionDialog.createConnection(fMain, "Target Database"),
+                    this);
 
                 if (!targetDb.isConnected()) {
                     exit();
@@ -451,8 +453,10 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                     return;
                 }
             } else {
-                FileDialog f = new FileDialog(fMain, "Dump FileName",
-                                              FileDialog.SAVE);
+                FileDialog f = new FileDialog(
+                    fMain,
+                    "Dump FileName",
+                    FileDialog.SAVE);
 
                 f.setVisible(true);
 
@@ -474,8 +478,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             return;
         }
 
-        if ((iTransferMode == TRFM_DUMP)
-                || (iTransferMode == TRFM_TRANSFER)) {
+        if ((iTransferMode == TRFM_DUMP) || (iTransferMode == TRFM_TRANSFER)) {
             iSelectionStep = SELECT_SOURCE_CATALOG;
             sSourceCatalog = null;
         } else {
@@ -691,6 +694,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
 
                     return;
                 }
+
                 break;
 
             case SELECT_DEST_SCHEMA :
@@ -700,6 +704,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
 
                     return;
                 }
+
                 break;
 
             case SELECT_SOURCE_TABLES :
@@ -740,8 +745,8 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             }
         }
 
-        if (s == null) {
-        } else if (s.equals("Start Transfer") || s.equals("ReStart Transfer")) {
+        if (s == null) {}
+        else if (s.equals("Start Transfer") || s.equals("ReStart Transfer")) {
             bStart.setLabel("ReStart Transfer");
             bStart.invalidate();
 
@@ -812,8 +817,10 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         } else if (s.equals("Insert all rows")) {
             iMaxRows = 0;
         } else if (s.equals("Load Settings...")) {
-            FileDialog f = new FileDialog(fMain, "Load Settings",
-                                          FileDialog.LOAD);
+            FileDialog f = new FileDialog(
+                fMain,
+                "Load Settings",
+                FileDialog.LOAD);
 
             f.setVisible(true);
 
@@ -824,8 +831,10 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                 displayTable(tCurrent);
             }
         } else if (s.equals("Save Settings...")) {
-            FileDialog f = new FileDialog(fMain, "Save Settings",
-                                          FileDialog.SAVE);
+            FileDialog f = new FileDialog(
+                fMain,
+                "Save Settings",
+                FileDialog.SAVE);
 
             f.setVisible(true);
 
@@ -936,13 +945,13 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
 
         cCreate.addItemListener(this);
 
-        cDropIndex = new Checkbox("Drop destination index (ignore error)",
-                                  true);
+        cDropIndex = new Checkbox(
+            "Drop destination index (ignore error)",
+            true);
 
         cDropIndex.addItemListener(this);
 
-        cIdxForced = new Checkbox("force Idx_ prefix for indexes names",
-                                  false);
+        cIdxForced = new Checkbox("force Idx_ prefix for indexes names", false);
 
         cIdxForced.addItemListener(this);
 
@@ -958,8 +967,9 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
 
         cInsert.addItemListener(this);
 
-        cFKForced = new Checkbox("force FK_ prefix for foreign key names",
-                                 false);
+        cFKForced = new Checkbox(
+            "force FK_ prefix for foreign key names",
+            false);
 
         cFKForced.addItemListener(this);
 
@@ -1067,7 +1077,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             bContinue.setEnabled(false);
         }
 
-        tTable = TransferCommon.loadPrefs(f, sourceDb, targetDb, this);
+        tTable         = TransferCommon.loadPrefs(f, sourceDb, targetDb, this);
         iSelectionStep = SELECT_SOURCE_TABLES;
 
         lTable.removeAll();

@@ -62,7 +62,6 @@ public class StatementSchema extends Statement {
     Token[]  statementTokens;
 
     StatementSchema(int type, int group) {
-
         super(type, group);
 
         isTransactionStatement = true;
@@ -72,8 +71,12 @@ public class StatementSchema extends Statement {
         this(sql, type, null, null, null);
     }
 
-    StatementSchema(String sql, int type, Object[] args, HsqlName[] readName,
-                    HsqlName[] writeName) {
+    StatementSchema(
+            String sql,
+            int type,
+            Object[] args,
+            HsqlName[] readName,
+            HsqlName[] writeName) {
 
         super(type);
 
@@ -317,8 +320,9 @@ public class StatementSchema extends Statement {
         SchemaManager schemaManager = session.database.schemaManager;
 
         if (this.isExplain) {
-            return Result.newSingleColumnStringResult("OPERATION",
-                    describe(session));
+            return Result.newSingleColumnStringResult(
+                "OPERATION",
+                describe(session));
         }
 
         mainSwitch:
@@ -326,11 +330,9 @@ public class StatementSchema extends Statement {
 
             case StatementTypes.RENAME_OBJECT :
             case StatementTypes.RENAME_SCHEMA : {
-                HsqlName name     = (HsqlName) arguments[0];
-                HsqlName newName  = (HsqlName) arguments[1];
-                boolean  ifExists = ((Boolean) arguments[2]).booleanValue();
-
-
+                HsqlName     name     = (HsqlName) arguments[0];
+                HsqlName     newName  = (HsqlName) arguments[1];
+                boolean      ifExists = ((Boolean) arguments[2]).booleanValue();
                 SchemaObject object;
 
                 switch (name.type) {
@@ -340,17 +342,16 @@ public class StatementSchema extends Statement {
                             session.checkAdmin();
                             session.checkDDLWrite();
                             name.rename(newName);
-
                             break mainSwitch;
                         } catch (HsqlException e) {
                             return Result.newErrorResult(e, sql);
                         }
                     }
+
                     case SchemaObject.SCHEMA : {
                         checkSchemaUpdateAuthorisation(session, name);
                         schemaManager.checkSchemaNameCanChange(name);
                         schemaManager.renameSchema(name, newName);
-
                         break mainSwitch;
                     }
                 }
@@ -359,8 +360,9 @@ public class StatementSchema extends Statement {
                     name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
                     if (ifExists) {
-                        object = schemaManager.findUserTable(name.name,
-                                                             name.schema.name);
+                        object = schemaManager.findUserTable(
+                            name.name,
+                            name.schema.name);
 
                         if (object == null) {
                             return Result.updateZeroResult;
@@ -409,10 +411,10 @@ public class StatementSchema extends Statement {
 
                             for (int i = 0; i < triggers.length; i++) {
                                 if (triggers[i] instanceof TriggerDefSQL) {
-                                    throw Error
-                                        .error(ErrorCode.X_42502, triggers[i]
-                                            .getName()
-                                            .getSchemaQualifiedStatementName());
+                                    throw Error.error(
+                                        ErrorCode.X_42502,
+                                        triggers[i].getName()
+                                                   .getSchemaQualifiedStatementName());
                                 }
                             }
 
@@ -428,6 +430,7 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.ALTER_CONSTRAINT : {
                 Table      table      = (Table) arguments[0];
                 int[]      newColumns = (int[]) arguments[1];
@@ -436,16 +439,16 @@ public class StatementSchema extends Statement {
 
                 try {
                     constraint =
-                        (Constraint) session.database.schemaManager
-                            .findSchemaObject(name);
+                        (Constraint) session.database.schemaManager.findSchemaObject(
+                            name);
 
                     constraint.extendFKIndexColumns(session, newColumns);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.ALTER_INDEX : {
                 Table    table        = (Table) arguments[0];
                 int[]    indexColumns = (int[]) arguments[1];
@@ -460,36 +463,38 @@ public class StatementSchema extends Statement {
                     TableWorks tableWorks = new TableWorks(session, table);
 
                     tableWorks.alterIndex(index, indexColumns);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.ALTER_SEQUENCE : {
                 try {
                     NumberSequence sequence = (NumberSequence) arguments[0];
                     NumberSequence settings = (NumberSequence) arguments[1];
 
-                    checkSchemaUpdateAuthorisation(session,
-                                                   sequence.getSchemaName());
+                    checkSchemaUpdateAuthorisation(
+                        session,
+                        sequence.getSchemaName());
                     sequence.reset(settings);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.ALTER_DOMAIN :
                 try {
-                    int  subType = ((Integer) arguments[0]).intValue();
-                    Type domain  = (Type) arguments[1];
+                    int subType = ((Integer) arguments[0]).intValue();
+                    Type domain = (Type) arguments[1];
                     Expression domainDefault =
                         domain.userTypeModifier.getDefaultClause();
                     OrderedHashSet<HsqlName> refSet =
                         session.database.schemaManager.getReferencesTo(
                             domain.getName());
-                    OrderedHashSet<SchemaObject> tableSet = new OrderedHashSet<>();
+                    OrderedHashSet<SchemaObject> tableSet =
+                        new OrderedHashSet<>();
 
                     for (int i = 0; i < refSet.size(); i++) {
                         HsqlName objectName = refSet.get(i);
@@ -520,31 +525,33 @@ public class StatementSchema extends Statement {
                         case StatementTypes.ADD_CONSTRAINT : {
                             Constraint c = (Constraint) arguments[2];
 
-                            setOrCheckObjectName(session, domain.getName(),
-                                                 c.getName(), true);
+                            setOrCheckObjectName(
+                                session,
+                                domain.getName(),
+                                c.getName(),
+                                true);
                             domain.userTypeModifier.addConstraint(c);
                             session.database.schemaManager.addSchemaObject(c);
-
                             break;
                         }
+
                         case StatementTypes.ADD_DEFAULT : {
                             Expression e = (Expression) arguments[2];
 
                             domain.userTypeModifier.setDefaultClause(e);
-
                             break;
                         }
+
                         case StatementTypes.DROP_CONSTRAINT : {
                             HsqlName name = (HsqlName) arguments[2];
 
                             session.database.schemaManager.removeSchemaObject(
                                 name);
-
                             break;
                         }
+
                         case StatementTypes.DROP_DEFAULT : {
                             domain.userTypeModifier.removeDefaultClause();
-
                             break;
                         }
                     }
@@ -557,8 +564,7 @@ public class StatementSchema extends Statement {
                                 ColumnSchema column = table.getColumn(j);
 
                                 if (column.dataType == domain) {
-                                    if (column.getDefaultExpression()
-                                            == null) {
+                                    if (column.getDefaultExpression() == null) {
                                         column.setDefaultExpression(
                                             domainDefault);
                                     }
@@ -586,10 +592,10 @@ public class StatementSchema extends Statement {
 
                             if (ifNotExists.booleanValue()) {
                                 SchemaObject object =
-                                    session.database.schemaManager
-                                        .findSchemaObject(c.getName().name, c
-                                            .getName().schema.name, c.getName()
-                                            .type);
+                                    session.database.schemaManager.findSchemaObject(
+                                        c.getName().name,
+                                        c.getName().schema.name,
+                                        c.getName().type);
 
                                 if (object != null) {
                                     return Result.updateZeroResult;
@@ -598,51 +604,55 @@ public class StatementSchema extends Statement {
 
                             switch (c.getConstraintType()) {
 
-                                case SchemaObject.ConstraintTypes
-                                        .PRIMARY_KEY : {
-                                    TableWorks tableWorks =
-                                        new TableWorks(session, table);
+                                case SchemaObject.ConstraintTypes.PRIMARY_KEY : {
+                                    TableWorks tableWorks = new TableWorks(
+                                        session,
+                                        table);
 
                                     tableWorks.addPrimaryKey(c);
-
                                     break;
                                 }
+
                                 case SchemaObject.ConstraintTypes.UNIQUE : {
-                                    TableWorks tableWorks =
-                                        new TableWorks(session, table);
+                                    TableWorks tableWorks = new TableWorks(
+                                        session,
+                                        table);
 
                                     tableWorks.addUniqueConstraint(c);
-
                                     break;
                                 }
-                                case SchemaObject.ConstraintTypes
-                                        .FOREIGN_KEY : {
-                                    TableWorks tableWorks =
-                                        new TableWorks(session, table);
+
+                                case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
+                                    TableWorks tableWorks = new TableWorks(
+                                        session,
+                                        table);
 
                                     tableWorks.addForeignKey(c);
-
                                     break;
                                 }
+
                                 case SchemaObject.ConstraintTypes.CHECK : {
-                                    TableWorks tableWorks =
-                                        new TableWorks(session, table);
+                                    TableWorks tableWorks = new TableWorks(
+                                        session,
+                                        table);
 
                                     tableWorks.addCheckConstraint(c);
-
                                     break;
                                 }
                             }
 
                             break;
                         }
+
                         case StatementTypes.ADD_COLUMN : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             int colIndex = ((Integer) arguments[3]).intValue();
-                            HsqlArrayList<Constraint> list = (HsqlArrayList<Constraint>) arguments[4];
+                            HsqlArrayList<Constraint> list =
+                                (HsqlArrayList<Constraint>) arguments[4];
                             Boolean ifNotExists = (Boolean) arguments[5];
-                            TableWorks tableWorks = new TableWorks(session,
-                                                                   table);
+                            TableWorks tableWorks = new TableWorks(
+                                session,
+                                table);
 
                             if (ifNotExists.booleanValue()) {
                                 if (table.findColumn(column.getName().name)
@@ -652,9 +662,9 @@ public class StatementSchema extends Statement {
                             }
 
                             tableWorks.addColumn(column, colIndex, list);
-
                             break;
                         }
+
                         case StatementTypes.ALTER_COLUMN_TYPE : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             Type         type   = (Type) arguments[3];
@@ -665,9 +675,9 @@ public class StatementSchema extends Statement {
                             TableWorks tw = new TableWorks(session, table);
 
                             tw.retypeColumn(column, newCol);
-
                             break;
                         }
+
                         case StatementTypes.ALTER_COLUMN_TYPE_IDENTITY : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             Type         type   = (Type) arguments[3];
@@ -681,9 +691,9 @@ public class StatementSchema extends Statement {
                             TableWorks tw = new TableWorks(session, table);
 
                             tw.retypeColumn(column, newCol);
-
                             break;
                         }
+
                         case StatementTypes.ALTER_COLUMN_SEQUENCE : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             int columnIndex =
@@ -700,38 +710,45 @@ public class StatementSchema extends Statement {
 
                             break;
                         }
+
                         case StatementTypes.ALTER_COLUMN_NULL : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             boolean nullable =
                                 ((Boolean) arguments[3]).booleanValue();
-                            TableWorks tw = new TableWorks(session, table);
+                            TableWorks   tw     = new TableWorks(
+                                session,
+                                table);
 
                             tw.setColNullability(column, nullable);
-
                             break;
                         }
+
                         case StatementTypes.ALTER_COLUMN_DEFAULT : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             int columnIndex =
                                 ((Integer) arguments[3]).intValue();
-                            Expression e  = (Expression) arguments[4];
-                            TableWorks tw = new TableWorks(session, table);
+                            Expression   e      = (Expression) arguments[4];
+                            TableWorks   tw     = new TableWorks(
+                                session,
+                                table);
 
                             tw.setColDefaultExpression(columnIndex, e);
-
                             break;
                         }
+
                         case StatementTypes.ALTER_COLUMN_DROP_DEFAULT : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             int columnIndex =
                                 ((Integer) arguments[3]).intValue();
-                            TableWorks tw = new TableWorks(session, table);
+                            TableWorks   tw     = new TableWorks(
+                                session,
+                                table);
 
                             tw.setColDefaultExpression(columnIndex, null);
                             table.setColumnTypeVars(columnIndex);
-
                             break;
                         }
+
                         case StatementTypes.ALTER_COLUMN_DROP_EXPRESSION : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             int columnIndex =
@@ -739,9 +756,9 @@ public class StatementSchema extends Statement {
 
                             column.setGeneratingExpression(null);
                             table.setColumnTypeVars(columnIndex);
-
                             break;
                         }
+
                         case StatementTypes.ALTER_COLUMN_DROP_GENERATED : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             int columnIndex =
@@ -749,7 +766,6 @@ public class StatementSchema extends Statement {
 
                             column.setIdentity(null);
                             table.setColumnTypeVars(columnIndex);
-
                             break;
                         }
                     }
@@ -776,11 +792,12 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.DROP_TABLE_PERIOD : {
                 Table            table   = (Table) arguments[0];
                 PeriodDefinition period  = (PeriodDefinition) arguments[1];
                 Boolean          cascade = (Boolean) arguments[2];
-                TablePeriodWorks works = new TablePeriodWorks(session, table);
+                TablePeriodWorks works   = new TablePeriodWorks(session, table);
 
                 try {
                     if (period.getPeriodType()
@@ -795,31 +812,32 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.ADD_TABLE_SYSTEM_VERSIONING : {
                 Table            table = (Table) arguments[0];
                 TablePeriodWorks works = new TablePeriodWorks(session, table);
 
                 try {
                     works.addSystemVersioning();
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.DROP_TABLE_SYSTEM_VERSIONING : {
                 Table            table   = (Table) arguments[0];
                 Boolean          cascade = (Boolean) arguments[1];
-                TablePeriodWorks works = new TablePeriodWorks(session, table);
+                TablePeriodWorks works   = new TablePeriodWorks(session, table);
 
                 try {
                     works.dropSystemVersioning(cascade);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.ALTER_ROUTINE : {
                 Routine routine = (Routine) arguments[0];
 
@@ -830,36 +848,40 @@ public class StatementSchema extends Statement {
 
                     schemaManager.replaceReferences(oldRoutine, routine);
                     oldRoutine.setAsAlteredRoutine(routine);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.ALTER_TYPE :
             case StatementTypes.ALTER_TRANSFORM : {
                 throw Error.runtimeError(ErrorCode.U_S0500, "StatementSchema");
             }
+
             case StatementTypes.ALTER_VIEW : {
                 View view = (View) arguments[0];
 
                 try {
-                    checkSchemaUpdateAuthorisation(session,
-                                                   view.getSchemaName());
+                    checkSchemaUpdateAuthorisation(
+                        session,
+                        view.getSchemaName());
 
-                    View oldView =
-                        (View) schemaManager.findSchemaObject(view.getName());
+                    View oldView = (View) schemaManager.findSchemaObject(
+                        view.getName());
 
                     if (oldView == null) {
-                        throw Error.error(ErrorCode.X_42501,
-                                          view.getName().name);
+                        throw Error.error(
+                            ErrorCode.X_42501,
+                            view.getName().name);
                     }
 
                     view.setName(oldView.getName());
                     view.compile(session, null);
 
                     OrderedHashSet<HsqlName> dependents =
-                        schemaManager.getReferencesTo(oldView.getName());
+                        schemaManager.getReferencesTo(
+                            oldView.getName());
 
                     if (dependents.getCommonElementCount(view.getReferences())
                             > 0) {
@@ -887,12 +909,13 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.DROP_COLUMN : {
                 try {
                     HsqlName name       = (HsqlName) arguments[0];
                     int      objectType = ((Integer) arguments[1]).intValue();
                     boolean  cascade = ((Boolean) arguments[2]).booleanValue();
-                    boolean ifExists = ((Boolean) arguments[3]).booleanValue();
+                    boolean  ifExists = ((Boolean) arguments[3]).booleanValue();
                     Table    table = schemaManager.getUserTable(name.parent);
                     int      colindex   = table.getColumnIndex(name.name);
 
@@ -900,18 +923,19 @@ public class StatementSchema extends Statement {
                         throw Error.error(ErrorCode.X_42591);
                     }
 
-                    checkSchemaUpdateAuthorisation(session,
-                                                   table.getSchemaName());
+                    checkSchemaUpdateAuthorisation(
+                        session,
+                        table.getSchemaName());
 
                     TableWorks tableWorks = new TableWorks(session, table);
 
                     tableWorks.dropColumn(colindex, cascade);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.DROP_ASSERTION :
             case StatementTypes.DROP_CHARACTER_SET :
             case StatementTypes.DROP_COLLATION :
@@ -936,7 +960,7 @@ public class StatementSchema extends Statement {
                     HsqlName name       = (HsqlName) arguments[0];
                     int      objectType = ((Integer) arguments[1]).intValue();
                     boolean  cascade = ((Boolean) arguments[2]).booleanValue();
-                    boolean ifExists = ((Boolean) arguments[3]).booleanValue();
+                    boolean  ifExists = ((Boolean) arguments[3]).booleanValue();
 
                     switch (type) {
 
@@ -954,6 +978,7 @@ public class StatementSchema extends Statement {
                                     return Result.updateZeroResult;
                                 }
                             }
+
                             break;
 
                         default :
@@ -972,19 +997,20 @@ public class StatementSchema extends Statement {
                             name.schema = schemaManager.getUserSchemaHsqlName(
                                 name.schema.name);
 
-                            checkSchemaUpdateAuthorisation(session,
-                                                           name.schema);
+                            checkSchemaUpdateAuthorisation(
+                                session,
+                                name.schema);
 
                             SchemaObject object =
-                                schemaManager.findSchemaObject(name);
+                                schemaManager.findSchemaObject(
+                                    name);
 
                             if (object == null) {
                                 if (ifExists) {
                                     return Result.updateZeroResult;
                                 }
 
-                                throw Error.error(ErrorCode.X_42501,
-                                                  name.name);
+                                throw Error.error(ErrorCode.X_42501, name.name);
                             }
 
                             if (name.type == SchemaObject.SPECIFIC_ROUTINE) {
@@ -1047,16 +1073,20 @@ public class StatementSchema extends Statement {
                             break;
 
                         case StatementTypes.DROP_INDEX :
-                            checkSchemaUpdateAuthorisation(session,
-                                                           name.schema);
+                            checkSchemaUpdateAuthorisation(
+                                session,
+                                name.schema);
                             schemaManager.dropIndex(session, name);
                             break;
 
                         case StatementTypes.DROP_CONSTRAINT :
-                            checkSchemaUpdateAuthorisation(session,
-                                                           name.schema);
-                            schemaManager.dropConstraint(session, name,
-                                                         cascade);
+                            checkSchemaUpdateAuthorisation(
+                                session,
+                                name.schema);
+                            schemaManager.dropConstraint(
+                                session,
+                                name,
+                                cascade);
                             break;
                     }
 
@@ -1065,20 +1095,25 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.GRANT :
             case StatementTypes.REVOKE : {
                 try {
-                    boolean        grant       = type == StatementTypes.GRANT;
-                    OrderedHashSet<String> granteeList = (OrderedHashSet<String>) arguments[0];
-                    HsqlName       name        = (HsqlName) arguments[1];
+                    boolean  grant = type == StatementTypes.GRANT;
+                    OrderedHashSet<String> granteeList =
+                        (OrderedHashSet<String>) arguments[0];
+                    HsqlName name = (HsqlName) arguments[1];
 
                     setSchemaName(session, null, name);
 
-                    name = schemaManager.getSchemaObjectName(name.schema,
-                            name.name, name.type, true);
+                    name = schemaManager.getSchemaObjectName(
+                        name.schema,
+                        name.name,
+                        name.type,
+                        true);
 
-                    SchemaObject schemaObject =
-                        schemaManager.findSchemaObject(name);
+                    SchemaObject schemaObject = schemaManager.findSchemaObject(
+                        name);
                     Right   right   = (Right) arguments[2];
                     Grantee grantor = (Grantee) arguments[3];
                     boolean cascade = ((Boolean) arguments[4]).booleanValue();
@@ -1086,8 +1121,9 @@ public class StatementSchema extends Statement {
                         ((Boolean) arguments[5]).booleanValue();
 
                     if (grantor == null) {
-                        grantor = isSchemaDefinition ? schemaName.owner
-                                                     : session.getGrantee();
+                        grantor = isSchemaDefinition
+                                  ? schemaName.owner
+                                  : session.getGrantee();
                     }
 
                     GranteeManager gm = session.database.granteeManager;
@@ -1105,7 +1141,8 @@ public class StatementSchema extends Statement {
 
                             if (t.isTemp && !right.isFull()) {
                                 return Result.newErrorResult(
-                                    Error.error(ErrorCode.X_42595), sql);
+                                    Error.error(ErrorCode.X_42595),
+                                    sql);
                             }
 
                             Expression[] filters = right.getFiltersArray();
@@ -1122,11 +1159,21 @@ public class StatementSchema extends Statement {
                     }
 
                     if (grant) {
-                        gm.grant(session, granteeList, schemaObject, right,
-                                 grantor, isGrantOption);
+                        gm.grant(
+                            session,
+                            granteeList,
+                            schemaObject,
+                            right,
+                            grantor,
+                            isGrantOption);
                     } else {
-                        gm.revoke(granteeList, schemaObject, right, grantor,
-                                  isGrantOption, cascade);
+                        gm.revoke(
+                            granteeList,
+                            schemaObject,
+                            right,
+                            grantor,
+                            isGrantOption,
+                            cascade);
                     }
 
                     break;
@@ -1134,15 +1181,18 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.GRANT_ROLE :
             case StatementTypes.REVOKE_ROLE : {
                 try {
-                    boolean        grant = type == StatementTypes.GRANT_ROLE;
-                    OrderedHashSet<String> granteeList = (OrderedHashSet<String>) arguments[0];
-                    OrderedHashSet<String> roleList    = (OrderedHashSet<String>) arguments[1];
-                    Grantee        grantor     = (Grantee) arguments[2];
+                    boolean grant = type == StatementTypes.GRANT_ROLE;
+                    OrderedHashSet<String> granteeList =
+                        (OrderedHashSet<String>) arguments[0];
+                    OrderedHashSet<String> roleList =
+                        (OrderedHashSet<String>) arguments[1];
+                    Grantee        grantor = (Grantee) arguments[2];
                     boolean cascade = ((Boolean) arguments[3]).booleanValue();
-                    GranteeManager gm = session.database.granteeManager;
+                    GranteeManager gm      = session.database.granteeManager;
 
                     gm.checkGranteeList(granteeList);
 
@@ -1177,35 +1227,43 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_ASSERTION : {
                 return Result.updateZeroResult;
             }
+
             case StatementTypes.CREATE_CHARACTER_SET : {
                 Charset charset = (Charset) arguments[0];
 
                 try {
-                    setOrCheckObjectName(session, null, charset.getName(),
-                                         true);
+                    setOrCheckObjectName(
+                        session,
+                        null,
+                        charset.getName(),
+                        true);
                     schemaManager.addSchemaObject(charset);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_COLLATION : {
                 Collation collation = (Collation) arguments[0];
 
                 try {
-                    setOrCheckObjectName(session, null, collation.getName(),
-                                         true);
+                    setOrCheckObjectName(
+                        session,
+                        null,
+                        collation.getName(),
+                        true);
                     schemaManager.addSchemaObject(collation);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_ROLE : {
                 try {
                     session.checkAdmin();
@@ -1214,12 +1272,12 @@ public class StatementSchema extends Statement {
                     HsqlName name = (HsqlName) arguments[0];
 
                     session.database.getGranteeManager().addRole(name);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_USER : {
                 HsqlName name     = (HsqlName) arguments[0];
                 String   password = (String) arguments[1];
@@ -1230,12 +1288,19 @@ public class StatementSchema extends Statement {
                 try {
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.getUserManager().createUser(session,
-                            name, password, isDigest);
+                    session.database.getUserManager()
+                                    .createUser(
+                                        session,
+                                        name,
+                                        password,
+                                        isDigest);
 
                     if (admin) {
-                        session.database.getGranteeManager().grant(name.name,
-                                SqlInvariants.DBA_ADMIN_ROLE_NAME, grantor);
+                        session.database.getGranteeManager()
+                                        .grant(
+                                            name.name,
+                                            SqlInvariants.DBA_ADMIN_ROLE_NAME,
+                                            grantor);
                     }
 
                     break;
@@ -1243,6 +1308,7 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_SCHEMA : {
                 HsqlName name        = (HsqlName) arguments[0];
                 Grantee  owner       = (Grantee) arguments[1];
@@ -1277,19 +1343,23 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_ROUTINE : {
                 Routine routine = (Routine) arguments[0];
 
                 try {
-                    setOrCheckObjectName(session, null, routine.getName(),
-                                         false);
+                    setOrCheckObjectName(
+                        session,
+                        null,
+                        routine.getName(),
+                        false);
                     schemaManager.addSchemaObject(routine);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_ALIAS : {
                 HsqlName  name     = (HsqlName) arguments[0];
                 Routine[] routines = (Routine[]) arguments[1];
@@ -1310,15 +1380,18 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_SEQUENCE : {
                 NumberSequence sequence    = (NumberSequence) arguments[0];
                 Boolean        ifNotExists = (Boolean) arguments[1];
 
                 try {
-                    setOrCheckObjectName(session, null, sequence.getName(),
-                                         true);
+                    setOrCheckObjectName(
+                        session,
+                        null,
+                        sequence.getName(),
+                        true);
                     schemaManager.addSchemaObject(sequence);
-
                     break;
                 } catch (HsqlException e) {
                     if (ifNotExists != null && ifNotExists.booleanValue()) {
@@ -1328,6 +1401,7 @@ public class StatementSchema extends Statement {
                     }
                 }
             }
+
             case StatementTypes.CREATE_DOMAIN : {
                 Type type = (Type) arguments[0];
                 Constraint[] constraints =
@@ -1339,24 +1413,29 @@ public class StatementSchema extends Statement {
                     for (int i = 0; i < constraints.length; i++) {
                         Constraint c = constraints[i];
 
-                        setOrCheckObjectName(session, type.getName(),
-                                             c.getName(), true);
+                        setOrCheckObjectName(
+                            session,
+                            type.getName(),
+                            c.getName(),
+                            true);
                         schemaManager.addSchemaObject(c);
                     }
 
                     schemaManager.addSchemaObject(type);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_TABLE : {
-                Table         table              = (Table) arguments[0];
-                HsqlArrayList<Constraint> tempConstraints = (HsqlArrayList<Constraint>) arguments[1];
-                HsqlArrayList<Constraint> tempIndexes = (HsqlArrayList<Constraint>) arguments[2];
+                Table                     table = (Table) arguments[0];
+                HsqlArrayList<Constraint> tempConstraints =
+                    (HsqlArrayList<Constraint>) arguments[1];
+                HsqlArrayList<Constraint> tempIndexes =
+                    (HsqlArrayList<Constraint>) arguments[2];
                 StatementDMQL statement = (StatementDMQL) arguments[3];
-                Boolean       ifNotExists        = (Boolean) arguments[4];
+                Boolean                   ifNotExists = (Boolean) arguments[4];
                 HsqlArrayList<Constraint> foreignConstraints = null;
 
                 try {
@@ -1375,10 +1454,12 @@ public class StatementSchema extends Statement {
                     }
 
                     if (tempConstraints.size() > 0) {
-                        table =
-                            ParserDDL.addTableConstraintDefinitions(session,
-                                table, tempConstraints, foreignConstraints,
-                                true);
+                        table = ParserDDL.addTableConstraintDefinitions(
+                            session,
+                            table,
+                            tempConstraints,
+                            foreignConstraints,
+                            true);
                         arguments[1] = foreignConstraints;
                     }
 
@@ -1391,8 +1472,10 @@ public class StatementSchema extends Statement {
                         for (int i = 0; i < tempIndexes.size(); i++) {
                             Constraint c = tempIndexes.get(i);
 
-                            tableWorks.addIndex(c.getMainColumns(),
-                                                c.getName(), false);
+                            tableWorks.addIndex(
+                                c.getMainColumns(),
+                                c.getName(),
+                                false);
                         }
 
                         table = tableWorks.getTable();
@@ -1414,8 +1497,10 @@ public class StatementSchema extends Statement {
                                 Row      row  = it.getCurrentRow();
                                 Object[] data = row.getData();
 
-                                session.sessionData.adjustLobUsageCount(table,
-                                        data, 1);
+                                session.sessionData.adjustLobUsageCount(
+                                    table,
+                                    data,
+                                    1);
                             }
                         }
                     }
@@ -1429,6 +1514,7 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_TRANSFORM :
                 return Result.updateZeroResult;
 
@@ -1441,22 +1527,25 @@ public class StatementSchema extends Statement {
                 Boolean    ifNotExists = (Boolean) arguments[2];
 
                 try {
-                    setOrCheckObjectName(session, null, trigger.getName(),
-                                         true);
+                    setOrCheckObjectName(
+                        session,
+                        null,
+                        trigger.getName(),
+                        true);
 
                     if (otherName != null) {
                         setOrCheckObjectName(session, null, otherName, false);
 
                         if (schemaManager.findSchemaObject(otherName) == null) {
-                            throw Error.error(ErrorCode.X_42501,
-                                              otherName.name);
+                            throw Error.error(
+                                ErrorCode.X_42501,
+                                otherName.name);
                         }
                     }
 
                     trigger.table.addTrigger(trigger, otherName);
                     schemaManager.addSchemaObject(trigger);
                     trigger.start();
-
                     break;
                 } catch (HsqlException e) {
                     if (ifNotExists != null && ifNotExists.booleanValue()) {
@@ -1466,6 +1555,7 @@ public class StatementSchema extends Statement {
                     }
                 }
             }
+
             case StatementTypes.CREATE_CAST :
                 return Result.updateZeroResult;
 
@@ -1475,12 +1565,12 @@ public class StatementSchema extends Statement {
                 try {
                     setOrCheckObjectName(session, null, type.getName(), true);
                     schemaManager.addSchemaObject(type);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_ORDERING :
                 return Result.updateZeroResult;
 
@@ -1501,12 +1591,12 @@ public class StatementSchema extends Statement {
                 try {
                     view.compile(session, null);
                     schemaManager.addSchemaObject(view);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_INDEX : {
                 Table         table;
                 HsqlName      name;
@@ -1547,12 +1637,12 @@ public class StatementSchema extends Statement {
                     TableWorks tableWorks = new TableWorks(session, table);
 
                     tableWorks.addIndex(indexColumns, name, unique);
-
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
             case StatementTypes.CREATE_REFERENCE : {
                 HsqlName name;
                 HsqlName targetName;
@@ -1566,25 +1656,25 @@ public class StatementSchema extends Statement {
 
                 // find the new target
                 SchemaObject object =
-                    session.database.schemaManager
-                        .findAnySchemaObjectForSynonym(name.name,
-                                                       name.schema.name);
+                    session.database.schemaManager.findAnySchemaObjectForSynonym(
+                        name.name,
+                        name.schema.name);
 
                 if (object != null) {
                     throw Error.error(ErrorCode.X_42504);
                 }
 
                 object =
-                    session.database.schemaManager
-                        .findAnySchemaObjectForSynonym(targetName.name,
-                                                       targetName.schema.name);
+                    session.database.schemaManager.findAnySchemaObjectForSynonym(
+                        targetName.name,
+                        targetName.schema.name);
 
                 if (object == null) {
                     throw Error.error(ErrorCode.X_42501);
                 }
 
-                if (!session.getGrantee().isFullyAccessibleByRole(
-                        object.getName())) {
+                if (!session.getGrantee()
+                            .isFullyAccessibleByRole(object.getName())) {
                     throw Error.error(ErrorCode.X_42501);
                 }
 
@@ -1593,9 +1683,9 @@ public class StatementSchema extends Statement {
                 SchemaObject reference = new ReferenceObject(name, targetName);
 
                 schemaManager.addSchemaObject(reference);
-
                 break;
             }
+
             case StatementTypes.COMMENT : {
                 HsqlName name    = (HsqlName) arguments[0];
                 String   comment = (String) arguments[1];
@@ -1604,11 +1694,12 @@ public class StatementSchema extends Statement {
 
                     case SchemaObject.COLUMN : {
                         Table table = (Table) schemaManager.getSchemaObject(
-                            name.parent.name, name.parent.schema.name,
+                            name.parent.name,
+                            name.parent.schema.name,
                             SchemaObject.TABLE);
 
-                        if (!session.getGrantee().isFullyAccessibleByRole(
-                                table.getName())) {
+                        if (!session.getGrantee()
+                                    .isFullyAccessibleByRole(table.getName())) {
                             throw Error.error(ErrorCode.X_42501);
                         }
 
@@ -1621,26 +1712,26 @@ public class StatementSchema extends Statement {
                         ColumnSchema column = table.getColumn(index);
 
                         column.getName().comment = comment;
-
                         break;
                     }
+
                     case SchemaObject.TRIGGER :
                     case SchemaObject.SEQUENCE :
                     case SchemaObject.ROUTINE :
                     case SchemaObject.TABLE :
                     case SchemaObject.VIEW : {
-                        SchemaObject object =
-                            schemaManager.getSchemaObject(name.name,
-                                                          name.schema.name,
-                                                          name.type);
+                        SchemaObject object = schemaManager.getSchemaObject(
+                            name.name,
+                            name.schema.name,
+                            name.type);
 
-                        if (!session.getGrantee().isFullyAccessibleByRole(
-                                object.getName())) {
+                        if (!session.getGrantee()
+                                    .isFullyAccessibleByRole(
+                                        object.getName())) {
                             throw Error.error(ErrorCode.X_42501);
                         }
 
                         object.getName().comment = comment;
-
                         break;
                     }
                 }
@@ -1663,30 +1754,34 @@ public class StatementSchema extends Statement {
 
         checkSchemaUpdateAuthorisation(session, name.schema);
 
-        Type distinct =
-            (Type) session.database.schemaManager.findSchemaObject(name);
+        Type distinct = (Type) session.database.schemaManager.findSchemaObject(
+            name);
 
         session.database.schemaManager.removeSchemaObject(name, cascade);
 
         distinct.userTypeModifier = null;
     }
 
-    private static void dropDomain(Session session, HsqlName name,
-                                   boolean cascade) {
+    private static void dropDomain(
+            Session session,
+            HsqlName name,
+            boolean cascade) {
 
-        Type domain =
-            (Type) session.database.schemaManager.findSchemaObject(name);
+        Type domain = (Type) session.database.schemaManager.findSchemaObject(
+            name);
         OrderedHashSet<HsqlName> set =
-            session.database.schemaManager.getReferencesTo(domain.getName());
+            session.database.schemaManager.getReferencesTo(
+                domain.getName());
 
         if (!cascade && set.size() > 0) {
             HsqlName objectName = set.get(0);
 
-            throw Error.error(ErrorCode.X_42502,
-                              objectName.getSchemaQualifiedStatementName());
+            throw Error.error(
+                ErrorCode.X_42502,
+                objectName.getSchemaQualifiedStatementName());
         }
 
-        Constraint[]   constraints = domain.userTypeModifier.getConstraints();
+        Constraint[] constraints = domain.userTypeModifier.getConstraints();
         OrderedHashSet<HsqlName> constraintNames = new OrderedHashSet<>();
 
         for (int i = 0; i < constraints.length; i++) {
@@ -1694,32 +1789,39 @@ public class StatementSchema extends Statement {
         }
 
         session.database.schemaManager.removeSchemaObjects(constraintNames);
-        session.database.schemaManager.removeSchemaObject(domain.getName(),
-                cascade);
+        session.database.schemaManager.removeSchemaObject(
+            domain.getName(),
+            cascade);
 
         domain.userTypeModifier = null;
     }
 
-    private static void dropRole(Session session, HsqlName name,
-                                 boolean cascade) {
+    private static void dropRole(
+            Session session,
+            HsqlName name,
+            boolean cascade) {
 
         Grantee role = session.database.getGranteeManager().getRole(name.name);
 
         if (!cascade && session.database.schemaManager.hasSchemas(role)) {
             HsqlArrayList<Schema> list =
-                session.database.schemaManager.getSchemas(role);
+                session.database.schemaManager.getSchemas(
+                    role);
             Schema schema = list.get(0);
 
-            throw Error.error(ErrorCode.X_42502,
-                              schema.getName().statementName);
+            throw Error.error(
+                ErrorCode.X_42502,
+                schema.getName().statementName);
         }
 
         session.database.schemaManager.dropSchemas(session, role, cascade);
         session.database.getGranteeManager().dropRole(name.name);
     }
 
-    private static void dropUser(Session session, HsqlName name,
-                                 boolean cascade) {
+    private static void dropUser(
+            Session session,
+            HsqlName name,
+            boolean cascade) {
 
         Grantee grantee = session.database.getUserManager().get(name.name);
 
@@ -1729,11 +1831,13 @@ public class StatementSchema extends Statement {
 
         if (!cascade && session.database.schemaManager.hasSchemas(grantee)) {
             HsqlArrayList<Schema> list =
-                session.database.schemaManager.getSchemas(grantee);
+                session.database.schemaManager.getSchemas(
+                    grantee);
             Schema schema = list.get(0);
 
-            throw Error.error(ErrorCode.X_42502,
-                              schema.getName().statementName);
+            throw Error.error(
+                ErrorCode.X_42502,
+                schema.getName().statementName);
         }
 
         session.database.schemaManager.dropSchemas(session, grantee, cascade);
@@ -1742,8 +1846,8 @@ public class StatementSchema extends Statement {
 
     private void dropSchema(Session session, HsqlName name, boolean cascade) {
 
-        HsqlName schema =
-            session.database.schemaManager.getUserSchemaHsqlName(name.name);
+        HsqlName schema = session.database.schemaManager.getUserSchemaHsqlName(
+            name.name);
 
         checkSchemaUpdateAuthorisation(session, schema);
         session.database.schemaManager.dropSchema(session, name.name, cascade);
@@ -1758,22 +1862,26 @@ public class StatementSchema extends Statement {
 
         checkSchemaUpdateAuthorisation(session, name.schema);
 
-        name = session.database.schemaManager.getSchemaObjectName(name.schema,
-                name.name, name.type, true);
+        name = session.database.schemaManager.getSchemaObjectName(
+            name.schema,
+            name.name,
+            name.type,
+            true);
 
         session.database.schemaManager.removeSchemaObject(name, cascade);
     }
 
     private void dropTable(Session session, HsqlName name, boolean cascade) {
 
-        Table table = session.database.schemaManager.findUserTable(name.name,
+        Table table = session.database.schemaManager.findUserTable(
+            name.name,
             name.schema.name);
 
-        session.database.schemaManager.dropTableOrView(session, table,
-                cascade);
+        session.database.schemaManager.dropTableOrView(session, table, cascade);
     }
 
-    static void checkSchemaUpdateAuthorisation(Session session,
+    static void checkSchemaUpdateAuthorisation(
+            Session session,
             HsqlName schema) {
 
         if (session.isProcessingLog()) {
@@ -1796,8 +1904,11 @@ public class StatementSchema extends Statement {
         session.checkDDLWrite();
     }
 
-    void setOrCheckObjectName(Session session, HsqlName parent, HsqlName name,
-                              boolean checkNotExists) {
+    void setOrCheckObjectName(
+            Session session,
+            HsqlName parent,
+            HsqlName name,
+            boolean checkNotExists) {
 
         if (name.schema == null) {
             name.schema = schemaName == null

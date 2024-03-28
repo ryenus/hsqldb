@@ -74,7 +74,6 @@ class HsqlThreadFactory implements ThreadFactory {
      * @return the requested thread instance
      */
     public Thread newThread(Runnable r) {
-
         return factory == this
                ? new Thread(r)
                : factory.newThread(r);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,10 +122,11 @@ public class DbBackup {
 
         File dbPathFile = new File(dbPath);
 
-        dbDir        = dbPathFile.getAbsoluteFile().getParentFile();
-        instanceName = dbPathFile.getName();
-        componentFiles = new File[]{
-            new File(dbDir, instanceName + ".script"), };
+        dbDir            = dbPathFile.getAbsoluteFile().getParentFile();
+        instanceName     = dbPathFile.getName();
+        componentFiles = new File[]{ new File(
+            dbDir,
+            instanceName + ".script"), };
         componentStreams = new InputStreamInterface[componentFiles.length];
         existList        = new boolean[componentFiles.length];
         ignoreList       = new boolean[componentFiles.length];
@@ -143,7 +144,6 @@ public class DbBackup {
         for (int i = 0; i < componentFiles.length; i++) {
             if (componentFiles[i].getName().endsWith(fileExtension)) {
                 componentStreams[i] = is;
-
                 break;
             }
         }
@@ -154,7 +154,6 @@ public class DbBackup {
         for (int i = 0; i < componentFiles.length; i++) {
             if (componentFiles[i].getName().endsWith(fileExtension)) {
                 ignoreList[i] = true;
-
                 break;
             }
         }
@@ -203,13 +202,16 @@ public class DbBackup {
      * @throws IOException for any of many possible I/O problems
      * @throws TarMalformatException if there is a problem writin the tar file
      */
-    public void write() throws IOException, TarMalformatException {
+    public void write() throws IOException,
+                               TarMalformatException {
 
         long startTime = new java.util.Date().getTime();
 
         checkEssentialFiles();
 
-        TarGenerator generator = new TarGenerator(archiveFile, overWrite,
+        TarGenerator generator = new TarGenerator(
+            archiveFile,
+            overWrite,
             Integer.valueOf(DbBackup.generateBufferBlockValue(componentFiles)));
 
         for (int i = 0; i < componentFiles.length; i++) {
@@ -228,13 +230,15 @@ public class DbBackup {
             }
 
             if (componentStreams[i] == null) {
-                generator.queueEntry(componentFiles[i].getName(),
-                                     componentFiles[i]);
+                generator.queueEntry(
+                    componentFiles[i].getName(),
+                    componentFiles[i]);
 
                 existList[i] = true;
             } else {
-                generator.queueEntry(componentFiles[i].getName(),
-                                     componentStreams[i]);
+                generator.queueEntry(
+                    componentFiles[i].getName(),
+                    componentStreams[i]);
             }
         }
 
@@ -244,55 +248,66 @@ public class DbBackup {
 
     public void writeAsFiles() throws IOException {
 
-        int bufferSize = 512
-                         * DbBackup.generateBufferBlockValue(componentFiles);
+        int bufferSize = 512 * DbBackup.generateBufferBlockValue(
+            componentFiles);
         byte[] writeBuffer = new byte[bufferSize];
 
         checkEssentialFiles();
+
         FileOutputStream fileOut = null;
 
-        for (int i = 0; i < componentFiles.length; i++) try {
-            if (ignoreList[i]) {
-                continue;
-            }
-
-            if (!componentFiles[i].exists()) {
-                continue;
-            }
-
-            File outFile = new File(archiveFile, componentFiles[i].getName());
-            fileOut = new FileOutputStream(outFile);
-
-            if (componentStreams[i] == null) {
-                componentStreams[i] = new InputStreamWrapper(
-                    new FileInputStream(componentFiles[i]));
-            }
-
-            InputStreamInterface instream = componentStreams[i];
-
-            while (true) {
-                int count = instream.read(writeBuffer, 0, writeBuffer.length);
-
-                if (count <= 0) {
-                    break;
+        for (int i = 0; i < componentFiles.length; i++) {
+            try {
+                if (ignoreList[i]) {
+                    continue;
                 }
 
-                fileOut.write(writeBuffer, 0, count);
-            }
+                if (!componentFiles[i].exists()) {
+                    continue;
+                }
 
-            instream.close();
-            fileOut.flush();
-            fileOut.getFD().sync();
-        } finally {
-            if (fileOut != null) {
-                fileOut.close();
-                fileOut = null;
+                File outFile = new File(
+                    archiveFile,
+                    componentFiles[i].getName());
+
+                fileOut = new FileOutputStream(outFile);
+
+                if (componentStreams[i] == null) {
+                    componentStreams[i] = new InputStreamWrapper(
+                        new FileInputStream(componentFiles[i]));
+                }
+
+                InputStreamInterface instream = componentStreams[i];
+
+                while (true) {
+                    int count = instream.read(
+                        writeBuffer,
+                        0,
+                        writeBuffer.length);
+
+                    if (count <= 0) {
+                        break;
+                    }
+
+                    fileOut.write(writeBuffer, 0, count);
+                }
+
+                instream.close();
+                fileOut.flush();
+                fileOut.getFD().sync();
+            } finally {
+                if (fileOut != null) {
+                    fileOut.close();
+
+                    fileOut = null;
+                }
             }
         }
     }
 
     void checkEssentialFiles()
-    throws FileNotFoundException, IllegalStateException {
+            throws FileNotFoundException,
+                   IllegalStateException {
 
         if (!componentFiles[0].getName().endsWith(".properties")) {
             return;
@@ -376,8 +391,7 @@ public class DbBackup {
         } catch (IllegalStateException ise) {
             if (!archiveFile.delete()) {
                 System.out.println(
-                    RB.cleanup_rmfail.getString(
-                        archiveFile.getAbsolutePath()));
+                    RB.cleanup_rmfail.getString(archiveFile.getAbsolutePath()));
 
                 // Be-it-known.  This method can write to stderr if
                 // abortUponModify is true.

@@ -70,9 +70,9 @@ public class ParserTable extends ParserDML {
             case TableBase.TEMP_TEXT_TABLE :
             case TableBase.TEXT_TABLE : {
                 table = new TextTable(database, name, type);
-
                 break;
             }
+
             default : {
                 table = new Table(database, name, type);
             }
@@ -89,9 +89,11 @@ public class ParserTable extends ParserDML {
 
         HsqlArrayList<Constraint> tempConstraints = new HsqlArrayList<>();
         HsqlArrayList<Constraint> tempIndexes     = new HsqlArrayList<>();
-        Statement     statement       = null;
-        HsqlName[]    readLockNames   = null;
-        boolean isTable = readTableContentsSource(table, tempConstraints,
+        Statement                 statement       = null;
+        HsqlName[]                readLockNames   = null;
+        boolean isTable = readTableContentsSource(
+            table,
+            tempConstraints,
             tempIndexes);
 
         if (!isTable) {
@@ -110,8 +112,10 @@ public class ParserTable extends ParserDML {
             readThis(Tokens.WITH);
             readThis(Tokens.DATA);
 
-            statement = new StatementQuery(session, queryExpression,
-                                           compileContext);
+            statement = new StatementQuery(
+                session,
+                queryExpression,
+                compileContext);
             readLockNames = statement.getTableNamesForRead();
 
             Type[] dataTypes = queryExpression.getColumnTypes();
@@ -121,8 +125,9 @@ public class ParserTable extends ParserDML {
             }
 
             for (int i = 0; i < dataTypes.length; i++) {
-                boolean b = table.getColumn(i).getDataType().canBeAssignedFrom(
-                    dataTypes[i]);
+                boolean b = table.getColumn(i)
+                                 .getDataType()
+                                 .canBeAssignedFrom(dataTypes[i]);
 
                 if (!b) {
                     throw Error.error(ErrorCode.X_42561);
@@ -133,7 +138,9 @@ public class ParserTable extends ParserDML {
         readTableOnCommitClause(table);
 
         if (database.sqlSyntaxMys) {
-            OrderedHashMap<String, Token> list = super.readPropertyValuePairs(true, false);
+            OrderedHashMap<String, Token> list = super.readPropertyValuePairs(
+                true,
+                false);
 
             if (list != null) {
                 Token value = list.get(Tokens.T_COMMENT);
@@ -155,7 +162,8 @@ public class ParserTable extends ParserDML {
             HsqlName   name = c.getMainTableName();
 
             if (name != null) {
-                Table t = database.schemaManager.findUserTable(name.name,
+                Table t = database.schemaManager.findUserTable(
+                    name.name,
                     name.schema.name);
 
                 if (t != null && !t.isTemp()) {
@@ -164,29 +172,34 @@ public class ParserTable extends ParserDML {
             }
         }
 
-        String   sql  = getLastPart();
-        Object[] args = new Object[] {
-            table, tempConstraints, tempIndexes, statement,
-            Boolean.valueOf(ifNot)
-        };
+        String     sql            = getLastPart();
+        Object[] args = new Object[]{ table, tempConstraints, tempIndexes,
+                                      statement, Boolean.valueOf(ifNot) };
         HsqlName[] writeLockNames = new HsqlName[names.size()];
 
         names.toArray(writeLockNames);
 
-        return new StatementSchema(sql, StatementTypes.CREATE_TABLE, args,
-                                   readLockNames, writeLockNames);
+        return new StatementSchema(
+            sql,
+            StatementTypes.CREATE_TABLE,
+            args,
+            readLockNames,
+            writeLockNames);
     }
 
-    boolean readTableContentsSource(Table table,
-                                    HsqlArrayList<Constraint> tempConstraints,
-                                    HsqlArrayList<Constraint> tempIndexes) {
+    boolean readTableContentsSource(
+            Table table,
+            HsqlArrayList<Constraint> tempConstraints,
+            HsqlArrayList<Constraint> tempIndexes) {
 
         int position = getPosition();
 
         readThis(Tokens.OPENBRACKET);
 
-        Constraint c = new Constraint(null, null,
-                                      SchemaObject.ConstraintTypes.TEMP);
+        Constraint c = new Constraint(
+            null,
+            null,
+            SchemaObject.ConstraintTypes.TEMP);
 
         tempConstraints.add(c);
 
@@ -208,9 +221,9 @@ public class ParserTable extends ParserDML {
 
                     start     = false;
                     startPart = false;
-
                     continue;
                 }
+
                 case Tokens.CONSTRAINT :
                 case Tokens.PRIMARY :
                 case Tokens.FOREIGN :
@@ -224,7 +237,6 @@ public class ParserTable extends ParserDML {
 
                     start     = false;
                     startPart = false;
-
                     continue;
                 case Tokens.PERIOD :
                     if (!startPart) {
@@ -243,7 +255,6 @@ public class ParserTable extends ParserDML {
 
                     start     = false;
                     startPart = false;
-
                     continue;
                 case Tokens.COMMA :
                     if (startPart) {
@@ -253,13 +264,11 @@ public class ParserTable extends ParserDML {
                     read();
 
                     startPart = true;
-
                     continue;
                 case Tokens.CLOSEBRACKET :
                     read();
 
                     end = true;
-
                     continue;
                 case Tokens.KEY :
                 case Tokens.INDEX :
@@ -268,7 +277,6 @@ public class ParserTable extends ParserDML {
 
                         start     = false;
                         startPart = false;
-
                         continue;
                     }
             }
@@ -279,14 +287,17 @@ public class ParserTable extends ParserDML {
 
             checkIsSchemaObjectName();
 
-            HsqlName hsqlName =
-                database.nameManager.newColumnHsqlName(table.getName(),
-                    token.tokenString, isDelimitedIdentifier());
+            HsqlName hsqlName = database.nameManager.newColumnHsqlName(
+                table.getName(),
+                token.tokenString,
+                isDelimitedIdentifier());
 
             read();
 
-            ColumnSchema newcolumn = readColumnDefinitionOrNull(table,
-                hsqlName, tempConstraints);
+            ColumnSchema newcolumn = readColumnDefinitionOrNull(
+                table,
+                hsqlName,
+                tempConstraints);
 
             if (newcolumn == null) {
                 if (start) {
@@ -337,8 +348,9 @@ public class ParserTable extends ParserDML {
 
         // not supported
         if (table.applicationPeriod != null) {
-            throw Error.error(ErrorCode.X_0A501,
-                              table.applicationPeriod.getName().name);
+            throw Error.error(
+                ErrorCode.X_0A501,
+                table.applicationPeriod.getName().name);
         }
 
         return true;
@@ -355,10 +367,10 @@ public class ParserTable extends ParserDML {
         }
 
         OrderedHashSet<String> set         = period.columnNames;
-        ColumnSchema   startColumn = null;
-        ColumnSchema   endColumn   = null;
-        HsqlName       name        = period.getName();
-        int            index       = table.findColumn(name.name);
+        ColumnSchema           startColumn = null;
+        ColumnSchema           endColumn   = null;
+        HsqlName               name        = period.getName();
+        int                    index       = table.findColumn(name.name);
 
         if (index >= 0) {
             throw Error.error(ErrorCode.X_42516, name.name);
@@ -385,23 +397,23 @@ public class ParserTable extends ParserDML {
 
                     if (i == 0) {
                         if (column.getSystemPeriodType()
-                                != SchemaObject.PeriodSystemColumnType
-                                    .PERIOD_ROW_START) {
+                                != SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START) {
                             throw Error.error(ErrorCode.X_42516, columnName);
                         }
                     } else {
                         if (column.getSystemPeriodType()
-                                != SchemaObject.PeriodSystemColumnType
-                                    .PERIOD_ROW_END) {
+                                != SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END) {
                             throw Error.error(ErrorCode.X_42516, columnName);
                         }
                     }
+
                     break;
 
                 case SchemaObject.PeriodType.PERIOD_APPLICATION :
                     if (!type.isDateOrTimestampType()) {
                         throw Error.error(ErrorCode.X_42516, columnName);
                     }
+
                     break;
             }
 
@@ -431,8 +443,8 @@ public class ParserTable extends ParserDML {
         }
 
         OrderedHashSet<String> set   = period.columnNames;
-        HsqlName       name  = period.getName();
-        int            index = table.findColumn(name.name);
+        HsqlName               name  = period.getName();
+        int                    index = table.findColumn(name.name);
 
         if (index >= 0) {
             throw Error.error(ErrorCode.X_42516, name.name);
@@ -538,9 +550,9 @@ public class ParserTable extends ParserDML {
 
         for (int i = 0; i < columnList.length; i++) {
             ColumnSchema column = likeTable.getColumn(i).duplicate();
-            HsqlName name =
-                database.nameManager.newColumnSchemaHsqlName(table.getName(),
-                    column.getName());
+            HsqlName name = database.nameManager.newColumnSchemaHsqlName(
+                table.getName(),
+                column.getName());
 
             column.setName(name);
             column.setPrimaryKey(false);
@@ -568,7 +580,8 @@ public class ParserTable extends ParserDML {
         return columnList;
     }
 
-    StatementSchema compileCreateTableAsSubqueryDefinition(Table table,
+    StatementSchema compileCreateTableAsSubqueryDefinition(
+            Table table,
             boolean ifNotExists) {
 
         HsqlName[]      readName        = null;
@@ -622,8 +635,10 @@ public class ParserTable extends ParserDML {
             }
         }
 
-        TableUtil.setColumnsInSchemaTable(table, columnNames,
-                                          queryExpression.getColumnTypes());
+        TableUtil.setColumnsInSchemaTable(
+            table,
+            columnNames,
+            queryExpression.getColumnTypes());
         table.createPrimaryKey();
 
         if (table.isTemp() && table.hasLobColumn()) {
@@ -631,19 +646,24 @@ public class ParserTable extends ParserDML {
         }
 
         if (withData) {
-            statement = new StatementQuery(session, queryExpression,
-                                           compileContext);
+            statement = new StatementQuery(
+                session,
+                queryExpression,
+                compileContext);
             readName = statement.getTableNamesForRead();
         }
 
-        Object[] args = new Object[] {
-            table, new HsqlArrayList<Constraint>(), new HsqlArrayList<Constraint>(), statement,
-            Boolean.valueOf(ifNotExists)
-        };
+        Object[] args = new Object[]{ table, new HsqlArrayList<Constraint>(),
+                                      new HsqlArrayList<Constraint>(),
+                                      statement, Boolean.valueOf(ifNotExists) };
         String     sql            = getLastPart();
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
-        StatementSchema st = new StatementSchema(sql,
-            StatementTypes.CREATE_TABLE, args, readName, writeLockNames);
+        StatementSchema st = new StatementSchema(
+            sql,
+            StatementTypes.CREATE_TABLE,
+            args,
+            readName,
+            writeLockNames);
 
         return st;
     }
@@ -664,21 +684,27 @@ public class ParserTable extends ParserDML {
     /**
      * Adds a list of temp constraints to a new table
      */
-    static Table addTableConstraintDefinitions(Session session, Table table,
-            HsqlArrayList<Constraint> tempConstraints, HsqlArrayList<Constraint> constraintList,
+    static Table addTableConstraintDefinitions(
+            Session session,
+            Table table,
+            HsqlArrayList<Constraint> tempConstraints,
+            HsqlArrayList<Constraint> constraintList,
             boolean addToSchema) {
 
         Constraint c = tempConstraints.get(0);
         HsqlName indexName =
             session.database.nameManager.newConstraintIndexName(
-                table.getName(), c.getName(),
+                table.getName(),
+                c.getName(),
                 session.database.sqlSysIndexNames);
 
         c.setColumnsIndexes(table);
         table.createPrimaryKey(indexName, c.core.mainCols, true);
 
         if (c.core.mainCols != null) {
-            Constraint newconstraint = new Constraint(c.getName(), table,
+            Constraint newconstraint = new Constraint(
+                c.getName(),
+                table,
                 table.getPrimaryIndex(),
                 SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
@@ -705,14 +731,24 @@ public class ParserTable extends ParserDML {
                     // create an autonamed index
                     indexName =
                         session.database.nameManager.newConstraintIndexName(
-                            table.getName(), c.getName(),
+                            table.getName(),
+                            c.getName(),
                             session.database.sqlSysIndexNames);
 
-                    Index index = table.createAndAddIndexStructure(session,
-                        indexName, c.core.mainCols, null, null, true, true,
+                    Index index = table.createAndAddIndexStructure(
+                        session,
+                        indexName,
+                        c.core.mainCols,
+                        null,
+                        null,
+                        true,
+                        true,
                         false);
-                    Constraint newconstraint = new Constraint(c.getName(),
-                        table, index, SchemaObject.ConstraintTypes.UNIQUE);
+                    Constraint newconstraint = new Constraint(
+                        c.getName(),
+                        table,
+                        index,
+                        SchemaObject.ConstraintTypes.UNIQUE);
 
                     table.addConstraint(newconstraint);
 
@@ -723,11 +759,12 @@ public class ParserTable extends ParserDML {
 
                     break;
                 }
+
                 case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
                     addForeignKey(session, table, c, constraintList);
-
                     break;
                 }
+
                 case SchemaObject.ConstraintTypes.CHECK : {
                     try {
                         c.prepareCheckConstraint(session, table);
@@ -742,8 +779,8 @@ public class ParserTable extends ParserDML {
                     table.addConstraint(c);
 
                     if (c.isNotNull()) {
-                        ColumnSchema column =
-                            table.getColumn(c.notNullColumnIndex);
+                        ColumnSchema column = table.getColumn(
+                            c.notNullColumnIndex);
 
                         column.setNullable(false);
                         table.setColumnTypeVars(c.notNullColumnIndex);
@@ -761,8 +798,11 @@ public class ParserTable extends ParserDML {
         return table;
     }
 
-    static void addForeignKey(Session session, Table table, Constraint c,
-                              HsqlArrayList<Constraint> constraintList) {
+    static void addForeignKey(
+            Session session,
+            Table table,
+            Constraint c,
+            HsqlArrayList<Constraint> constraintList) {
 
         HsqlName mainTableName = c.getMainTableName();
 
@@ -770,7 +810,8 @@ public class ParserTable extends ParserDML {
             c.core.mainTable = table;
         } else {
             Table mainTable = session.database.schemaManager.findUserTable(
-                mainTableName.name, mainTableName.schema.name);
+                mainTableName.name,
+                mainTableName.schema.name);
 
             if (mainTable == null) {
                 if (constraintList == null) {
@@ -792,7 +833,8 @@ public class ParserTable extends ParserDML {
         tableWorks.checkCreateForeignKey(table, c);
 
         Constraint uniqueConstraint =
-            c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols);
+            c.core.mainTable.getUniqueConstraintForColumns(
+                c.core.mainCols);
 
         if (uniqueConstraint == null) {
             throw Error.error(ErrorCode.X_42523);
@@ -801,7 +843,7 @@ public class ParserTable extends ParserDML {
         Index mainIndex = uniqueConstraint.getMainIndex();
         boolean isForward = c.core.mainTable.getSchemaName()
                             != table.getSchemaName();
-        int offset = session.database.schemaManager.getTableIndex(table);
+        int   offset    = session.database.schemaManager.getTableIndex(table);
 
         if (offset != -1
                 && offset
@@ -812,12 +854,23 @@ public class ParserTable extends ParserDML {
 
         HsqlName refIndexName =
             session.database.nameManager.newConstraintIndexName(
-                table.getName(), c.getName(),
+                table.getName(),
+                c.getName(),
                 session.database.sqlSysIndexNames);
-        Index index = table.createAndAddIndexStructure(session, refIndexName,
-            c.core.refCols, null, null, false, true, isForward);
-        HsqlName mainName = session.database.nameManager.newAutoName("REF",
-            c.getName().name, table.getSchemaName(), table.getName(),
+        Index index = table.createAndAddIndexStructure(
+            session,
+            refIndexName,
+            c.core.refCols,
+            null,
+            null,
+            false,
+            true,
+            isForward);
+        HsqlName mainName = session.database.nameManager.newAutoName(
+            "REF",
+            c.getName().name,
+            table.getSchemaName(),
+            table.getName(),
             SchemaObject.INDEX);
 
         c.core.uniqueName = uniqueConstraint.getName();
@@ -833,10 +886,12 @@ public class ParserTable extends ParserDML {
         session.database.schemaManager.addSchemaObject(c);
     }
 
-    Constraint readFKReferences(Table refTable, HsqlName constraintName,
-                                OrderedHashSet<String> refColSet) {
+    Constraint readFKReferences(
+            Table refTable,
+            HsqlName constraintName,
+            OrderedHashSet<String> refColSet) {
 
-        HsqlName       mainTableName;
+        HsqlName               mainTableName;
         OrderedHashSet<String> mainColSet = null;
 
         readThis(Tokens.REFERENCES);
@@ -846,8 +901,7 @@ public class ParserTable extends ParserDML {
         if (token.namePrefix == null) {
             schema = refTable.getSchemaName();
         } else {
-            schema =
-                database.schemaManager.getSchemaHsqlName(token.namePrefix);
+            schema = database.schemaManager.getSchemaHsqlName(token.namePrefix);
         }
 
         if (refTable.getSchemaName() == schema
@@ -876,6 +930,7 @@ public class ParserTable extends ParserDML {
 
                 case Tokens.PARTIAL :
                     throw unsupportedFeature();
+
                 case Tokens.FULL :
                     read();
 
@@ -915,9 +970,9 @@ public class ParserTable extends ParserDML {
 
                             deleteAction =
                                 SchemaObject.ReferentialAction.SET_DEFAULT;
-
                             break;
                         }
+
                         case Tokens.NULL :
                             read();
 
@@ -951,9 +1006,9 @@ public class ParserTable extends ParserDML {
 
                             updateAction =
                                 SchemaObject.ReferentialAction.SET_DEFAULT;
-
                             break;
                         }
+
                         case Tokens.NULL :
                             read();
 
@@ -984,15 +1039,23 @@ public class ParserTable extends ParserDML {
         }
 
         if (constraintName == null) {
-            constraintName = database.nameManager.newAutoName("FK",
-                    refTable.getSchemaName(), refTable.getName(),
-                    SchemaObject.CONSTRAINT);
+            constraintName = database.nameManager.newAutoName(
+                "FK",
+                refTable.getSchemaName(),
+                refTable.getName(),
+                SchemaObject.CONSTRAINT);
         }
 
-        return new Constraint(constraintName, refTable.getName(), refColSet,
-                              mainTableName, mainColSet,
-                              SchemaObject.ConstraintTypes.FOREIGN_KEY,
-                              deleteAction, updateAction, matchType);
+        return new Constraint(
+            constraintName,
+            refTable.getName(),
+            refColSet,
+            mainTableName,
+            mainColSet,
+            SchemaObject.ConstraintTypes.FOREIGN_KEY,
+            deleteAction,
+            updateAction,
+            matchType);
     }
 
     HsqlName readFKTableName(HsqlName schema) {
@@ -1001,12 +1064,16 @@ public class ParserTable extends ParserDML {
 
         checkIsSchemaObjectName();
 
-        Table table = database.schemaManager.findUserTable(token.tokenString,
+        Table table = database.schemaManager.findUserTable(
+            token.tokenString,
             schema.name);
 
         if (table == null) {
-            name = database.nameManager.newHsqlName(schema, token.tokenString,
-                    isDelimitedIdentifier(), SchemaObject.TABLE);
+            name = database.nameManager.newHsqlName(
+                schema,
+                token.tokenString,
+                isDelimitedIdentifier(),
+                SchemaObject.TABLE);
         } else {
             name = table.getName();
         }
@@ -1025,21 +1092,22 @@ public class ParserTable extends ParserDML {
      * @param constraintList list of constraints
      * @return a Column object with indicated attributes
      */
-    ColumnSchema readColumnDefinitionOrNull(Table table, HsqlName hsqlName,
-                                            HsqlArrayList<Constraint> constraintList) {
+    ColumnSchema readColumnDefinitionOrNull(
+            Table table,
+            HsqlName hsqlName,
+            HsqlArrayList<Constraint> constraintList) {
 
-        boolean    isGenerated     = false;
-        boolean    isIdentity      = false;
-        boolean    isPKIdentity    = false;
-        boolean    generatedAlways = false;
-        Expression generateExpr    = null;
-        int sysPeriodType =
-            SchemaObject.PeriodSystemColumnType.PERIOD_ROW_NONE;
-        boolean           isNullable    = true;
-        Expression        defaultExpr   = null;
-        ExpressionLogical colConstraint = null;
-        Type              typeObject    = null;
-        NumberSequence    sequence      = null;
+        boolean           isGenerated     = false;
+        boolean           isIdentity      = false;
+        boolean           isPKIdentity    = false;
+        boolean           generatedAlways = false;
+        Expression        generateExpr    = null;
+        int sysPeriodType = SchemaObject.PeriodSystemColumnType.PERIOD_ROW_NONE;
+        boolean           isNullable      = true;
+        Expression        defaultExpr     = null;
+        ExpressionLogical colConstraint   = null;
+        Type              typeObject      = null;
+        NumberSequence    sequence        = null;
 
         switch (token.tokenType) {
 
@@ -1053,6 +1121,7 @@ public class ParserTable extends ParserDML {
                 // not yet supported - type determination required
                 throw unexpectedToken(Tokens.T_GENERATED);
             }
+
             case Tokens.IDENTITY : {
                 read();
 
@@ -1060,15 +1129,17 @@ public class ParserTable extends ParserDML {
                 isPKIdentity = true;
                 typeObject   = Type.SQL_INTEGER;
                 sequence     = new NumberSequence(null, 0, 1, typeObject);
-
                 break;
             }
+
             case Tokens.COMMA : {
                 return null;
             }
+
             case Tokens.CLOSEBRACKET : {
                 return null;
             }
+
             default : {
                 if (token.isUndelimitedIdentifier) {
                     if (Tokens.T_SERIAL.equals(token.tokenString)) {
@@ -1078,18 +1149,22 @@ public class ParserTable extends ParserDML {
                             isIdentity   = true;
                             isPKIdentity = true;
                             typeObject   = Type.SQL_BIGINT;
-                            sequence = new NumberSequence(null, 1, 1,
-                                                          typeObject);
-
+                            sequence = new NumberSequence(
+                                null,
+                                1,
+                                1,
+                                typeObject);
                             break;
                         } else if (database.sqlSyntaxPgs) {
                             read();
 
                             isIdentity = true;
                             typeObject = Type.SQL_INTEGER;
-                            sequence = new NumberSequence(null, 1, 1,
-                                                          typeObject);
-
+                            sequence = new NumberSequence(
+                                null,
+                                1,
+                                1,
+                                typeObject);
                             break;
                         }
                     } else if (Tokens.T_BIGSERIAL.equals(token.tokenString)) {
@@ -1099,9 +1174,11 @@ public class ParserTable extends ParserDML {
                             isIdentity   = true;
                             isPKIdentity = true;
                             typeObject   = Type.SQL_BIGINT;
-                            sequence = new NumberSequence(null, 1, 1,
-                                                          typeObject);
-
+                            sequence = new NumberSequence(
+                                null,
+                                1,
+                                1,
+                                typeObject);
                             break;
                         }
                     }
@@ -1109,16 +1186,20 @@ public class ParserTable extends ParserDML {
 
                 typeObject = readTypeDefinition(true, true);
 
-                if (database.sqlSyntaxMys && typeObject.isDomainType()
+                if (database.sqlSyntaxMys
+                        && typeObject.isDomainType()
                         && typeObject.getName().name.equals(Tokens.T_ENUM)) {
                     typeObject.userTypeModifier = null;
 
-                    HsqlName constName = database.nameManager.newAutoName("CT",
-                        table.getSchemaName(), table.getName(),
+                    HsqlName constName = database.nameManager.newAutoName(
+                        "CT",
+                        table.getSchemaName(),
+                        table.getName(),
                         SchemaObject.CONSTRAINT);
-                    Constraint c =
-                        new Constraint(constName, null,
-                                       SchemaObject.ConstraintTypes.CHECK);
+                    Constraint c = new Constraint(
+                        constName,
+                        null,
+                        SchemaObject.ConstraintTypes.CHECK);
 
                     constraintList.add(c);
                     readThis(Tokens.OPENBRACKET);
@@ -1128,8 +1209,10 @@ public class ParserTable extends ParserDML {
 
                     readThis(Tokens.CLOSEBRACKET);
 
-                    colConstraint = new ExpressionLogical(OpTypes.IN, left,
-                                                          right);
+                    colConstraint = new ExpressionLogical(
+                        OpTypes.IN,
+                        left,
+                        right);
 
                     colConstraint.setNoOptimisation();
 
@@ -1184,6 +1267,7 @@ public class ParserTable extends ParserDML {
 
                     break;
                 }
+
                 case Tokens.GENERATED : {
                     read();
 
@@ -1209,15 +1293,18 @@ public class ParserTable extends ParserDML {
 
                             if (token.tokenType == Tokens.OPENBRACKET) {
                                 read();
-                                readSequenceOptions(sequence, false, false,
-                                                    true);
+                                readSequenceOptions(
+                                    sequence,
+                                    false,
+                                    false,
+                                    true);
                                 readThis(Tokens.CLOSEBRACKET);
                             }
 
                             isIdentity = true;
-
                             break;
                         }
+
                         case Tokens.OPENBRACKET : {
                             if (!generatedAlways) {
                                 throw unexpectedToken(Tokens.GENERATED);
@@ -1230,9 +1317,9 @@ public class ParserTable extends ParserDML {
                             generateExpr = XreadValueExpression();
 
                             readThis(Tokens.CLOSEBRACKET);
-
                             break;
                         }
+
                         case Tokens.SEQUENCE : {
                             if (generatedAlways) {
                                 throw unexpectedToken();
@@ -1248,14 +1335,15 @@ public class ParserTable extends ParserDML {
                             }
 
                             sequence = database.schemaManager.getSequence(
-                                token.tokenString, table.getSchemaName().name,
+                                token.tokenString,
+                                table.getSchemaName().name,
                                 true);
                             isIdentity = true;
 
                             read();
-
                             break;
                         }
+
                         case Tokens.ROW : {
                             if (!typeObject.isTimestampType()) {
                                 throw unexpectedToken();
@@ -1265,14 +1353,12 @@ public class ParserTable extends ParserDML {
 
                             if (readIfThis(Tokens.START)) {
                                 sysPeriodType =
-                                    SchemaObject.PeriodSystemColumnType
-                                        .PERIOD_ROW_START;
+                                    SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START;
                             } else {
                                 readThis(Tokens.END);
 
                                 sysPeriodType =
-                                    SchemaObject.PeriodSystemColumnType
-                                        .PERIOD_ROW_END;
+                                    SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END;
                             }
 
                             // always with TIME_ZONE and microsecond precision
@@ -1286,6 +1372,7 @@ public class ParserTable extends ParserDML {
 
                     break;
                 }
+
                 case Tokens.IDENTITY : {
                     read();
 
@@ -1309,8 +1396,12 @@ public class ParserTable extends ParserDML {
             }
         }
 
-        ColumnSchema column = new ColumnSchema(hsqlName, typeObject,
-                                               isNullable, false, defaultExpr);
+        ColumnSchema column = new ColumnSchema(
+            hsqlName,
+            typeObject,
+            isNullable,
+            false,
+            defaultExpr);
 
         if (colConstraint != null) {
             colConstraint.setLeftNode(new ExpressionColumn(column));
@@ -1329,7 +1420,8 @@ public class ParserTable extends ParserDML {
         }
 
         // non-standard GENERATED after constraints
-        if (token.tokenType == Tokens.GENERATED && !isIdentity
+        if (token.tokenType == Tokens.GENERATED
+                && !isIdentity
                 && !isGenerated) {
             read();
 
@@ -1367,19 +1459,23 @@ public class ParserTable extends ParserDML {
 
             set.add(column.getName().name);
 
-            HsqlName constName = database.nameManager.newAutoName("PK",
-                table.getSchemaName(), table.getName(),
+            HsqlName constName = database.nameManager.newAutoName(
+                "PK",
+                table.getSchemaName(),
+                table.getName(),
                 SchemaObject.CONSTRAINT);
-            Constraint c =
-                new Constraint(constName, set,
-                               SchemaObject.ConstraintTypes.PRIMARY_KEY);
+            Constraint c = new Constraint(
+                constName,
+                set,
+                SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
             c.setSimpleIdentityPK();
             constraintList.set(0, c);
             column.setPrimaryKey(true);
         }
 
-        if (database.sqlSyntaxPgs && token.tokenType == Tokens.DEFAULT
+        if (database.sqlSyntaxPgs
+                && token.tokenType == Tokens.DEFAULT
                 && column.getDefaultExpression() == null
                 && column.getIdentitySequence() == null) {
             read();
@@ -1438,10 +1534,11 @@ public class ParserTable extends ParserDML {
 
         if (token.tokenType == Tokens.SYSTEM_TIME) {
             periodType = SchemaObject.PeriodType.PERIOD_SYSTEM;
-            periodName =
-                database.nameManager.newHsqlName(table.getName().schema,
-                                                 token.tokenString, false,
-                                                 SchemaObject.PERIOD);
+            periodName = database.nameManager.newHsqlName(
+                table.getName().schema,
+                token.tokenString,
+                false,
+                SchemaObject.PERIOD);
         } else {
             periodType = SchemaObject.PeriodType.PERIOD_APPLICATION;
 
@@ -1450,11 +1547,11 @@ public class ParserTable extends ParserDML {
             checkIsIrregularCharInIdentifier();
             checkIsSimpleName();
 
-            periodName =
-                database.nameManager.newHsqlName(table.getName().schema,
-                                                 token.tokenString,
-                                                 isDelimitedIdentifier(),
-                                                 SchemaObject.PERIOD);
+            periodName = database.nameManager.newHsqlName(
+                table.getName().schema,
+                token.tokenString,
+                isDelimitedIdentifier(),
+                SchemaObject.PERIOD);
         }
 
         read();
@@ -1467,7 +1564,9 @@ public class ParserTable extends ParserDML {
             throw Error.error(ErrorCode.X_42593);
         }
 
-        PeriodDefinition period = new PeriodDefinition(periodName, periodType,
+        PeriodDefinition period = new PeriodDefinition(
+            periodName,
+            periodType,
             set);
 
         if (period.getPeriodType() == SchemaObject.PeriodType.PERIOD_SYSTEM) {
@@ -1489,17 +1588,18 @@ public class ParserTable extends ParserDML {
      * @param schemaObject table or domain
      * @param constraintList list of constraints
      */
-    void readConstraint(SchemaObject schemaObject,
-                        HsqlArrayList<Constraint> constraintList) {
+    void readConstraint(
+            SchemaObject schemaObject,
+            HsqlArrayList<Constraint> constraintList) {
 
         HsqlName constName = null;
 
         if (token.tokenType == Tokens.CONSTRAINT) {
             read();
 
-            constName =
-                readNewDependentSchemaObjectName(schemaObject.getName(),
-                                                 SchemaObject.CONSTRAINT);
+            constName = readNewDependentSchemaObjectName(
+                schemaObject.getName(),
+                SchemaObject.CONSTRAINT);
         }
 
         switch (token.tokenType) {
@@ -1524,20 +1624,23 @@ public class ParserTable extends ParserDML {
                 }
 
                 if (constName == null) {
-                    constName = database.nameManager.newAutoName("PK",
-                            schemaObject.getSchemaName(),
-                            schemaObject.getName(), SchemaObject.CONSTRAINT);
+                    constName = database.nameManager.newAutoName(
+                        "PK",
+                        schemaObject.getSchemaName(),
+                        schemaObject.getName(),
+                        SchemaObject.CONSTRAINT);
                 }
 
                 OrderedHashSet<String> set = readColumnNames(false);
-                Constraint c =
-                    new Constraint(constName, set,
-                                   SchemaObject.ConstraintTypes.PRIMARY_KEY);
+                Constraint c = new Constraint(
+                    constName,
+                    set,
+                    SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
                 constraintList.set(0, c);
-
                 break;
             }
+
             case Tokens.UNIQUE : {
                 if (schemaObject.getName().type != SchemaObject.TABLE) {
                     throw unexpectedTokenRequire(Tokens.T_CHECK);
@@ -1554,19 +1657,22 @@ public class ParserTable extends ParserDML {
                 OrderedHashSet<String> set = readColumnNames(false);
 
                 if (constName == null) {
-                    constName = database.nameManager.newAutoName("CT",
-                            schemaObject.getSchemaName(),
-                            schemaObject.getName(), SchemaObject.CONSTRAINT);
+                    constName = database.nameManager.newAutoName(
+                        "CT",
+                        schemaObject.getSchemaName(),
+                        schemaObject.getName(),
+                        SchemaObject.CONSTRAINT);
                 }
 
-                Constraint c =
-                    new Constraint(constName, set,
-                                   SchemaObject.ConstraintTypes.UNIQUE);
+                Constraint c = new Constraint(
+                    constName,
+                    set,
+                    SchemaObject.ConstraintTypes.UNIQUE);
 
                 constraintList.add(c);
-
                 break;
             }
+
             case Tokens.FOREIGN : {
                 if (schemaObject.getName().type != SchemaObject.TABLE) {
                     throw unexpectedTokenRequire(Tokens.T_CHECK);
@@ -1576,31 +1682,36 @@ public class ParserTable extends ParserDML {
                 readThis(Tokens.KEY);
 
                 OrderedHashSet<String> set = readColumnNames(false);
-                Constraint c = readFKReferences((Table) schemaObject,
-                                                constName, set);
+                Constraint c = readFKReferences(
+                    (Table) schemaObject,
+                    constName,
+                    set);
 
                 constraintList.add(c);
-
                 break;
             }
+
             case Tokens.CHECK : {
                 read();
 
                 if (constName == null) {
-                    constName = database.nameManager.newAutoName("CT",
-                            schemaObject.getSchemaName(),
-                            schemaObject.getName(), SchemaObject.CONSTRAINT);
+                    constName = database.nameManager.newAutoName(
+                        "CT",
+                        schemaObject.getSchemaName(),
+                        schemaObject.getName(),
+                        SchemaObject.CONSTRAINT);
                 }
 
-                Constraint c =
-                    new Constraint(constName, null,
-                                   SchemaObject.ConstraintTypes.CHECK);
+                Constraint c = new Constraint(
+                    constName,
+                    null,
+                    SchemaObject.ConstraintTypes.CHECK);
 
                 readCheckConstraintCondition(c);
                 constraintList.add(c);
-
                 break;
             }
+
             default : {
                 if (constName != null) {
                     throw unexpectedToken();
@@ -1612,8 +1723,10 @@ public class ParserTable extends ParserDML {
     /**
      * Reads column constraints
      */
-    void readColumnConstraints(Table table, ColumnSchema column,
-                               HsqlArrayList<Constraint> constraintList) {
+    void readColumnConstraints(
+            Table table,
+            ColumnSchema column,
+            HsqlArrayList<Constraint> constraintList) {
 
         boolean end                  = false;
         boolean hasNotNullConstraint = false;
@@ -1631,13 +1744,14 @@ public class ParserTable extends ParserDML {
 
                     if (readIfThis(Tokens.CURRENT_TIMESTAMP)) {
                         function = FunctionSQL.newSQLFunction(
-                            Tokens.T_CURRENT_TIMESTAMP, compileContext);
+                            Tokens.T_CURRENT_TIMESTAMP,
+                            compileContext);
                     } else {
                         readThis(Tokens.LOCALTIMESTAMP);
 
-                        function =
-                            FunctionSQL.newSQLFunction(Tokens.T_LOCALTIMESTAMP,
-                                                       compileContext);
+                        function = FunctionSQL.newSQLFunction(
+                            Tokens.T_LOCALTIMESTAMP,
+                            compileContext);
                     }
 
                     function.resolveTypes(session, null);
@@ -1654,8 +1768,9 @@ public class ParserTable extends ParserDML {
             if (token.tokenType == Tokens.CONSTRAINT) {
                 read();
 
-                constName = readNewDependentSchemaObjectName(table.getName(),
-                        SchemaObject.CONSTRAINT);
+                constName = readNewDependentSchemaObjectName(
+                    table.getName(),
+                    SchemaObject.CONSTRAINT);
             }
 
             switch (token.tokenType) {
@@ -1680,22 +1795,25 @@ public class ParserTable extends ParserDML {
                     set.add(column.getName().name);
 
                     if (constName == null) {
-                        constName = database.nameManager.newAutoName("PK",
-                                table.getSchemaName(), table.getName(),
-                                SchemaObject.CONSTRAINT);
+                        constName = database.nameManager.newAutoName(
+                            "PK",
+                            table.getSchemaName(),
+                            table.getName(),
+                            SchemaObject.CONSTRAINT);
                     }
 
                     Constraint c = new Constraint(
-                        constName, set,
+                        constName,
+                        set,
                         SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
                     constraintList.set(0, c);
                     column.setPrimaryKey(true);
 
                     hasPrimaryKey = true;
-
                     break;
                 }
+
                 case Tokens.UNIQUE : {
                     read();
 
@@ -1704,19 +1822,22 @@ public class ParserTable extends ParserDML {
                     set.add(column.getName().name);
 
                     if (constName == null) {
-                        constName = database.nameManager.newAutoName("CT",
-                                table.getSchemaName(), table.getName(),
-                                SchemaObject.CONSTRAINT);
+                        constName = database.nameManager.newAutoName(
+                            "CT",
+                            table.getSchemaName(),
+                            table.getName(),
+                            SchemaObject.CONSTRAINT);
                     }
 
-                    Constraint c =
-                        new Constraint(constName, set,
-                                       SchemaObject.ConstraintTypes.UNIQUE);
+                    Constraint c = new Constraint(
+                        constName,
+                        set,
+                        SchemaObject.ConstraintTypes.UNIQUE);
 
                     constraintList.add(c);
-
                     break;
                 }
+
                 case Tokens.FOREIGN : {
                     read();
                     readThis(Tokens.KEY);
@@ -1731,25 +1852,29 @@ public class ParserTable extends ParserDML {
                     Constraint c = readFKReferences(table, constName, set);
 
                     constraintList.add(c);
-
                     break;
                 }
+
                 case Tokens.CHECK : {
                     read();
 
                     if (constName == null) {
-                        constName = database.nameManager.newAutoName("CT",
-                                table.getSchemaName(), table.getName(),
-                                SchemaObject.CONSTRAINT);
+                        constName = database.nameManager.newAutoName(
+                            "CT",
+                            table.getSchemaName(),
+                            table.getName(),
+                            SchemaObject.CONSTRAINT);
                     }
 
-                    Constraint c =
-                        new Constraint(constName, null,
-                                       SchemaObject.ConstraintTypes.CHECK);
+                    Constraint c = new Constraint(
+                        constName,
+                        null,
+                        SchemaObject.ConstraintTypes.CHECK);
 
                     readCheckConstraintCondition(c);
 
-                    OrderedHashSet<Expression> set = c.getCheckColumnExpressions();
+                    OrderedHashSet<Expression> set =
+                        c.getCheckColumnExpressions();
 
                     for (int i = 0; i < set.size(); i++) {
                         ExpressionColumn e = (ExpressionColumn) set.get(i);
@@ -1766,9 +1891,9 @@ public class ParserTable extends ParserDML {
                     }
 
                     constraintList.add(c);
-
                     break;
                 }
+
                 case Tokens.NOT : {
                     if (hasNotNullConstraint || hasNullNoiseWord) {
                         throw unexpectedToken();
@@ -1778,25 +1903,29 @@ public class ParserTable extends ParserDML {
                     readThis(Tokens.NULL);
 
                     if (constName == null) {
-                        constName = database.nameManager.newAutoName("CT",
-                                table.getSchemaName(), table.getName(),
-                                SchemaObject.CONSTRAINT);
+                        constName = database.nameManager.newAutoName(
+                            "CT",
+                            table.getSchemaName(),
+                            table.getName(),
+                            SchemaObject.CONSTRAINT);
                     }
 
-                    Constraint c =
-                        new Constraint(constName, null,
-                                       SchemaObject.ConstraintTypes.CHECK);
+                    Constraint c = new Constraint(
+                        constName,
+                        null,
+                        SchemaObject.ConstraintTypes.CHECK);
 
                     c.check = new ExpressionLogical(column);
 
                     constraintList.add(c);
 
                     hasNotNullConstraint = true;
-
                     break;
                 }
+
                 case Tokens.NULL : {
-                    if (hasNotNullConstraint || hasNullNoiseWord
+                    if (hasNotNullConstraint
+                            || hasNullNoiseWord
                             || hasPrimaryKey) {
                         throw unexpectedToken();
                     }
@@ -1808,9 +1937,9 @@ public class ParserTable extends ParserDML {
                     read();
 
                     hasNullNoiseWord = true;
-
                     break;
                 }
+
                 default :
                     end = true;
                     break;
@@ -1842,6 +1971,7 @@ public class ParserTable extends ParserDML {
     /**
      *  Reads a DEFAULT clause expression.
      */
+
     /*
      for datetime, the default must have the same fields
      */
@@ -1875,6 +2005,7 @@ public class ParserTable extends ParserDML {
 
                     return new ExpressionValue(defaultValue, dataType);
                 }
+
                 case Tokens.X_VALUE :
                     break;
 
@@ -1916,9 +2047,9 @@ public class ParserTable extends ParserDML {
                 case Tokens.CURRENT_CATALOG :
                 case Tokens.CURRENT_SCHEMA :
                 case Tokens.CURRENT_PATH :
-                    FunctionSQL function =
-                        FunctionSQL.newSQLFunction(token.tokenString,
-                                                   compileContext);
+                    FunctionSQL function = FunctionSQL.newSQLFunction(
+                        token.tokenString,
+                        compileContext);
 
                     e = readSQLFunction(function);
                     break;
@@ -1944,21 +2075,25 @@ public class ParserTable extends ParserDML {
                 case Tokens.TRUE :
                     read();
 
-                    return new ExpressionValue(BinaryData.singleBitOne,
-                                               dataType);
+                    return new ExpressionValue(
+                        BinaryData.singleBitOne,
+                        dataType);
 
                 case Tokens.FALSE :
                     read();
 
-                    return new ExpressionValue(BinaryData.singleBitZero,
-                                               dataType);
+                    return new ExpressionValue(
+                        BinaryData.singleBitZero,
+                        dataType);
             }
         } else if (dataType.isArrayType()) {
             e = readCollection(OpTypes.ARRAY);
 
             if (e.nodes.length > 0) {
-                throw Error.parseError(ErrorCode.X_42562, null,
-                                       scanner.getLineNumber());
+                throw Error.parseError(
+                    ErrorCode.X_42562,
+                    null,
+                    scanner.getLineNumber());
             }
 
             e.dataType = dataType;
@@ -1970,8 +2105,10 @@ public class ParserTable extends ParserDML {
             e.resolveTypes(session, null);
 
             if (!dataType.canBeAssignedFrom(e.getDataType())) {
-                throw Error.parseError(ErrorCode.X_42562, null,
-                                       scanner.getLineNumber());
+                throw Error.parseError(
+                    ErrorCode.X_42562,
+                    null,
+                    scanner.getLineNumber());
             }
 
             return e;
@@ -1992,12 +2129,19 @@ public class ParserTable extends ParserDML {
             Type   convertType = dataType;
 
             if (dataType.typeCode == Types.SQL_CLOB) {
-                convertType = Type.getType(Types.SQL_VARCHAR, null,
-                                           database.collation,
-                                           dataType.precision, 0);
+                convertType = Type.getType(
+                    Types.SQL_VARCHAR,
+                    null,
+                    database.collation,
+                    dataType.precision,
+                    0);
             } else if (dataType.typeCode == Types.SQL_BLOB) {
-                convertType = Type.getType(Types.SQL_VARBINARY, null, null,
-                                           dataType.precision, 0);
+                convertType = Type.getType(
+                    Types.SQL_VARBINARY,
+                    null,
+                    null,
+                    dataType.precision,
+                    0);
             }
 
             if (minus) {
@@ -2027,15 +2171,20 @@ public class ParserTable extends ParserDML {
                     qs.setReturningResult();
                 }
 
-                e.resolveColumnReferences(session, RangeGroup.emptyGroup, 0,
-                                          RangeGroup.emptyArray, null, true);
+                e.resolveColumnReferences(
+                    session,
+                    RangeGroup.emptyGroup,
+                    0,
+                    RangeGroup.emptyArray,
+                    null,
+                    true);
                 e.resolveTypes(session, null);
 
                 if (e.getType() == OpTypes.ROW_SUBQUERY) {
                     TableDerived t = (TableDerived) e.getTable();
                     QuerySpecification qs =
                         (QuerySpecification) t.getQueryExpression();
-                    Table d = qs.getRangeVariables()[0].getTable();
+                    Table        d = qs.getRangeVariables()[0].getTable();
 
                     if (d != session.database.schemaManager.dualTable
                             || qs.exprColumns.length != 1) {
@@ -2077,37 +2226,39 @@ public class ParserTable extends ParserDML {
                 case Types.SQL_CLOB :
                     value = "";
 
-                    return new ExpressionValue(value,
-                                               Type.SQL_VARCHAR_DEFAULT);
+                    return new ExpressionValue(value, Type.SQL_VARCHAR_DEFAULT);
 
                 case Types.SQL_BLOB :
                     value = BinaryData.zeroLengthBinary;
 
-                    return new ExpressionValue(value,
-                                               Type.SQL_VARBINARY_DEFAULT);
+                    return new ExpressionValue(
+                        value,
+                        Type.SQL_VARBINARY_DEFAULT);
 
                 case Types.TIME : {
-                    FunctionSQL function =
-                        FunctionSQL.newSQLFunction(Tokens.T_CURRENT_TIME,
-                                                   compileContext);
+                    FunctionSQL function = FunctionSQL.newSQLFunction(
+                        Tokens.T_CURRENT_TIME,
+                        compileContext);
 
                     function.resolveTypes(session, null);
 
                     return function;
                 }
+
                 case Types.DATE : {
-                    FunctionSQL function =
-                        FunctionSQL.newSQLFunction(Tokens.T_CURRENT_DATE,
-                                                   compileContext);
+                    FunctionSQL function = FunctionSQL.newSQLFunction(
+                        Tokens.T_CURRENT_DATE,
+                        compileContext);
 
                     function.resolveTypes(session, null);
 
                     return function;
                 }
+
                 case Types.TIMESTAMP : {
-                    FunctionSQL function =
-                        FunctionSQL.newSQLFunction(Tokens.T_CURRENT_TIMESTAMP,
-                                                   compileContext);
+                    FunctionSQL function = FunctionSQL.newSQLFunction(
+                        Tokens.T_CURRENT_TIMESTAMP,
+                        compileContext);
 
                     function.resolveTypes(session, null);
 
@@ -2130,8 +2281,11 @@ public class ParserTable extends ParserDML {
     /**
      * A comma after START WITH is accepted for 1.8.x compatibility
      */
-    void readSequenceOptions(NumberSequence sequence, boolean withType,
-                             boolean isAlter, boolean allowComma) {
+    void readSequenceOptions(
+            NumberSequence sequence,
+            boolean withType,
+            boolean isAlter,
+            boolean allowComma) {
 
         OrderedIntHashSet set = new OrderedIntHashSet();
 
@@ -2152,12 +2306,12 @@ public class ParserTable extends ParserDML {
                         Type type = readTypeDefinition(false, true);
 
                         sequence.setDefaults(sequence.getName(), type);
-
                         break;
                     }
 
                     throw unexpectedToken();
                 }
+
                 case Tokens.START : {
                     set.add(token.tokenType);
                     read();
@@ -2173,10 +2327,10 @@ public class ParserTable extends ParserDML {
 
                     break;
                 }
+
                 case Tokens.RESTART : {
                     if (!isAlter) {
                         end = true;
-
                         break;
                     }
 
@@ -2193,6 +2347,7 @@ public class ParserTable extends ParserDML {
 
                     break;
                 }
+
                 case Tokens.INCREMENT : {
                     set.add(token.tokenType);
                     read();
@@ -2201,9 +2356,9 @@ public class ParserTable extends ParserDML {
                     long value = readBigint();
 
                     sequence.setIncrement(value);
-
                     break;
                 }
+
                 case Tokens.NO : {
                     read();
 
@@ -2223,9 +2378,9 @@ public class ParserTable extends ParserDML {
 
                     set.add(token.tokenType);
                     read();
-
                     break;
                 }
+
                 case Tokens.MAXVALUE : {
                     set.add(token.tokenType);
                     read();
@@ -2233,9 +2388,9 @@ public class ParserTable extends ParserDML {
                     long value = readBigint();
 
                     sequence.setMaxValueNoCheck(value);
-
                     break;
                 }
+
                 case Tokens.MINVALUE : {
                     set.add(token.tokenType);
                     read();
@@ -2243,16 +2398,16 @@ public class ParserTable extends ParserDML {
                     long value = readBigint();
 
                     sequence.setMinValueNoCheck(value);
-
                     break;
                 }
+
                 case Tokens.CYCLE : {
                     set.add(token.tokenType);
                     read();
                     sequence.setCycle(true);
-
                     break;
                 }
+
                 default :
                     if ((database.sqlSyntaxOra || database.sqlSyntaxDb2)
                             && isSimpleName()) {
@@ -2263,14 +2418,12 @@ public class ParserTable extends ParserDML {
                                 || token.tokenString.equals("NOORDER")
                                 || token.tokenString.equals("ORDER")) {
                             read();
-
                             break;
                         }
 
                         if (token.tokenString.equals("CACHE")) {
                             read();
                             readBigint();
-
                             break;
                         }
                     }
@@ -2293,7 +2446,9 @@ public class ParserTable extends ParserDML {
 
         read();
 
-        indexHsqlName = readNewSchemaObjectName(SchemaObject.INDEX, true);
+        indexHsqlName        = readNewSchemaObjectName(
+            SchemaObject.INDEX,
+            true);
         indexHsqlName.schema = table.getSchemaName();
         indexHsqlName.parent = table.getName();
         indexHsqlName.schema = table.getSchemaName();
@@ -2308,8 +2463,11 @@ public class ParserTable extends ParserDML {
         readThis(Tokens.ON);
 
         int[] indexColumns = readColumnList(table, true);
-        Constraint c = new Constraint(indexHsqlName, table, indexColumns,
-                                      SchemaObject.INDEX);
+        Constraint c = new Constraint(
+            indexHsqlName,
+            table,
+            indexColumns,
+            SchemaObject.INDEX);
 
         indexList.add(c);
     }
@@ -2362,13 +2520,16 @@ public class ParserTable extends ParserDML {
         }
 
         HsqlArrayList<Constraint> list = new HsqlArrayList<>();
-        HsqlName hsqlName =
-            database.nameManager.newColumnHsqlName(table.getName(),
-                token.tokenString, isDelimitedIdentifier());
+        HsqlName hsqlName = database.nameManager.newColumnHsqlName(
+            table.getName(),
+            token.tokenString,
+            isDelimitedIdentifier());
 
         read();
 
-        ColumnSchema columnStart = readColumnDefinitionOrNull(table, hsqlName,
+        ColumnSchema columnStart = readColumnDefinitionOrNull(
+            table,
+            hsqlName,
             list);
 
         if (columnStart == null) {
@@ -2390,12 +2551,16 @@ public class ParserTable extends ParserDML {
             throw unexpectedToken();
         }
 
-        hsqlName = database.nameManager.newColumnHsqlName(table.getName(),
-                token.tokenString, isDelimitedIdentifier());
+        hsqlName = database.nameManager.newColumnHsqlName(
+            table.getName(),
+            token.tokenString,
+            isDelimitedIdentifier());
 
         read();
 
-        ColumnSchema columnEnd = readColumnDefinitionOrNull(table, hsqlName,
+        ColumnSchema columnEnd = readColumnDefinitionOrNull(
+            table,
+            hsqlName,
             list);
 
         if (columnEnd == null) {
@@ -2411,15 +2576,17 @@ public class ParserTable extends ParserDML {
         period.endColumn   = columnEnd;
 
         String   sql  = getLastPart();
-        Object[] args = new Object[] {
-            table, period
-        };
+        Object[] args = new Object[]{ table, period };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
                 table.getName());
 
-        return new StatementSchema(sql, StatementTypes.ADD_TABLE_PERIOD, args,
-                                   null, writeLockNames);
+        return new StatementSchema(
+            sql,
+            StatementTypes.ADD_TABLE_PERIOD,
+            args,
+            null,
+            writeLockNames);
     }
 
     StatementSchema compileAlterTableDropPeriod(Table table) {
@@ -2445,15 +2612,17 @@ public class ParserTable extends ParserDML {
 
         Boolean  cascade = readIfThis(Tokens.CASCADE);
         String   sql     = getLastPart();
-        Object[] args    = new Object[] {
-            table, period, cascade
-        };
+        Object[] args    = new Object[]{ table, period, cascade };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
                 table.getName());
 
-        return new StatementSchema(sql, StatementTypes.DROP_TABLE_PERIOD,
-                                   args, null, writeLockNames);
+        return new StatementSchema(
+            sql,
+            StatementTypes.DROP_TABLE_PERIOD,
+            args,
+            null,
+            writeLockNames);
     }
 
     StatementSchema compileAlterTableAddVersioning(Table table) {
@@ -2470,9 +2639,12 @@ public class ParserTable extends ParserDML {
             database.schemaManager.getCatalogAndBaseTableNames(
                 table.getName());
 
-        return new StatementSchema(sql,
-                                   StatementTypes.ADD_TABLE_SYSTEM_VERSIONING,
-                                   args, null, writeLockNames);
+        return new StatementSchema(
+            sql,
+            StatementTypes.ADD_TABLE_SYSTEM_VERSIONING,
+            args,
+            null,
+            writeLockNames);
     }
 
     StatementSchema compileAlterTableDropVersioning(Table table) {
@@ -2483,15 +2655,16 @@ public class ParserTable extends ParserDML {
 
         Boolean  cascade = readIfThis(Tokens.CASCADE);
         String   sql     = getLastPart();
-        Object[] args    = new Object[] {
-            table, cascade
-        };
+        Object[] args    = new Object[]{ table, cascade };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
                 table.getName());
 
-        return new StatementSchema(sql,
-                                   StatementTypes.DROP_TABLE_SYSTEM_VERSIONING,
-                                   args, null, writeLockNames);
+        return new StatementSchema(
+            sql,
+            StatementTypes.DROP_TABLE_SYSTEM_VERSIONING,
+            args,
+            null,
+            writeLockNames);
     }
 }

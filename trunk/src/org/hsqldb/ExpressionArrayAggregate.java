@@ -59,8 +59,12 @@ public class ExpressionArrayAggregate extends Expression {
     int          exprOpType;    // original opType, may change during resolution
     Expression   condition = Expression.EXPR_TRUE;
 
-    ExpressionArrayAggregate(int type, boolean distinct, Expression e,
-                             SortAndSlice sort, String separator) {
+    ExpressionArrayAggregate(
+            int type,
+            boolean distinct,
+            Expression e,
+            SortAndSlice sort,
+            String separator) {
 
         super(type);
 
@@ -100,8 +104,9 @@ public class ExpressionArrayAggregate extends Expression {
     public String getSQL() {
 
         StringBuilder sb   = new StringBuilder(64);
-        String        left = getContextSQL(nodes.length > 0 ? nodes[LEFT]
-                                                            : null);
+        String        left = getContextSQL(nodes.length > 0
+                                           ? nodes[LEFT]
+                                           : null);
 
         switch (opType) {
 
@@ -121,8 +126,9 @@ public class ExpressionArrayAggregate extends Expression {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "ExpressionAggregate");
+                throw Error.runtimeError(
+                    ErrorCode.U_S0500,
+                    "ExpressionAggregate");
         }
 
         return sb.toString();
@@ -164,14 +170,21 @@ public class ExpressionArrayAggregate extends Expression {
         return sb.toString();
     }
 
-    public List<Expression> resolveColumnReferences(Session session,
-                                                    RangeGroup rangeGroup, int rangeCount,
-                                                    RangeGroup[] rangeGroups,
-                                                    List<Expression> unresolvedSet,
-                                                    boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(
+            Session session,
+            RangeGroup rangeGroup,
+            int rangeCount,
+            RangeGroup[] rangeGroups,
+            List<Expression> unresolvedSet,
+            boolean acceptsSequences) {
 
-        List<Expression> conditionSet = condition.resolveColumnReferences(session,
-            rangeGroup, rangeCount, rangeGroups, null, false);
+        List<Expression> conditionSet = condition.resolveColumnReferences(
+            session,
+            rangeGroup,
+            rangeCount,
+            rangeGroups,
+            null,
+            false);
 
         ExpressionColumn.checkColumnsResolved(conditionSet);
 
@@ -224,27 +237,29 @@ public class ExpressionArrayAggregate extends Expression {
         switch (opType) {
 
             case OpTypes.ARRAY_AGG :
-                arrayDataType =
-                    new ArrayType(rowDataType,
-                                  ArrayType.defaultLargeArrayCardinality);
-                dataType = new ArrayType(exprDataType,
-                                         ArrayType.defaultArrayCardinality);
+                arrayDataType = new ArrayType(
+                    rowDataType,
+                    ArrayType.defaultLargeArrayCardinality);
+                dataType = new ArrayType(
+                    exprDataType,
+                    ArrayType.defaultArrayCardinality);
                 break;
 
             case OpTypes.GROUP_CONCAT :
-                arrayDataType =
-                    new ArrayType(rowDataType,
-                                  ArrayType.defaultLargeArrayCardinality);
+                arrayDataType = new ArrayType(
+                    rowDataType,
+                    ArrayType.defaultLargeArrayCardinality);
                 dataType = Type.SQL_VARCHAR_DEFAULT;
                 break;
 
             case OpTypes.MEDIAN :
-                arrayDataType =
-                    new ArrayType(nodeDataTypes[0],
-                                  ArrayType.defaultLargeArrayCardinality);
-                dataType = ExpressionAggregate.getType(session,
-                                                       OpTypes.MEDIAN,
-                                                       exprDataType);
+                arrayDataType = new ArrayType(
+                    nodeDataTypes[0],
+                    ArrayType.defaultLargeArrayCardinality);
+                dataType = ExpressionAggregate.getType(
+                    session,
+                    OpTypes.MEDIAN,
+                    exprDataType);
                 break;
         }
 
@@ -256,7 +271,8 @@ public class ExpressionArrayAggregate extends Expression {
         if (other instanceof ExpressionArrayAggregate) {
             ExpressionArrayAggregate o = (ExpressionArrayAggregate) other;
 
-            return super.equals(other) && opType == other.opType
+            return super.equals(other)
+                   && opType == other.opType
                    && exprSubType == other.exprSubType
                    && isDistinctAggregate == o.isDistinctAggregate
                    && separator.equals(o.separator)
@@ -266,7 +282,8 @@ public class ExpressionArrayAggregate extends Expression {
         return false;
     }
 
-    public SetFunction updateAggregatingValue(Session session,
+    public SetFunction updateAggregatingValue(
+            Session session,
             SetFunction currValue) {
 
         if (!condition.testCondition(session)) {
@@ -308,6 +325,7 @@ public class ExpressionArrayAggregate extends Expression {
                 if (value == null) {
                     return currValue;
                 }
+
                 break;
         }
 
@@ -320,8 +338,10 @@ public class ExpressionArrayAggregate extends Expression {
         return currValue;
     }
 
-    public SetFunction updateAggregatingValue(Session session,
-            SetFunction currValue, SetFunction value) {
+    public SetFunction updateAggregatingValue(
+            Session session,
+            SetFunction currValue,
+            SetFunction value) {
 
         if (currValue == null) {
             currValue = new SetFunctionValueArray();
@@ -365,6 +385,7 @@ public class ExpressionArrayAggregate extends Expression {
 
                 return resultArray;
             }
+
             case OpTypes.GROUP_CONCAT : {
                 StringBuilder sb = new StringBuilder(16 * array.length);
 
@@ -375,15 +396,17 @@ public class ExpressionArrayAggregate extends Expression {
 
                     Object[] row   = (Object[]) array[i];
                     Object   value = row[row.length - 1];
-                    String string =
-                        (String) Type.SQL_VARCHAR.convertToType(session,
-                            value, exprDataType);
+                    String string = (String) Type.SQL_VARCHAR.convertToType(
+                        session,
+                        value,
+                        exprDataType);
 
                     sb.append(string);
                 }
 
                 return sb.toString();
             }
+
             case OpTypes.MEDIAN : {
                 SortAndSlice exprSort = new SortAndSlice();
 
@@ -395,9 +418,12 @@ public class ExpressionArrayAggregate extends Expression {
 
                 if (even) {
                     SetFunctionValueAggregate sf =
-                        new SetFunctionValueAggregate(session, OpTypes.AVG,
-                                                      nodes[LEFT].dataType,
-                                                      dataType, false);
+                        new SetFunctionValueAggregate(
+                            session,
+                            OpTypes.AVG,
+                            nodes[LEFT].dataType,
+                            dataType,
+                            false);
 
                     sf.add(array[(array.length / 2) - 1]);
                     sf.add(array[(array.length / 2)]);
@@ -408,7 +434,7 @@ public class ExpressionArrayAggregate extends Expression {
                 }
 
                 if (dataType.isDateTimeTypeWithZone()) {
-                    value = ((DateTimeType)dataType).changeZoneToUTC(value);
+                    value = ((DateTimeType) dataType).changeZoneToUTC(value);
                 }
 
                 return dataType.convertToType(session, value, exprDataType);

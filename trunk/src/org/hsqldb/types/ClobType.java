@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,8 +61,9 @@ public final class ClobType extends CharacterType {
     }
 
     public int displaySize() {
-        return precision > Integer.MAX_VALUE ? Integer.MAX_VALUE
-                                             : (int) precision;
+        return precision > Integer.MAX_VALUE
+               ? Integer.MAX_VALUE
+               : (int) precision;
     }
 
     public int getJDBCTypeCode() {
@@ -101,9 +102,7 @@ public final class ClobType extends CharacterType {
 
         StringBuilder sb = new StringBuilder(16);
 
-        sb.append(getNameString());
-        sb.append('(');
-        sb.append(factor);
+        sb.append(getNameString()).append('(').append(factor);
 
         if (multiplier != null) {
             sb.append(multiplier);
@@ -144,12 +143,16 @@ public final class ClobType extends CharacterType {
         if (b instanceof String) {
             long lobId = ((ClobData) a).getId();
 
-            return session.database.lobManager.compare(collation, lobId,
-                    (String) b);
+            return session.database.lobManager.compare(
+                collation,
+                lobId,
+                (String) b);
         }
 
-        return session.database.lobManager.compare(collation, (ClobData) a,
-                (ClobData) b);
+        return session.database.lobManager.compare(
+            collation,
+            (ClobData) a,
+            (ClobData) b);
     }
 
     public Object convertToDefaultType(SessionInterface session, Object a) {
@@ -219,15 +222,23 @@ public final class ClobType extends CharacterType {
         throw Error.error(ErrorCode.X_42561);
     }
 
-    public long position(SessionInterface session, Object data,
-                         Object otherData, Type otherType, long start) {
+    public long position(
+            SessionInterface session,
+            Object data,
+            Object otherData,
+            Type otherType,
+            long start) {
 
         if (otherType.typeCode == Types.SQL_CLOB) {
-            return ((ClobData) data).position(session, (ClobData) otherData,
-                                              start);
+            return ((ClobData) data).position(
+                session,
+                (ClobData) otherData,
+                start);
         } else if (otherType.isCharacterType()) {
-            return ((ClobData) data).position(session, (String) otherData,
-                                              start);
+            return ((ClobData) data).position(
+                session,
+                (String) otherData,
+                start);
         } else {
             throw Error.runtimeError(ErrorCode.U_S0500, "ClobType");
         }

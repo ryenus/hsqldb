@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,8 +65,12 @@ public class RAShadowFile {
     byte[]                      buffer;
     HsqlByteArrayOutputStream   byteArrayOutputStream;
 
-    RAShadowFile(EventLogInterface logger, RandomAccessInterface source,
-                 String pathName, long maxSize, int pageSize) {
+    RAShadowFile(
+            EventLogInterface logger,
+            RandomAccessInterface source,
+            String pathName,
+            long maxSize,
+            int pageSize) {
 
         this.logger   = logger;
         this.pathName = pathName;
@@ -165,8 +169,9 @@ public class RAShadowFile {
             dest.seek(0);
             dest.setLength(writePos);
             close();
-            logger.logSevereEvent("shadow backup failure pos " + position
-                                  + " " + readSize, t);
+            logger.logSevereEvent(
+                "shadow backup failure pos " + position + " " + readSize,
+                t);
 
             throw JavaSystem.toIOException(t);
         }
@@ -207,16 +212,22 @@ public class RAShadowFile {
         return new InputStreamShadow();
     }
 
-    private static RandomAccessInterface getStorage(Database database,
-            String pathName, String openMode) throws IOException {
+    private static RandomAccessInterface getStorage(
+            Database database,
+            String pathName,
+            String openMode)
+            throws IOException {
         return new RAFileSimple(database.logger, pathName, openMode);
     }
 
     /** todo - take account of incomplete addition of block due to lack of disk */
 
     // buggy database files had size == position == 0 at the end
-    public static void restoreFile(Database database, String sourceName,
-                                   String destName) throws IOException {
+    public static void restoreFile(
+            Database database,
+            String sourceName,
+            String destName)
+            throws IOException {
 
         RandomAccessInterface source = getStorage(database, sourceName, "r");
         RandomAccessInterface dest   = getStorage(database, destName, "rw");
@@ -256,8 +267,9 @@ public class RAShadowFile {
             int byteread = is.read();
 
             if (byteread < 0) {
-                throw new IOException("backup file not complete "
-                                      + fetchedSize + " " + limitSize);
+                throw new IOException(
+                    "backup file not complete " + fetchedSize + " "
+                    + limitSize);
             }
 
             fetchedSize++;
@@ -269,8 +281,11 @@ public class RAShadowFile {
             return read(bytes, 0, bytes.length);
         }
 
-        public int read(byte[] bytes, int offset,
-                        int length) throws IOException {
+        public int read(
+                byte[] bytes,
+                int offset,
+                int length)
+                throws IOException {
 
             if (!initialised) {
                 initialise();
@@ -287,8 +302,9 @@ public class RAShadowFile {
             int count = is.read(bytes, offset, length);
 
             if (count < 0) {
-                throw new IOException("backup file not complete "
-                                      + fetchedSize + " " + limitSize);
+                throw new IOException(
+                    "backup file not complete " + fetchedSize + " "
+                    + limitSize);
             }
 
             fetchedSize += count;
@@ -305,7 +321,6 @@ public class RAShadowFile {
         }
 
         public void close() throws IOException {
-
             if (is != null) {
                 is.close();
             }

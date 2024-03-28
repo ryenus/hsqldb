@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,8 +76,11 @@ public abstract class SimpleStore implements PersistentStore {
         return true;
     }
 
-    public boolean canRead(Session session, CachedObject object, int mode,
-                           int[] colMap) {
+    public boolean canRead(
+            Session session,
+            CachedObject object,
+            int mode,
+            int[] colMap) {
         return true;
     }
 
@@ -87,8 +90,10 @@ public abstract class SimpleStore implements PersistentStore {
         return defaultObjectSize;
     }
 
-    public CachedObject getNewCachedObject(Session session, Object object,
-                                           boolean tx) {
+    public CachedObject getNewCachedObject(
+            Session session,
+            Object object,
+            boolean tx) {
         throw Error.runtimeError(ErrorCode.U_S0500, "PersistentStore");
     }
 
@@ -126,8 +131,11 @@ public abstract class SimpleStore implements PersistentStore {
         return null;
     }
 
-    public double searchCost(Session session, Index idx, int count,
-                             int opType) {
+    public double searchCost(
+            Session session,
+            Index idx,
+            int count,
+            int opType) {
         return 1;
     }
 
@@ -159,8 +167,11 @@ public abstract class SimpleStore implements PersistentStore {
 
     public void delete(Session session, Row row) {}
 
-    public RowAction addDeleteActionToRow(Session session, Row row,
-                                          int[] colMap, boolean isMV) {
+    public RowAction addDeleteActionToRow(
+            Session session,
+            Row row,
+            int[] colMap,
+            boolean isMV) {
         return null;
     }
 
@@ -180,8 +191,11 @@ public abstract class SimpleStore implements PersistentStore {
         return null;
     }
 
-    public void moveData(Session session, PersistentStore other,
-                         int[] colIndex, int adjust) {}
+    public void moveData(
+            Session session,
+            PersistentStore other,
+            int[] colIndex,
+            int adjust) {}
 
     public void setReadOnly(boolean readonly) {}
 
@@ -203,11 +217,17 @@ public abstract class SimpleStore implements PersistentStore {
 
     public void setTimestamp(long timestamp) {}
 
-    public void commitRow(Session session, Row row, int changeAction,
-                          int txModel) {}
+    public void commitRow(
+            Session session,
+            Row row,
+            int changeAction,
+            int txModel) {}
 
-    public void rollbackRow(Session session, Row row, int changeAction,
-                            int txModel) {}
+    public void rollbackRow(
+            Session session,
+            Row row,
+            int changeAction,
+            int txModel) {}
 
     public void postCommitAction(Session session, RowAction rowAction) {}
 }

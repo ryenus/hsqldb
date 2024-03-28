@@ -48,7 +48,6 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
     }
 
     public OrderedHashMap(int initialCapacity) throws IllegalArgumentException {
-
         super(initialCapacity);
 
         this.isList = true;
@@ -62,7 +61,6 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
      * @return the value stored in the entry
      */
     public K getKeyAt(int index) throws IndexOutOfBoundsException {
-
         checkRange(index);
 
         return (K) objectKeyTable[index];
@@ -76,7 +74,6 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
      * @return the value stored in the entry
      */
     public V getValueAt(int index) throws IndexOutOfBoundsException {
-
         checkRange(index);
 
         return (V) objectValueTable[index];
@@ -90,7 +87,6 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
      * @return the value stored in the entry
      */
     public V get(int index) throws IndexOutOfBoundsException {
-
         checkRange(index);
 
         return (V) objectValueTable[index];
@@ -211,7 +207,6 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
     }
 
     private void checkRange(int i) {
-
         if (i < 0 || i >= size()) {
             throw new IndexOutOfBoundsException();
         }

@@ -54,6 +54,7 @@ public class WrapperIterator<E> implements Iterator<E> {
     private boolean     chained;
     private Iterator<E> it1;
     private Iterator<E> it2;
+
     /** return only not null elements */
     private boolean notNull;
 
@@ -101,7 +102,6 @@ public class WrapperIterator<E> implements Iterator<E> {
      * @param it2 Iterator
      */
     public WrapperIterator(Iterator<E> it1, Iterator<E> it2) {
-
         this.it1 = it1;
         this.it2 = it2;
         chained  = true;

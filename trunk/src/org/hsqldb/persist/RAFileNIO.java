@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.hsqldb.persist;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -78,13 +79,18 @@ final class RAFileNIO implements RandomAccessInterface {
     private static final String JVM_ERROR = "NIO access failed";
 
     //
-    static final int largeBufferScale = 24;
-    static final int largeBufferSize  = 1 << largeBufferScale;
-    static final long largeBufferMask = 0xffffffffffffffffL
-                                        << largeBufferScale;
+    static final int  largeBufferScale = 24;
+    static final int  largeBufferSize  = 1 << largeBufferScale;
+    static final long largeBufferMask  = 0xffffffffffffffffL
+        << largeBufferScale;
 
-    RAFileNIO(EventLogInterface logger, String name, boolean readOnly,
-              long requiredLength, long maxLength) throws IOException {
+    RAFileNIO(
+            EventLogInterface logger,
+            String name,
+            boolean readOnly,
+            long requiredLength,
+            long maxLength)
+            throws IOException {
 
         this.logger    = logger;
         this.maxLength = maxLength;
@@ -98,13 +104,16 @@ final class RAFileNIO implements RandomAccessInterface {
                 requiredLength = tempFile.length();
             }
 
-            requiredLength =
-                ArrayUtil.getBinaryNormalisedCeiling(requiredLength,
-                    largeBufferScale);
+            requiredLength = ArrayUtil.getBinaryNormalisedCeiling(
+                requiredLength,
+                largeBufferScale);
         }
 
-        file                = new RandomAccessFile(name, readOnly ? "r"
-                                                                  : "rw");
+        file                = new RandomAccessFile(
+            name,
+            readOnly
+            ? "r"
+            : "rw");
         this.readOnly       = readOnly;
         this.channel        = file.getChannel();
         this.fileDescriptor = file.getFD();
@@ -176,7 +185,6 @@ final class RAFileNIO implements RandomAccessInterface {
     public int read() throws IOException {
 
         try {
-
             if (currentPosition == fileLength) {
                 return -1;
             }
@@ -340,8 +348,7 @@ final class RAFileNIO implements RandomAccessInterface {
             channel = null;
 
             for (int i = 0; i < buffers.length; i++) {
-                thrown = JavaSystem.unmap(buffers[i]);
-
+                thrown     = JavaSystem.unmap(buffers[i]);
                 buffers[i] = null;
             }
 
@@ -393,8 +400,9 @@ final class RAFileNIO implements RandomAccessInterface {
                 newBufferLength = largeBufferSize;
             }
 
-            MapMode mapMode = readOnly ? FileChannel.MapMode.READ_ONLY
-                                       : FileChannel.MapMode.READ_WRITE;
+            MapMode mapMode = readOnly
+                              ? FileChannel.MapMode.READ_ONLY
+                              : FileChannel.MapMode.READ_WRITE;
 
             if (!readOnly && file.length() < fileLength + newBufferLength) {
                 file.seek(fileLength + newBufferLength - 1);
@@ -403,7 +411,9 @@ final class RAFileNIO implements RandomAccessInterface {
 
             MappedByteBuffer[] newBuffers =
                 new MappedByteBuffer[buffers.length + 1];
-            MappedByteBuffer newBuffer = channel.map(mapMode, fileLength,
+            MappedByteBuffer newBuffer = channel.map(
+                mapMode,
+                fileLength,
                 newBufferLength);
 
             System.arraycopy(buffers, 0, newBuffers, 0, buffers.length);
@@ -412,11 +422,11 @@ final class RAFileNIO implements RandomAccessInterface {
             buffers                    = newBuffers;
             fileLength                 += newBufferLength;
 
-            logger.logDetailEvent("NIO buffer instance, file size "
-                                  + fileLength);
+            logger.logDetailEvent(
+                "NIO buffer instance, file size " + fileLength);
         } catch (Throwable e) {
-            logger.logDetailEvent("NOI buffer allocate failed, file size "
-                                  + newFileLength);
+            logger.logDetailEvent(
+                "NOI buffer allocate failed, file size " + newFileLength);
 
             return false;
         }
@@ -453,8 +463,9 @@ final class RAFileNIO implements RandomAccessInterface {
             try {
                 buffers[i].force();
             } catch (Throwable t) {
-                logger.logWarningEvent("NIO buffer force error: pos "
-                                       + i * largeBufferSize + " ", t);
+                logger.logWarningEvent(
+                    "NIO buffer force error: pos " + i * largeBufferSize + " ",
+                    t);
 
                 if (!error) {
                     errIndex = i;
@@ -469,8 +480,9 @@ final class RAFileNIO implements RandomAccessInterface {
                 try {
                     buffers[i].force();
                 } catch (Throwable t) {
-                    logger.logWarningEvent("NIO buffer force error "
-                                           + i * largeBufferSize + " ", t);
+                    logger.logWarningEvent(
+                        "NIO buffer force error " + i * largeBufferSize + " ",
+                        t);
                 }
             }
         }

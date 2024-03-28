@@ -81,7 +81,6 @@ public final class ResultLob extends Result {
         int RESPONSE_TRUNCATE                  = 29;
     }
 
-
     long        lobID;
     int         subType;
     long        blockOffset;
@@ -484,7 +483,6 @@ public final class ResultLob extends Result {
             DataOutputStream dataOut,
             RowOutputInterface rowOut)
             throws IOException {
-
         writeBody(session, dataOut);
         dataOut.writeByte(ResultConstants.NONE);
         dataOut.flush();
@@ -509,7 +507,6 @@ public final class ResultLob extends Result {
                 return;
 
             case LobResultTypes.REQUEST_CREATE_CHARS : {
-
                 if (blockLength >= 0) {
                     writeCreate(session, dataOut);
 
@@ -627,8 +624,8 @@ public final class ResultLob extends Result {
         dataOut.writeLong(lobID);
         dataOut.writeInt(subType);
 
-        HsqlByteArrayOutputStream byteArrayOS =
-            new HsqlByteArrayOutputStream(bufferLength);
+        HsqlByteArrayOutputStream byteArrayOS = new HsqlByteArrayOutputStream(
+            bufferLength);
 
         byteArrayOS.reset();
         byteArrayOS.write(stream, bufferLength);
@@ -683,8 +680,8 @@ public final class ResultLob extends Result {
         dataOut.writeLong(lobID);
         dataOut.writeInt(subType);
 
-        HsqlByteArrayOutputStream byteArrayOS =
-            new HsqlByteArrayOutputStream(bufferLength);
+        HsqlByteArrayOutputStream byteArrayOS = new HsqlByteArrayOutputStream(
+            bufferLength);
 
         byteArrayOS.reset();
         byteArrayOS.write(reader, bufferLength / 2);

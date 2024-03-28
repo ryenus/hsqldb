@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,8 +115,7 @@ public class ExpressionTable extends Expression {
                 table.prepareTable(session);
 
                 table.columnList =
-                    ((FunctionSQLInvoked) nodes[LEFT]).routine.getTable()
-                        .columnList;
+                    ((FunctionSQLInvoked) nodes[LEFT]).routine.getTable().columnList;
                 isTable = true;
 
                 return;
@@ -129,8 +128,9 @@ public class ExpressionTable extends Expression {
             }
         }
 
-        int columnCount = ordinality ? nodes.length + 1
-                                     : nodes.length;
+        int columnCount = ordinality
+                          ? nodes.length + 1
+                          : nodes.length;
 
         nodeDataTypes = new Type[columnCount];
 
@@ -162,6 +162,7 @@ public class ExpressionTable extends Expression {
 
                 return result;
             }
+
             default : {
                 throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionTable");
             }
@@ -175,6 +176,7 @@ public class ExpressionTable extends Expression {
             case OpTypes.TABLE : {
                 return table.queryExpression.getValues(session);
             }
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
         }
@@ -195,6 +197,7 @@ public class ExpressionTable extends Expression {
 
                 return value;
             }
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
         }
@@ -204,8 +207,7 @@ public class ExpressionTable extends Expression {
         return valueData;
     }
 
-    void insertValuesIntoSubqueryTable(Session session,
-                                       PersistentStore store) {
+    void insertValuesIntoSubqueryTable(Session session, PersistentStore store) {
 
         if (isTable) {
             insertTableValues(session, store);

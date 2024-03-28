@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,8 +49,8 @@ import org.hsqldb.error.ErrorCode;
 public class RowType extends Type {
 
     final Type[] dataTypes;
-    public RowType(Type[] dataTypes) {
 
+    public RowType(Type[] dataTypes) {
         super(Types.SQL_ROW, Types.SQL_ROW, 0, 0);
 
         this.dataTypes = dataTypes;
@@ -94,10 +94,9 @@ public class RowType extends Type {
 
     public String getNameString() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
-        sb.append(Tokens.T_ROW);
-        sb.append('(');
+        sb.append(Tokens.T_ROW).append('(');
 
         for (int i = 0; i < dataTypes.length; i++) {
             if (i > 0) {
@@ -171,8 +170,10 @@ public class RowType extends Type {
         return arrb;
     }
 
-    public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) {
+    public Object convertToType(
+            SessionInterface session,
+            Object a,
+            Type otherType) {
 
         if (a == null) {
             return null;
@@ -196,15 +197,18 @@ public class RowType extends Type {
         Object[] arrb = new Object[arra.length];
 
         for (int i = 0; i < arra.length; i++) {
-            arrb[i] = dataTypes[i].convertToType(session, arra[i],
-                                                 otherTypes[i]);
+            arrb[i] = dataTypes[i].convertToType(
+                session,
+                arra[i],
+                otherTypes[i]);
         }
 
         return arrb;
     }
 
-    public Object convertToDefaultType(SessionInterface sessionInterface,
-                                       Object o) {
+    public Object convertToDefaultType(
+            SessionInterface sessionInterface,
+            Object o) {
         return o;
     }
 
@@ -226,8 +230,7 @@ public class RowType extends Type {
         Object[]      array = (Object[]) a;
         StringBuilder sb    = new StringBuilder();
 
-        sb.append(Tokens.T_ROW);
-        sb.append('(');
+        sb.append(Tokens.T_ROW).append('(');
 
         for (int i = 0; i < array.length; i++) {
             if (i > 0) {
@@ -381,13 +384,16 @@ public class RowType extends Type {
         return dataTypes;
     }
 
-    public int compare(Session session, Object a, Object b,
-                       SortAndSlice sort) {
+    public int compare(Session session, Object a, Object b, SortAndSlice sort) {
         return compare(session, a, b, sort, dataTypes);
     }
 
-    public static int compare(Session session, Object a, Object b,
-                              SortAndSlice sort, Type[] dataTypes) {
+    public static int compare(
+            Session session,
+            Object a,
+            Object b,
+            SortAndSlice sort,
+            Type[] dataTypes) {
 
         if (a == b) {
             return 0;
@@ -483,7 +489,9 @@ public class RowType extends Type {
         return hash;
     }
 
-    public static String convertToSQLString(Object[] array, Type[] types,
+    public static String convertToSQLString(
+            Object[] array,
+            Type[] types,
             int maxUnitLength) {
 
         if (array == null) {

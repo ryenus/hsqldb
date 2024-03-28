@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,19 +47,22 @@ import org.hsqldb.rowio.RowInputText;
  * @since 2.3.4
 */
 public class TextFileReader16 extends TextFileReader8
-implements TextFileReader {
+        implements TextFileReader {
 
-    TextFileReader16(RandomAccessInterface dataFile,
-                     TextFileSettings textFileSettings,
-                     RowInputInterface rowIn, boolean isReadOnly) {
+    TextFileReader16(
+            RandomAccessInterface dataFile,
+            TextFileSettings textFileSettings,
+            RowInputInterface rowIn,
+            boolean isReadOnly) {
 
         super();
 
         this.dataFile         = dataFile;
         this.textFileSettings = textFileSettings;
         this.rowIn            = rowIn;
-        this.buffer = StringCreator.getStringCreator(char.class,
-                textFileSettings.charEncoding);
+        this.buffer = StringCreator.getStringCreator(
+            char.class,
+            textFileSettings.charEncoding);
 
         skipBOM();
     }

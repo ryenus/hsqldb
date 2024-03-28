@@ -142,10 +142,11 @@ public final class InOutUtil {
             final OutputStream outputStream)
             throws IOException {
 
-        return copy(inputStream,
-                    outputStream,
-                    DEFAULT_COPY_AMOUNT,
-                    DEFAULT_COPY_BUFFER_SIZE);
+        return copy(
+            inputStream,
+            outputStream,
+            DEFAULT_COPY_AMOUNT,
+            DEFAULT_COPY_BUFFER_SIZE);
     }
 
     /**
@@ -163,10 +164,11 @@ public final class InOutUtil {
             final long amount)
             throws IOException {
 
-        return copy(inputStream,
-                    outputStream,
-                    amount,
-                    DEFAULT_COPY_BUFFER_SIZE);
+        return copy(
+            inputStream,
+            outputStream,
+            amount,
+            DEFAULT_COPY_BUFFER_SIZE);
     }
 
     /**
@@ -237,10 +239,11 @@ public final class InOutUtil {
             final Writer writer)
             throws IOException {
 
-        return copy(reader,
-                    writer,
-                    DEFAULT_COPY_AMOUNT,
-                    DEFAULT_COPY_BUFFER_SIZE);
+        return copy(
+            reader,
+            writer,
+            DEFAULT_COPY_AMOUNT,
+            DEFAULT_COPY_BUFFER_SIZE);
     }
 
     /**

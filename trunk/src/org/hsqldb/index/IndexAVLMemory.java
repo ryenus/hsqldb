@@ -103,13 +103,31 @@ public class IndexAVLMemory extends IndexAVL {
      * @param forward is this an auto-index for an FK that refers to a table
      *   defined after this table
      */
-    public IndexAVLMemory(HsqlName name, long id, TableBase table,
-                          int[] columns, boolean[] descending,
-                          boolean[] nullsLast, Type[] colTypes, boolean pk,
-                          boolean unique, boolean constraint,
-                          boolean forward) {
-        super(name, id, table, columns, descending, nullsLast, colTypes, pk,
-              unique, constraint, forward);
+    public IndexAVLMemory(
+            HsqlName name,
+            long id,
+            TableBase table,
+            int[] columns,
+            boolean[] descending,
+            boolean[] nullsLast,
+            Type[] colTypes,
+            boolean pk,
+            boolean unique,
+            boolean constraint,
+            boolean forward) {
+
+        super(
+            name,
+            id,
+            table,
+            columns,
+            descending,
+            nullsLast,
+            colTypes,
+            pk,
+            unique,
+            constraint,
+            forward);
     }
 
     void delete(PersistentStore store, NodeAVL x) {
@@ -219,8 +237,9 @@ public class IndexAVLMemory extends IndexAVL {
         while (n != null) {
             x = n;
 
-            int sign = isleft ? 1
-                              : -1;
+            int sign = isleft
+                       ? 1
+                       : -1;
 
             switch (x.iBalance * sign) {
 
@@ -267,10 +286,12 @@ public class IndexAVLMemory extends IndexAVL {
                         x.set(store, !isleft, l.child(store, isleft));
                         l.set(store, isleft, x);
 
-                        x.iBalance = (b == sign) ? -sign
-                                                 : 0;
-                        r.iBalance = (b == -sign) ? sign
-                                                  : 0;
+                        x.iBalance = (b == sign)
+                                     ? -sign
+                                     : 0;
+                        r.iBalance = (b == -sign)
+                                     ? sign
+                                     : 0;
                         l.iBalance = 0;
                         x          = l;
                     }
@@ -349,8 +370,9 @@ public class IndexAVLMemory extends IndexAVL {
     void balance(PersistentStore store, NodeAVL x, boolean isleft) {
 
         while (true) {
-            int sign = isleft ? 1
-                              : -1;
+            int sign = isleft
+                       ? 1
+                       : -1;
 
             switch (x.iBalance * sign) {
 
@@ -364,8 +386,9 @@ public class IndexAVLMemory extends IndexAVL {
                     break;
 
                 case -1 :
-                    NodeAVL l = isleft ? x.nLeft
-                                       : x.nRight;
+                    NodeAVL l = isleft
+                                ? x.nLeft
+                                : x.nRight;
 
                     if (l.iBalance == -sign) {
                         x.replace(store, this, l);
@@ -375,8 +398,9 @@ public class IndexAVLMemory extends IndexAVL {
                         x.iBalance = 0;
                         l.iBalance = 0;
                     } else {
-                        NodeAVL r = !isleft ? l.nLeft
-                                            : l.nRight;
+                        NodeAVL r = !isleft
+                                    ? l.nLeft
+                                    : l.nRight;
 
                         x.replace(store, this, r);
                         l.set(store, !isleft, r.child(store, isleft));
@@ -386,10 +410,12 @@ public class IndexAVLMemory extends IndexAVL {
 
                         int rb = r.iBalance;
 
-                        x.iBalance = (rb == -sign) ? sign
-                                                   : 0;
-                        l.iBalance = (rb == sign) ? -sign
-                                                  : 0;
+                        x.iBalance = (rb == -sign)
+                                     ? sign
+                                     : 0;
+                        l.iBalance = (rb == sign)
+                                     ? -sign
+                                     : 0;
                         r.iBalance = 0;
                     }
 

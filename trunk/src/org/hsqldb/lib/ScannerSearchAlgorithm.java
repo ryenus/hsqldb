@@ -32,6 +32,7 @@
 package org.hsqldb.lib;
 
 import java.io.Reader;
+
 import java.util.Scanner;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -51,8 +52,8 @@ public class ScannerSearchAlgorithm {
      * {@link KMPSearchAlgorithm}.
      */
     public static final int SUGGESTED_MAX_LITERAL_SIZE = 1024;
-    private static final Logger LOG 
-            = Logger.getLogger(ScannerSearchAlgorithm.class.getName());
+    private static final Logger LOG = Logger.getLogger(
+        ScannerSearchAlgorithm.class.getName());
 
     /**
      * the given {@code reader} for the given {@code searchstr}.
@@ -71,13 +72,19 @@ public class ScannerSearchAlgorithm {
      * @throws IllegalArgumentException if a {@link Scanner} illegal argument is
      *                                  encountered.
      */
-    public static long search(Reader reader, char[] searchstr, boolean literal) {
+    public static long search(
+            Reader reader,
+            char[] searchstr,
+            boolean literal) {
+
         if (reader == null || searchstr == null) {
             return -1;
         }
+
         if (searchstr.length == 0 && literal) {
             return 0;
         }
+
         return search(reader, new String(searchstr), literal);
     }
 
@@ -100,17 +107,28 @@ public class ScannerSearchAlgorithm {
      * @throws IllegalArgumentException if a {@link Scanner} illegal argument is
      *                                  encountered.
      */
-    public static long search(Reader reader, String searchstr, boolean literal)
-            throws NullPointerException, PatternSyntaxException,
-            IllegalStateException, IllegalArgumentException {
+    public static long search(
+            Reader reader,
+            String searchstr,
+            boolean literal)
+            throws NullPointerException,
+                   PatternSyntaxException,
+                   IllegalStateException,
+                   IllegalArgumentException {
+
         if (reader == null || searchstr == null) {
             return -1;
         }
+
         if (searchstr.length() == 0 && literal) {
             return 0;
         }
-        final String s = literal ? Pattern.quote(searchstr) : searchstr;
+
+        final String  s       = literal
+                                ? Pattern.quote(searchstr)
+                                : searchstr;
         final Pattern pattern = Pattern.compile(s);
+
         return searchNoChecks(reader, pattern);
     }
 
@@ -128,8 +146,12 @@ public class ScannerSearchAlgorithm {
      * @throws IllegalArgumentException if a {@link Scanner} illegal argument is
      *                                  encountered.
      */
-    public static long search(Reader reader, Pattern pattern)
-            throws IllegalStateException, IllegalArgumentException {
+    public static long search(
+            Reader reader,
+            Pattern pattern)
+            throws IllegalStateException,
+                   IllegalArgumentException {
+
         if (reader == null || pattern == null) {
             return -1;
         }
@@ -149,17 +171,22 @@ public class ScannerSearchAlgorithm {
      * @throws IllegalArgumentException if a {@link Scanner} illegal argument is
      *                                  encountered.
      */
-    private static long searchNoChecks(Reader reader, Pattern pattern)
-            throws IllegalStateException, IllegalArgumentException {
-        final Scanner scanner = new Scanner(reader);
-        final String token = scanner.findWithinHorizon(pattern, 0);
-        final long position = (token == null) 
-                ? -1 
-                : scanner.match().start();
+    private static long searchNoChecks(
+            Reader reader,
+            Pattern pattern)
+            throws IllegalStateException,
+                   IllegalArgumentException {
+
+        final Scanner scanner  = new Scanner(reader);
+        final String  token    = scanner.findWithinHorizon(pattern, 0);
+        final long    position = (token == null)
+                                 ? -1
+                                 : scanner.match().start();
+
         return position;
     }
 
     private ScannerSearchAlgorithm() {
-        assert false : "Pure Utility Class";
+        assert false: "Pure Utility Class";
     }
 }

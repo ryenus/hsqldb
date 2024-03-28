@@ -65,10 +65,11 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap
             int initialCapacity)
             throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.intKeyOrValue,
-              BaseHashMap.objectKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.intKeyOrValue,
+            BaseHashMap.objectKeyOrValue,
+            false);
     }
 
     public Lock getWriteLock() {
@@ -286,7 +287,6 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap
         }
     }
 
-
     private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
@@ -301,7 +301,6 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap
             return new MapEntry<>(key, value);
         }
     }
-
 
     private class KeySet extends AbstractReadOnlyCollection<Integer>
             implements Set<Integer> {
@@ -318,7 +317,6 @@ public class IntKeyHashMapConcurrent<V> extends BaseHashMap
             return size() == 0;
         }
     }
-
 
     private class Values extends AbstractReadOnlyCollection<V> {
 

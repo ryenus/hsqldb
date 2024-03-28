@@ -66,15 +66,23 @@ public class StatementSignal extends Statement {
         switch (type) {
 
             case StatementTypes.SIGNAL :
-                sb.append(Tokens.T_SIGNAL).append(' ');
-                sb.append(Tokens.T_SQLSTATE);
-                sb.append(' ').append('\'').append(sqlState).append('\'');
+                sb.append(Tokens.T_SIGNAL)
+                  .append(' ')
+                  .append(Tokens.T_SQLSTATE)
+                  .append(' ')
+                  .append('\'')
+                  .append(sqlState)
+                  .append('\'');
                 break;
 
             case StatementTypes.RESIGNAL :
-                sb.append(Tokens.T_RESIGNAL).append(' ');
-                sb.append(Tokens.T_SQLSTATE);
-                sb.append(' ').append('\'').append(sqlState).append('\'');
+                sb.append(Tokens.T_RESIGNAL)
+                  .append(' ')
+                  .append(Tokens.T_SQLSTATE)
+                  .append(' ')
+                  .append('\'')
+                  .append(sqlState)
+                  .append('\'');
                 break;
         }
 

@@ -49,10 +49,10 @@ import java.util.TimeZone;
  */
 public class SessionManager {
 
-    AtomicLong             sessionIdCount = new AtomicLong();
-    private final LongKeyHashMap<Session> sessionMap     = new LongKeyHashMap<>();
-    private final Session        sysSession;
-    private final Session        sysLobSession;
+    AtomicLong                            sessionIdCount = new AtomicLong();
+    private final LongKeyHashMap<Session> sessionMap = new LongKeyHashMap<>();
+    private final Session                 sysSession;
+    private final Session                 sysLobSession;
 
     /*
      * @todo:
@@ -69,12 +69,20 @@ public class SessionManager {
 
         User sysUser = db.getUserManager().getSysUser();
 
-        sysSession = new Session(db, sysUser, false, false,
-                                 sessionIdCount.getAndIncrement(),
-                                 TimeZone.getTimeZone("GMT"));
-        sysLobSession = new Session(db, sysUser, true, false,
-                                    sessionIdCount.getAndIncrement(),
-                                    TimeZone.getTimeZone("GMT"));
+        sysSession = new Session(
+            db,
+            sysUser,
+            false,
+            false,
+            sessionIdCount.getAndIncrement(),
+            TimeZone.getTimeZone("GMT"));
+        sysLobSession = new Session(
+            db,
+            sysUser,
+            true,
+            false,
+            sessionIdCount.getAndIncrement(),
+            TimeZone.getTimeZone("GMT"));
     }
 
     /*
@@ -102,13 +110,21 @@ public class SessionManager {
      * @param zone the session time zone
      * @return Session
      */
-    public synchronized Session newSession(Database db, User user,
-                                           boolean readonly,
-                                           boolean autoCommit, TimeZone zone) {
+    public synchronized Session newSession(
+            Database db,
+            User user,
+            boolean readonly,
+            boolean autoCommit,
+            TimeZone zone) {
 
-        long sessionId = sessionIdCount.getAndIncrement();
-        Session s = new Session(db, user, autoCommit, readonly, sessionId,
-                                zone);
+        long    sessionId = sessionIdCount.getAndIncrement();
+        Session s = new Session(
+            db,
+            user,
+            autoCommit,
+            readonly,
+            sessionId,
+            zone);
 
         sessionMap.put(sessionId, s);
 
@@ -118,8 +134,13 @@ public class SessionManager {
     public synchronized Session newSessionForLog(Database db) {
 
         long sessionId = sessionIdCount.getAndIncrement();
-        Session s = new Session(db, db.getUserManager().getSysUser(), false,
-                                false, sessionId, TimeZone.getTimeZone("GMT"));
+        Session s = new Session(
+            db,
+            db.getUserManager().getSysUser(),
+            false,
+            false,
+            sessionId,
+            TimeZone.getTimeZone("GMT"));
 
         s.isProcessingLog = true;
 
@@ -133,9 +154,13 @@ public class SessionManager {
      */
     public Session getSysSessionForScript(Database db) {
 
-        Session session = new Session(db, db.getUserManager().getSysUser(),
-                                      false, false, 0,
-                                      TimeZone.getTimeZone("GMT"));
+        Session session = new Session(
+            db,
+            db.getUserManager().getSysUser(),
+            false,
+            false,
+            0,
+            TimeZone.getTimeZone("GMT"));
 
         // some old 1.8.0 do not have SET SCHEMA PUBLIC
         session.setCurrentSchemaHsqlName(
@@ -171,9 +196,13 @@ public class SessionManager {
     synchronized public Session newSysSession() {
 
         long sessionId = sessionIdCount.getAndIncrement();
-        Session session = new Session(sysSession.database,
-                                      sysSession.getUser(), false, false,
-                                      sessionId, TimeZone.getTimeZone("GMT"));
+        Session session = new Session(
+            sysSession.database,
+            sysSession.getUser(),
+            false,
+            false,
+            sessionId,
+            TimeZone.getTimeZone("GMT"));
 
         session.currentSchema =
             sysSession.database.schemaManager.getDefaultSchemaHsqlName();
@@ -186,8 +215,13 @@ public class SessionManager {
     synchronized public Session newSysSession(HsqlName schema, User user) {
 
         long sessionId = sessionIdCount.getAndIncrement();
-        Session session = new Session(sysSession.database, user, false, false,
-                                      sessionId, TimeZone.getTimeZone("GMT"));
+        Session session = new Session(
+            sysSession.database,
+            user,
+            false,
+            false,
+            sessionId,
+            TimeZone.getTimeZone("GMT"));
 
         session.currentSchema = schema;
 
@@ -222,7 +256,6 @@ public class SessionManager {
      * Closes all sessions and system
      */
     synchronized void close() {
-
         closeAllSessions();
         sysSession.close();
         sysLobSession.close();
@@ -241,8 +274,9 @@ public class SessionManager {
      * the Session User.
      */
     public synchronized Session[] getVisibleSessions(Session session) {
-        return session.isAdmin() ? getAllSessions()
-                                 : new Session[]{ session };
+        return session.isAdmin()
+               ? getAllSessions()
+               : new Session[]{ session };
     }
 
     /**
@@ -255,8 +289,8 @@ public class SessionManager {
 
     public synchronized Session[] getAllSessions() {
 
-        Session[] sessions = new Session[sessionMap.size()];
-        Iterator<Session>  it       = sessionMap.values().iterator();
+        Session[]         sessions = new Session[sessionMap.size()];
+        Iterator<Session> it       = sessionMap.values().iterator();
 
         for (int i = 0; it.hasNext(); i++) {
             sessions[i] = it.next();
@@ -311,7 +345,7 @@ public class SessionManager {
     public synchronized long resetNewLobIDs() {
 
         Iterator<Session> it          = sessionMap.values().iterator();
-        long     newLobFloor = Long.MAX_VALUE;
+        long              newLobFloor = Long.MAX_VALUE;
 
         for (int i = 0; it.hasNext(); i++) {
             Session session      = it.next();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,29 +70,46 @@ class JDBCTypes {
         hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.BIT), "BIT");
         hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.CHAR), "CHAR");
         hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.DATE), "DATE");
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.DECIMAL), "DECIMAL");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.DECIMAL),
+            "DECIMAL");
         hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.DOUBLE), "DOUBLE");
         hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.FLOAT), "FLOAT");
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.INTEGER), "INTEGER");
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.LONGVARBINARY),
-                             "LONGVARBINARY");
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.LONGVARCHAR),
-                             "LONGVARCHAR");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.INTEGER),
+            "INTEGER");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.LONGVARBINARY),
+            "LONGVARBINARY");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.LONGVARCHAR),
+            "LONGVARCHAR");
         hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.NULL), "NULL");
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.NUMERIC), "NUMERIC");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.NUMERIC),
+            "NUMERIC");
         hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.OTHER), "OTHER");
         hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.REAL), "REAL");
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.SMALLINT),
-                             "SMALLINT");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.SMALLINT),
+            "SMALLINT");
         hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.TIME), "TIME");
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.TIMESTAMP),
-                             "TIMESTAMP");
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.TINYINT), "TINYINT");
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.VARBINARY),
-                             "VARBINARY");
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.VARCHAR), "VARCHAR");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.TIMESTAMP),
+            "TIMESTAMP");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.TINYINT),
+            "TINYINT");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.VARBINARY),
+            "VARBINARY");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.VARCHAR),
+            "VARCHAR");
+        hStringJDBCtypes.put(
+            Integer.valueOf(java.sql.Types.BOOLEAN),
+            "BOOLEAN");
 
-        hStringJDBCtypes.put(Integer.valueOf(java.sql.Types.BOOLEAN), "BOOLEAN");
         //
         hIntJDBCtypes.put("ARRAY", Integer.valueOf(ARRAY));
         hIntJDBCtypes.put("BLOB", Integer.valueOf(BLOB));
@@ -112,19 +129,25 @@ class JDBCTypes {
         hIntJDBCtypes.put("DOUBLE", Integer.valueOf(java.sql.Types.DOUBLE));
         hIntJDBCtypes.put("FLOAT", Integer.valueOf(java.sql.Types.FLOAT));
         hIntJDBCtypes.put("INTEGER", Integer.valueOf(java.sql.Types.INTEGER));
-        hIntJDBCtypes.put("LONGVARBINARY",
-                          Integer.valueOf(java.sql.Types.LONGVARBINARY));
-        hIntJDBCtypes.put("LONGVARCHAR",
-                          Integer.valueOf(java.sql.Types.LONGVARCHAR));
+        hIntJDBCtypes.put(
+            "LONGVARBINARY",
+            Integer.valueOf(java.sql.Types.LONGVARBINARY));
+        hIntJDBCtypes.put(
+            "LONGVARCHAR",
+            Integer.valueOf(java.sql.Types.LONGVARCHAR));
         hIntJDBCtypes.put("NULL", Integer.valueOf(java.sql.Types.NULL));
         hIntJDBCtypes.put("NUMERIC", Integer.valueOf(java.sql.Types.NUMERIC));
         hIntJDBCtypes.put("OTHER", Integer.valueOf(java.sql.Types.OTHER));
         hIntJDBCtypes.put("REAL", Integer.valueOf(java.sql.Types.REAL));
         hIntJDBCtypes.put("SMALLINT", Integer.valueOf(java.sql.Types.SMALLINT));
         hIntJDBCtypes.put("TIME", Integer.valueOf(java.sql.Types.TIME));
-        hIntJDBCtypes.put("TIMESTAMP", Integer.valueOf(java.sql.Types.TIMESTAMP));
+        hIntJDBCtypes.put(
+            "TIMESTAMP",
+            Integer.valueOf(java.sql.Types.TIMESTAMP));
         hIntJDBCtypes.put("TINYINT", Integer.valueOf(java.sql.Types.TINYINT));
-        hIntJDBCtypes.put("VARBINARY", Integer.valueOf(java.sql.Types.VARBINARY));
+        hIntJDBCtypes.put(
+            "VARBINARY",
+            Integer.valueOf(java.sql.Types.VARBINARY));
         hIntJDBCtypes.put("VARCHAR", Integer.valueOf(java.sql.Types.VARCHAR));
         hIntJDBCtypes.put("BOOLEAN", Integer.valueOf(java.sql.Types.BOOLEAN));
     }
@@ -138,7 +161,6 @@ class JDBCTypes {
     }
 
     public int toInt(String type) {
-
         Integer tempInteger = (Integer) hIntJDBCtypes.get(type);
 
         return tempInteger.intValue();

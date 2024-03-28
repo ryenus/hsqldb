@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,9 @@ public class ExpressionValue extends Expression {
     }
 
     public byte getNullability() {
-        return valueData == null ? SchemaObject.Nullability.NULLABLE
-                                 : SchemaObject.Nullability.NO_NULLS;
+        return valueData == null
+               ? SchemaObject.Nullability.NULLABLE
+               : SchemaObject.Nullability.NO_NULLS;
     }
 
     public String getSQL() {
@@ -90,9 +91,10 @@ public class ExpressionValue extends Expression {
         switch (opType) {
 
             case OpTypes.VALUE :
-                sb.append("VALUE = ").append(
-                    dataType.convertToSQLString(valueData));
-                sb.append(", TYPE = ").append(dataType.getNameString());
+                sb.append("VALUE = ")
+                  .append(dataType.convertToSQLString(valueData))
+                  .append(", TYPE = ")
+                  .append(dataType.getNameString());
 
                 return sb.toString();
 

@@ -44,21 +44,18 @@ package org.hsqldb.lib;
 public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
 
     public OrderedHashSet() {
-
         super(8);
 
         this.isList = true;
     }
 
     public OrderedHashSet(int initialCapacity) {
-
         super(initialCapacity);
 
         this.isList = true;
     }
 
     public OrderedHashSet(int initialCapacity, ObjectComparator<E> comparator) {
-
         super(initialCapacity, comparator);
 
         this.isList = true;
@@ -140,21 +137,18 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
     }
 
     public E get(int index) {
-
         checkRange(index);
 
         return (E) objectKeyTable[index];
     }
 
     public Object[] toArray() {
-
         Object[] array = new Object[size()];
 
         return toArray(array);
     }
 
     public <T> T[] toArray(T[] array) {
-
         System.arraycopy(super.objectKeyTable, 0, array, 0, array.length);
 
         return array;
@@ -260,7 +254,6 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
     }
 
     private void checkRange(int i) {
-
         if (i < 0 || i >= size()) {
             throw new IndexOutOfBoundsException();
         }

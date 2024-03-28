@@ -57,12 +57,16 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
 
     /** The priority queue for the scheduled tasks. */
     final TaskQueue taskQueue = new TaskQueue(16, this);
+
     /** The inner runnable that executes tasks in the background thread. */
     final TaskRunner taskRunner = new TaskRunner();
+
     /** The background thread. */
     Thread taskRunnerThread;
+
     /** The factory that produces the background threads. */
     final ThreadFactory threadFactory;
+
     /**
      * Whether this timer should disallow all further processing.
      *
@@ -88,7 +92,6 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      *      by this class will be used.
      */
     public HsqlTimer(final ThreadFactory threadFactory) {
-
         this.threadFactory = (threadFactory == null)
                              ? this
                              : threadFactory;
@@ -156,8 +159,8 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         if (this.isShutdown) {
             throw new IllegalStateException("isShutdown==true");
         } else if (this.taskRunnerThread == null) {
-            this.taskRunnerThread =
-                this.threadFactory.newThread(this.taskRunner);
+            this.taskRunnerThread = this.threadFactory.newThread(
+                this.taskRunner);
 
             this.taskRunnerThread.start();
         } else {
@@ -326,7 +329,6 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @param task a task reference
      */
     public static void cancel(final Object task) {
-
         if (task instanceof Task) {
             ((Task) task).cancel();
         }
@@ -339,7 +341,6 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @return true if referenced task is cancelled
      */
     public static boolean isCancelled(final Object task) {
-
         return (task instanceof Task)
                ? ((Task) task).isCancelled()
                : true;
@@ -389,7 +390,6 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @return true if the task is scheduled for periodic execution
      */
     public static boolean isPeriodic(final Object task) {
-
         return (task instanceof Task)
                ? (((Task) task).period > 0)
                : false;
@@ -436,7 +436,6 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @param period the new period
      */
     public static Object setPeriod(final Object task, final long period) {
-
         return (task instanceof Task)
                ? ((Task) task).setPeriod(period)
                : task;
@@ -597,7 +596,6 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @return System.currentTimeMillis()
      */
     static long now() {
-
         nowCount++;
 
         return System.currentTimeMillis();
@@ -666,7 +664,6 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         }
     }
 
-
     /**
      * Encapsulates a Runnable and its scheduling attributes.
      *
@@ -678,20 +675,26 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
 
         /** What to run. */
         Runnable runnable;
+
         /** The periodic interval, or 0 if one-shot. */
         long period;
+
         /** The time this task was last executed, or 0 if never. */
         long last;
+
         /** The next time this task is scheduled to execute. */
         long next;
+
         /**
          * Whether to silently remove this task instead of running it,
          * the next time (if ever) it makes its way to the head of the
          * timer queue.
          */
         boolean cancelled = false;
+
         /** Serializes concurrent access to the cancelled field. */
         private final Object cancel_mutex = new Object();
+
         /**
          * Scheduling policy flag. <p>
          *
@@ -727,6 +730,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         }
 
         // fixed reported race condition
+
         /** Sets this task's cancelled flag true and signals its taskQueue. */
         void cancel() {
 
@@ -749,7 +753,6 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
          * @return true if cancelled, else false
          */
         boolean isCancelled() {
-
             synchronized (cancel_mutex) {
                 return cancelled;
             }
@@ -816,14 +819,14 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
             } else {
                 this.cancel();
 
-                return HsqlTimer.this.addTask(now(),
-                                              this.runnable,
-                                              newPeriod,
-                                              this.relative);
+                return HsqlTimer.this.addTask(
+                    now(),
+                    this.runnable,
+                    newPeriod,
+                    this.relative);
             }
         }
     }
-
 
     /**
      * Heap-based priority queue.

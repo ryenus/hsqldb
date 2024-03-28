@@ -87,7 +87,6 @@ public class LongDeque {
     }
 
     public long get(int i) throws IndexOutOfBoundsException {
-
         int index = getInternalIndex(i);
 
         return list[index];
@@ -238,11 +237,12 @@ public class LongDeque {
                 firstindex = 0;
             }
         } else if (target > firstindex) {
-            System.arraycopy(list,
-                             firstindex,
-                             list,
-                             firstindex + 1,
-                             target - firstindex);
+            System.arraycopy(
+                list,
+                firstindex,
+                list,
+                firstindex + 1,
+                target - firstindex);
 
             list[firstindex] = 0;
 
@@ -252,11 +252,12 @@ public class LongDeque {
                 firstindex = 0;
             }
         } else {
-            System.arraycopy(list,
-                             target + 1,
-                             list,
-                             target,
-                             endindex - target - 1);
+            System.arraycopy(
+                list,
+                target + 1,
+                list,
+                target,
+                endindex - target - 1);
 
             endindex--;
 
@@ -294,14 +295,12 @@ public class LongDeque {
     }
 
     public void toArray(int[] array) {
-
         for (int i = 0; i < elementCount; i++) {
             array[i] = (int) get(i);
         }
     }
 
     public void toArray(long[] array) {
-
         for (int i = 0; i < elementCount; i++) {
             array[i] = get(i);
         }
@@ -341,11 +340,12 @@ public class LongDeque {
 
         long[] newList = new long[list.length * 2];
 
-        System.arraycopy(list,
-                         firstindex,
-                         newList,
-                         firstindex,
-                         list.length - firstindex);
+        System.arraycopy(
+            list,
+            firstindex,
+            newList,
+            firstindex,
+            list.length - firstindex);
 
         if (endindex <= firstindex) {
             System.arraycopy(list, 0, newList, list.length, endindex);

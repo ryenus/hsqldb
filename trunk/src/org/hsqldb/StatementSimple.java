@@ -52,7 +52,7 @@ public class StatementSimple extends Statement {
 
         super(type, StatementTypes.X_SQL_CONTROL);
 
-        references             = new OrderedHashSet<HsqlName>();
+        references             = new OrderedHashSet<>();
         isTransactionStatement = false;
         this.label             = label;
     }
@@ -133,14 +133,12 @@ public class StatementSimple extends Statement {
                     if (statement.isLoop) {
                         if (label == null) {
                             resolved = true;
-
                             break;
                         }
 
                         if (statement.label != null
                                 && label.name.equals(statement.label.name)) {
                             resolved = true;
-
                             break;
                         }
                     }
@@ -150,6 +148,7 @@ public class StatementSimple extends Statement {
 
                 break;
             }
+
             case StatementTypes.LEAVE :
                 resolved = true;
                 break;

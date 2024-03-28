@@ -102,8 +102,9 @@ public final class ArraySort {
         }
 
         for (; currentIndex < limit; currentIndex++) {
-            int compare = comparator.compare(array[baseIndex],
-                                             array[currentIndex]);
+            int compare = comparator.compare(
+                array[baseIndex],
+                array[currentIndex]);
 
             if (compare == 0) {
                 continue;

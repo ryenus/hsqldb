@@ -43,7 +43,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * @since 1.7.2
  */
 public class Tokens {
-
+    //J-
     // SQL 200n reserved words full set
     static final String        T_ABS              = "ABS";
     public static final String T_ALL              = "ALL";
@@ -200,7 +200,7 @@ public class Tokens {
     static final String        T_INTO              = "INTO";
     static final String        T_ITERATE           = "ITERATE";
     public static final String T_IS                = "IS";
-    static final String        T_JAR               = "JAR";              // SQL/JRT
+    static final String        T_JAR               = "JAR";  // SQL/JRT
     static final String        T_JOIN              = "JOIN";
     static final String        T_LAG               = "LAG";
     public static final String T_LANGUAGE          = "LANGUAGE";
@@ -416,272 +416,267 @@ public class Tokens {
     static final String        T_DOUBLE_COLON   = "::";
 
     // SQL:200n non-reserved word list
-    static final String        T_A                    = "A";
-    static final String        T_ABSENT               = "ABSENT";
-    static final String        T_ABSOLUTE             = "ABSOLUTE";
-    static final String        T_ACTION               = "ACTION";
-    static final String        T_ADA                  = "ADA";
-    static final String        T_ADD                  = "ADD";
-    static final String        T_ADMIN                = "ADMIN";
-    static final String        T_AFTER                = "AFTER";
-    static final String        T_ALWAYS               = "ALWAYS";
-    static final String        T_ASC                  = "ASC";
-    static final String        T_ASSERTION            = "ASSERTION";
-    static final String        T_ASSIGNMENT           = "ASSIGNMENT";
-    static final String        T_ATTRIBUTE            = "ATTRIBUTE";
-    static final String        T_ATTRIBUTES           = "ATTRIBUTES";
-    static final String        T_BEFORE               = "BEFORE";
-    static final String        T_BERNOULLI            = "BERNOULLI";
-    public static final String T_BIT                  = "BIT";
-    static final String        T_BITLENGTH            = "BITLENGTH";
-    static final String        T_BREADTH              = "BREADTH";
-    static final String        T_C                    = "C";
-    static final String        T_CASCADE              = "CASCADE";
-    public static final String T_CATALOG              = "CATALOG";
-    public static final String T_CATALOG_NAME         = "CATALOG_NAME";
-    static final String        T_CHAIN                = "CHAIN";
-    static final String T_CHARACTER_SET_CATALOG = "CHARACTER_SET_CATALOG";
-    static final String        T_CHARACTER_SET_NAME   = "CHARACTER_SET_NAME";
-    static final String        T_CHARACTER_SET_SCHEMA = "CHARACTER_SET_SCHEMA";
-    static final String        T_CHARACTERISTICS      = "CHARACTERISTICS";
-    static final String        T_CHARACTERS           = "CHARACTERS";
-    static final String        T_CLASS_ORIGIN         = "CLASS_ORIGIN";
-    static final String        T_COBOL                = "COBOL";
-    public static final String T_COLLATION            = "COLLATION";
-    static final String        T_COLLATION_CATALOG    = "COLLATION_CATALOG";
-    static final String        T_COLLATION_NAME       = "COLLATION_NAME";
-    static final String        T_COLLATION_SCHEMA     = "COLLATION_SCHEMA";
-    static final String        T_COLUMN_NAME          = "COLUMN_NAME";
-    static final String        T_COMMAND_FUNCTION     = "COMMAND_FUNCTION";
-    static final String T_COMMAND_FUNCTION_CODE = "COMMAND_FUNCTION_CODE";
-    public static final String T_COMMITTED            = "COMMITTED";
-    static final String        T_COMPARABLE           = "COMPARABLE";    // SQL/JRT
-    static final String        T_CONDITION_IDENTIFIER = "CONDIITON_IDENTIFIER";
-    static final String        T_CONDITION_NUMBER     = "CONDITION_NUMBER";
-    static final String        T_CONDITIONAL          = "CONDITIONAL";
-    static final String        T_CONNECTION           = "CONNECTION";
-    static final String        T_CONNECTION_NAME      = "CONNECTION_NAME";
-    static final String        T_CONSTRAINT_CATALOG   = "CONSTRAINT_CATALOG";
-    static final String        T_CONSTRAINT_NAME      = "CONSTRAINT_NAME";
-    static final String        T_CONSTRAINT_SCHEMA    = "CONSTRAINT_SCHEMA";
-    static final String        T_CONSTRAINTS          = "CONSTRAINTS";
-    static final String        T_CONSTRUCTOR          = "CONSTRUCTOR";
-    static final String        T_CONTINUE             = "CONTINUE";
-    static final String        T_CURRENT_COLLATION    = "CURRENT_COLLATION";
-    static final String        T_CURSOR_NAME          = "CURSOR_NAME";
-    public static final String T_DATA                 = "DATA";
-    static final String        T_INTERVAL_CODE = "DATETIME_INTERVAL_CODE";
-    static final String T_DATETIME_INTERVAL_PRECISION =
-        "DATETIME_INTERVAL_PRECISION";
-    public static final String T_DEFAULTS             = "DEFAULTS";
-    static final String        T_DEFERRABLE           = "DEFERRABLE";
-    static final String        T_DEFERRED             = "DEFERRED";
-    static final String        T_DEFINED              = "DEFINED";
-    static final String        T_DEFINER              = "DEFINER";
-    static final String        T_DEGREE               = "DEGREE";
-    static final String        T_DEPTH                = "DEPTH";
-    static final String        T_DERIVED              = "DERIVED";
-    static final String        T_DESC                 = "DESC";
-    static final String        T_DESCRIPTOR           = "DESCRIPTOR";
-    static final String        T_DIAGNOSTICS          = "DIAGNOSTICS";
-    static final String        T_DISPATCH             = "DISPATCH";
-    public static final String T_DOMAIN               = "DOMAIN";
-    static final String        T_DYNAMIC_FUNCTION     = "DYNAMIC_FUNCTION";
-    static final String T_DYNAMIC_FUNCTION_CODE = "DYNAMIC_FUNCTION_CODE";
-    static final String        T_EMPTY                = "EMPTY";
-    static final String        T_ENCODING             = "ENCODING";
-    static final String        T_ENFORCED             = "ENFORCED";
-    public static final String T_ERROR                = "ERROR";
-    static final String        T_EXCEPTION            = "EXCEPTION";
-    static final String        T_EXCLUDE              = "EXCLUDE";
-    static final String        T_EXCLUDING            = "EXCLUDING";
-    static final String        T_EXIT                 = "EXIT";
-    static final String        T_EXPRESSION           = "EXPRESSION";
-    static final String        T_FINAL                = "FINAL";
-    public static final String T_FIRST                = "FIRST";
-    static final String        T_FLAG                 = "FLAG";
-    static final String        T_FOLLOWING            = "FOLLOWING";
-    static final String        T_FORMAT               = "FORMAT";
-    static final String        T_FORTRAN              = "FORTRAN";
-    static final String        T_FOUND                = "FOUND";
-    public static final String T_G_FACTOR             = "G";
-    static final String        T_GENERATED            = "GENERATED";
-    static final String        T_GENERAL              = "GENERAL";
-    static final String        T_GO                   = "GO";
-    static final String        T_GOTO                 = "GOTO";
-    static final String        T_GRANTED              = "GRANTED";
-    static final String        T_HIERARCHY            = "HIERARCHY";
-    static final String        T_IGNORE               = "IGNORE";
-    static final String        T_IMMEDIATE            = "IMMEDIATE";
-    static final String        T_IMMEDIATELY          = "IMMEDIATELY";
-    static final String        T_IMPLEMENTATION       = "IMPLEMENTATION";
-    static final String        T_INCLUDING            = "INCLUDING";
-    public static final String T_INCREMENT            = "INCREMENT";
-    static final String        T_INITIALLY            = "INITIALLY";
-    static final String        T_INPUT                = "INPUT";
-    static final String        T_INSTANCE             = "INSTANCE";
-    static final String        T_INSTANTIABLE         = "INSTANTIABLE";
-    static final String        T_INSTEAD              = "INSTEAD";
-    static final String        T_INTERFACE            = "INTERFACE";     // SQL/JRT
-    static final String        T_INVOKER              = "INVOKER";
-    public static final String T_ISOLATION            = "ISOLATION";
-    public static final String T_JAVA                 = "JAVA";          // SQL/JRT
-    static final String        T_JSON                 = "JSON";
-    static final String        T_JSON_ARRAY           = "JSON_ARRAY";
-    static final String        T_JSON_ARRAYAGG        = "JSON_ARRAYAGG";
-    static final String        T_JSON_EXISTS          = "JSON_EXISTS";
-    static final String        T_JSON_OBJECT          = "JSON_OBJECT";
-    static final String        T_JSON_OBJECTAGG       = "JSON_OBJECTAGG";
-    static final String        T_JSON_QUERY           = "JSON_QUERY";
-    static final String        T_JSON_TABLE           = "JSON_TABLE";
-    static final String        T_JSON_VALUE           = "JSON_VALUE";
-    public static final String T_K_FACTOR             = "K";
-    static final String        T_KEEP                 = "KEEP";
-    static final String        T_KEY                  = "KEY";
-    static final String        T_KEYS                 = "KEYS";
-    static final String        T_KEY_MEMBER           = "KEY_MEMBER";
-    static final String        T_KEY_TYPE             = "KEY_TYPE";
-    static final String        T_LAST                 = "LAST";
-    static final String        T_LENGTH               = "LENGTH";
-    public static final String T_LEVEL                = "LEVEL";
-    public static final String T_LIBRARY              = "LIBRARY";
-    static final String        T_LOCATOR              = "LOCATOR";
-    public static final String T_M_FACTOR             = "M";
-    static final String        T_MAP                  = "MAP";
-    static final String        T_MATCHED              = "MATCHED";
-    static final String        T_MAXVALUE             = "MAXVALUE";
-    static final String        T_MESSAGE_LENGTH       = "MESSAGE_LENGTH";
-    static final String        T_MESSAGE_OCTET_LENGTH = "MESSAGE_OCTET_LENGTH";
-    static final String        T_MESSAGE_TEXT         = "MESSAGE_TEXT";
-    static final String        T_MINVALUE             = "MINVALUE";
-    static final String        T_MORE                 = "MORE";
-    static final String        T_MUMPS                = "MUMPS";
-    public static final String T_NAME                 = "NAME";
-    public static final String T_NAMES                = "NAMES";
-    static final String        T_NESTED               = "NESTED";
-    static final String        T_NESTING              = "NESTING";
-    static final String        T_NEXT                 = "NEXT";
-    static final String        T_NFC                  = "NFC";
-    static final String        T_NFD                  = "NFD";
-    static final String        T_NFKC                 = "NFKC";
-    static final String        T_NFKD                 = "NFKD";
-    static final String        T_NORMALIZED           = "NORMALIZED";
-    static final String        T_NULLABLE             = "NULLABLE";
-    public static final String T_NULLS                = "NULLS";
-    static final String        T_NUMBER               = "NUMBER";
-    public static final String T_OBJECT               = "OBJECT";
-    static final String        T_OCTETS               = "OCTETS";
-    public static final String T_OMIT                 = "OMIT";
-    static final String        T_OPTION               = "OPTION";
-    static final String        T_OPTIONS              = "OPTIONS";
-    static final String        T_ORDERING             = "ORDERING";
-    static final String        T_ORDINALITY           = "ORDINALITY";
-    static final String        T_OTHERS               = "OTHERS";
-    static final String        T_OUTPUT               = "OUTPUT";
-    public static final String T_OVERRIDING           = "OVERRIDING";
-    public static final String T_OVERFLOW             = "OVERFLOW";
-    public static final String T_P_FACTOR             = "P";
-    public static final String T_PAD                  = "PAD";
-    static final String        T_PARAMETER_MODE       = "PARAMETER_MODE";
-    static final String        T_PARAMETER_NAME       = "PARAMETER_NAME";
-    static final String T_PARAMETER_ORDINAL_POSITION =
-        "PARAMETER_ORDINAL_POSITION";
-    static final String T_PARAMETER_SPECIFIC_CATALOG =
-        "PARAMETER_SPECIFIC_CATALOG";
-    static final String T_PARAMETER_SPEC_NAME = "PARAMETER_SPECIFIC_NAME";
-    static final String T_PARAMETER_SPEC_SCHEMA = "PARAMETER_SPECIFIC_SCHEMA";
-    static final String        T_PARTIAL              = "PARTIAL";
-    static final String        T_PASCAL               = "PASCAL";
-    static final String        T_PASSING              = "PASSSING";
-    public static final String T_PATH                 = "PATH";
-    static final String        T_PLACING              = "PLACING";
-    static final String        T_PLI                  = "PLI";
-    static final String        T_PRECEDING            = "PRECEDING";
-    static final String        T_PRESERVE             = "PRESERVE";
-    static final String        T_PRIOR                = "PRIOR";
-    static final String        T_PRIVILEGES           = "PRIVILEGES";
-    public static final String T_PUBLIC               = "PUBLIC";
-    public static final String T_READ                 = "READ";
-    static final String        T_RELATIVE             = "RELATIVE";
-    static final String        T_REPEATABLE           = "REPEATABLE";
-    static final String        T_RESPECT              = "RESPECT";
-    static final String        T_RESTART              = "RESTART";
-    static final String        T_RESET                = "RESET";
-    public static final String T_RESTRICT             = "RESTRICT";
-    static final String        T_RETURNED_CARDINALITY = "RETURNED_CARDINALITY";
-    static final String        T_RETURNED_LENGTH      = "RETURNED_LENGTH";
-    static final String T_RETURNED_OCTET_LENGTH = "RETURNED_OCTET_LENGTH";
-    static final String        T_RETURNED_SQLSTATE    = "RETURNED_SQLSTATE";
-    static final String        T_RETURNING            = "RETURNING";
-    public static final String T_ROLE                 = "ROLE";
-    public static final String T_ROUTINE              = "ROUTINE";
-    static final String        T_ROUTINE_CATALOG      = "ROUTINE_CATALOG";
-    static final String        T_ROUTINE_NAME         = "ROUTINE_NAME";
-    static final String        T_ROUTINE_SCHEMA       = "ROUTINE_SCHEMA";
-    static final String        T_ROW_COUNT            = "ROW_COUNT";
-    static final String        T_SCALAR               = "SCALAR";
-    public static final String T_SCALE                = "SCALE";
-    public static final String T_SCHEMA               = "SCHEMA";
-    static final String        T_SCHEMA_NAME          = "SCHEMA_NAME";
-    static final String        T_SCOPE_CATALOG        = "SCOPE_CATALOG";
-    static final String        T_SCOPE_NAME           = "SCOPE_NAME";
-    static final String        T_SCOPE_SCHEMA         = "SCOPE_SCHEMA";
-    static final String        T_SECTION              = "SECTION";
-    static final String        T_SECURITY             = "SECURITY";
-    static final String        T_SELF                 = "SELF";
-    public static final String T_SEQUENCE             = "SEQUENCE";
-    static final String        T_SERIAL               = "SERIAL";
-    public static final String T_SERIALIZABLE         = "SERIALIZABLE";
-    public static final String T_SERVER               = "SERVER";
-    static final String        T_SERVER_NAME          = "SERVER_NAME";
-    public static final String T_SESSION              = "SESSION";
-    static final String        T_SETS                 = "SETS";
-    static final String        T_SIMPLE               = "SIMPLE";
-    public static final String T_SIZE                 = "SIZE";
-    static final String        T_SOURCE               = "SOURCE";
-    public static final String T_SPACE                = "SPACE";
-    static final String        T_SPECIFIC_NAME        = "SPECIFIC_NAME";
-    static final String        T_SQLDATA              = "SQLDATA";       // SQL/JRT
-    static final String        T_STACKED              = "STACKED";
-    static final String        T_STATE                = "STATE";
-    static final String        T_STATEMENT            = "STATEMENT";
-    static final String        T_STRUCTURE            = "STRUCTURE";
-    static final String        T_STYLE                = "STYLE";
-    static final String        T_SUBCLASS_ORIGIN      = "SUBCLASS_ORIGIN";
-    public static final String T_T_FACTOR             = "T";
-    static final String        T_TABLE_NAME           = "TABLE_NAME";
-    static final String        T_TEMPORARY            = "TEMPORARY";
-    static final String        T_TIES                 = "TIES";
-    static final String        T_TOP_LEVEL_COUNT      = "TOP_LEVEL_COUNT";
-    public static final String T_TRANSACTION          = "TRANSACTION";
-    static final String T_TRANSACTS_COMMITTED = "TRANSACTIONS_COMMITTED";
-    static final String T_TRANSACTS_ROLLED_BACK = "TRANSACTIONS_ROLLED_BACK";
-    static final String        T_TRANSACTION_ACTIVE   = "TRANSACTION_ACTIVE";
-    static final String        T_TRANSFORM            = "TRANSFORM";
-    static final String        T_TRANSFORMS           = "TRANSFORMS";
-    static final String        T_TRIGGER_CATALOG      = "TRIGGER_CATALOG";
-    static final String        T_TRIGGER_NAME         = "TRIGGER_NAME";
-    static final String        T_TRIGGER_SCHEMA       = "TRIGGER_SCHEMA";
-    public static final String T_TYPE                 = "TYPE";
-    static final String        T_UNBOUNDED            = "UNBOUNDED";
-    static final String        T_UNCONDITIONAL        = "UNCONDITIONAL";
-    static final String        T_UNCOMMITTED          = "UNCOMMITTED";
-    static final String        T_UNDER                = "UNDER";
-    static final String        T_UNDO                 = "UNDO";
-    static final String        T_UNNAMED              = "UNNAMED";
-    public static final String T_USAGE                = "USAGE";
-    static final String T_USER_DEFINED_TYPE_CATALOG =
-        "USER_DEFINED_TYPE_CATALOG";
-    static final String T_USER_DEFINED_TYPE_CODE = "USER_DEFINED_TYPE_CODE";
-    static final String T_USER_DEFINED_TYPE_NAME = "USER_DEFINED_TYPE_NAME";
-    static final String T_USER_DEFINED_TYPE_SCHEMA =
-        "USER_DEFINED_TYPE_SCHEMA";
-    static final String        T_VIEW    = "VIEW";
-    static final String        T_WORK    = "WORK";
-    public static final String T_WRAPPER = "WRAPPER";
-    public static final String T_WRITE   = "WRITE";
-    public static final String T_ZONE    = "ZONE";
-
+    static final String        T_A                     = "A";
+    static final String        T_ABSENT                = "ABSENT";
+    static final String        T_ABSOLUTE              = "ABSOLUTE";
+    static final String        T_ACTION                = "ACTION";
+    static final String        T_ADA                   = "ADA";
+    static final String        T_ADD                   = "ADD";
+    static final String        T_ADMIN                 = "ADMIN";
+    static final String        T_AFTER                 = "AFTER";
+    static final String        T_ALWAYS                = "ALWAYS";
+    static final String        T_ASC                   = "ASC";
+    static final String        T_ASSERTION             = "ASSERTION";
+    static final String        T_ASSIGNMENT            = "ASSIGNMENT";
+    static final String        T_ATTRIBUTE             = "ATTRIBUTE";
+    static final String        T_ATTRIBUTES            = "ATTRIBUTES";
+    static final String        T_BEFORE                = "BEFORE";
+    static final String        T_BERNOULLI             = "BERNOULLI";
+    public static final String T_BIT                   = "BIT";
+    static final String        T_BITLENGTH             = "BITLENGTH";
+    static final String        T_BREADTH               = "BREADTH";
+    static final String        T_C                     = "C";
+    static final String        T_CASCADE               = "CASCADE";
+    public static final String T_CATALOG               = "CATALOG";
+    public static final String T_CATALOG_NAME          = "CATALOG_NAME";
+    static final String        T_CHAIN                 = "CHAIN";
+    static final String        T_CHARACTER_SET_CATALOG = "CHARACTER_SET_CATALOG";
+    static final String        T_CHARACTER_SET_NAME    = "CHARACTER_SET_NAME";
+    static final String        T_CHARACTER_SET_SCHEMA  = "CHARACTER_SET_SCHEMA";
+    static final String        T_CHARACTERISTICS       = "CHARACTERISTICS";
+    static final String        T_CHARACTERS            = "CHARACTERS";
+    static final String        T_CLASS_ORIGIN          = "CLASS_ORIGIN";
+    static final String        T_COBOL                 = "COBOL";
+    public static final String T_COLLATION             = "COLLATION";
+    static final String        T_COLLATION_CATALOG     = "COLLATION_CATALOG";
+    static final String        T_COLLATION_NAME        = "COLLATION_NAME";
+    static final String        T_COLLATION_SCHEMA      = "COLLATION_SCHEMA";
+    static final String        T_COLUMN_NAME           = "COLUMN_NAME";
+    static final String        T_COMMAND_FUNCTION      = "COMMAND_FUNCTION";
+    static final String        T_COMMAND_FUNCTION_CODE = "COMMAND_FUNCTION_CODE";
+    public static final String T_COMMITTED             = "COMMITTED";
+    static final String        T_COMPARABLE            = "COMPARABLE";  // SQL/JRT
+    static final String        T_CONDITION_IDENTIFIER  = "CONDIITON_IDENTIFIER";
+    static final String        T_CONDITION_NUMBER      = "CONDITION_NUMBER";
+    static final String        T_CONDITIONAL           = "CONDITIONAL";
+    static final String        T_CONNECTION            = "CONNECTION";
+    static final String        T_CONNECTION_NAME       = "CONNECTION_NAME";
+    static final String        T_CONSTRAINT_CATALOG    = "CONSTRAINT_CATALOG";
+    static final String        T_CONSTRAINT_NAME       = "CONSTRAINT_NAME";
+    static final String        T_CONSTRAINT_SCHEMA     = "CONSTRAINT_SCHEMA";
+    static final String        T_CONSTRAINTS           = "CONSTRAINTS";
+    static final String        T_CONSTRUCTOR           = "CONSTRUCTOR";
+    static final String        T_CONTINUE              = "CONTINUE";
+    static final String        T_CURRENT_COLLATION     = "CURRENT_COLLATION";
+    static final String        T_CURSOR_NAME           = "CURSOR_NAME";
+    public static final String T_DATA                  = "DATA";
+    static final String        T_INTERVAL_CODE         = "DATETIME_INTERVAL_CODE";
+    static final String T_DATETIME_INTERVAL_PRECISION  = "DATETIME_INTERVAL_PRECISION";
+    public static final String T_DEFAULTS              = "DEFAULTS";
+    static final String        T_DEFERRABLE            = "DEFERRABLE";
+    static final String        T_DEFERRED              = "DEFERRED";
+    static final String        T_DEFINED               = "DEFINED";
+    static final String        T_DEFINER               = "DEFINER";
+    static final String        T_DEGREE                = "DEGREE";
+    static final String        T_DEPTH                 = "DEPTH";
+    static final String        T_DERIVED               = "DERIVED";
+    static final String        T_DESC                  = "DESC";
+    static final String        T_DESCRIPTOR            = "DESCRIPTOR";
+    static final String        T_DIAGNOSTICS           = "DIAGNOSTICS";
+    static final String        T_DISPATCH              = "DISPATCH";
+    public static final String T_DOMAIN                = "DOMAIN";
+    static final String        T_DYNAMIC_FUNCTION      = "DYNAMIC_FUNCTION";
+    static final String        T_DYNAMIC_FUNCTION_CODE = "DYNAMIC_FUNCTION_CODE";
+    static final String        T_EMPTY                 = "EMPTY";
+    static final String        T_ENCODING              = "ENCODING";
+    static final String        T_ENFORCED              = "ENFORCED";
+    public static final String T_ERROR                 = "ERROR";
+    static final String        T_EXCEPTION             = "EXCEPTION";
+    static final String        T_EXCLUDE               = "EXCLUDE";
+    static final String        T_EXCLUDING             = "EXCLUDING";
+    static final String        T_EXIT                  = "EXIT";
+    static final String        T_EXPRESSION            = "EXPRESSION";
+    static final String        T_FINAL                 = "FINAL";
+    public static final String T_FIRST                 = "FIRST";
+    static final String        T_FLAG                  = "FLAG";
+    static final String        T_FOLLOWING             = "FOLLOWING";
+    static final String        T_FORMAT                = "FORMAT";
+    static final String        T_FORTRAN               = "FORTRAN";
+    static final String        T_FOUND                 = "FOUND";
+    public static final String T_G_FACTOR              = "G";
+    static final String        T_GENERATED             = "GENERATED";
+    static final String        T_GENERAL               = "GENERAL";
+    static final String        T_GO                    = "GO";
+    static final String        T_GOTO                  = "GOTO";
+    static final String        T_GRANTED               = "GRANTED";
+    static final String        T_HIERARCHY             = "HIERARCHY";
+    static final String        T_IGNORE                = "IGNORE";
+    static final String        T_IMMEDIATE             = "IMMEDIATE";
+    static final String        T_IMMEDIATELY           = "IMMEDIATELY";
+    static final String        T_IMPLEMENTATION        = "IMPLEMENTATION";
+    static final String        T_INCLUDING             = "INCLUDING";
+    public static final String T_INCREMENT             = "INCREMENT";
+    static final String        T_INITIALLY             = "INITIALLY";
+    static final String        T_INPUT                 = "INPUT";
+    static final String        T_INSTANCE              = "INSTANCE";
+    static final String        T_INSTANTIABLE          = "INSTANTIABLE";
+    static final String        T_INSTEAD               = "INSTEAD";
+    static final String        T_INTERFACE             = "INTERFACE";  // SQL/JRT
+    static final String        T_INVOKER               = "INVOKER";
+    public static final String T_ISOLATION             = "ISOLATION";
+    public static final String T_JAVA                  = "JAVA";       // SQL/JRT
+    static final String        T_JSON                  = "JSON";
+    static final String        T_JSON_ARRAY            = "JSON_ARRAY";
+    static final String        T_JSON_ARRAYAGG         = "JSON_ARRAYAGG";
+    static final String        T_JSON_EXISTS           = "JSON_EXISTS";
+    static final String        T_JSON_OBJECT           = "JSON_OBJECT";
+    static final String        T_JSON_OBJECTAGG        = "JSON_OBJECTAGG";
+    static final String        T_JSON_QUERY            = "JSON_QUERY";
+    static final String        T_JSON_TABLE            = "JSON_TABLE";
+    static final String        T_JSON_VALUE            = "JSON_VALUE";
+    public static final String T_K_FACTOR              = "K";
+    static final String        T_KEEP                  = "KEEP";
+    static final String        T_KEY                   = "KEY";
+    static final String        T_KEYS                  = "KEYS";
+    static final String        T_KEY_MEMBER            = "KEY_MEMBER";
+    static final String        T_KEY_TYPE              = "KEY_TYPE";
+    static final String        T_LAST                  = "LAST";
+    static final String        T_LENGTH                = "LENGTH";
+    public static final String T_LEVEL                 = "LEVEL";
+    public static final String T_LIBRARY               = "LIBRARY";
+    static final String        T_LOCATOR               = "LOCATOR";
+    public static final String T_M_FACTOR              = "M";
+    static final String        T_MAP                   = "MAP";
+    static final String        T_MATCHED               = "MATCHED";
+    static final String        T_MAXVALUE              = "MAXVALUE";
+    static final String        T_MESSAGE_LENGTH        = "MESSAGE_LENGTH";
+    static final String        T_MESSAGE_OCTET_LENGTH  = "MESSAGE_OCTET_LENGTH";
+    static final String        T_MESSAGE_TEXT          = "MESSAGE_TEXT";
+    static final String        T_MINVALUE              = "MINVALUE";
+    static final String        T_MORE                  = "MORE";
+    static final String        T_MUMPS                 = "MUMPS";
+    public static final String T_NAME                  = "NAME";
+    public static final String T_NAMES                 = "NAMES";
+    static final String        T_NESTED                = "NESTED";
+    static final String        T_NESTING               = "NESTING";
+    static final String        T_NEXT                  = "NEXT";
+    static final String        T_NFC                   = "NFC";
+    static final String        T_NFD                   = "NFD";
+    static final String        T_NFKC                  = "NFKC";
+    static final String        T_NFKD                  = "NFKD";
+    static final String        T_NORMALIZED            = "NORMALIZED";
+    static final String        T_NULLABLE              = "NULLABLE";
+    public static final String T_NULLS                 = "NULLS";
+    static final String        T_NUMBER                = "NUMBER";
+    public static final String T_OBJECT                = "OBJECT";
+    static final String        T_OCTETS                = "OCTETS";
+    public static final String T_OMIT                  = "OMIT";
+    static final String        T_OPTION                = "OPTION";
+    static final String        T_OPTIONS               = "OPTIONS";
+    static final String        T_ORDERING              = "ORDERING";
+    static final String        T_ORDINALITY            = "ORDINALITY";
+    static final String        T_OTHERS                = "OTHERS";
+    static final String        T_OUTPUT                = "OUTPUT";
+    public static final String T_OVERRIDING            = "OVERRIDING";
+    public static final String T_OVERFLOW              = "OVERFLOW";
+    public static final String T_P_FACTOR              = "P";
+    public static final String T_PAD                   = "PAD";
+    static final String        T_PARAMETER_MODE        = "PARAMETER_MODE";
+    static final String        T_PARAMETER_NAME        = "PARAMETER_NAME";
+    static final String T_PARAMETER_ORDINAL_POSITION   = "PARAMETER_ORDINAL_POSITION";
+    static final String T_PARAMETER_SPECIFIC_CATALOG   = "PARAMETER_SPECIFIC_CATALOG";
+    static final String        T_PARAMETER_SPEC_NAME   = "PARAMETER_SPECIFIC_NAME";
+    static final String T_PARAMETER_SPEC_SCHEMA        = "PARAMETER_SPECIFIC_SCHEMA";
+    static final String        T_PARTIAL               = "PARTIAL";
+    static final String        T_PASCAL                = "PASCAL";
+    static final String        T_PASSING               = "PASSSING";
+    public static final String T_PATH                  = "PATH";
+    static final String        T_PLACING               = "PLACING";
+    static final String        T_PLI                   = "PLI";
+    static final String        T_PRECEDING             = "PRECEDING";
+    static final String        T_PRESERVE              = "PRESERVE";
+    static final String        T_PRIOR                 = "PRIOR";
+    static final String        T_PRIVILEGES            = "PRIVILEGES";
+    public static final String T_PUBLIC                = "PUBLIC";
+    public static final String T_READ                  = "READ";
+    static final String        T_RELATIVE              = "RELATIVE";
+    static final String        T_REPEATABLE            = "REPEATABLE";
+    static final String        T_RESPECT               = "RESPECT";
+    static final String        T_RESTART               = "RESTART";
+    static final String        T_RESET                 = "RESET";
+    public static final String T_RESTRICT              = "RESTRICT";
+    static final String        T_RETURNED_CARDINALITY  = "RETURNED_CARDINALITY";
+    static final String        T_RETURNED_LENGTH       = "RETURNED_LENGTH";
+    static final String        T_RETURNED_OCTET_LENGTH = "RETURNED_OCTET_LENGTH";
+    static final String        T_RETURNED_SQLSTATE     = "RETURNED_SQLSTATE";
+    static final String        T_RETURNING             = "RETURNING";
+    public static final String T_ROLE                  = "ROLE";
+    public static final String T_ROUTINE               = "ROUTINE";
+    static final String        T_ROUTINE_CATALOG       = "ROUTINE_CATALOG";
+    static final String        T_ROUTINE_NAME          = "ROUTINE_NAME";
+    static final String        T_ROUTINE_SCHEMA        = "ROUTINE_SCHEMA";
+    static final String        T_ROW_COUNT             = "ROW_COUNT";
+    static final String        T_SCALAR                = "SCALAR";
+    public static final String T_SCALE                 = "SCALE";
+    public static final String T_SCHEMA                = "SCHEMA";
+    static final String        T_SCHEMA_NAME           = "SCHEMA_NAME";
+    static final String        T_SCOPE_CATALOG         = "SCOPE_CATALOG";
+    static final String        T_SCOPE_NAME            = "SCOPE_NAME";
+    static final String        T_SCOPE_SCHEMA          = "SCOPE_SCHEMA";
+    static final String        T_SECTION               = "SECTION";
+    static final String        T_SECURITY              = "SECURITY";
+    static final String        T_SELF                  = "SELF";
+    public static final String T_SEQUENCE              = "SEQUENCE";
+    static final String        T_SERIAL                = "SERIAL";
+    public static final String T_SERIALIZABLE          = "SERIALIZABLE";
+    public static final String T_SERVER                = "SERVER";
+    static final String        T_SERVER_NAME           = "SERVER_NAME";
+    public static final String T_SESSION               = "SESSION";
+    static final String        T_SETS                  = "SETS";
+    static final String        T_SIMPLE                = "SIMPLE";
+    public static final String T_SIZE                  = "SIZE";
+    static final String        T_SOURCE                = "SOURCE";
+    public static final String T_SPACE                 = "SPACE";
+    static final String        T_SPECIFIC_NAME         = "SPECIFIC_NAME";
+    static final String        T_SQLDATA               = "SQLDATA";  // SQL/JRT
+    static final String        T_STACKED               = "STACKED";
+    static final String        T_STATE                 = "STATE";
+    static final String        T_STATEMENT             = "STATEMENT";
+    static final String        T_STRUCTURE             = "STRUCTURE";
+    static final String        T_STYLE                 = "STYLE";
+    static final String        T_SUBCLASS_ORIGIN       = "SUBCLASS_ORIGIN";
+    public static final String T_T_FACTOR              = "T";
+    static final String        T_TABLE_NAME            = "TABLE_NAME";
+    static final String        T_TEMPORARY             = "TEMPORARY";
+    static final String        T_TIES                  = "TIES";
+    static final String        T_TOP_LEVEL_COUNT       = "TOP_LEVEL_COUNT";
+    public static final String T_TRANSACTION           = "TRANSACTION";
+    static final String        T_TRANSACTS_COMMITTED   = "TRANSACTIONS_COMMITTED";
+    static final String T_TRANSACTS_ROLLED_BACK        = "TRANSACTIONS_ROLLED_BACK";
+    static final String        T_TRANSACTION_ACTIVE    = "TRANSACTION_ACTIVE";
+    static final String        T_TRANSFORM             = "TRANSFORM";
+    static final String        T_TRANSFORMS            = "TRANSFORMS";
+    static final String        T_TRIGGER_CATALOG       = "TRIGGER_CATALOG";
+    static final String        T_TRIGGER_NAME          = "TRIGGER_NAME";
+    static final String        T_TRIGGER_SCHEMA        = "TRIGGER_SCHEMA";
+    public static final String T_TYPE                  = "TYPE";
+    static final String        T_UNBOUNDED             = "UNBOUNDED";
+    static final String        T_UNCONDITIONAL         = "UNCONDITIONAL";
+    static final String        T_UNCOMMITTED           = "UNCOMMITTED";
+    static final String        T_UNDER                 = "UNDER";
+    static final String        T_UNDO                  = "UNDO";
+    static final String        T_UNNAMED               = "UNNAMED";
+    public static final String T_USAGE                 = "USAGE";
+    static final String T_USER_DEFINED_TYPE_CATALOG    = "USER_DEFINED_TYPE_CATALOG";
+    static final String T_USER_DEFINED_TYPE_CODE       = "USER_DEFINED_TYPE_CODE";
+    static final String T_USER_DEFINED_TYPE_NAME       = "USER_DEFINED_TYPE_NAME";
+    static final String T_USER_DEFINED_TYPE_SCHEMA     = "USER_DEFINED_TYPE_SCHEMA";
+    static final String        T_VIEW                  = "VIEW";
+    static final String        T_WORK                  = "WORK";
+    public static final String T_WRAPPER               = "WRAPPER";
+    public static final String T_WRITE                 = "WRITE";
+    public static final String T_ZONE                  = "ZONE";
+    // J+
     // other tokens
     static final String        T_ALIAS                = "ALIAS";
     static final String        T_AGGREGATE            = "AGGREGATE";
@@ -1007,18 +1002,17 @@ public class Tokens {
     public static final String T_UUID             = "UUID";
 
     //
-    static final String T_ISOLATION_LEVEL         = "ISOLATION_LEVEL";
-    static final String T_SESSION_ISOLATION_LEVEL = "SESSION_ISOLATION_LEVEL";
-    static final String T_DATABASE_ISOLATION_LEVEL =
-        "DATABASE_ISOLATION_LEVEL";
-    static final String T_TRANSACTION_CONTROL = "TRANSACTION_CONTROL";
-    static final String T_TIMEZONE            = "TIMEZONE";
-    static final String T_SESSION_TIMEZONE    = "SESSION_TIMEZONE";
-    static final String T_DATABASE_TIMEZONE   = "DATABASE_TIMEZONE";
-    static final String T_DATABASE_VERSION    = "DATABASE_VERSION";
-    static final String T_SESSION_ID          = "SESSION_ID";
-    static final String T_LOB_ID              = "LOB_ID";
-    static final String T_SEQUENCE_ARRAY      = "SEQUENCE_ARRAY";
+    static final String T_ISOLATION_LEVEL          = "ISOLATION_LEVEL";
+    static final String T_SESSION_ISOLATION_LEVEL  = "SESSION_ISOLATION_LEVEL";
+    static final String T_DATABASE_ISOLATION_LEVEL = "DATABASE_ISOLATION_LEVEL";
+    static final String T_TRANSACTION_CONTROL      = "TRANSACTION_CONTROL";
+    static final String T_TIMEZONE                 = "TIMEZONE";
+    static final String T_SESSION_TIMEZONE         = "SESSION_TIMEZONE";
+    static final String T_DATABASE_TIMEZONE        = "DATABASE_TIMEZONE";
+    static final String T_DATABASE_VERSION         = "DATABASE_VERSION";
+    static final String T_SESSION_ID               = "SESSION_ID";
+    static final String T_LOB_ID                   = "LOB_ID";
+    static final String T_SEQUENCE_ARRAY           = "SEQUENCE_ARRAY";
 
     //
     //SQL 200n Standard reserved keywords - full set
@@ -2328,7 +2322,8 @@ public class Tokens {
         reservedKeys.put(T_YEAR, YEAR);
     }
 
-    private static final IntValueHashMap<String> commandSet = new IntValueHashMap<>(449);
+    private static final IntValueHashMap<String> commandSet =
+        new IntValueHashMap<>(449);
 
     static {
         commandSet.put(T_ABSENT, ABSENT);
@@ -2846,11 +2841,11 @@ public class Tokens {
             ALL, AND, ANY, AS, AT, BY, BETWEEN, BOTH, CALL, CASE, CAST,
             CORRESPONDING, CONVERT, COALESCE, CREATE, CROSS, CUBE, DEFAULT,
             DISTINCT, DO, DROP, ELSE, EVERY, EXISTS, EXCEPT, FETCH, FOR, FROM,
-            FULL, GRANT, GROUP, GROUPING, HAVING, INTO, IS, IN, INTERSECT,
-            JOIN, INNER, LEFT, LEADING, LIKE, NATURAL, NULLIF, NOT, ON, ORDER,
-            OR, OUTER, PRIMARY, REFERENCES, RIGHT, ROLLUP, SELECT, SET, SOME,
-            SUM, TABLE, THEN, TO, TRAILING, TRIGGER, UNION, UNIQUE, USING,
-            VALUES, WHEN, WHERE, WITH
+            FULL, GRANT, GROUP, GROUPING, HAVING, INTO, IS, IN, INTERSECT, JOIN,
+            INNER, LEFT, LEADING, LIKE, NATURAL, NULLIF, NOT, ON, ORDER, OR,
+            OUTER, PRIMARY, REFERENCES, RIGHT, ROLLUP, SELECT, SET, SOME, SUM,
+            TABLE, THEN, TO, TRAILING, TRIGGER, UNION, UNIQUE, USING, VALUES,
+            WHEN, WHERE, WITH
         };
 
         for (int i = 0; i < keyword.length; i++) {
@@ -2858,13 +2853,14 @@ public class Tokens {
         }
     }
 
-    public static final short[]        SQL_INTERVAL_FIELD_CODES = new short[] {
+    public static final short[] SQL_INTERVAL_FIELD_CODES  = new short[] {
         YEAR, MONTH, DAY, HOUR, MINUTE, SECOND
     };
     public static final String[] SQL_INTERVAL_FIELD_NAMES = new String[] {
         T_YEAR, T_MONTH, T_DAY, T_HOUR, T_MINUTE, T_SECOND
     };
-    private static final IntKeyHashMap<String> sqlTSILookup = new IntKeyHashMap<>(11);
+    private static final IntKeyHashMap<String> sqlTSILookup =
+        new IntKeyHashMap<>(11);
 
     static {
         sqlTSILookup.put(SQL_TSI_DAY, T_SQL_TSI_DAY);

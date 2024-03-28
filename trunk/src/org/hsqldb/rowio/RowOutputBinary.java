@@ -220,8 +220,9 @@ public class RowOutputBinary extends RowOutputBase {
     }
 
     protected void writeBoolean(Boolean o) {
-        write(o.booleanValue() ? 1
-                               : 0);
+        write(o.booleanValue()
+              ? 1
+              : 0);
     }
 
     protected void writeDate(TimestampData o, Type type) {
@@ -467,6 +468,7 @@ public class RowOutputBinary extends RowOutputBase {
 
                 break;
             }
+
             case Types.OTHER :
                 JavaObjectData jo = (JavaObjectData) o;
 

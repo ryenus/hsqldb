@@ -56,8 +56,9 @@ public class FunctionSQLInvoked extends Expression {
 
     FunctionSQLInvoked(RoutineSchema routineSchema) {
 
-        super(routineSchema.isAggregate() ? OpTypes.USER_AGGREGATE
-                                          : OpTypes.FUNCTION);
+        super(routineSchema.isAggregate()
+              ? OpTypes.USER_AGGREGATE
+              : OpTypes.FUNCTION);
 
         this.routineSchema = routineSchema;
     }
@@ -66,12 +67,21 @@ public class FunctionSQLInvoked extends Expression {
         this.nodes = newNodes;
     }
 
-    public List<Expression> resolveColumnReferences(Session session,
-                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(
+            Session session,
+            RangeGroup rangeGroup,
+            int rangeCount,
+            RangeGroup[] rangeGroups,
+            List<Expression> unresolvedSet,
+            boolean acceptsSequences) {
 
-        List<Expression> conditionSet = condition.resolveColumnReferences(session,
-            rangeGroup, rangeCount, rangeGroups, null, false);
+        List<Expression> conditionSet = condition.resolveColumnReferences(
+            session,
+            rangeGroup,
+            rangeCount,
+            rangeGroups,
+            null,
+            false);
 
         ExpressionColumn.checkColumnsResolved(conditionSet);
 
@@ -84,10 +94,13 @@ public class FunctionSQLInvoked extends Expression {
 
             return unresolvedSet;
         } else {
-            return super.resolveColumnReferences(session, rangeGroup,
-                                                 rangeCount, rangeGroups,
-                                                 unresolvedSet,
-                                                 acceptsSequences);
+            return super.resolveColumnReferences(
+                session,
+                rangeGroup,
+                rangeCount,
+                rangeGroups,
+                unresolvedSet,
+                acceptsSequences);
         }
     }
 
@@ -120,8 +133,9 @@ public class FunctionSQLInvoked extends Expression {
 
         boolean  isValue = false;
         Result   result;
-        int      extraArg = routine.javaMethodWithConnection ? 1
-                                                             : 0;
+        int      extraArg = routine.javaMethodWithConnection
+                            ? 1
+                            : 0;
         Object[] data     = ValuePool.emptyObjectArray;
         boolean  push     = true;
 
@@ -129,7 +143,12 @@ public class FunctionSQLInvoked extends Expression {
             if (opType == OpTypes.USER_AGGREGATE) {
                 data = new Object[routine.getParameterCount()];
 
-                System.arraycopy(aggregateData, 0, data, 1, aggregateData.length);
+                System.arraycopy(
+                    aggregateData,
+                    0,
+                    data,
+                    1,
+                    aggregateData.length);
             } else {
                 data = new Object[nodes.length + extraArg];
             }
@@ -163,8 +182,9 @@ public class FunctionSQLInvoked extends Expression {
             if (routine.isPSM()) {
                 data[i] = value;
             } else {
-                data[i + extraArg] = e.dataType.convertSQLToJava(session,
-                        value);
+                data[i + extraArg] = e.dataType.convertSQLToJava(
+                    session,
+                    value);
             }
         }
 
@@ -223,8 +243,8 @@ public class FunctionSQLInvoked extends Expression {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(routineSchema.getName().getSchemaQualifiedStatementName());
-        sb.append('(');
+        sb.append(routineSchema.getName().getSchemaQualifiedStatementName())
+          .append('(');
 
         int nodeCount = nodes.length;
 
@@ -262,15 +282,18 @@ public class FunctionSQLInvoked extends Expression {
         if (other instanceof FunctionSQLInvoked) {
             FunctionSQLInvoked o = (FunctionSQLInvoked) other;
 
-            return super.equals(other) && opType == other.opType
-                   && routineSchema == o.routineSchema && routine == o.routine
+            return super.equals(other)
+                   && opType == other.opType
+                   && routineSchema == o.routineSchema
+                   && routine == o.routine
                    && condition.equals(o.condition);
         }
 
         return false;
     }
 
-    public SetFunction updateAggregatingValue(Session session,
+    public SetFunction updateAggregatingValue(
+            Session session,
             SetFunction currValue) {
 
         if (!condition.testCondition(session)) {

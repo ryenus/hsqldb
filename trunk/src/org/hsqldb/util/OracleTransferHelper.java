@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,14 +48,11 @@ class OracleTransferHelper extends TransferHelper {
 
     private static final int ORACLE = 0;
     private static final int HSQLDB = 1;
-    String[][]        Funcs  = {
-        {
-            "now()", "'now'"
-        }
+    String[][]               Funcs  = {
+        { "now()", "'now'" }
     };
 
     OracleTransferHelper() {
-
         super();
 
         System.out.println("simple init of OracleTransferHelper");
@@ -84,24 +81,36 @@ class OracleTransferHelper extends TransferHelper {
         }
     }
 
-    String fixupColumnDefRead(TransferTable t, ResultSetMetaData meta,
-                              String columnType, ResultSet columnDesc,
-                              int columnIndex) throws SQLException {
-        return fixupColumnDefRead(t.Stmts.sDestTable, meta, columnType,
-                                  columnDesc, columnIndex);
+    String fixupColumnDefRead(
+            TransferTable t,
+            ResultSetMetaData meta,
+            String columnType,
+            ResultSet columnDesc,
+            int columnIndex)
+            throws SQLException {
+
+        return fixupColumnDefRead(
+            t.Stmts.sDestTable,
+            meta,
+            columnType,
+            columnDesc,
+            columnIndex);
     }
 
-    String fixupColumnDefWrite(TransferTable t, ResultSetMetaData meta,
-                               String columnType, ResultSet columnDesc,
-                               int columnIndex) throws SQLException {
+    String fixupColumnDefWrite(
+            TransferTable t,
+            ResultSetMetaData meta,
+            String columnType,
+            ResultSet columnDesc,
+            int columnIndex)
+            throws SQLException {
 
         if (columnType.equals("SERIAL")) {
-            String SeqName = "_" + columnDesc.getString(4) + "_seq";
-            int spaceleft = 31 - SeqName.length();
+            String SeqName   = "_" + columnDesc.getString(4) + "_seq";
+            int    spaceleft = 31 - SeqName.length();
 
             if (t.Stmts.sDestTable.length() > spaceleft) {
-                SeqName = t.Stmts.sDestTable.substring(0, spaceleft)
-                          + SeqName;
+                SeqName = t.Stmts.sDestTable.substring(0, spaceleft) + SeqName;
             } else {
                 SeqName = t.Stmts.sDestTable + SeqName;
             }
@@ -119,9 +128,9 @@ class OracleTransferHelper extends TransferHelper {
                 String NewColumnType = columnType.substring(0, iStartPos);
 
                 NewColumnType += Funcs[Idx][ORACLE];
-                NewColumnType += columnType.substring(iStartPos
-                                                      + HSQLDB_func.length());
-                columnType = NewColumnType;
+                NewColumnType += columnType.substring(
+                    iStartPos + HSQLDB_func.length());
+                columnType    = NewColumnType;
             }
         }
 
@@ -129,22 +138,24 @@ class OracleTransferHelper extends TransferHelper {
     }
 
     void beginDataTransfer() {
-
         try {
             db.setAutoCommit(false);
         } catch (Exception e) {}
     }
 
     void endDataTransfer() {
-
         try {
             db.commit();
         } catch (Exception e) {}
     }
 
-    String fixupColumnDefRead(String aTableName, ResultSetMetaData meta,
-                              String columnType, ResultSet columnDesc,
-                              int columnIndex) throws SQLException {
+    String fixupColumnDefRead(
+            String aTableName,
+            ResultSetMetaData meta,
+            String columnType,
+            ResultSet columnDesc,
+            int columnIndex)
+            throws SQLException {
 
         String SeqName   = "_" + columnDesc.getString(4) + "_seq";
         int    spaceleft = 31 - SeqName.length();
@@ -171,9 +182,9 @@ class OracleTransferHelper extends TransferHelper {
                 String NewColumnType = columnType.substring(0, iStartPos);
 
                 NewColumnType += Funcs[Idx][HSQLDB];
-                NewColumnType += columnType.substring(iStartPos
-                                                      + ORACLE_func.length());
-                columnType = NewColumnType;
+                NewColumnType += columnType.substring(
+                    iStartPos + ORACLE_func.length());
+                columnType    = NewColumnType;
             }
         }
 

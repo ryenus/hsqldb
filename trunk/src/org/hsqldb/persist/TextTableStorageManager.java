@@ -56,8 +56,11 @@ public class TextTableStorageManager {
     /**
      *  Opens the TextCache object.
      */
-    public DataFileCache openTextFilePersistence(Table table, String source,
-            boolean readOnlyData, boolean reversed) {
+    public DataFileCache openTextFilePersistence(
+            Table table,
+            String source,
+            boolean readOnlyData,
+            boolean reversed) {
 
         closeTextCache(table);
 

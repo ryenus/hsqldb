@@ -60,7 +60,7 @@ public class TimeData {
     }
 
     public TimeData(int seconds, int nanos) {
-        this (seconds, nanos, 0);
+        this(seconds, nanos, 0);
     }
 
     public int getSeconds() {
@@ -84,7 +84,7 @@ public class TimeData {
         if (other instanceof TimeData) {
             return seconds == ((TimeData) other).seconds
                    && nanos == ((TimeData) other).nanos
-                   && zone ==  ((TimeData) other).zone ;
+                   && zone == ((TimeData) other).zone;
         }
 
         return false;
@@ -106,7 +106,8 @@ public class TimeData {
             }
         }
 
-        return diff > 0 ? 1
-                        : -1;
+        return diff > 0
+               ? 1
+               : -1;
     }
 }

@@ -179,7 +179,6 @@ public class Expression implements Cloneable {
      * ROW, ARRAY etc.
      */
     Expression(int type, Expression[] list) {
-
         this(type);
 
         this.nodes = list;
@@ -211,7 +210,7 @@ public class Expression implements Cloneable {
 
         ddl = sb.append('(').append(ddl).append(')').toString();
 
-        return ddl;
+        return ddl.toString();
     }
 
     /**
@@ -256,8 +255,7 @@ public class Expression implements Cloneable {
                 }
 
                 sb.append(')');
-
-                return sb.toString();
+                break;
 
             //
             case OpTypes.VALUELIST :
@@ -269,10 +267,7 @@ public class Expression implements Cloneable {
                     sb.append(nodes[i].getSQL());
                 }
 
-                return sb.toString();
-        }
-
-        switch (opType) {
+                break;
 
             case OpTypes.ARRAY :
                 sb.append(Tokens.T_ARRAY).append('[');
@@ -289,12 +284,9 @@ public class Expression implements Cloneable {
                 break;
 
             case OpTypes.ARRAY_SUBQUERY :
-
-            //
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
-                sb.append('(');
-                sb.append(')');
+                sb.append('(').append(')');
                 break;
 
             default :
@@ -317,46 +309,45 @@ public class Expression implements Cloneable {
         switch (opType) {
 
             case OpTypes.VALUE :
-                sb.append("VALUE = ").append(
-                    dataType.convertToSQLString(valueData));
-                sb.append(", TYPE = ").append(dataType.getNameString());
-
-                return sb.toString();
+                sb.append("VALUE = ")
+                  .append(dataType.convertToSQLString(valueData))
+                  .append(", TYPE = ")
+                  .append(dataType.getNameString());
+                break;
 
             case OpTypes.ARRAY :
                 sb.append("ARRAY ");
-
-                return sb.toString();
+                break;
 
             case OpTypes.ARRAY_SUBQUERY :
                 sb.append("ARRAY SUBQUERY");
-
-                return sb.toString();
+                break;
 
             //
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
-                sb.append("QUERY ");
-                sb.append(table.queryExpression.describe(session, blanks));
-
-                return sb.toString();
+                sb.append("QUERY ")
+                  .append(table.queryExpression.describe(session, blanks));
+                break;
 
             case OpTypes.ROW :
                 sb.append("ROW = ");
 
                 for (int i = 0; i < nodes.length; i++) {
-                    sb.append(nodes[i].describe(session, blanks + 1));
-                    sb.append(' ');
+                    sb.append(nodes[i].describe(session, blanks + 1))
+                      .append(' ');
                 }
+
                 break;
 
             case OpTypes.VALUELIST :
                 sb.append("VALUELIST ");
 
                 for (int i = 0; i < nodes.length; i++) {
-                    sb.append(nodes[i].describe(session, blanks + 1));
-                    sb.append(' ');
+                    sb.append(nodes[i].describe(session, blanks + 1))
+                      .append(' ');
                 }
+
                 break;
         }
 
@@ -388,7 +379,8 @@ public class Expression implements Cloneable {
             return false;
         }
 
-        if (opType != other.opType || exprSubType != other.exprSubType
+        if (opType != other.opType
+                || exprSubType != other.exprSubType
                 || !equals(dataType, other.dataType)) {
             return false;
         }
@@ -473,8 +465,11 @@ public class Expression implements Cloneable {
     /**
      * For GROUP only.
      */
-    boolean isComposedOf(Expression[] exprList, int start, int end,
-                         OrderedIntHashSet excludeSet) {
+    boolean isComposedOf(
+            Expression[] exprList,
+            int start,
+            int end,
+            OrderedIntHashSet excludeSet) {
 
         switch (opType) {
 
@@ -549,8 +544,11 @@ public class Expression implements Cloneable {
 
         for (int i = 0; i < nodes.length; i++) {
             result &= (nodes[i] == null
-                       || nodes[i].isComposedOf(exprList, start, end,
-                                                excludeSet));
+                       || nodes[i].isComposedOf(
+                           exprList,
+                           start,
+                           end,
+                           excludeSet));
         }
 
         return result;
@@ -559,8 +557,10 @@ public class Expression implements Cloneable {
     /**
      * For HAVING only.
      */
-    boolean isComposedOf(OrderedHashSet<Expression> expressions, RangeGroup[] rangeGroups,
-                         OrderedIntHashSet excludeSet) {
+    boolean isComposedOf(
+            OrderedHashSet<Expression> expressions,
+            RangeGroup[] rangeGroups,
+            OrderedIntHashSet excludeSet) {
 
         switch (opType) {
 
@@ -631,15 +631,19 @@ public class Expression implements Cloneable {
 
         for (int i = 0; i < nodes.length; i++) {
             result &= (nodes[i] == null
-                       || nodes[i].isComposedOf(expressions, rangeGroups,
-                                                excludeSet));
+                       || nodes[i].isComposedOf(
+                           expressions,
+                           rangeGroups,
+                           excludeSet));
         }
 
         return result;
     }
 
-    Expression replaceColumnReferences(Session session, RangeVariable range,
-                                       Expression[] list) {
+    Expression replaceColumnReferences(
+            Session session,
+            RangeVariable range,
+            Expression[] list) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
@@ -650,15 +654,15 @@ public class Expression implements Cloneable {
         }
 
         if (table != null && table.queryExpression != null) {
-            table.queryExpression.replaceColumnReferences(session, range,
-                    list);
+            table.queryExpression.replaceColumnReferences(session, range, list);
         }
 
         return this;
     }
 
-    void replaceRangeVariables(RangeVariable[] ranges,
-                               RangeVariable[] newRanges) {
+    void replaceRangeVariables(
+            RangeVariable[] ranges,
+            RangeVariable[] newRanges) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
@@ -684,8 +688,9 @@ public class Expression implements Cloneable {
         }
     }
 
-    Expression replaceExpressions(OrderedHashSet<Expression> expressions,
-                                  int resultRangePosition) {
+    Expression replaceExpressions(
+            OrderedHashSet<Expression> expressions,
+            int resultRangePosition) {
 
         if (opType == OpTypes.VALUE) {
             return this;
@@ -698,9 +703,10 @@ public class Expression implements Cloneable {
         Expression exp = expressions.get(this);
 
         if (exp != null) {
-            Expression col = new ExpressionColumn(this,
-                                                  exp.resultTableColumnIndex,
-                                                  resultRangePosition);
+            Expression col = new ExpressionColumn(
+                this,
+                exp.resultTableColumnIndex,
+                resultRangePosition);
 
             return col;
         }
@@ -710,14 +716,16 @@ public class Expression implements Cloneable {
                 continue;
             }
 
-            nodes[i] = nodes[i].replaceExpressions(expressions,
-                                                   resultRangePosition);
+            nodes[i] = nodes[i].replaceExpressions(
+                expressions,
+                resultRangePosition);
         }
 
         if (table != null) {
             if (table.queryExpression != null) {
-                table.queryExpression.replaceExpressions(expressions,
-                        resultRangePosition);
+                table.queryExpression.replaceExpressions(
+                    expressions,
+                    resultRangePosition);
             }
         }
 
@@ -774,16 +782,18 @@ public class Expression implements Cloneable {
      * Returns the left node
      */
     public Expression getLeftNode() {
-        return nodes.length > 0 ? nodes[LEFT]
-                                : null;
+        return nodes.length > 0
+               ? nodes[LEFT]
+               : null;
     }
 
     /**
      * Returns the right node
      */
     public Expression getRightNode() {
-        return nodes.length > 1 ? nodes[RIGHT]
-                                : null;
+        return nodes.length > 1
+               ? nodes[RIGHT]
+               : null;
     }
 
     void setLeftNode(Expression e) {
@@ -812,8 +822,10 @@ public class Expression implements Cloneable {
     /**
      * return the expression for an alias used in an ORDER BY clause
      */
-    Expression replaceAliasInOrderBy(Session session, Expression[] columns,
-                                     int length) {
+    Expression replaceAliasInOrderBy(
+            Session session,
+            Expression[] columns,
+            int length) {
 
         if (isSelfAggregate()) {
             return this;
@@ -824,8 +836,7 @@ public class Expression implements Cloneable {
                 continue;
             }
 
-            nodes[i] = nodes[i].replaceAliasInOrderBy(session, columns,
-                    length);
+            nodes[i] = nodes[i].replaceAliasInOrderBy(session, columns, length);
         }
 
         return this;
@@ -834,7 +845,8 @@ public class Expression implements Cloneable {
     /**
      * collects all range variables in expression tree
      */
-    OrderedHashSet<RangeVariable> collectRangeVariables(OrderedHashSet<RangeVariable> set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(
+            OrderedHashSet<RangeVariable> set) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -849,8 +861,9 @@ public class Expression implements Cloneable {
         return set;
     }
 
-    OrderedHashSet<RangeVariable> collectRangeVariables(RangeVariable[] rangeVariables,
-                                                        OrderedHashSet<RangeVariable> set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(
+            RangeVariable[] rangeVariables,
+            OrderedHashSet<RangeVariable> set) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -859,8 +872,9 @@ public class Expression implements Cloneable {
         }
 
         if (table != null && table.queryExpression != null) {
-            set = table.queryExpression.collectRangeVariables(rangeVariables,
-                    set);
+            set = table.queryExpression.collectRangeVariables(
+                rangeVariables,
+                set);
         }
 
         return set;
@@ -927,21 +941,28 @@ public class Expression implements Cloneable {
     /**
      * resolve tables and collect unresolved column expressions
      */
-    public List<Expression> resolveColumnReferences(Session session,
-                                                    RangeGroup rangeGroup,
-                                                    RangeGroup[] rangeGroups,
-                                                    List<Expression> unresolvedSet) {
+    public List<Expression> resolveColumnReferences(
+            Session session,
+            RangeGroup rangeGroup,
+            RangeGroup[] rangeGroups,
+            List<Expression> unresolvedSet) {
 
-        return resolveColumnReferences(session, rangeGroup,
-                                       rangeGroup.getRangeVariables().length,
-                                       rangeGroups, unresolvedSet, true);
+        return resolveColumnReferences(
+            session,
+            rangeGroup,
+            rangeGroup.getRangeVariables().length,
+            rangeGroups,
+            unresolvedSet,
+            true);
     }
 
-    public List<Expression> resolveColumnReferences(Session session,
-                                                    RangeGroup rangeGroup, int rangeCount,
-                                                    RangeGroup[] rangeGroups,
-                                                    List<Expression> unresolvedSet,
-                                                    boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(
+            Session session,
+            RangeGroup rangeGroup,
+            int rangeCount,
+            RangeGroup[] rangeGroups,
+            List<Expression> unresolvedSet,
+            boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -955,15 +976,19 @@ public class Expression implements Cloneable {
                     if (rangeGroup.getRangeVariables().length > rangeCount) {
                         RangeVariable[] rangeVars =
                             (RangeVariable[]) ArrayUtil.resizeArray(
-                                rangeGroup.getRangeVariables(), rangeCount);
+                                rangeGroup.getRangeVariables(),
+                                rangeCount);
 
-                        rangeGroup = new RangeGroupSimple(rangeVars,
-                                                          rangeGroup);
+                        rangeGroup = new RangeGroupSimple(
+                            rangeVars,
+                            rangeGroup);
                     }
 
-                    rangeGroups =
-                        (RangeGroup[]) ArrayUtil.toAdjustedArray(rangeGroups,
-                            rangeGroup, rangeGroups.length, 1);
+                    rangeGroups = (RangeGroup[]) ArrayUtil.toAdjustedArray(
+                        rangeGroups,
+                        rangeGroup,
+                        rangeGroups.length,
+                        1);
                     rangeGroup = new RangeGroupSimple(table);
                     rangeCount = 0;
                 }
@@ -973,9 +998,13 @@ public class Expression implements Cloneable {
                         continue;
                     }
 
-                    unresolvedSet = nodes[i].resolveColumnReferences(session,
-                            rangeGroup, rangeCount, rangeGroups,
-                            unresolvedSet, acceptsSequences);
+                    unresolvedSet = nodes[i].resolveColumnReferences(
+                        session,
+                        rangeGroup,
+                        rangeCount,
+                        rangeGroups,
+                        unresolvedSet,
+                        acceptsSequences);
                 }
 
                 return unresolvedSet;
@@ -987,9 +1016,13 @@ public class Expression implements Cloneable {
                 continue;
             }
 
-            unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeGroup, rangeCount, rangeGroups, unresolvedSet,
-                    acceptsSequences);
+            unresolvedSet = nodes[i].resolveColumnReferences(
+                session,
+                rangeGroup,
+                rangeCount,
+                rangeGroups,
+                unresolvedSet,
+                acceptsSequences);
         }
 
         switch (opType) {
@@ -1003,15 +1036,17 @@ public class Expression implements Cloneable {
                 RangeVariable[] rangeVars = rangeGroup.getRangeVariables();
 
                 if (rangeVars.length > rangeCount) {
-                    rangeVars =
-                        (RangeVariable[]) ArrayUtil.resizeArray(rangeVars,
-                            rangeCount);
+                    rangeVars = (RangeVariable[]) ArrayUtil.resizeArray(
+                        rangeVars,
+                        rangeCount);
                     rangeGroup = new RangeGroupSimple(rangeVars, rangeGroup);
                 }
 
-                rangeGroups =
-                    (RangeGroup[]) ArrayUtil.toAdjustedArray(rangeGroups,
-                        rangeGroup, rangeGroups.length, 1);
+                rangeGroups = (RangeGroup[]) ArrayUtil.toAdjustedArray(
+                    rangeGroups,
+                    rangeGroup,
+                    rangeGroups.length,
+                    1);
 
                 QueryExpression queryExpression = table.queryExpression;
 
@@ -1031,14 +1066,18 @@ public class Expression implements Cloneable {
                 Expression dataExpression = table.dataExpression;
 
                 if (dataExpression != null) {
-                    unresolvedSet =
-                        dataExpression.resolveColumnReferences(session,
-                            rangeGroup, rangeCount, rangeGroups,
-                            unresolvedSet, acceptsSequences);
+                    unresolvedSet = dataExpression.resolveColumnReferences(
+                        session,
+                        rangeGroup,
+                        rangeCount,
+                        rangeGroups,
+                        unresolvedSet,
+                        acceptsSequences);
                 }
 
                 break;
             }
+
             default :
         }
 
@@ -1066,7 +1105,8 @@ public class Expression implements Cloneable {
         }
     }
 
-    public OrderedHashSet<Expression> getUnkeyedColumns(OrderedHashSet<Expression> unresolvedSet) {
+    public OrderedHashSet<Expression> getUnkeyedColumns(
+            OrderedHashSet<Expression> unresolvedSet) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -1093,6 +1133,7 @@ public class Expression implements Cloneable {
 
                     unresolvedSet.add(this);
                 }
+
                 break;
 
             default :
@@ -1133,8 +1174,9 @@ public class Expression implements Cloneable {
                 Type nodeDataType = null;
 
                 for (int i = 0; i < nodes.length; i++) {
-                    nodeDataType = Type.getAggregateType(nodeDataType,
-                                                         nodes[i].dataType);
+                    nodeDataType = Type.getAggregateType(
+                        nodeDataType,
+                        nodes[i].dataType);
                 }
 
                 if (nodeDataType != null) {
@@ -1142,12 +1184,13 @@ public class Expression implements Cloneable {
                         if (nodes[i].dataType == null) {
                             nodes[i].valueData =
                                 nodeDataType.convertToDefaultType(
-                                    session, nodes[i].valueData);
+                                    session,
+                                    nodes[i].valueData);
                         } else {
-                            nodes[i].valueData =
-                                nodeDataType.convertToType(session,
-                                                           nodes[i].valueData,
-                                                           nodes[i].dataType);
+                            nodes[i].valueData = nodeDataType.convertToType(
+                                session,
+                                nodes[i].valueData,
+                                nodes[i].dataType);
                         }
                     }
                 }
@@ -1156,11 +1199,13 @@ public class Expression implements Cloneable {
                     nodes[i].dataType = nodeDataType;
                 }
 
-                dataType = new ArrayType(nodeDataType,
-                                         ArrayType.defaultArrayCardinality);
+                dataType = new ArrayType(
+                    nodeDataType,
+                    ArrayType.defaultArrayCardinality);
 
                 return;
             }
+
             case OpTypes.ARRAY_SUBQUERY : {
                 QueryExpression queryExpression = table.queryExpression;
 
@@ -1174,12 +1219,12 @@ public class Expression implements Cloneable {
                     throw Error.error(ErrorCode.X_42564);
                 }
 
-                dataType =
-                    new ArrayType(dataType,
-                                  ArrayType.defaultLargeArrayCardinality);
-
+                dataType = new ArrayType(
+                    dataType,
+                    ArrayType.defaultLargeArrayCardinality);
                 break;
             }
+
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY : {
                 QueryExpression queryExpression = table.queryExpression;
@@ -1198,23 +1243,21 @@ public class Expression implements Cloneable {
 
                 nodeDataTypes = table.getColumnTypes();
                 dataType      = nodeDataTypes[0];
-
                 break;
             }
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
         }
     }
 
     void setAsConstantValue(Session session, Expression parent) {
-
         valueData = getValue(session);
         opType    = OpTypes.VALUE;
         nodes     = emptyArray;
     }
 
     void setAsConstantValue(Object value, Expression parent) {
-
         valueData = value;
         opType    = OpTypes.VALUE;
         nodes     = emptyArray;
@@ -1244,11 +1287,11 @@ public class Expression implements Cloneable {
         nodeDataTypes = new Type[degree];
 
         for (int j = 0; j < degree; j++) {
-            Type    type                  = row == null ? null
-                                                        : row.nodes[j]
-                                                            .dataType;
-            boolean hasUresolvedParameter = row != null && row.nodes[j]
-                    .isUnresolvedParam();
+            Type type = row == null
+                        ? null
+                        : row.nodes[j].dataType;
+            boolean hasUresolvedParameter = row != null
+                                            && row.nodes[j].isUnresolvedParam();
 
             for (int i = 0; i < nodes.length; i++) {
                 type = Type.getAggregateType(nodes[i].nodes[j].dataType, type);
@@ -1269,12 +1312,14 @@ public class Expression implements Cloneable {
                         typeCode = Types.SQL_VARCHAR;
                     }
 
-                    long precision =
-                        Math.max(Type.SQL_VARCHAR_DEFAULT.precision,
-                                 type.precision);
+                    long precision = Math.max(
+                        Type.SQL_VARCHAR_DEFAULT.precision,
+                        type.precision);
 
-                    type = CharacterType.getCharacterType(typeCode, precision,
-                                                          type.getCollation());
+                    type = CharacterType.getCharacterType(
+                        typeCode,
+                        precision,
+                        type.getCollation());
                 }
             }
 
@@ -1290,7 +1335,6 @@ public class Expression implements Cloneable {
                 if (node.nodes[j].isUnresolvedParam()) {
                     node.nodes[j].dataType = nodeDataTypes[j];
                     node.nodeDataTypes[j]  = node.nodes[j].dataType;
-
                     continue;
                 }
 
@@ -1326,16 +1370,17 @@ public class Expression implements Cloneable {
      * Predicates may be optimised as joins if isCorrelated == false
      *
      */
-    void insertValuesIntoSubqueryTable(Session session,
-                                       PersistentStore store) {
+    void insertValuesIntoSubqueryTable(Session session, PersistentStore store) {
 
         for (int i = 0; i < nodes.length; i++) {
             Object[] values = nodes[i].getRowValue(session);
             Object[] data   = store.getTable().getEmptyRowData();
 
             for (int j = 0; j < nodeDataTypes.length; j++) {
-                data[j] = nodeDataTypes[j].convertToType(session, values[j],
-                        nodes[i].nodes[j].dataType);
+                data[j] = nodeDataTypes[j].convertToType(
+                    session,
+                    values[j],
+                    nodes[i].nodes[j].dataType);
             }
 
             Row row = (Row) store.getNewCachedObject(session, data, false);
@@ -1470,10 +1515,12 @@ public class Expression implements Cloneable {
 
                 return data;
             }
+
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY : {
                 return table.queryExpression.getValues(session);
             }
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
         }
@@ -1499,6 +1546,7 @@ public class Expression implements Cloneable {
 
                 return row;
             }
+
             case OpTypes.ARRAY : {
                 Object[] array = new Object[nodes.length];
 
@@ -1508,6 +1556,7 @@ public class Expression implements Cloneable {
 
                 return array;
             }
+
             case OpTypes.ARRAY_SUBQUERY : {
                 table.materialiseCorrelated(session);
 
@@ -1525,6 +1574,7 @@ public class Expression implements Cloneable {
 
                 return array;
             }
+
             case OpTypes.TABLE_SUBQUERY :
             case OpTypes.ROW_SUBQUERY : {
                 table.materialiseCorrelated(session);
@@ -1537,6 +1587,7 @@ public class Expression implements Cloneable {
 
                 return value;
             }
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
         }
@@ -1548,7 +1599,7 @@ public class Expression implements Cloneable {
 
             case OpTypes.ARRAY : {
                 RowSetNavigatorData navigator = table.getNavigator(session);
-                Object[]            array = new Object[navigator.getSize()];
+                Object[]            array     = new Object[navigator.getSize()];
 
                 navigator.beforeFirst();
 
@@ -1560,6 +1611,7 @@ public class Expression implements Cloneable {
 
                 return Result.newPSMResult(array);
             }
+
             case OpTypes.TABLE_SUBQUERY : {
                 table.materialiseCorrelated(session);
 
@@ -1568,13 +1620,15 @@ public class Expression implements Cloneable {
 
                 if (table.queryExpression == null) {
                     result.metaData = ResultMetaData.newResultMetaData(
-                        table.getColumnTypes(), table.getColumnLabels());
+                        table.getColumnTypes(),
+                        table.getColumnLabels());
                 } else {
                     result.metaData = table.queryExpression.getMetaData();
                 }
 
                 return result;
             }
+
             default : {
                 Object value = getValue(session);
 
@@ -1601,12 +1655,14 @@ public class Expression implements Cloneable {
     }
 
     public boolean isTrue() {
-        return opType == OpTypes.VALUE && valueData instanceof Boolean
+        return opType == OpTypes.VALUE
+               && valueData instanceof Boolean
                && ((Boolean) valueData).booleanValue();
     }
 
     public boolean isFalse() {
-        return opType == OpTypes.VALUE && valueData instanceof Boolean
+        return opType == OpTypes.VALUE
+               && valueData instanceof Boolean
                && !((Boolean) valueData).booleanValue();
     }
 
@@ -1614,13 +1670,18 @@ public class Expression implements Cloneable {
         return false;
     }
 
-    static void convertToType(Session session, Object[] data, Type[] dataType,
-                              Type[] newType) {
+    static void convertToType(
+            Session session,
+            Object[] data,
+            Type[] dataType,
+            Type[] newType) {
 
         for (int i = 0; i < data.length; i++) {
             if (!dataType[i].canConvertFrom(newType[i])) {
-                data[i] = newType[i].convertToType(session, data[i],
-                                                   dataType[i]);
+                data[i] = newType[i].convertToType(
+                    session,
+                    data[i],
+                    dataType[i]);
             }
         }
     }
@@ -1629,18 +1690,24 @@ public class Expression implements Cloneable {
      * Returns a Select object that can be used for checking the contents
      * of an existing table against the given CHECK search condition.
      */
-    static QuerySpecification getCheckSelect(Session session, Table t,
+    static QuerySpecification getCheckSelect(
+            Session session,
+            Table t,
             Expression e) {
 
         CompileContext compileContext = new CompileContext(session);
 
         compileContext.setNextRangeVarIndex(0);
 
-        QuerySpecification s = new QuerySpecification(compileContext);
-        RangeVariable range = new RangeVariable(t, null, null, null,
+        QuerySpecification s          = new QuerySpecification(compileContext);
+        RangeVariable range = new RangeVariable(
+            t,
+            null,
+            null,
+            null,
             compileContext);
-        RangeVariable[] ranges     = new RangeVariable[]{ range };
-        RangeGroup      rangeGroup = new RangeGroupSimple(ranges, false);
+        RangeVariable[]    ranges     = new RangeVariable[]{ range };
+        RangeGroup         rangeGroup = new RangeGroupSimple(ranges, false);
 
         e.resolveCheckOrGenExpression(session, rangeGroup, true);
 
@@ -1658,25 +1725,34 @@ public class Expression implements Cloneable {
         return s;
     }
 
-    public void resolveCheckOrGenExpression(Session session,
-            RangeGroup rangeGroup, boolean isCheck) {
+    public void resolveCheckOrGenExpression(
+            Session session,
+            RangeGroup rangeGroup,
+            boolean isCheck) {
 
-        boolean        nonDeterministic = false;
+        boolean                    nonDeterministic = false;
         OrderedHashSet<Expression> set              = new OrderedHashSet<>();
-        List<Expression> unresolved = resolveColumnReferences(session, rangeGroup,
-            RangeGroup.emptyArray, null);
+        List<Expression> unresolved = resolveColumnReferences(
+            session,
+            rangeGroup,
+            RangeGroup.emptyArray,
+            null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         resolveTypes(session, null);
-        collectAllExpressions(set, OpTypes.subqueryAggregateExpressionSet,
-                              OpTypes.emptyExpressionSet);
+        collectAllExpressions(
+            set,
+            OpTypes.subqueryAggregateExpressionSet,
+            OpTypes.emptyExpressionSet);
 
         if (!set.isEmpty()) {
             throw Error.error(ErrorCode.X_42512);
         }
 
-        collectAllExpressions(set, OpTypes.functionExpressionSet,
-                              OpTypes.emptyExpressionSet);
+        collectAllExpressions(
+            set,
+            OpTypes.functionExpressionSet,
+            OpTypes.emptyExpressionSet);
 
         for (int i = 0; i < set.size(); i++) {
             Expression current = set.get(i);
@@ -1691,7 +1767,6 @@ public class Expression implements Cloneable {
                 if (!((FunctionSQL) current).isDeterministic()) {
                     if (isCheck) {
                         nonDeterministic = true;
-
                         continue;
                     }
 
@@ -1723,13 +1798,11 @@ public class Expression implements Cloneable {
 
                     if (!e.dataType.isDateTimeType()) {
                         nonDeterministic = true;
-
                         break;
                     }
 
                     if (e.hasNonDeterministicFunction()) {
                         nonDeterministic = true;
-
                         break;
                     }
 
@@ -1737,8 +1810,7 @@ public class Expression implements Cloneable {
                     // e.dataType.isDateTimeTypeWithZone();
                     if (e1 instanceof ExpressionArithmetic) {
                         if (opType == OpTypes.ADD) {
-                            if (e1.getRightNode()
-                                    .hasNonDeterministicFunction()) {
+                            if (e1.getRightNode().hasNonDeterministicFunction()) {
                                 e1.swapLeftAndRightNodes();
                             }
                         } else if (opType == OpTypes.SUBTRACT) {}
@@ -1762,7 +1834,6 @@ public class Expression implements Cloneable {
                             case FunctionSQL.FUNC_CURRENT_TIMESTAMP :
                             case FunctionSQL.FUNC_LOCALTIMESTAMP :
                                 nonDeterministic = false;
-
                                 continue;
                             default :
                                 break;
@@ -1783,6 +1854,7 @@ public class Expression implements Cloneable {
         }
 
         OrderedHashSet<HsqlName> nameSet = new OrderedHashSet<>();
+
         collectObjectNames(nameSet);
 
         RangeVariable[] ranges = rangeGroup.getRangeVariables();
@@ -1798,8 +1870,8 @@ public class Expression implements Cloneable {
                     }
 
                     int colIndex = ranges[0].rangeTable.findColumn(name.name);
-                    ColumnSchema column =
-                        ranges[0].rangeTable.getColumn(colIndex);
+                    ColumnSchema column = ranges[0].rangeTable.getColumn(
+                        colIndex);
 
                     if (column.isGenerated()) {
                         throw Error.error(ErrorCode.X_42512);
@@ -1807,13 +1879,15 @@ public class Expression implements Cloneable {
 
                     break;
                 }
+
                 case SchemaObject.SEQUENCE : {
                     throw Error.error(ErrorCode.X_42512);
                 }
+
                 case SchemaObject.SPECIFIC_ROUTINE : {
                     Routine routine =
-                        (Routine) session.database.schemaManager
-                            .findSchemaObject(name);
+                        (Routine) session.database.schemaManager.findSchemaObject(
+                            name);
 
                     if (!routine.isDeterministic()) {
                         throw Error.error(ErrorCode.X_42512);
@@ -1842,8 +1916,10 @@ public class Expression implements Cloneable {
 
         OrderedHashSet<Expression> list = null;
 
-        list = collectAllExpressions(list, OpTypes.functionExpressionSet,
-                                     OpTypes.emptyExpressionSet);
+        list = collectAllExpressions(
+            list,
+            OpTypes.functionExpressionSet,
+            OpTypes.emptyExpressionSet);
 
         if (list == null) {
             return false;
@@ -1880,8 +1956,9 @@ public class Expression implements Cloneable {
 
     String getValueClassName() {
 
-        Type type = dataType == null ? NullType.getNullType()
-                                     : dataType;
+        Type type = dataType == null
+                    ? NullType.getNullType()
+                    : dataType;
 
         return type.getJDBCClassName();
     }
@@ -1890,8 +1967,10 @@ public class Expression implements Cloneable {
      * collect all expressions of a set of expression types appearing anywhere
      * in a select statement and its subselects, etc.
      */
-    public final OrderedHashSet<Expression> collectAllExpressions(OrderedHashSet<Expression> set,
-            OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
+    public final OrderedHashSet<Expression> collectAllExpressions(
+            OrderedHashSet<Expression> set,
+            OrderedIntHashSet typeSet,
+            OrderedIntHashSet stopAtTypeSet) {
 
         if (stopAtTypeSet.contains(opType)) {
             return set;
@@ -1899,8 +1978,10 @@ public class Expression implements Cloneable {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
-                set = nodes[i].collectAllExpressions(set, typeSet,
-                                                     stopAtTypeSet);
+                set = nodes[i].collectAllExpressions(
+                    set,
+                    typeSet,
+                    stopAtTypeSet);
             }
         }
 
@@ -1918,8 +1999,10 @@ public class Expression implements Cloneable {
 
         if (!added) {
             if (table != null && table.queryExpression != null) {
-                set = table.queryExpression.collectAllExpressions(set,
-                        typeSet, stopAtTypeSet);
+                set = table.queryExpression.collectAllExpressions(
+                    set,
+                    typeSet,
+                    stopAtTypeSet);
             }
         }
 
@@ -1941,7 +2024,8 @@ public class Expression implements Cloneable {
         return collectAllSubqueries(null);
     }
 
-    final OrderedHashSet<TableDerived> collectAllSubqueries(OrderedHashSet<TableDerived> set) {
+    final OrderedHashSet<TableDerived> collectAllSubqueries(
+            OrderedHashSet<TableDerived> set) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -1951,8 +2035,10 @@ public class Expression implements Cloneable {
 
         if (table != null) {
             if (table.queryExpression != null) {
-                OrderedHashSet<TableDerived> tempSet = table.queryExpression.getSubqueries();
-                set     = OrderedHashSet.addAll(set, tempSet);
+                OrderedHashSet<TableDerived> tempSet =
+                    table.queryExpression.getSubqueries();
+
+                set = OrderedHashSet.addAll(set, tempSet);
             }
 
             if (set == null) {
@@ -1984,22 +2070,28 @@ public class Expression implements Cloneable {
 
         OrderedHashSet<Expression> set = null;
 
-        set = collectAllExpressions(set,
-                                    OpTypes.subqueryAggregateExpressionSet,
-                                    OpTypes.emptyExpressionSet);
+        set = collectAllExpressions(
+            set,
+            OpTypes.subqueryAggregateExpressionSet,
+            OpTypes.emptyExpressionSet);
 
         if (set != null && !set.isEmpty()) {
-            throw Error.error(ErrorCode.X_0A000,
-                              "subquery in check constraint");
+            throw Error.error(
+                ErrorCode.X_0A000,
+                "subquery in check constraint");
         }
     }
 
     public void resolveGrantFilter(Session session, Table table) {
 
-        RangeGroup ranges = new RangeGroupSimple(table.getDefaultRanges(),
-                false);
-        List<Expression> list = resolveColumnReferences(session, ranges,
-                RangeGroup.emptyArray, null);
+        RangeGroup ranges = new RangeGroupSimple(
+            table.getDefaultRanges(),
+            false);
+        List<Expression> list = resolveColumnReferences(
+            session,
+            ranges,
+            RangeGroup.emptyArray,
+            null);
 
         if (list != null && list.size() > 0) {
             Expression e = list.get(0);
@@ -2013,8 +2105,7 @@ public class Expression implements Cloneable {
 
         if (subqueries != null) {
             if (subqueries.size() > 0) {
-                if (subqueries.size() > 1) {
-                }
+                if (subqueries.size() > 1) {}
 
                 TableDerived subquery = subqueries.get(0);
 
@@ -2025,15 +2116,28 @@ public class Expression implements Cloneable {
         }
     }
 
-    static List<Expression> resolveColumnSet(Session session, RangeVariable[] rangeVars,
-                                 RangeGroup[] rangeGroups, List<Expression> sourceSet) {
-        return resolveColumnSet(session, rangeVars, rangeVars.length,
-                                rangeGroups, sourceSet, null);
+    static List<Expression> resolveColumnSet(
+            Session session,
+            RangeVariable[] rangeVars,
+            RangeGroup[] rangeGroups,
+            List<Expression> sourceSet) {
+
+        return resolveColumnSet(
+            session,
+            rangeVars,
+            rangeVars.length,
+            rangeGroups,
+            sourceSet,
+            null);
     }
 
-    static List<Expression> resolveColumnSet(Session session, RangeVariable[] rangeVars,
-                                 int rangeCount, RangeGroup[] rangeGroups,
-                                 List<Expression> sourceSet, List<Expression> targetSet) {
+    static List<Expression> resolveColumnSet(
+            Session session,
+            RangeVariable[] rangeVars,
+            int rangeCount,
+            RangeGroup[] rangeGroups,
+            List<Expression> sourceSet,
+            List<Expression> targetSet) {
 
         if (sourceSet == null) {
             return targetSet;
@@ -2044,9 +2148,13 @@ public class Expression implements Cloneable {
         for (int i = 0; i < sourceSet.size(); i++) {
             Expression e = sourceSet.get(i);
 
-            targetSet = e.resolveColumnReferences(session, rangeGroup,
-                                                  rangeCount, rangeGroups,
-                                                  targetSet, false);
+            targetSet = e.resolveColumnReferences(
+                session,
+                rangeGroup,
+                rangeCount,
+                rangeGroups,
+                targetSet,
+                false);
         }
 
         return targetSet;
@@ -2056,7 +2164,9 @@ public class Expression implements Cloneable {
         return false;
     }
 
-    void getJoinRangeVariables(RangeVariable[] ranges, List<RangeVariable> list) {}
+    void getJoinRangeVariables(
+            RangeVariable[] ranges,
+            List<RangeVariable> list) {}
 
     double costFactor(Session session, RangeVariable range, int operation) {
         return Index.minimumSelectivity;
@@ -2100,13 +2210,16 @@ public class Expression implements Cloneable {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 
-    public SetFunction updateAggregatingValue(Session session,
+    public SetFunction updateAggregatingValue(
+            Session session,
             SetFunction currValue) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 
-    public SetFunction updateAggregatingValue(Session session,
-            SetFunction currValue, SetFunction value) {
+    public SetFunction updateAggregatingValue(
+            Session session,
+            SetFunction currValue,
+            SetFunction value) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 

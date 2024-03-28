@@ -74,15 +74,14 @@ public class MapEntry<K, V> implements Entry<K, V> {
             V           otherValue = other.getValue();
 
             return key.equals(other.getKey())
-                   && (value == otherValue
-                       || (value != null && value.equals(otherValue)));
+                   && (value == otherValue || (value != null && value.equals(
+                       otherValue)));
         }
 
         return false;
     }
 
     public int hashCode() {
-
         return key.hashCode() + (value == null
                                  ? 0
                                  : value.hashCode());

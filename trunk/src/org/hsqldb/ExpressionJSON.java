@@ -52,14 +52,12 @@ public interface ExpressionJSON {
     class ExpressionJSONWrapper extends Expression {
 
         public ExpressionJSONWrapper(Expression expr) {
-
             super(OpTypes.JSON_FUNCTION);
 
             nodes = new Expression[]{ expr };
         }
 
         public void resolveTypes(Session session, Expression parent) {
-
             nodes[LEFT].resolveTypes(session, this);
 
             dataType = nodes[LEFT].dataType;
@@ -83,16 +81,18 @@ public interface ExpressionJSON {
         final Expression exprQuery;
         final boolean    nullOnNull;
 
-        public ExpressionJSONArrayFromQuery(Expression expressionQuery,
-                                            boolean nullOnNull,
-                                            Type dataType) {
+        public ExpressionJSONArrayFromQuery(
+                Expression expressionQuery,
+                boolean nullOnNull,
+                Type dataType) {
 
             super(OpTypes.JSON_FUNCTION);
 
             this.exprQuery  = expressionQuery;
             this.nullOnNull = nullOnNull;
-            this.dataType   = dataType == null ? Type.SQL_VARCHAR_LONG
-                                               : dataType;
+            this.dataType   = dataType == null
+                              ? Type.SQL_VARCHAR_LONG
+                              : dataType;
             nodes           = new Expression[]{ expressionQuery };
         }
 
@@ -126,18 +126,20 @@ public interface ExpressionJSON {
     class ExpressionJSONArrayFromValues extends Expression {
 
         final HsqlArrayList<Expression> exprList;
-        final boolean       nullOnNull;
+        final boolean                   nullOnNull;
 
-        public ExpressionJSONArrayFromValues(HsqlArrayList<Expression> expressionList,
-                                             boolean nullOnNull,
-                                             Type dataType) {
+        public ExpressionJSONArrayFromValues(
+                HsqlArrayList<Expression> expressionList,
+                boolean nullOnNull,
+                Type dataType) {
 
             super(OpTypes.JSON_FUNCTION);
 
             this.exprList   = expressionList;
             this.nullOnNull = nullOnNull;
-            this.dataType   = dataType == null ? Type.SQL_VARCHAR_LONG
-                                               : dataType;
+            this.dataType   = dataType == null
+                              ? Type.SQL_VARCHAR_LONG
+                              : dataType;
             nodes           = new Expression[expressionList.size()];
 
             expressionList.toArray(nodes);
@@ -198,14 +200,17 @@ public interface ExpressionJSON {
         final boolean isValueJSON;
         final boolean nullOnNull;
 
-        public ExpressionJSONArrayAgg(ExpressionArrayAggregate valuesAgg,
-                                      boolean nullOnNull, Type dataType) {
+        public ExpressionJSONArrayAgg(
+                ExpressionArrayAggregate valuesAgg,
+                boolean nullOnNull,
+                Type dataType) {
 
             super(OpTypes.JSON_FUNCTION);
 
             this.nullOnNull  = nullOnNull;
-            this.dataType    = dataType == null ? Type.SQL_VARCHAR_LONG
-                                                : dataType;
+            this.dataType    = dataType == null
+                               ? Type.SQL_VARCHAR_LONG
+                               : dataType;
             this.isValueJSON = valuesAgg.exprOpType == OpTypes.JSON_FUNCTION;
             nodes            = new Expression[]{ valuesAgg };
         }
@@ -245,20 +250,23 @@ public interface ExpressionJSON {
     class ExpressionJSONObject extends Expression {
 
         final OrderedHashMap<Expression, Expression> exprMap;
-        final boolean        nullOnNull;
-        final boolean        uniqueKeys;
+        final boolean                                nullOnNull;
+        final boolean                                uniqueKeys;
 
-        public ExpressionJSONObject(OrderedHashMap<Expression, Expression> exprMap,
-                                    boolean nullOnNull, boolean uniqueKeys,
-                                    Type dataType) {
+        public ExpressionJSONObject(
+                OrderedHashMap<Expression, Expression> exprMap,
+                boolean nullOnNull,
+                boolean uniqueKeys,
+                Type dataType) {
 
             super(OpTypes.JSON_FUNCTION);
 
             this.exprMap    = exprMap;
             this.nullOnNull = nullOnNull;
             this.uniqueKeys = uniqueKeys;
-            this.dataType   = dataType == null ? Type.SQL_VARCHAR_LONG
-                                               : dataType;
+            this.dataType   = dataType == null
+                              ? Type.SQL_VARCHAR_LONG
+                              : dataType;
             nodes           = new Expression[exprMap.size() * 2];
 
             for (int i = 0; i < exprMap.size(); i++) {
@@ -278,8 +286,8 @@ public interface ExpressionJSON {
 
         public Object getValue(Session session) {
 
-            StringBuilder  sb     = new StringBuilder();
-            int            count  = 0;
+            StringBuilder          sb     = new StringBuilder();
+            int                    count  = 0;
             OrderedHashSet<String> keySet = new OrderedHashSet<>();
 
             sb.append('{');
@@ -350,10 +358,12 @@ public interface ExpressionJSON {
         final boolean                  uniqueKeys;
         boolean                        isValueJSON;
 
-        public ExpressionJSONObjectAgg(ExpressionArrayAggregate namesAgg,
-                                       ExpressionArrayAggregate valuesAgg,
-                                       boolean nullOnNull, boolean uniqueKeys,
-                                       Type dataType) {
+        public ExpressionJSONObjectAgg(
+                ExpressionArrayAggregate namesAgg,
+                ExpressionArrayAggregate valuesAgg,
+                boolean nullOnNull,
+                boolean uniqueKeys,
+                Type dataType) {
 
             super(OpTypes.JSON_FUNCTION);
 
@@ -361,12 +371,11 @@ public interface ExpressionJSON {
             this.valuesAgg   = valuesAgg;
             this.nullOnNull  = nullOnNull;
             this.uniqueKeys  = uniqueKeys;
-            this.dataType    = dataType == null ? Type.SQL_VARCHAR_LONG
-                                                : dataType;
+            this.dataType    = dataType == null
+                               ? Type.SQL_VARCHAR_LONG
+                               : dataType;
             this.isValueJSON = valuesAgg.exprOpType == OpTypes.JSON_FUNCTION;
-            nodes            = new Expression[] {
-                namesAgg, valuesAgg
-            };
+            nodes            = new Expression[]{ namesAgg, valuesAgg };
         }
 
         public void resolveTypes(Session session, Expression parent) {
@@ -380,13 +389,17 @@ public interface ExpressionJSON {
 
         public Object getValue(Session session) {
 
-            StringBuilder  sb     = new StringBuilder();
-            int            count  = 0;
-            Object[]       names  = (Object[]) nodes[LEFT].getValue(session);
-            Object[]       values = (Object[]) nodes[RIGHT].getValue(session);
-            Type nameType         = nodes[LEFT].dataType.collectionBaseType();
-            Type valueType        = nodes[RIGHT].dataType.collectionBaseType();
+            int      count     = 0;
+            Object[] names     = (Object[]) nodes[LEFT].getValue(session);
+            Object[] values    = (Object[]) nodes[RIGHT].getValue(session);
+            Type     nameType  = nodes[LEFT].dataType.collectionBaseType();
+            Type     valueType = nodes[RIGHT].dataType.collectionBaseType();
+
+            //
             OrderedHashSet<String> keySet = new OrderedHashSet<>();
+
+            //
+            StringBuilder sb = new StringBuilder();
 
             sb.append('{');
 

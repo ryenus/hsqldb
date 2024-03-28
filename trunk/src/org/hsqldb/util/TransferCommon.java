@@ -75,6 +75,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 import java.util.Vector;
 
 // sqlbob@users 20020407 - patch 1.7.0 - reengineering
@@ -88,9 +89,12 @@ import java.util.Vector;
  */
 class TransferCommon {
 
-    static void savePrefs(String f, DataAccessPoint sourceDb,
-                          DataAccessPoint targetDb, Traceable tracer,
-                          Vector tTable) {
+    static void savePrefs(
+            String f,
+            DataAccessPoint sourceDb,
+            DataAccessPoint targetDb,
+            Traceable tracer,
+            Vector tTable) {
 
         TransferTable t;
 
@@ -119,8 +123,11 @@ class TransferCommon {
         }
     }
 
-    static Vector loadPrefs(String f, DataAccessPoint sourceDb,
-                            DataAccessPoint targetDb, Traceable tracer) {
+    static Vector loadPrefs(
+            String f,
+            DataAccessPoint sourceDb,
+            DataAccessPoint targetDb,
+            Traceable tracer) {
 
         TransferTable     t;
         Vector            tTable = null;
@@ -139,13 +146,13 @@ class TransferCommon {
                 t.destDb   = targetDb;
             }
         } catch (ClassNotFoundException e) {
-            System.out.println("class not found pb in LoadPrefs : "
-                               + e.toString());
+            System.out.println(
+                "class not found pb in LoadPrefs : " + e.toString());
 
             tTable = new Vector();
         } catch (IOException e) {
-            System.out.println("IO pb in LoadPrefs : actionPerformed"
-                               + e.toString());
+            System.out.println(
+                "IO pb in LoadPrefs : actionPerformed" + e.toString());
 
             tTable = new Vector();
         } finally {

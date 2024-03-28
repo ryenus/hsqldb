@@ -50,7 +50,7 @@ import java.sql.Statement;
  */
 public class Testdb {
 
-    Connection conn;                                                //our connnection to the db - presist for life of program
+    Connection conn;    //our connnection to the db - presist for life of program
 
     // we dont want this garbage collected until we are done
     public Testdb(String db_file_name_prefix) throws Exception {    // note more general exception
@@ -65,10 +65,9 @@ public class Testdb {
         // of the db.
         // It can contain directory names relative to the
         // current working directory
-        conn = DriverManager.getConnection("jdbc:hsqldb:"
-                                           + db_file_name_prefix,    // filenames
-                                           "SA",                     // username
-                                           "");                      // password
+        conn = DriverManager.getConnection("jdbc:hsqldb:" + db_file_name_prefix,    // filenames
+                                           "SA",                                    // username
+                                           "");                                     // password
     }
 
     public void shutdown() throws SQLException {
@@ -88,7 +87,7 @@ public class Testdb {
         Statement st = null;
         ResultSet rs = null;
 
-        st = conn.createStatement();         // statement objects can be reused with
+        st = conn.createStatement();    // statement objects can be reused with
 
         // repeated calls to execute but we
         // choose to make a new one each time
@@ -145,7 +144,7 @@ public class Testdb {
 
             System.out.println(" ");
         }
-    }                                       //void dump( ResultSet rs )
+    }    //void dump( ResultSet rs )
 
     public static void main(String[] args) {
 

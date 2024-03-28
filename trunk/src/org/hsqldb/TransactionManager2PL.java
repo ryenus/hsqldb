@@ -43,7 +43,7 @@ import org.hsqldb.persist.PersistentStore;
  * @since 2.0.0
  */
 public class TransactionManager2PL extends TransactionManagerCommon
-implements TransactionManager {
+        implements TransactionManager {
 
     public TransactionManager2PL(Database db) {
 
@@ -86,7 +86,6 @@ implements TransactionManager {
     }
 
     public boolean prepareCommitActions(Session session) {
-
         session.actionSCN = getNextSystemChangeNumber();
 
         return true;
@@ -156,7 +155,7 @@ implements TransactionManager {
     public void rollbackSavepoint(Session session, int index) {
 
         long timestamp = session.sessionContext.savepointTimestamps.get(index);
-        Integer oi = session.sessionContext.savepoints.get(index);
+        Integer oi     = session.sessionContext.savepoints.get(index);
         int     start  = oi.intValue();
 
         while (session.sessionContext.savepoints.size() > index + 1) {
@@ -188,7 +187,8 @@ implements TransactionManager {
         for (int i = limit - 1; i >= start; i--) {
             RowAction action = session.rowActionList.get(i);
 
-            if (action == null || action.type == RowActionBase.ACTION_NONE
+            if (action == null
+                    || action.type == RowActionBase.ACTION_NONE
                     || action.type == RowActionBase.ACTION_DELETE_FINAL) {
                 continue;
             }
@@ -213,15 +213,22 @@ implements TransactionManager {
         session.rowActionList.setSize(start);
     }
 
-    public RowAction addDeleteAction(Session session, Table table,
-                                     PersistentStore store, Row row,
-                                     int[] changedColumns) {
+    public RowAction addDeleteAction(
+            Session session,
+            Table table,
+            PersistentStore store,
+            Row row,
+            int[] changedColumns) {
 
         RowAction action;
 
         synchronized (row) {
-            action = RowAction.addDeleteAction(session, table, store, row,
-                                               changedColumns);
+            action = RowAction.addDeleteAction(
+                session,
+                table,
+                store,
+                row,
+                changedColumns);
         }
 
         store.delete(session, row);
@@ -237,19 +244,24 @@ implements TransactionManager {
         return action;
     }
 
-    public void addInsertAction(Session session, Table table,
-                                PersistentStore store, Row row,
-                                int[] changedColumns) {
+    public void addInsertAction(
+            Session session,
+            Table table,
+            PersistentStore store,
+            Row row,
+            int[] changedColumns) {
 
         RowAction action = row.rowAction;
 
         if (action == null) {
+
 /*
             System.out.println("null insert action " + session + " "
                                + session.actionTimestamp);
 */
-            throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
-                                     "null insert action ");
+            throw Error.runtimeError(
+                ErrorCode.GENERAL_ERROR,
+                "null insert action ");
         }
 
         store.indexRow(session, row);
@@ -264,7 +276,6 @@ implements TransactionManager {
     }
 
     public void beginTransaction(Session session) {
-
         if (!session.isTransaction) {
             beginTransactionCommon(session);
         }
@@ -311,6 +322,7 @@ implements TransactionManager {
     }
 
     public void beginActionResume(Session session) {
+
         Statement cs = session.sessionContext.currentStatement;
 
         cs = updateCurrentStatement(session, cs);
@@ -329,13 +341,15 @@ implements TransactionManager {
 
     public void removeTransactionInfo(long id) {}
 
-    public void resetSession(Session session, Session targetSession,
-                             long statementTimestamp, int mode) {
+    public void resetSession(
+            Session session,
+            Session targetSession,
+            long statementTimestamp,
+            int mode) {
         super.resetSession(session, targetSession, statementTimestamp, mode);
     }
 
     private void endTransaction(Session session) {
-
         if (session.isTransaction) {
             transactionCount.decrementAndGet();
         }

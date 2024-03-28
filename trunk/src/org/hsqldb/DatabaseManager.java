@@ -127,8 +127,11 @@ public class DatabaseManager {
     /**
      * Used by server to open a new session
      */
-    public static Session newSession(int dbID, String user, String password,
-                                     String zoneString) {
+    public static Session newSession(
+            int dbID,
+            String user,
+            String password,
+            String zoneString) {
 
         Database db;
 
@@ -140,8 +143,10 @@ public class DatabaseManager {
             return null;
         }
 
-        Session session = db.connect(user, password,
-                                     TimeZone.getTimeZone(zoneString));
+        Session session = db.connect(
+            user,
+            password,
+            TimeZone.getTimeZone(zoneString));
 
         session.isNetwork = true;
 
@@ -151,10 +156,13 @@ public class DatabaseManager {
     /**
      * Used by in-process connections and by Servlet
      */
-    public static Session newSession(String type, String path, String user,
-                                     String password, HsqlProperties props,
-                                     TimeZone zone) {
-
+    public static Session newSession(
+            String type,
+            String path,
+            String user,
+            String password,
+            HsqlProperties props,
+            TimeZone zone) {
         Database db = getDatabase(type, path, props);
 
         return db.connect(user, password, zone);
@@ -172,15 +180,19 @@ public class DatabaseManager {
             db = databaseIDMap.get(dbId);
         }
 
-        return db == null ? null
-                          : db.sessionManager.getSession(sessionId);
+        return db == null
+               ? null
+               : db.sessionManager.getSession(sessionId);
     }
 
     /**
      * Used by server to open or create a database
      */
-    public static int getDatabase(String type, String path, Notified server,
-                                  HsqlProperties props) {
+    public static int getDatabase(
+            String type,
+            String path,
+            Notified server,
+            HsqlProperties props) {
 
         Database db = getDatabase(type, path, props);
 
@@ -190,7 +202,6 @@ public class DatabaseManager {
     }
 
     public static Database getDatabase(int id) {
-
         synchronized (databaseIDMap) {
             return databaseIDMap.get(id);
         }
@@ -231,8 +242,10 @@ public class DatabaseManager {
      * the db can be reopened for the new connection.
      *
      */
-    public static Database getDatabase(String dbtype, String path,
-                                       HsqlProperties props) {
+    public static Database getDatabase(
+            String dbtype,
+            String path,
+            HsqlProperties props) {
 
         // If the (type, path) pair does not correspond to a registered
         // instance, then getDatabaseObject() returns a newly constructed
@@ -273,19 +286,22 @@ public class DatabaseManager {
                 // from this synchronized block
                 // it is here simply as a placeholder for future development
                 case Database.DATABASE_OPENING :
-                    throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
-                                      ErrorCode.M_DatabaseManager_getDatabase);
+                    throw Error.error(
+                        ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
+                        ErrorCode.M_DatabaseManager_getDatabase);
             }
         }
 
         return db;
     }
 
-    private static synchronized Database getDatabaseObject(DatabaseType type,
-            String path, HsqlProperties props) {
+    private static synchronized Database getDatabaseObject(
+            DatabaseType type,
+            String path,
+            HsqlProperties props) {
 
-        Database db;
-        String   key = path;
+        Database                  db;
+        String                    key = path;
         HashMap<String, Database> databaseMap;
 
         switch (type) {
@@ -299,14 +315,14 @@ public class DatabaseManager {
 
                     if (db == null) {
                         if (databaseMap.size() > 0) {
-                            Iterator<String> it = databaseMap.keySet().iterator();
+                            Iterator<String> it = databaseMap.keySet()
+                                                             .iterator();
 
                             while (it.hasNext()) {
                                 String current = it.next();
 
                                 if (key.equalsIgnoreCase(current)) {
                                     key = current;
-
                                     break;
                                 }
                             }
@@ -316,16 +332,17 @@ public class DatabaseManager {
 
                 break;
             }
+
             case DB_RES : {
                 databaseMap = resDatabaseMap;
-
                 break;
             }
+
             case DB_MEM : {
                 databaseMap = memDatabaseMap;
-
                 break;
             }
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager");
         }
@@ -354,10 +371,11 @@ public class DatabaseManager {
      * Looks up database of a given type and path in the registry. Returns
      * null if there is none.
      */
-    public static synchronized Database lookupDatabaseObject(DatabaseType type,
+    public static synchronized Database lookupDatabaseObject(
+            DatabaseType type,
             String path) {
 
-        String key = path;
+        String                    key = path;
         HashMap<String, Database> databaseMap;
 
         switch (type) {
@@ -376,8 +394,7 @@ public class DatabaseManager {
                 break;
 
             default :
-                throw (Error.runtimeError(ErrorCode.U_S0500,
-                                          "DatabaseManager"));
+                throw(Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager"));
         }
 
         synchronized (databaseMap) {
@@ -388,10 +405,12 @@ public class DatabaseManager {
     /**
      * Adds a database to the registry.
      */
-    private static synchronized void addDatabaseObject(DatabaseType type,
-            String path, Database db) {
+    private static synchronized void addDatabaseObject(
+            DatabaseType type,
+            String path,
+            Database db) {
 
-        String key = path;
+        String                    key = path;
         HashMap<String, Database> databaseMap;
 
         switch (type) {
@@ -410,8 +429,7 @@ public class DatabaseManager {
                 break;
 
             default :
-                throw (Error.runtimeError(ErrorCode.U_S0500,
-                                          "DatabaseManager"));
+                throw(Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager"));
         }
 
         synchronized (databaseIDMap) {
@@ -428,10 +446,10 @@ public class DatabaseManager {
      */
     static void removeDatabase(Database database) {
 
-        int          dbID = database.databaseID;
-        DatabaseType type = database.getType();
-        String       path = database.getPath();
-        String key  = path;
+        int                       dbID = database.databaseID;
+        DatabaseType              type = database.getType();
+        String                    path = database.getPath();
+        String                    key  = path;
         HashMap<String, Database> databaseMap;
 
         notifyServers(database);
@@ -444,7 +462,7 @@ public class DatabaseManager {
         } else if (type == DatabaseType.DB_MEM) {
             databaseMap = memDatabaseMap;
         } else {
-            throw (Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager"));
+            throw(Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager"));
         }
 
         boolean isEmpty;
@@ -471,13 +489,13 @@ public class DatabaseManager {
      * The database is then removed form the sets for all servers and the
      * servers that have no other database are removed from the map.
      */
-    static final HashMap<Notified, HashSet<Database>> serverMap = new HashMap<>();
+    static final HashMap<Notified, HashSet<Database>> serverMap =
+        new HashMap<>();
 
     /**
      * Deregisters a server completely.
      */
     public static void deRegisterServer(Notified server) {
-
         synchronized (serverMap) {
             serverMap.remove(server);
         }
@@ -514,9 +532,9 @@ public class DatabaseManager {
         }
 
         for (int i = 0; i < servers.length; i++) {
-            Notified server = servers[i];
+            Notified          server = servers[i];
             HashSet<Database> databases;
-            boolean  removed = false;
+            boolean           removed = false;
 
             synchronized (serverMap) {
                 databases = serverMap.get(server);
@@ -539,7 +557,7 @@ public class DatabaseManager {
         Iterator<Notified> it = serverMap.keySet().iterator();
 
         while (it.hasNext()) {
-            Notified server    = it.next();
+            Notified          server    = it.next();
             HashSet<Database> databases = serverMap.get(server);
 
             if (databases.contains(db)) {

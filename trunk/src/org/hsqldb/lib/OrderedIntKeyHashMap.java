@@ -50,7 +50,6 @@ public class OrderedIntKeyHashMap<V> extends IntKeyHashMap<V>
     public OrderedIntKeyHashMap(
             int initialCapacity)
             throws IllegalArgumentException {
-
         super(initialCapacity);
 
         isList = true;
@@ -66,7 +65,6 @@ public class OrderedIntKeyHashMap<V> extends IntKeyHashMap<V>
     }
 
     public Object getValueAt(int index) {
-
         checkRange(index);
 
         return this.objectValueTable[index];
@@ -156,7 +154,6 @@ public class OrderedIntKeyHashMap<V> extends IntKeyHashMap<V>
     }
 
     private void checkRange(int i) {
-
         if (i < 0 || i >= size()) {
             throw new IndexOutOfBoundsException();
         }

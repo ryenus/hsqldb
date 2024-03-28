@@ -62,16 +62,15 @@ public class StatementHandler extends Statement {
     public final int handlerType;
 
     //
-    private OrderedIntHashSet conditionGroups = new OrderedIntHashSet();
+    private OrderedIntHashSet      conditionGroups = new OrderedIntHashSet();
     private OrderedHashSet<String> conditionStates = new OrderedHashSet<>();
-    private Statement statement;
+    private Statement              statement;
 
     //
     public static final StatementHandler[] emptyExceptionHandlerArray =
         new StatementHandler[]{};
 
     StatementHandler(int handlerType) {
-
         super(StatementTypes.HANDLER, StatementTypes.X_SQL_CONTROL);
 
         this.handlerType = handlerType;
@@ -180,21 +179,31 @@ public class StatementHandler extends Statement {
         StringBuilder sb = new StringBuilder(64);
         String        s;
 
-        s = handlerType == CONTINUE ? Tokens.T_CONTINUE
-                                    : handlerType == EXIT ? Tokens.T_EXIT
-                                                          : Tokens.T_UNDO;
+        s = handlerType == CONTINUE
+            ? Tokens.T_CONTINUE
+            : handlerType == EXIT
+              ? Tokens.T_EXIT
+              : Tokens.T_UNDO;
 
-        sb.append(Tokens.T_DECLARE).append(' ').append(s).append(' ');
-        sb.append(Tokens.T_HANDLER).append(' ').append(Tokens.T_FOR);
-        sb.append(' ');
+        sb.append(Tokens.T_DECLARE)
+          .append(' ')
+          .append(s)
+          .append(' ')
+          .append(Tokens.T_HANDLER)
+          .append(' ')
+          .append(Tokens.T_FOR)
+          .append(' ');
 
         for (int i = 0; i < conditionStates.size(); i++) {
             if (i > 0) {
                 sb.append(',');
             }
 
-            sb.append(Tokens.T_SQLSTATE).append(' ');
-            sb.append('\'').append(conditionStates.get(i)).append('\'');
+            sb.append(Tokens.T_SQLSTATE)
+              .append(' ')
+              .append('\'')
+              .append(conditionStates.get(i))
+              .append('\'');
         }
 
         for (int i = 0; i < conditionGroups.size(); i++) {

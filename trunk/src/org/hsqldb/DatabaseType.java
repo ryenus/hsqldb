@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+
 /*
  * Enumerates supported database types.
  *
@@ -40,11 +41,8 @@ import org.hsqldb.error.ErrorCode;
  * @version 2.5.1
  * @since 2.3.4
  */
-
 public enum DatabaseType {
-    DB_MEM("mem:"),
-    DB_FILE("file:"),
-    DB_RES("res:");
+    DB_MEM("mem:"), DB_FILE("file:"), DB_RES("res:");
 
     private final String value;
 
@@ -57,20 +55,26 @@ public enum DatabaseType {
     }
 
     public boolean isFileBased() {
+
         switch (this) {
-            case DB_FILE:
-            case DB_RES:
+
+            case DB_FILE :
+            case DB_RES :
                 return true;
-            default:
+
+            default :
                 return false;
         }
     }
 
     public static boolean isInProcessDatabaseType(String type) {
-        return DB_FILE.value.equals(type) || DB_RES.value.equals(type) || DB_MEM.value.equals(type);
+        return DB_FILE.value.equals(type)
+               || DB_RES.value.equals(type)
+               || DB_MEM.value.equals(type);
     }
 
     public static DatabaseType get(String value) {
+
         if (DB_MEM.value.equals(value)) {
             return DB_MEM;
         }

@@ -57,10 +57,11 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
             int initialCapacity)
             throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.longKeyOrValue,
-              BaseHashMap.objectKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.longKeyOrValue,
+            BaseHashMap.objectKeyOrValue,
+            false);
 
         isList = true;
     }
@@ -70,10 +71,11 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
             boolean hasThirdValue)
             throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.longKeyOrValue,
-              BaseHashMap.objectKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.longKeyOrValue,
+            BaseHashMap.objectKeyOrValue,
+            false);
 
         objectKeyTable   = new Object[objectValueTable.length];
         isTwoObjectValue = true;
@@ -136,28 +138,24 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
     }
 
     public long getKeyAt(int index) {
-
         checkRange(index);
 
         return longKeyTable[index];
     }
 
     public V getValueAt(int index) {
-
         checkRange(index);
 
         return (V) objectValueTable[index];
     }
 
     public Object getSecondValueAt(int index) {
-
         checkRange(index);
 
         return objectKeyTable[index];
     }
 
     public Object getThirdValueAt(int index) {
-
         checkRange(index);
 
         return objectValueTable2[index];
@@ -286,7 +284,6 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
     }
 
     public V remove(long key) {
-
         V returnValue = (V) super.remove(key, 0, null, null, false, true);
 
         return returnValue;
@@ -371,7 +368,6 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
         }
     }
 
-
     private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
@@ -387,9 +383,7 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
         }
     }
 
-
     private void checkRange(int i) {
-
         if (i < 0 || i >= size()) {
             throw new IndexOutOfBoundsException();
         }
@@ -410,7 +404,6 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
             return size() == 0;
         }
     }
-
 
     private class Values extends AbstractReadOnlyCollection<V> {
 

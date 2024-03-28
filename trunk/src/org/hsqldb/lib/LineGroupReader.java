@@ -53,7 +53,7 @@ import org.hsqldb.map.ValuePool;
 public class LineGroupReader {
 
     private static final String[] defaultContinuations = new String[]{ " ",
-                                                                       "*" };
+            "*" };
     private static final String[] defaultIgnoredStarts = new String[]{ "--" };
     static final String LS = System.getProperty("line.separator", "\n");
 
@@ -154,7 +154,6 @@ public class LineGroupReader {
     }
 
     public String getSectionAsString() {
-
         HsqlArrayList<String> list = getNextSection();
 
         return convertToString(list, 0);
@@ -223,7 +222,6 @@ public class LineGroupReader {
     }
 
     public void close() {
-
         try {
             reader.close();
         } catch (Exception e) {}
@@ -247,8 +245,9 @@ public class LineGroupReader {
 
         OrderedHashMap<String, String> statementMap;
         String[]                       starters = new String[]{ "/*" };
-        LineGroupReader                lg       = getGroupReader(path,
-                                                                 starters);
+        LineGroupReader                lg       = getGroupReader(
+            path,
+            starters);
 
         statementMap = lg.getAsMap();
 
@@ -261,15 +260,16 @@ public class LineGroupReader {
             final String path,
             final String[] starters) {
 
-        InputStream fis =
-            AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
+        InputStream fis = AccessController.doPrivileged(
+            new PrivilegedAction<InputStream>() {
 
                 public InputStream run() {
                     return getClass().getResourceAsStream(path);
                 }
             });
-        InputStreamReader reader = new InputStreamReader(fis,
-                                                         JavaSystem.CS_ISO_8859_1);
+        InputStreamReader reader = new InputStreamReader(
+            fis,
+            JavaSystem.CS_ISO_8859_1);
         LineNumberReader lineReader = new LineNumberReader(reader);
 
         return new LineGroupReader(lineReader, starters);

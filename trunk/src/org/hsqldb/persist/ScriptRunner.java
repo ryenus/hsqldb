@@ -68,8 +68,10 @@ public class ScriptRunner {
      *  This is used to read the *.log file and manage any necessary
      *  transaction rollback.
      */
-    public static void runScript(Database database, String logFilename,
-                                 boolean fullReplay) {
+    public static void runScript(
+            Database database,
+            String logFilename,
+            boolean fullReplay) {
 
         Crypto           crypto = database.logger.getCrypto();
         ScriptReaderBase scr;
@@ -78,8 +80,11 @@ public class ScriptRunner {
             if (crypto == null) {
                 scr = new ScriptReaderText(database, logFilename, false);
             } else {
-                scr = new ScriptReaderDecode(database, logFilename, crypto,
-                                             true);
+                scr = new ScriptReaderDecode(
+                    database,
+                    logFilename,
+                    crypto,
+                    true);
             }
         } catch (Throwable e) {
 
@@ -99,18 +104,21 @@ public class ScriptRunner {
         runScript(database, scr, fullReplay);
     }
 
-    private static void runScript(Database database, ScriptReaderBase scr,
-                                  boolean fullReplay) {
+    private static void runScript(
+            Database database,
+            ScriptReaderBase scr,
+            boolean fullReplay) {
 
         IntKeyHashMap<Session> sessionMap = new IntKeyHashMap<>();
-        Session       current    = null;
-        int           currentId  = 0;
-        String        statement;
-        int           statementType;
+        Session                current    = null;
+        int                    currentId  = 0;
+        String                 statement;
+        int                    statementType;
         Statement dummy = new StatementDML(StatementTypes.UPDATE_CURSOR, null);
-        String        databaseFile = database.getCanonicalPath();
-        String        action       = fullReplay ? "open aborted"
-                                                : "open continued";
+        String                 databaseFile = database.getCanonicalPath();
+        String                 action       = fullReplay
+                ? "open aborted"
+                : "open continued";
 
         dummy.setCompileTimestamp(Long.MAX_VALUE);
         database.setReferentialIntegrity(false);
@@ -127,9 +135,8 @@ public class ScriptRunner {
 
                         // note the sessionId does not match the sessionId of
                         // new session
-                        current =
-                            database.getSessionManager().newSessionForLog(
-                                database);
+                        current = database.getSessionManager()
+                                          .newSessionForLog(database);
 
                         sessionMap.put(currentId, current);
                     }
@@ -152,8 +159,10 @@ public class ScriptRunner {
 
                         try {
                             cs = current.compileStatement(statement);
-                            result = current.executeCompiledStatement(cs,
-                                    ValuePool.emptyObjectArray, 0);
+                            result = current.executeCompiledStatement(
+                                cs,
+                                ValuePool.emptyObjectArray,
+                                0);
                         } catch (Throwable e) {
                             result = Result.newErrorResult(e);
                         }
@@ -165,6 +174,7 @@ public class ScriptRunner {
 
                             throw Error.error(result);
                         }
+
                         break;
 
                     case StatementLineTypes.COMMIT_STATEMENT :
@@ -179,12 +189,12 @@ public class ScriptRunner {
 
                         Object[] data = scr.getData();
 
-                        scr.getCurrentTable().insertNoCheckFromLog(current,
-                                data);
+                        scr.getCurrentTable()
+                           .insertNoCheckFromLog(current, data);
                         current.endAction(Result.updateOneResult);
-
                         break;
                     }
+
                     case StatementLineTypes.DELETE_STATEMENT : {
                         current.sessionContext.currentStatement = dummy;
 
@@ -200,21 +210,22 @@ public class ScriptRunner {
                         }
 
                         current.endAction(Result.updateOneResult);
-
                         break;
                     }
+
                     case StatementLineTypes.SET_SCHEMA_STATEMENT : {
                         HsqlName name =
                             database.schemaManager.findSchemaHsqlName(
                                 scr.getCurrentSchema());
 
                         current.setCurrentSchemaHsqlName(name);
-
                         break;
                     }
+
                     case StatementLineTypes.SESSION_ID : {
                         break;
                     }
+
                     default :
                         throw Error.error(ErrorCode.ERROR_IN_LOG_FILE);
                 }
@@ -249,12 +260,12 @@ public class ScriptRunner {
 
             throw Error.error(ErrorCode.OUT_OF_MEMORY, e);
         } catch (Throwable t) {
-            HsqlException e =
-                Error.error(t, ErrorCode.ERROR_IN_LOG_FILE,
-                            ErrorCode.M_DatabaseScriptReader_read,
-                            new String[] {
-                scr.getLineNumber() + " " + databaseFile, t.getMessage()
-            });
+            HsqlException e = Error.error(
+                t,
+                ErrorCode.ERROR_IN_LOG_FILE,
+                ErrorCode.M_DatabaseScriptReader_read,
+                new String[]{ scr.getLineNumber() + " " + databaseFile,
+                              t.getMessage() });
 
             // stop processing on bad script line
             String error = "statement error processing log - " + action

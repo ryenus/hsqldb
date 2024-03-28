@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -174,9 +174,10 @@ public interface StatementTypes {
     int SET_PASSTHROUGH             = 133;
     int CREATE_USER_MAPPING         = 134;
 
-	//
-    int LOAD_DATA          = 909;
-    int UNLOAD_DATA        = 910;
+    //
+    int LOAD_DATA   = 909;
+    int UNLOAD_DATA = 910;
+
     // hsqldb database
     int DATABASE_BACKUP     = 1001;
     int DATABASE_CHECKPOINT = 1002;
@@ -290,7 +291,7 @@ public interface StatementTypes {
     int LOG_SCHEMA_STATEMENT     = 1162;
 
     // hsqldb sql implementation
-    int CONDITION = 1211;                         // element of IF
+    int CONDITION = 1211;    // element of IF
     int HANDLER   = 1212;
     int DDL       = 1213;
     int CHECK     = 1214;

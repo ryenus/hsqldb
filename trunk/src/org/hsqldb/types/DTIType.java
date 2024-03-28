@@ -48,11 +48,10 @@ import org.hsqldb.lib.IntKeyIntValueHashMap;
  */
 public abstract class DTIType extends Type {
 
-    public static final int secondsInDay = 60 * 60 * 24;
-    public static final long millisInSecond = 1000L;
-    public static final long nanosInMilli = 1000000L;
-    public static final long nanosInSecond = 1000000000L;
-
+    public static final int    secondsInDay                 = 60 * 60 * 24;
+    public static final long   millisInSecond               = 1000L;
+    public static final long   nanosInMilli                 = 1000000L;
+    public static final long   nanosInSecond                = 1000000000L;
     public static final byte[] yearToSecondSeparators       = {
         '-', '-', ' ', ':', ':', '.'
     };
@@ -69,20 +68,20 @@ public abstract class DTIType extends Type {
         1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000,
         1000000000, 10000000000L, 100000000000L, 1000000000000L
     };
-    static final int[] precisionFactors = {
+    static final int[]         precisionFactors             = {
         100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1
     };
-    static final int[] nanoScaleFactors = {
+    static final int[]         nanoScaleFactors             = {
         1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10,
         1
     };
-    public static final int timezoneSecondsLimit = 18 * 60 * 60;
-    static final int[]      intervalParts        = {
+    public static final int    timezoneSecondsLimit         = 18 * 60 * 60;
+    static final int[]         intervalParts                = {
         Types.SQL_INTERVAL_YEAR, Types.SQL_INTERVAL_MONTH,
         Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_HOUR,
         Types.SQL_INTERVAL_MINUTE, Types.SQL_INTERVAL_SECOND
     };
-    static final int[][] intervalTypes = {
+    static final int[][]       intervalTypes                = {
         {
             Types.SQL_INTERVAL_YEAR, Types.SQL_INTERVAL_YEAR_TO_MONTH, 0, 0, 0,
             0
@@ -92,8 +91,7 @@ public abstract class DTIType extends Type {
             0, 0, Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_DAY_TO_HOUR,
             Types.SQL_INTERVAL_DAY_TO_MINUTE, Types.SQL_INTERVAL_DAY_TO_SECOND
         }, {
-            0, 0, 0, Types.SQL_INTERVAL_HOUR,
-            Types.SQL_INTERVAL_HOUR_TO_MINUTE,
+            0, 0, 0, Types.SQL_INTERVAL_HOUR, Types.SQL_INTERVAL_HOUR_TO_MINUTE,
             Types.SQL_INTERVAL_HOUR_TO_SECOND
         }, {
             0, 0, 0, 0, Types.SQL_INTERVAL_MINUTE,
@@ -122,8 +120,13 @@ public abstract class DTIType extends Type {
     public final int startPartIndex;
     public final int endPartIndex;
 
-    protected DTIType(int typeGroup, int type, long precision, int scale,
-                      int startIntervalType, int endIntervalType) {
+    protected DTIType(
+            int typeGroup,
+            int type,
+            long precision,
+            int scale,
+            int startIntervalType,
+            int endIntervalType) {
 
         super(typeGroup, type, precision, scale);
 
@@ -194,8 +197,8 @@ public abstract class DTIType extends Type {
         }
 
         if (scale != 0) {
-            sb.append((char) DTIType
-                .yearToSecondSeparators[DTIType.INTERVAL_FRACTION_PART_INDEX - 1]);
+            sb.append(
+                (char) DTIType.yearToSecondSeparators[DTIType.INTERVAL_FRACTION_PART_INDEX - 1]);
         }
 
         if (nanos < 0) {
@@ -252,12 +255,14 @@ public abstract class DTIType extends Type {
                         return Type.SQL_BIGINT;
                     }
 
-                    return new NumberType(Types.SQL_DECIMAL,
-                                          maxIntervalSecondPrecision + scale,
-                                          scale);
+                    return new NumberType(
+                        Types.SQL_DECIMAL,
+                        maxIntervalSecondPrecision + scale,
+                        scale);
                 }
 
                 throw Error.error(ErrorCode.X_42561);
+
             case Types.SQL_INTERVAL_YEAR :
             case Types.SQL_INTERVAL_MONTH :
             case Types.SQL_INTERVAL_DAY :
@@ -303,8 +308,10 @@ public abstract class DTIType extends Type {
                * nanoScaleFactors[precision];
     }
 
-    public static int normaliseFraction(int fraction, int digits,
-                                        int precision) {
+    public static int normaliseFraction(
+            int fraction,
+            int digits,
+            int precision) {
 
         fraction *= DTIType.nanoScaleFactors[digits];
 

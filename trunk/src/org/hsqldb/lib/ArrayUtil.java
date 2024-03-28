@@ -54,7 +54,8 @@ public final class ArrayUtil {
     public static final int CLASS_CODE_SHORT   = 'S';
     public static final int CLASS_CODE_BOOLEAN = 'Z';
     private static final IntValueHashMap<Class> classCodeMap =
-        new IntValueHashMap<>(16);
+        new IntValueHashMap<>(
+            16);
 
     static {
         classCodeMap.put(byte.class, ArrayUtil.CLASS_CODE_BYTE);
@@ -941,7 +942,6 @@ public final class ArrayUtil {
     }
 
     public static void orBooleanArray(boolean[] source, boolean[] dest) {
-
         for (int i = 0; i < dest.length; i++) {
             dest[i] |= source[i];
         }
@@ -1221,11 +1221,12 @@ public final class ArrayUtil {
             sourceLength = destLength - (int) destIndex;
         }
 
-        System.arraycopy(source,
-                         (int) sourceIndex,
-                         dest,
-                         (int) destIndex,
-                         sourceLength);
+        System.arraycopy(
+            source,
+            (int) sourceIndex,
+            dest,
+            (int) destIndex,
+            sourceLength);
 
         return sourceLength;
     }
@@ -1421,9 +1422,9 @@ public final class ArrayUtil {
     public static Object duplicateArray(Object source) {
 
         int size = Array.getLength(source);
-        Object newarray =
-            Array.newInstance(source.getClass().getComponentType(),
-                              size);
+        Object newarray = Array.newInstance(
+            source.getClass().getComponentType(),
+            size);
 
         System.arraycopy(source, 0, newarray, 0, size);
 
@@ -1447,9 +1448,9 @@ public final class ArrayUtil {
             return source;
         }
 
-        Object newarray =
-            Array.newInstance(source.getClass().getComponentType(),
-                              newsize);
+        Object newarray = Array.newInstance(
+            source.getClass().getComponentType(),
+            newsize);
 
         if (oldsize < newsize) {
             newsize = oldsize;
@@ -1471,9 +1472,9 @@ public final class ArrayUtil {
      */
     public static Object resizeArray(Object source, int newsize) {
 
-        Object newarray =
-            Array.newInstance(source.getClass().getComponentType(),
-                              newsize);
+        Object newarray = Array.newInstance(
+            source.getClass().getComponentType(),
+            newsize);
         int oldsize = Array.getLength(source);
 
         if (oldsize < newsize) {
@@ -1524,9 +1525,9 @@ public final class ArrayUtil {
             int adjust) {
 
         int newsize = Array.getLength(source) + adjust;
-        Object newarray =
-            Array.newInstance(source.getClass().getComponentType(),
-                              newsize);
+        Object newarray = Array.newInstance(
+            source.getClass().getComponentType(),
+            newsize);
 
         copyAdjustArray(source, newarray, addition, colindex, adjust);
 
@@ -1572,21 +1573,23 @@ public final class ArrayUtil {
             Array.set(dest, colindex, addition);
 
             if (endcount > 0) {
-                System.arraycopy(source,
-                                 colindex + 1,
-                                 dest,
-                                 colindex + 1,
-                                 endcount);
+                System.arraycopy(
+                    source,
+                    colindex + 1,
+                    dest,
+                    colindex + 1,
+                    endcount);
             }
         } else if (adjust < 0) {
             int endcount = length - colindex - 1;
 
             if (endcount > 0) {
-                System.arraycopy(source,
-                                 colindex + 1,
-                                 dest,
-                                 colindex,
-                                 endcount);
+                System.arraycopy(
+                    source,
+                    colindex + 1,
+                    dest,
+                    colindex,
+                    endcount);
             }
         } else {
             int endcount = length - colindex;
@@ -1594,11 +1597,12 @@ public final class ArrayUtil {
             Array.set(dest, colindex, addition);
 
             if (endcount > 0) {
-                System.arraycopy(source,
-                                 colindex,
-                                 dest,
-                                 colindex + 1,
-                                 endcount);
+                System.arraycopy(
+                    source,
+                    colindex,
+                    dest,
+                    colindex + 1,
+                    endcount);
             }
         }
     }
@@ -1771,14 +1775,12 @@ public final class ArrayUtil {
             Object[] row,
             int[] columnMap,
             Object[] newRow) {
-
         for (int i = 0; i < columnMap.length; i++) {
             newRow[i] = row[columnMap[i]];
         }
     }
 
     public static void projectRow(int[] row, int[] columnMap, int[] newRow) {
-
         for (int i = 0; i < columnMap.length; i++) {
             newRow[i] = row[columnMap[i]];
         }
@@ -1795,7 +1797,6 @@ public final class ArrayUtil {
             Object[] row,
             int[] columnMap,
             Object[] newRow) {
-
         for (int i = 0; i < columnMap.length; i++) {
             row[columnMap[i]] = newRow[i];
         }
@@ -1863,7 +1864,6 @@ public final class ArrayUtil {
     }
 
     public static void fillSequence(int[] colindex) {
-
         for (int i = 0; i < colindex.length; i++) {
             colindex[i] = i;
         }

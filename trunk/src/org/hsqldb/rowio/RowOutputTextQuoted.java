@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,12 +50,15 @@ public class RowOutputTextQuoted extends RowOutputText {
 
     protected String checkConvertString(String s, String sep) {
 
-        if (textFileSettings.isAllQuoted || s.length() == 0
+        if (textFileSettings.isAllQuoted
+                || s.length() == 0
                 || s.indexOf(textFileSettings.quoteChar) != -1
                 || (sep.length() > 0 && s.contains(sep))
                 || hasUnprintable(s)) {
-            s = StringConverter.toQuotedString(s, textFileSettings.quoteChar,
-                                               true);
+            s = StringConverter.toQuotedString(
+                s,
+                textFileSettings.quoteChar,
+                true);
         }
 
         return s;

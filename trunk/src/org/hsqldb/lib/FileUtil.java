@@ -67,7 +67,6 @@ public class FileUtil implements FileAccess {
     }
 
     public static FileAccess getFileAccess(boolean isResource) {
-
         return isResource
                ? fileAccessRes
                : fileUtil;
@@ -124,11 +123,10 @@ public class FileUtil implements FileAccess {
             InOutUtil.copy(inputStream, outputStream);
             getFileSync(outputStream).sync();
         } catch (IOException e) {
-            String message =
-                String.format(
-                    "Platform does not allow renaming files and failed to copy file contents from %s to %s",
-                    oldName,
-                    newName);
+            String message = String.format(
+                "Platform does not allow renaming files and failed to copy file contents from %s to %s",
+                oldName,
+                newName);
 
             logger.logSevereEvent(message, e);
 
@@ -152,15 +150,15 @@ public class FileUtil implements FileAccess {
         }
 
         if (!delete(oldName)) {
-            logger.logWarningEvent("Failed to delete renamed file " + oldName,
-                                   null);
+            logger.logWarningEvent(
+                "Failed to delete renamed file " + oldName,
+                null);
         }
 
-        String message =
-            String.format(
-                "Platform does not allow renaming files. Copied file from %s to %s instead",
-                oldName,
-                newName);
+        String message = String.format(
+            "Platform does not allow renaming files. Copied file from %s to %s instead",
+            oldName,
+            newName);
 
         logger.logDetailEvent(message);
 
@@ -193,8 +191,7 @@ public class FileUtil implements FileAccess {
     // posix separator normalized to File.separator?
     // CHECKME: is this true for every file system under Java?
     public final boolean fsNormalizesPosixSeparator = (new File("/")).getPath()
-                                                                     .endsWith(
-                                                                         File.separator);
+            .endsWith(File.separator);
 
     // for JDK 1.1 createTempFile
     final Random random = new Random(System.currentTimeMillis());
@@ -409,7 +406,6 @@ public class FileUtil implements FileAccess {
         }
     }
 
-
     /**
      * Utility method for user applications. Attempts to delete all the files
      * for the database as listed by the getDatabaseFileList() method. If any
@@ -473,7 +469,6 @@ public class FileUtil implements FileAccess {
      * @return File[]
      */
     public static File[] getDatabaseFileList(String dbNamePath) {
-
         DatabaseFilenameFilter filter = new DatabaseFilenameFilter(dbNamePath);
 
         return filter.getExistingFileListInDirectory();
@@ -489,8 +484,9 @@ public class FileUtil implements FileAccess {
      */
     public static File[] getDatabaseMainFileList(String dbNamePath) {
 
-        DatabaseFilenameFilter filter = new DatabaseFilenameFilter(dbNamePath,
-                                                                   false);
+        DatabaseFilenameFilter filter = new DatabaseFilenameFilter(
+            dbNamePath,
+            false);
 
         return filter.getExistingFileListInDirectory();
     }
@@ -499,12 +495,12 @@ public class FileUtil implements FileAccess {
 
     public static String newDiscardFileName(String filename) {
 
+        String ts = Integer.toHexString((int) System.currentTimeMillis());
         String timestamp = StringUtil.toPaddedString(
-                               Integer.toHexString(
-                                   (int) System.currentTimeMillis()),
-                               discardSuffixLength - 1,
-                               '0',
-                               true);
+            ts,
+            discardSuffixLength - 1,
+            '0',
+            true);
         String discardName = filename + "." + timestamp + ".old";
 
         return discardName;

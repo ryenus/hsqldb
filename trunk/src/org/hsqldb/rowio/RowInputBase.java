@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,6 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
      * Constructor takes a complete row
      */
     RowInputBase(byte[] buf) {
-
         super(buf);
 
         size = buf.length;
@@ -271,9 +270,9 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "RowInputBase - "
-                                         + type.getNameString());
+                throw Error.runtimeError(
+                    ErrorCode.U_S0500,
+                    "RowInputBase - " + type.getNameString());
         }
 
         return o;

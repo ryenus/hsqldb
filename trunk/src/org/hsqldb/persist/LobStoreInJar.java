@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,11 +85,16 @@ public class LobStoreInJar implements LobStore {
         }
     }
 
-    public void setBlockBytes(byte[] dataBytes, int blockAddress,
-                              int blockCount) {}
+    public void setBlockBytes(
+            byte[] dataBytes,
+            int blockAddress,
+            int blockCount) {}
 
-    public void setBlockBytes(byte[] dataBytes, long position, int offset,
-                              int length) {}
+    public void setBlockBytes(
+            byte[] dataBytes,
+            long position,
+            int offset,
+            int length) {}
 
     public int getBlockSize() {
         return lobBlockSize;
@@ -126,8 +131,7 @@ public class LobStoreInJar implements LobStore {
             fis = getClass().getResourceAsStream(fileName);
 
             if (fis == null) {
-                ClassLoader cl =
-                    Thread.currentThread().getContextClassLoader();
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
                 if (cl != null) {
                     fis = cl.getResourceAsStream(fileName);

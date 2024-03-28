@@ -65,11 +65,15 @@ public class StatementProcedure extends StatementDMQL {
     /**
      * Constructor for CALL statements for expressions.
      */
-    StatementProcedure(Session session, Expression expression,
-                       CompileContext compileContext) {
+    StatementProcedure(
+            Session session,
+            Expression expression,
+            CompileContext compileContext) {
 
-        super(StatementTypes.CALL, StatementTypes.X_SQL_DATA,
-              session.getCurrentSchemaHsqlName());
+        super(
+            StatementTypes.CALL,
+            StatementTypes.X_SQL_DATA,
+            session.getCurrentSchemaHsqlName());
 
         statementReturnType = StatementTypes.RETURN_RESULT;
 
@@ -100,11 +104,16 @@ public class StatementProcedure extends StatementDMQL {
     /**
      * Constructor for CALL statements for procedures.
      */
-    StatementProcedure(Session session, Routine procedure,
-                       Expression[] arguments, CompileContext compileContext) {
+    StatementProcedure(
+            Session session,
+            Routine procedure,
+            Expression[] arguments,
+            CompileContext compileContext) {
 
-        super(StatementTypes.CALL, StatementTypes.X_SQL_DATA,
-              session.getCurrentSchemaHsqlName());
+        super(
+            StatementTypes.CALL,
+            StatementTypes.X_SQL_DATA,
+            session.getCurrentSchemaHsqlName());
 
         if (procedure.maxDynamicResults > 0) {
             statementReturnType = StatementTypes.RETURN_ANY;
@@ -125,8 +134,9 @@ public class StatementProcedure extends StatementDMQL {
 
     Result getResult(Session session) {
 
-        Result result = expression == null ? getProcedureResult(session)
-                                           : getExpressionResult(session);
+        Result result = expression == null
+                        ? getProcedureResult(session)
+                        : getExpressionResult(session);
 
         result.setStatementType(statementReturnType);
 
@@ -163,8 +173,10 @@ public class StatementProcedure extends StatementDMQL {
                 Type   targetType = procedure.getParameter(i).getDataType();
                 Object value      = e.getValue(session);
 
-                data[i] = targetType.convertToType(session, value,
-                                                   e.getDataType());
+                data[i] = targetType.convertToType(
+                    session,
+                    value,
+                    e.getDataType());
             }
         }
 
@@ -220,10 +232,10 @@ public class StatementProcedure extends StatementDMQL {
 
         Result r = result;
 
-        result =
-            Result.newCallResponse(getParametersMetaData().getParameterTypes(),
-                                   id,
-                                   session.sessionContext.dynamicArguments);
+        result = Result.newCallResponse(
+            getParametersMetaData().getParameterTypes(),
+            id,
+            session.sessionContext.dynamicArguments);
 
         if (procedure.returnsTable()) {
             result.addChainedResult(r);
@@ -357,9 +369,11 @@ public class StatementProcedure extends StatementDMQL {
                 // return value has a void return type, a result set
                 // is described whose single column is of type NULL
                 ResultMetaData md = ResultMetaData.newResultMetaData(1);
-                ColumnBase column =
-                    new ColumnBase(null, null, null,
-                                   StatementDMQL.RETURN_COLUMN_NAME);
+                ColumnBase column = new ColumnBase(
+                    null,
+                    null,
+                    null,
+                    StatementDMQL.RETURN_COLUMN_NAME);
 
                 column.setType(expression.getDataType());
 
@@ -371,9 +385,11 @@ public class StatementProcedure extends StatementDMQL {
 
                 return md;
             }
+
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StatementProcedure");
+                throw Error.runtimeError(
+                    ErrorCode.U_S0500,
+                    "StatementProcedure");
         }
     }
 
@@ -413,7 +429,6 @@ public class StatementProcedure extends StatementDMQL {
     }
 
     void collectTableNamesForWrite(OrderedHashSet<HsqlName> set) {
-
         if (expression == null) {
             set.addAll(procedure.getTableNamesForWrite());
         }

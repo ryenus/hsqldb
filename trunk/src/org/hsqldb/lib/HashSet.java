@@ -48,17 +48,17 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
 
     public HashSet(int initialCapacity) throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.objectKeyOrValue,
-              BaseHashMap.noKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.objectKeyOrValue,
+            BaseHashMap.noKeyOrValue,
+            false);
     }
 
     public HashSet(
             int initialCapacity,
             ObjectComparator<E> comparator)
             throws IllegalArgumentException {
-
         this(initialCapacity);
 
         this.comparator = comparator;

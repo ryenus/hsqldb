@@ -70,17 +70,23 @@ public final class ServerConfiguration implements ServerConstants {
         switch (protocol) {
 
             case SC_PROTOCOL_HSQL : {
-                return isTls ? SC_DEFAULT_HSQLS_SERVER_PORT
-                             : SC_DEFAULT_HSQL_SERVER_PORT;
+                return isTls
+                       ? SC_DEFAULT_HSQLS_SERVER_PORT
+                       : SC_DEFAULT_HSQL_SERVER_PORT;
             }
+
             case SC_PROTOCOL_HTTP : {
-                return isTls ? SC_DEFAULT_HTTPS_SERVER_PORT
-                             : SC_DEFAULT_HTTP_SERVER_PORT;
+                return isTls
+                       ? SC_DEFAULT_HTTPS_SERVER_PORT
+                       : SC_DEFAULT_HTTP_SERVER_PORT;
             }
+
             case SC_PROTOCOL_BER : {
-                return isTls ? -1
-                             : SC_DEFAULT_BER_SERVER_PORT;
+                return isTls
+                       ? -1
+                       : SC_DEFAULT_BER_SERVER_PORT;
             }
+
             default : {
                 return -1;
             }
@@ -97,8 +103,10 @@ public final class ServerConfiguration implements ServerConstants {
      * @param extension String
      * @return a new properties object loaded from the specified file
      */
-    public static ServerProperties getPropertiesFromFile(int protocol,
-            String path, String extension) {
+    public static ServerProperties getPropertiesFromFile(
+            int protocol,
+            String path,
+            String extension) {
 
         boolean result;
 
@@ -114,8 +122,9 @@ public final class ServerConfiguration implements ServerConstants {
             return null;
         }
 
-        return result ? p
-                      : null;
+        return result
+               ? p
+               : null;
     }
 
     /**
@@ -137,8 +146,8 @@ public final class ServerConfiguration implements ServerConstants {
      */
     public static String[] listLocalInetAddressNames() {
 
-        InetAddress   addr;
-        InetAddress[] addrs;
+        InetAddress     addr;
+        InetAddress[]   addrs;
         HashSet<String> set = new HashSet<String>();
 
         try {
@@ -198,18 +207,22 @@ public final class ServerConfiguration implements ServerConstants {
 
         ServerProperties p = new ServerProperties(protocol);
 
-        p.setProperty(ServerProperties.sc_key_autorestart_server,
-                      SC_DEFAULT_SERVER_AUTORESTART);
+        p.setProperty(
+            ServerProperties.sc_key_autorestart_server,
+            SC_DEFAULT_SERVER_AUTORESTART);
         p.setProperty(ServerProperties.sc_key_address, SC_DEFAULT_ADDRESS);
-        p.setProperty(ServerProperties.sc_key_no_system_exit,
-                      SC_DEFAULT_NO_SYSTEM_EXIT);
-        p.setProperty(ServerProperties.sc_key_max_databases,
-                      SC_DEFAULT_MAX_DATABASES);
+        p.setProperty(
+            ServerProperties.sc_key_no_system_exit,
+            SC_DEFAULT_NO_SYSTEM_EXIT);
+        p.setProperty(
+            ServerProperties.sc_key_max_databases,
+            SC_DEFAULT_MAX_DATABASES);
         p.setProperty(ServerProperties.sc_key_silent, SC_DEFAULT_SILENT);
         p.setProperty(ServerProperties.sc_key_tls, SC_DEFAULT_TLS);
         p.setProperty(ServerProperties.sc_key_trace, SC_DEFAULT_TRACE);
-        p.setProperty(ServerProperties.sc_key_web_default_page,
-                      SC_DEFAULT_WEB_PAGE);
+        p.setProperty(
+            ServerProperties.sc_key_web_default_page,
+            SC_DEFAULT_WEB_PAGE);
         p.setProperty(ServerProperties.sc_key_web_root, SC_DEFAULT_WEB_ROOT);
 
         // Purposefully do not set a default Port because the default is
@@ -254,8 +267,8 @@ public final class ServerConfiguration implements ServerConstants {
         if (!p.isPropertyTrue(ServerProperties.sc_key_remote_open_db)) {
             if (p.getProperty(ServerProperties.sc_key_database + "." + 0)
                     == null) {
-                String defaultdb =
-                    p.getProperty(ServerProperties.sc_key_database);
+                String defaultdb = p.getProperty(
+                    ServerProperties.sc_key_database);
 
                 if (defaultdb == null) {
                     defaultdb = SC_DEFAULT_DATABASE;
@@ -263,8 +276,9 @@ public final class ServerConfiguration implements ServerConstants {
                     p.removeProperty(ServerProperties.sc_key_database);
                 }
 
-                p.setProperty(ServerProperties.sc_key_database + ".0",
-                              defaultdb);
+                p.setProperty(
+                    ServerProperties.sc_key_database + ".0",
+                    defaultdb);
                 p.setProperty(ServerProperties.sc_key_dbname + ".0", "");
             }
 
@@ -287,7 +301,8 @@ public final class ServerConfiguration implements ServerConstants {
             return;
         }
 
-        p.setPropertyIfNotExists(ServerProperties.sc_key_no_system_exit,
-                                 "false");
+        p.setPropertyIfNotExists(
+            ServerProperties.sc_key_no_system_exit,
+            "false");
     }
 }

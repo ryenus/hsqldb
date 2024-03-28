@@ -34,8 +34,10 @@ package org.hsqldb;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
+
 import java.util.TimeZone;
 
 import org.hsqldb.lib.DataOutputStream;
@@ -58,12 +60,27 @@ public class ClientConnectionHTTP extends ClientConnection {
     // IDs
     private HttpURLConnection httpConnection = null;
 
-    public ClientConnectionHTTP(String host, int port, String path,
-                                String database, boolean isTLS,
-                                boolean isTLSWrapper, String user,
-                                String password, TimeZone timeZone) {
-        super(host, port, path, database, isTLS, isTLSWrapper, user, password,
-              timeZone);
+    public ClientConnectionHTTP(
+            String host,
+            int port,
+            String path,
+            String database,
+            boolean isTLS,
+            boolean isTLSWrapper,
+            String user,
+            String password,
+            TimeZone timeZone) {
+
+        super(
+            host,
+            port,
+            path,
+            database,
+            isTLS,
+            isTLSWrapper,
+            user,
+            password,
+            timeZone);
     }
 
     public ClientConnectionHTTP(ClientConnectionHTTP other) {
@@ -85,18 +102,18 @@ public class ClientConnectionHTTP extends ClientConnection {
 
         try {
             URL    url;
-            String s   = "";
+            String s = "";
 
             if (!path.endsWith("/")) {
                 s = "/";
             }
 
             if (isTLS) {
-                url = new URL("https://" + host + ":" + port + path + s
-                              + database);    // PROTECT/servlet/hsqldb
+                url = new URL(
+                    "https://" + host + ":" + port + path + s + database);    // PROTECT/servlet/hsqldb
             } else {
-                url = new URL("http://" + host + ":" + port + path + s
-                              + database);    // PROTECT/servlet/hsqldb
+                url = new URL(
+                    "http://" + host + ":" + port + path + s + database);     // PROTECT/servlet/hsqldb
             }
 
             httpConnection = (HttpURLConnection) url.openConnection();
@@ -110,7 +127,8 @@ public class ClientConnectionHTTP extends ClientConnection {
     protected void closeConnection() {
 
         //httpConnection.disconnect();
-    }                                         // In Keep-Alive scenario, this is empty
+        // In Keep-Alive scenario, this is empty
+    }
 
     public synchronized Result execute(Result r) {
 
@@ -124,13 +142,13 @@ public class ClientConnectionHTTP extends ClientConnection {
     }
 
     public Result cancel(Result result) {
-
         ClientConnectionHTTP connection = new ClientConnectionHTTP(this);
 
         return connection.execute(result);
     }
 
-    protected void write(Result r) throws IOException, HsqlException {
+    protected void write(Result r) throws IOException,
+            HsqlException {
 
         HsqlByteArrayOutputStream memStream  = new HsqlByteArrayOutputStream();
         DataOutputStream          tempOutput = new DataOutputStream(memStream);
@@ -141,11 +159,12 @@ public class ClientConnectionHTTP extends ClientConnection {
         httpConnection.setUseCaches(false);
 
         //httpConnection.setRequestProperty("Accept-Encoding", "gzip");
-        httpConnection.setRequestProperty("Content-Type",
-                                          "application/octet-stream");
-        httpConnection.setRequestProperty("Content-Length",
-                                          String.valueOf(IDLENGTH
-                                              + memStream.size()));
+        httpConnection.setRequestProperty(
+            "Content-Type",
+            "application/octet-stream");
+        httpConnection.setRequestProperty(
+            "Content-Length",
+            String.valueOf(IDLENGTH + memStream.size()));
 
         dataOutput = new DataOutputStream(httpConnection.getOutputStream());
 
@@ -155,7 +174,8 @@ public class ClientConnectionHTTP extends ClientConnection {
         dataOutput.flush();
     }
 
-    protected Result read() throws IOException, HsqlException {
+    protected Result read() throws IOException,
+                                   HsqlException {
 
         dataInput = new DataInputStream(
             new BufferedInputStream(httpConnection.getInputStream()));

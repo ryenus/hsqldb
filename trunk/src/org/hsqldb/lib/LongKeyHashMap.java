@@ -60,10 +60,11 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
 
     public LongKeyHashMap(int initialCapacity) throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.longKeyOrValue,
-              BaseHashMap.objectKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.longKeyOrValue,
+            BaseHashMap.objectKeyOrValue,
+            false);
     }
 
     public Lock getReadLock() {
@@ -318,7 +319,6 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
         }
     }
 
-
     private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
@@ -333,7 +333,6 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
             return new MapEntry<Long, V>(key, value);
         }
     }
-
 
     private class KeySet extends AbstractReadOnlyCollection<Long>
             implements Set<Long> {
@@ -350,7 +349,6 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
             return size() == 0;
         }
     }
-
 
     private class Values extends AbstractReadOnlyCollection<V> {
 

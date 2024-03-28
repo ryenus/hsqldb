@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb.util;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import java.util.Vector;
 
 /**
@@ -65,10 +66,10 @@ class TransferResultSet {
                     iColumnTypes = new int[iColumnCount + 1];
 
                     for (int Idx = 0; Idx < iColumnCount; Idx++) {
-                        sColumnNames[Idx + 1] =
-                            r.getMetaData().getColumnName(Idx + 1);
-                        iColumnTypes[Idx + 1] =
-                            r.getMetaData().getColumnType(Idx + 1);
+                        sColumnNames[Idx + 1] = r.getMetaData()
+                                                 .getColumnName(Idx + 1);
+                        iColumnTypes[Idx + 1] = r.getMetaData()
+                                                 .getColumnType(Idx + 1);
                     }
 
                     vRows.addElement(null);
@@ -100,10 +101,15 @@ class TransferResultSet {
         vRows        = new Vector();
     }
 
-    void addRow(String[] Name, int[] type, Object[] Values,
-                int nbColumns) throws Exception {
+    void addRow(
+            String[] Name,
+            int[] type,
+            Object[] Values,
+            int nbColumns)
+            throws Exception {
 
-        if ((Name.length != type.length) || (Name.length != Values.length)
+        if ((Name.length != type.length)
+                || (Name.length != Values.length)
                 || (Name.length != (nbColumns + 1))) {
             throw new Exception("Size of parameter incoherent");
         }
@@ -117,9 +123,9 @@ class TransferResultSet {
         }
 
         if ((iMaxRowIdx > 0) && (this.getColumnCount() != nbColumns)) {
-            throw new Exception("Wrong number of columns: "
-                                + this.getColumnCount()
-                                + " column is expected");
+            throw new Exception(
+                "Wrong number of columns: " + this.getColumnCount()
+                + " column is expected");
         }
 
         iMaxRowIdx++;
@@ -128,7 +134,6 @@ class TransferResultSet {
     }
 
     boolean next() {
-
         iRowIdx++;
 
         return ((iRowIdx <= iMaxRowIdx) && (iMaxRowIdx > 0));

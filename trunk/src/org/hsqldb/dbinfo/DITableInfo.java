@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,12 +94,12 @@ final class DITableInfo {
 
             ResourceBundleHandler.setLocale(Locale.getDefault());
 
-            hnd_column_remarks =
-                ResourceBundleHandler.getBundleHandle("info-column-remarks",
-                    null);
-            hnd_table_remarks =
-                ResourceBundleHandler.getBundleHandle("info-table-remarks",
-                    null);
+            hnd_column_remarks = ResourceBundleHandler.getBundleHandle(
+                "info-column-remarks",
+                null);
+            hnd_table_remarks = ResourceBundleHandler.getBundleHandle(
+                "info-table-remarks",
+                null);
 
             ResourceBundleHandler.setLocale(oldLocale);
         }
@@ -129,8 +129,9 @@ final class DITableInfo {
      * @return the scope of the best row identifier
      */
     Integer getBRIScope() {
-        return (table.isWritable()) ? ValuePool.getInt(bestRowTransaction)
-                                    : ValuePool.getInt(bestRowSession);
+        return (table.isWritable())
+               ? ValuePool.getInt(bestRowTransaction)
+               : ValuePool.getInt(bestRowSession);
     }
 
     /**
@@ -205,7 +206,6 @@ final class DITableInfo {
      * @return the remarks recorded against the Table
      */
     String getRemark() {
-
         return (table.getTableType() == TableBase.INFO_SCHEMA_TABLE)
                ? ResourceBundleHandler.getString(hnd_table_remarks, getName())
                : table.getName().comment;

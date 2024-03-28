@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,8 +58,11 @@ public final class ClobInputStream extends Reader {
     int                           streamBlockSize;
     public final SessionInterface session;
 
-    public ClobInputStream(SessionInterface session, ClobData clob,
-                           long offset, long length) {
+    public ClobInputStream(
+            SessionInterface session,
+            ClobData clob,
+            long offset,
+            long length) {
 
         final long clobLength = clob.length(session);
 
@@ -78,8 +81,7 @@ public final class ClobInputStream extends Reader {
             return -1;
         }
 
-        if (buffer == null
-                || currentPosition >= bufferOffset + buffer.length) {
+        if (buffer == null || currentPosition >= bufferOffset + buffer.length) {
             try {
                 checkClosed();
                 readIntoBuffer();
@@ -147,7 +149,6 @@ public final class ClobInputStream extends Reader {
     }
 
     private void checkClosed() throws IOException {
-
         if (isClosed) {
             throw new IOException(Error.getMessage(ErrorCode.X_0F503));
         }
@@ -165,7 +166,10 @@ public final class ClobInputStream extends Reader {
             readLength = streamBlockSize;
         }
 
-        buffer = clob.getChars(session, currentPosition, (int) readLength);
+        buffer       = clob.getChars(
+            session,
+            currentPosition,
+            (int) readLength);
         bufferOffset = currentPosition;
     }
 

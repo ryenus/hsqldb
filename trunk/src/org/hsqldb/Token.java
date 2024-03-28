@@ -173,13 +173,12 @@ public class Token {
                             }
 
                             sb.append(e.getColumnName());
-
                             continue;
                         }
 
                         if (e.getRangeVariable().tableAlias == null) {
                             name = c.getName()
-                                .getSchemaQualifiedStatementName();
+                                    .getSchemaQualifiedStatementName();
                         } else {
                             RangeVariable range = e.getRangeVariable();
 
@@ -220,16 +219,15 @@ public class Token {
         } else if (expression instanceof SchemaObject) {
             isDelimiter = false;
 
-            String nameString =
-                ((SchemaObject) expression).getName()
+            String nameString = ((SchemaObject) expression).getName()
                     .getSchemaQualifiedStatementName();
 
             if (hasColumnList) {
                 Table table = ((Table) expression);
 
-                nameString +=
-                    table.getColumnListSQL(table.defaultColumnMap,
-                                           table.defaultColumnMap.length);
+                nameString += table.getColumnListSQL(
+                    table.defaultColumnMap,
+                    table.defaultColumnMap.length);
             }
 
             return nameString;

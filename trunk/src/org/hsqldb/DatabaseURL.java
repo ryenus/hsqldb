@@ -65,7 +65,6 @@ public final class DatabaseURL {
      * Returns true if type represents an in-process connection to database.
      */
     public static boolean isInProcessDatabaseType(String type) {
-
         return S_FILE.equals(type) || S_RES.equals(type) || S_MEM.equals(type);
     }
 
@@ -106,8 +105,10 @@ public final class DatabaseURL {
      * @param noPath indicates empty path and verbatim use of path elements as
      * database
      */
-    public static HsqlProperties parseURL(String url, boolean hasPrefix,
-                                          boolean noPath) {
+    public static HsqlProperties parseURL(
+            String url,
+            boolean hasPrefix,
+            boolean noPath) {
 
         String         urlImage   = url.toLowerCase(Locale.ENGLISH);
         HsqlProperties props      = new HsqlProperties();
@@ -152,8 +153,9 @@ public final class DatabaseURL {
                 break;
             }
 
-            url = url.substring(0, replacePos) + varValue
-                  + url.substring(endPos + 1);
+            url = url.substring(
+                0,
+                replacePos) + varValue + url.substring(endPos + 1);
             urlImage = url.toLowerCase(Locale.ENGLISH);
         }
 
@@ -170,8 +172,11 @@ public final class DatabaseURL {
         if (semiPos > -1) {
             arguments  = url.substring(semiPos + 1, urlImage.length());
             postUrlPos = semiPos;
-            extraProps = HsqlProperties.delimitedArgPairsToProps(arguments,
-                    "=", ";", null);
+            extraProps = HsqlProperties.delimitedArgPairsToProps(
+                arguments,
+                "=",
+                ";",
+                null);
 
             // validity checks are performed by engine
             props.addProperties(extraProps);
@@ -265,8 +270,11 @@ public final class DatabaseURL {
                     colPos = -1;
                 }
 
-                hostSeg = urlImage.substring(pos, (colPos > 0) ? colPos
-                                                               : endPos);
+                hostSeg = urlImage.substring(
+                    pos,
+                    (colPos > 0)
+                    ? colPos
+                    : endPos);
             }
 
             // At this point, the entire url has been parsed into
@@ -298,9 +306,8 @@ public final class DatabaseURL {
                 int lastSlashPos = pathSeg.lastIndexOf('/');
 
                 if (lastSlashPos < 1) {
-                    path = "/";
-                    database =
-                        pathSeg.substring(1).toLowerCase(Locale.ENGLISH);
+                    path     = "/";
+                    database = pathSeg.substring(1).toLowerCase(Locale.ENGLISH);
                 } else {
                     path     = pathSeg.substring(0, lastSlashPos);
                     database = pathSeg.substring(lastSlashPos + 1);

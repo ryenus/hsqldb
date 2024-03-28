@@ -73,7 +73,6 @@ public class ExpressionPeriodOp extends ExpressionLogical {
      * general constructor
      */
     ExpressionPeriodOp(int type, Expression left, Expression right) {
-
         super(type, left, right);
 
         this.isSystemVersionCondition = false;
@@ -89,9 +88,7 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         Expression left  = new ExpressionPeriod();
         Expression right = getEpochLimitExpression();
 
-        nodes = new Expression[] {
-            left, right
-        };
+        nodes = new Expression[]{ left, right };
 
         // default condition does not count
         this.isSystemVersionCondition = false;
@@ -106,9 +103,7 @@ public class ExpressionPeriodOp extends ExpressionLogical {
 
         Expression left = new ExpressionPeriod();
 
-        nodes                         = new Expression[] {
-            left, pointOfTime
-        };
+        nodes                         = new Expression[]{ left, pointOfTime };
         this.isSystemVersionCondition = true;
     }
 
@@ -122,9 +117,7 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         Expression left  = new ExpressionPeriod();
         Expression right = new ExpressionPeriod(start, end);
 
-        nodes                         = new Expression[] {
-            left, right
-        };
+        nodes                         = new Expression[]{ left, right };
         this.isSystemVersionCondition = true;
     }
 
@@ -132,25 +125,34 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         return isSystemVersionCondition;
     }
 
-    void setSystemRangeVariable(Session session, RangeGroup[] rangeGroups,
-                                RangeVariable range) {
+    void setSystemRangeVariable(
+            Session session,
+            RangeGroup[] rangeGroups,
+            RangeVariable range) {
 
         ExpressionPeriod period = (ExpressionPeriod) nodes[LEFT];
 
         period.setRangeVariable(range);
 
         Expression right = nodes[RIGHT];
-        List<Expression> unresolved = right.resolveColumnReferences(session,
-            RangeGroup.emptyGroup, rangeGroups, null);
+        List<Expression> unresolved = right.resolveColumnReferences(
+            session,
+            RangeGroup.emptyGroup,
+            rangeGroups,
+            null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         right.resolveTypes(session, null);
         transform();
     }
 
-    public List<Expression> resolveColumnReferences(Session session,
-                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(
+            Session session,
+            RangeGroup rangeGroup,
+            int rangeCount,
+            RangeGroup[] rangeGroups,
+            List<Expression> unresolvedSet,
+            boolean acceptsSequences) {
 
         // special treatment of column or period for CONTAINS
         if (opType == OpTypes.RANGE_CONTAINS) {
@@ -160,12 +162,13 @@ public class ExpressionPeriodOp extends ExpressionLogical {
 
                 if (columnExpr != null) {
                     try {
-                        nodes[RIGHT].resolveColumnReferences(session,
-                                                             rangeGroup,
-                                                             rangeCount,
-                                                             rangeGroups,
-                                                             unresolvedSet,
-                                                             acceptsSequences);
+                        nodes[RIGHT].resolveColumnReferences(
+                            session,
+                            rangeGroup,
+                            rangeCount,
+                            rangeGroups,
+                            unresolvedSet,
+                            acceptsSequences);
                     } catch (HsqlException e) {
                         nodes[RIGHT] = columnExpr;
                     }
@@ -174,9 +177,13 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         }
 
         for (int i = 0; i < nodes.length; i++) {
-            unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeGroup, rangeCount, rangeGroups, unresolvedSet,
-                    acceptsSequences);
+            unresolvedSet = nodes[i].resolveColumnReferences(
+                session,
+                rangeGroup,
+                rangeCount,
+                rangeGroups,
+                unresolvedSet,
+                acceptsSequences);
         }
 
         if (nodes[LEFT] instanceof ExpressionPeriod) {
@@ -206,8 +213,7 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         boolean          checkRight = true;
 
         if (left.isNamedPeriod()) {
-            if (left.getPeriodType()
-                    == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+            if (left.getPeriodType() == SchemaObject.PeriodType.PERIOD_SYSTEM) {
 
                 // todo - review for query opt - may not be necessary
                 // left.getRangeVariable().setSystemPeriodCondition(this);
@@ -257,8 +263,11 @@ public class ExpressionPeriodOp extends ExpressionLogical {
             checkRight = false;
         }
 
-        Expression expanded = newExpression(opType, nodes, checkLeft,
-                                            checkRight);
+        Expression expanded = newExpression(
+            opType,
+            nodes,
+            checkLeft,
+            checkRight);
 
         this.nodes  = expanded.nodes;
         this.opType = expanded.opType;
@@ -290,13 +299,16 @@ public class ExpressionPeriodOp extends ExpressionLogical {
     }
 
     static Expression getEpochLimitExpression() {
-        return new ExpressionValue(DateTimeType.epochLimitTimestamp,
-                                   Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
+        return new ExpressionValue(
+            DateTimeType.epochLimitTimestamp,
+            Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
     }
 
-    static ExpressionLogical newExpression(int type, Expression[] nodes,
-                                           boolean checkLeft,
-                                           boolean checkRight) {
+    static ExpressionLogical newExpression(
+            int type,
+            Expression[] nodes,
+            boolean checkLeft,
+            boolean checkRight) {
 
         ExpressionLogical a;
         ExpressionLogical b;
@@ -308,17 +320,23 @@ public class ExpressionPeriodOp extends ExpressionLogical {
 
             case OpTypes.RANGE_CONTAINS :
                 if (right instanceof ExpressionPeriod) {
-                    a = new ExpressionLogical(OpTypes.SMALLER_EQUAL,
-                                              left.getLeftNode(),
-                                              right.getLeftNode());
-                    b = new ExpressionLogical(OpTypes.GREATER_EQUAL,
-                                              left.getRightNode(),
-                                              right.getRightNode());
+                    a = new ExpressionLogical(
+                        OpTypes.SMALLER_EQUAL,
+                        left.getLeftNode(),
+                        right.getLeftNode());
+                    b = new ExpressionLogical(
+                        OpTypes.GREATER_EQUAL,
+                        left.getRightNode(),
+                        right.getRightNode());
                 } else {
-                    a = new ExpressionLogical(OpTypes.SMALLER_EQUAL,
-                                              left.getLeftNode(), right);
-                    b = new ExpressionLogical(OpTypes.GREATER,
-                                              left.getRightNode(), right);
+                    a = new ExpressionLogical(
+                        OpTypes.SMALLER_EQUAL,
+                        left.getLeftNode(),
+                        right);
+                    b = new ExpressionLogical(
+                        OpTypes.GREATER,
+                        left.getRightNode(),
+                        right);
                 }
 
                 c = new ExpressionLogical(OpTypes.AND, a, b);
@@ -326,55 +344,70 @@ public class ExpressionPeriodOp extends ExpressionLogical {
 
             case OpTypes.RANGE_EQUALS :
                 if (right instanceof ExpressionPeriod) {
-                    a = new ExpressionLogical(OpTypes.EQUAL,
-                                              left.getLeftNode(),
-                                              right.getLeftNode());
-                    b = new ExpressionLogical(OpTypes.EQUAL,
-                                              left.getRightNode(),
-                                              right.getRightNode());
+                    a = new ExpressionLogical(
+                        OpTypes.EQUAL,
+                        left.getLeftNode(),
+                        right.getLeftNode());
+                    b = new ExpressionLogical(
+                        OpTypes.EQUAL,
+                        left.getRightNode(),
+                        right.getRightNode());
                     c = new ExpressionLogical(OpTypes.AND, a, b);
                 } else {
 
                     // default SYSTEM_TIME condition
-                    c = new ExpressionLogical(OpTypes.EQUAL,
-                                              left.getRightNode(), right);
+                    c = new ExpressionLogical(
+                        OpTypes.EQUAL,
+                        left.getRightNode(),
+                        right);
                 }
+
                 break;
 
             case OpTypes.RANGE_OVERLAPS :
-                a = new ExpressionLogical(OpTypes.SMALLER, left.getLeftNode(),
-                                          right.getRightNode());
-                b = new ExpressionLogical(OpTypes.GREATER,
-                                          left.getRightNode(),
-                                          right.getLeftNode());
+                a = new ExpressionLogical(
+                    OpTypes.SMALLER,
+                    left.getLeftNode(),
+                    right.getRightNode());
+                b = new ExpressionLogical(
+                    OpTypes.GREATER,
+                    left.getRightNode(),
+                    right.getLeftNode());
                 c = new ExpressionLogical(OpTypes.AND, a, b);
                 break;
 
             case OpTypes.RANGE_PRECEDES :
-                c = new ExpressionLogical(OpTypes.SMALLER_EQUAL,
-                                          left.getRightNode(),
-                                          right.getLeftNode());
+                c = new ExpressionLogical(
+                    OpTypes.SMALLER_EQUAL,
+                    left.getRightNode(),
+                    right.getLeftNode());
                 break;
 
             case OpTypes.RANGE_IMMEDIATELY_PRECEDES :
-                c = new ExpressionLogical(OpTypes.EQUAL, left.getRightNode(),
-                                          right.getLeftNode());
+                c = new ExpressionLogical(
+                    OpTypes.EQUAL,
+                    left.getRightNode(),
+                    right.getLeftNode());
                 break;
 
             case OpTypes.RANGE_SUCCEEDS :
-                c = new ExpressionLogical(OpTypes.GREATER_EQUAL,
-                                          left.getLeftNode(),
-                                          right.getRightNode());
+                c = new ExpressionLogical(
+                    OpTypes.GREATER_EQUAL,
+                    left.getLeftNode(),
+                    right.getRightNode());
                 break;
 
             case OpTypes.RANGE_IMMEDIATELY_SUCCEEDS :
-                c = new ExpressionLogical(OpTypes.EQUAL, left.getLeftNode(),
-                                          right.getRightNode());
+                c = new ExpressionLogical(
+                    OpTypes.EQUAL,
+                    left.getLeftNode(),
+                    right.getRightNode());
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "ExpressionLogical");
+                throw Error.runtimeError(
+                    ErrorCode.U_S0500,
+                    "ExpressionLogical");
         }
 
         a = null;

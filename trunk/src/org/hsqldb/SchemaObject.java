@@ -157,8 +157,8 @@ public interface SchemaObject {
 
     interface Nullability {
 
-        byte NO_NULLS         = 0;    // java.sql.ResultSetMetaData.columnNoNulls
-        byte NULLABLE         = 1;    // java.sql.ResultSetMetaData.columnNullable
+        byte NO_NULLS = 0;            // java.sql.ResultSetMetaData.columnNoNulls
+        byte NULLABLE = 1;            // java.sql.ResultSetMetaData.columnNullable
         byte NULLABLE_UNKNOWN = 2;    // java.sql.ResultSetMetaData.columnNullableUnknown
     }
 

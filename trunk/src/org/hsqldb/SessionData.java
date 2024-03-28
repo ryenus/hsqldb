@@ -88,15 +88,15 @@ public class SessionData {
     LongKeyLongValueHashMap resultLobs = new LongKeyLongValueHashMap();
 
     // new lob tracking
-    static final long noLobFloor = -1;
+    static final long noLobFloor  = -1;
     long              newLobFloor = noLobFloor;
 
     public SessionData(Database database, Session session) {
 
         this.database = database;
         this.session  = session;
-        persistentStoreCollection =
-            new PersistentStoreCollectionSession(session);
+        persistentStoreCollection = new PersistentStoreCollectionSession(
+            session);
     }
 
     public PersistentStore getSubqueryRowStore(TableBase table) {
@@ -108,7 +108,8 @@ public class SessionData {
         return store;
     }
 
-    public PersistentStore getNewResultRowStore(TableBase table,
+    public PersistentStore getNewResultRowStore(
+            TableBase table,
             boolean isCached) {
 
         try {
@@ -141,16 +142,17 @@ public class SessionData {
                 session.addWarning(Error.error(ErrorCode.W_36501));
             }
 
-            returned = ResultProperties.addScrollable(returned,
-                    ResultProperties.isScrollable(required));
-            returned = ResultProperties.addHoldable(returned,
-                    ResultProperties.isHoldable(required));
+            returned = ResultProperties.addScrollable(
+                returned,
+                ResultProperties.isScrollable(required));
+            returned = ResultProperties.addHoldable(
+                returned,
+                ResultProperties.isHoldable(required));
             result.rsProperties = returned;
         }
     }
 
-    Result getDataResultHead(Result command, Result result,
-                             boolean isNetwork) {
+    Result getDataResultHead(Result command, Result result, boolean isNetwork) {
 
         int fetchSize = command.getFetchSize();
 
@@ -161,27 +163,32 @@ public class SessionData {
 
         if (required != returned) {
             if (ResultProperties.isReadOnly(required)) {
-                returned = ResultProperties.addHoldable(returned,
-                        ResultProperties.isHoldable(required));
+                returned = ResultProperties.addHoldable(
+                    returned,
+                    ResultProperties.isHoldable(required));
             } else {
                 if (ResultProperties.isReadOnly(returned)) {
-                    returned = ResultProperties.addHoldable(returned,
-                            ResultProperties.isHoldable(required));
+                    returned = ResultProperties.addHoldable(
+                        returned,
+                        ResultProperties.isHoldable(required));
 
                     // add warning for concurrency conflict
                 } else {
                     if (session.isAutoCommit()) {
-                        returned = ResultProperties.addHoldable(returned,
-                                ResultProperties.isHoldable(required));
+                        returned = ResultProperties.addHoldable(
+                            returned,
+                            ResultProperties.isHoldable(required));
                     } else {
-                        returned = ResultProperties.addHoldable(returned,
-                                false);
+                        returned = ResultProperties.addHoldable(
+                            returned,
+                            false);
                     }
                 }
             }
 
-            returned = ResultProperties.addScrollable(returned,
-                    ResultProperties.isScrollable(required));
+            returned = ResultProperties.addScrollable(
+                returned,
+                ResultProperties.isScrollable(required));
             result.rsProperties = returned;
         }
 
@@ -193,8 +200,7 @@ public class SessionData {
         }
 
         if (isNetwork) {
-            if (fetchSize != 0
-                    && result.getNavigator().getSize() > fetchSize) {
+            if (fetchSize != 0 && result.getNavigator().getSize() > fetchSize) {
                 copy = true;
                 hold = true;
             }
@@ -211,8 +217,9 @@ public class SessionData {
 
             resultMap.put(result.getResultId(), result);
 
-            result.rsProperties =
-                ResultProperties.addIsHeld(result.rsProperties, true);
+            result.rsProperties = ResultProperties.addIsHeld(
+                result.rsProperties,
+                true);
         }
 
         if (copy) {
@@ -235,7 +242,6 @@ public class SessionData {
     }
 
     Result getDataResult(long id) {
-
         Result result = resultMap.get(id);
 
         return result;
@@ -311,8 +317,10 @@ public class SessionData {
         database.lobManager.adjustUsageCount(session, value.getId(), adjust);
     }
 
-    public void adjustLobUsageCount(TableBase table, Object[] data,
-                                    int adjust) {
+    public void adjustLobUsageCount(
+            TableBase table,
+            Object[] data,
+            int adjust) {
 
         if (!table.hasLobColumn) {
             return;
@@ -334,9 +342,10 @@ public class SessionData {
                     continue;
                 }
 
-                database.lobManager.adjustUsageCount(session,
-                                                     ((LobData) value).getId(),
-                                                     adjust);
+                database.lobManager.adjustUsageCount(
+                    session,
+                    ((LobData) value).getId(),
+                    adjust);
             }
         }
     }
@@ -361,14 +370,17 @@ public class SessionData {
                         if (dataLength < 0) {
 
                             // embedded session + unknown lob length
-                            actionResult = allocateBlobSegments(result,
-                                                                inputStream);
+                            actionResult = allocateBlobSegments(
+                                result,
+                                inputStream);
                         } else {
 
                             // embedded session + known lob length
                             actionResult =
-                                database.lobManager.setBytesForNewBlob(lobId,
-                                    inputStream, dataLength);
+                                database.lobManager.setBytesForNewBlob(
+                                    lobId,
+                                    inputStream,
+                                    dataLength);
                         }
                     } else {
 
@@ -378,32 +390,36 @@ public class SessionData {
                         resultLobs.put(lobId, blob.getId());
 
                         lobId = blob.getId();
-                        actionResult =
-                            database.lobManager.setBytesForNewBlob(lobId,
-                                inputStream, dataLength);
+                        actionResult = database.lobManager.setBytesForNewBlob(
+                            lobId,
+                            inputStream,
+                            dataLength);
                     }
 
                     break;
                 }
+
                 case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS : {
                     if (lobId >= 0) {
                         if (dataLength < 0) {
 
                             // embedded session + unknown lob length
-                            actionResult =
-                                allocateClobSegments(result,
-                                                     result.getReader());
+                            actionResult = allocateClobSegments(
+                                result,
+                                result.getReader());
                         } else {
 
                             // embedded session + known lob length
                             if (result.getReader() != null) {
-                                inputStream =
-                                    new ReaderInputStream(result.getReader());
+                                inputStream = new ReaderInputStream(
+                                    result.getReader());
                             }
 
                             actionResult =
-                                database.lobManager.setCharsForNewClob(lobId,
-                                    inputStream, result.getBlockLength());
+                                database.lobManager.setCharsForNewClob(
+                                    lobId,
+                                    inputStream,
+                                    result.getBlockLength());
                         }
                     } else {
 
@@ -413,13 +429,15 @@ public class SessionData {
                         resultLobs.put(lobId, clob.getId());
 
                         lobId = clob.getId();
-                        actionResult =
-                            database.lobManager.setCharsForNewClob(lobId,
-                                inputStream, result.getBlockLength());
+                        actionResult = database.lobManager.setCharsForNewClob(
+                            lobId,
+                            inputStream,
+                            result.getBlockLength());
                     }
 
                     break;
                 }
+
                 case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
 
                     // server session + unknown lob length
@@ -429,11 +447,14 @@ public class SessionData {
 
                     byte[] byteArray = result.getByteArray();
 
-                    actionResult = database.lobManager.setBytes(lobId,
-                            result.getOffset(), byteArray, (int) dataLength);
-
+                    actionResult = database.lobManager.setBytes(
+                        lobId,
+                        result.getOffset(),
+                        byteArray,
+                        (int) dataLength);
                     break;
                 }
+
                 case ResultLob.LobResultTypes.REQUEST_SET_CHARS : {
 
                     // server session + unknown lob length
@@ -443,9 +464,11 @@ public class SessionData {
 
                     char[] charArray = result.getCharArray();
 
-                    actionResult = database.lobManager.setChars(lobId,
-                            result.getOffset(), charArray, (int) dataLength);
-
+                    actionResult = database.lobManager.setChars(
+                        lobId,
+                        result.getOffset(),
+                        charArray,
+                        (int) dataLength);
                     break;
                 }
             }
@@ -458,15 +481,17 @@ public class SessionData {
         return actionResult;
     }
 
-    Result allocateBlobSegments(ResultLob result,
-                                InputStream stream) throws IOException {
+    Result allocateBlobSegments(
+            ResultLob result,
+            InputStream stream)
+            throws IOException {
 
-        long currentOffset = result.getOffset();
-        int  bufferLength  = session.getStreamBlockSize();
-        HsqlByteArrayOutputStream byteArrayOS =
-            new HsqlByteArrayOutputStream(bufferLength);
-        Result actionResult = null;
-        long   totalLength  = 0;
+        long   currentOffset = result.getOffset();
+        int    bufferLength  = session.getStreamBlockSize();
+        HsqlByteArrayOutputStream byteArrayOS = new HsqlByteArrayOutputStream(
+            bufferLength);
+        Result actionResult  = null;
+        long   totalLength   = 0;
 
         while (true) {
             byteArrayOS.reset();
@@ -478,8 +503,11 @@ public class SessionData {
 
             byte[] byteArray = byteArrayOS.getBuffer();
 
-            actionResult = database.lobManager.setBytes(result.getLobID(),
-                    currentOffset, byteArray, byteArrayOS.size());
+            actionResult = database.lobManager.setBytes(
+                result.getLobID(),
+                currentOffset,
+                byteArray,
+                byteArrayOS.size());
 
             if (actionResult.isError()) {
                 break;
@@ -494,21 +522,30 @@ public class SessionData {
         }
 
         if (actionResult == null) {
-            actionResult = ResultLob.newLobSetResponse(result.getLobID(),
-                    totalLength);
+            actionResult = ResultLob.newLobSetResponse(
+                result.getLobID(),
+                totalLength);
         }
 
         return actionResult;
     }
 
-    private Result allocateClobSegments(ResultLob result,
-                                        Reader reader) throws IOException {
-        return allocateClobSegments(result.getLobID(), result.getOffset(),
-                                    reader);
+    private Result allocateClobSegments(
+            ResultLob result,
+            Reader reader)
+            throws IOException {
+
+        return allocateClobSegments(
+            result.getLobID(),
+            result.getOffset(),
+            reader);
     }
 
-    private Result allocateClobSegments(long lobID, long offset,
-                                        Reader reader) throws IOException {
+    private Result allocateClobSegments(
+            long lobID,
+            long offset,
+            Reader reader)
+            throws IOException {
 
         int             bufferLength  = session.getStreamBlockSize();
         CharArrayWriter charWriter    = new CharArrayWriter(bufferLength);
@@ -524,8 +561,11 @@ public class SessionData {
                 return Result.updateZeroResult;
             }
 
-            Result actionResult = database.lobManager.setChars(lobID,
-                currentOffset, charArray, charWriter.size());
+            Result actionResult = database.lobManager.setChars(
+                lobID,
+                currentOffset,
+                charArray,
+                charWriter.size());
 
             if (actionResult.isError()) {
                 return actionResult;
@@ -625,8 +665,10 @@ public class SessionData {
 
             is = new FileInputStream(file);
 
-            database.lobManager.setBytesForNewBlob(blob.getId(), is,
-                                                   fileLength);
+            database.lobManager.setBytesForNewBlob(
+                blob.getId(),
+                is,
+                fileLength);
 
             return blob;
         } catch (IOException e) {
@@ -662,7 +704,6 @@ public class SessionData {
 
     // sequences
     public void startRowProcessing() {
-
         if (sequenceMap != null) {
             sequenceMap.clear();
         }
@@ -676,7 +717,7 @@ public class SessionData {
         }
 
         HsqlName key   = sequence.getName();
-        Number value = sequenceMap.get(key);
+        Number   value = sequenceMap.get(key);
 
         if (value == null) {
             value = sequence.getValueObject();
@@ -689,7 +730,8 @@ public class SessionData {
     }
 
     public Number getSequenceCurrent(NumberSequence sequence) {
-        return sequenceUpdateMap == null ? null
-                                         : sequenceUpdateMap.get(sequence);
+        return sequenceUpdateMap == null
+               ? null
+               : sequenceUpdateMap.get(sequence);
     }
 }

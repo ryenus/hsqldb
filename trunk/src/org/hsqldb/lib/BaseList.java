@@ -98,7 +98,7 @@ abstract class BaseList<E> {
 
         boolean result = false;
 
-        for (E object : array) {
+        for (E object: array) {
             result = true;
 
             add(object);

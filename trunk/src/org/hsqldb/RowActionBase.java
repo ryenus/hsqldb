@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,6 @@ public class RowActionBase {
      * constructor, used for delete actions only
      */
     RowActionBase(Session session, byte type) {
-
         this.session = session;
         this.type    = type;
         actionSCN    = session.actionSCN;

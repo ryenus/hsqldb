@@ -53,8 +53,11 @@ public class StatementExpression extends StatementDMQL {
     /**
      * for RETURN and flow control
      */
-    StatementExpression(Session session, CompileContext compileContext,
-                        int type, Expression expression) {
+    StatementExpression(
+            Session session,
+            CompileContext compileContext,
+            int type,
+            Expression expression) {
 
         super(type, StatementTypes.X_SQL_CONTROL, null);
 
@@ -161,9 +164,9 @@ public class StatementExpression extends StatementDMQL {
 
                 // data navigator has statement scope and will be cleared at the end of statement
                 if (result.isData()) {
-                    RowSetNavigatorData navigator =
-                        new RowSetNavigatorData(session,
-                                                result.getNavigator());
+                    RowSetNavigatorData navigator = new RowSetNavigatorData(
+                        session,
+                        result.getNavigator());
 
                     result.setNavigator(navigator);
                 }

@@ -69,7 +69,6 @@ public interface ObjectComparator<T> {
         }
 
         public int hashCode(T a) {
-
             return a == null
                    ? 0
                    : a.hashCode();
@@ -79,7 +78,6 @@ public interface ObjectComparator<T> {
             return 0L;
         }
     }
-
 
     /**
      * Comparator that uses the equals and hash code methods of Objects.
@@ -91,7 +89,6 @@ public interface ObjectComparator<T> {
         }
 
         public int hashCode(T a) {
-
             return a == null
                    ? 0
                    : a.hashCode();

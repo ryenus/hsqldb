@@ -125,7 +125,6 @@ public final class StatementManager {
      * @return the next Statement identifier in the sequence.
      */
     private long nextID() {
-
         next_cs_id++;
 
         return next_cs_id;
@@ -228,13 +227,13 @@ public final class StatementManager {
 
             newStatement.setCursorPropertiesRequest(props);
 
-            if (!cs.getResultMetaData().areTypesCompatible(
-                    newStatement.getResultMetaData())) {
+            if (!cs.getResultMetaData()
+                   .areTypesCompatible(newStatement.getResultMetaData())) {
                 return null;
             }
 
-            if (!cs.getParametersMetaData().areTypesCompatible(
-                    newStatement.getParametersMetaData())) {
+            if (!cs.getParametersMetaData()
+                   .areTypesCompatible(newStatement.getParametersMetaData())) {
                 return null;
             }
 
@@ -244,8 +243,9 @@ public final class StatementManager {
             if (setGenerated) {
                 StatementDML si = (StatementDML) cs;
 
-                newStatement.setGeneratedColumnInfo(si.generatedType,
-                                                    si.generatedInputMetaData);
+                newStatement.setGeneratedColumnInfo(
+                    si.generatedType,
+                    si.generatedInputMetaData);
             }
         } catch (Throwable t) {
             return null;
@@ -350,12 +350,14 @@ public final class StatementManager {
         }
 
         wrapper = newWrapper;
-        wrapper.statement = session.compileStatement(wrapper.sql,
-                wrapper.cursorProps);
+        wrapper.statement = session.compileStatement(
+            wrapper.sql,
+            wrapper.cursorProps);
 
         wrapper.statement.setCursorPropertiesRequest(wrapper.cursorProps);
-        wrapper.statement.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
-                cmd.getGeneratedResultMetaData());
+        wrapper.statement.setGeneratedColumnInfo(
+            cmd.getGeneratedResultType(),
+            cmd.getGeneratedResultMetaData());
         registerStatement(wrapper);
 
         wrapper.usageCount = 1;
@@ -364,7 +366,7 @@ public final class StatementManager {
     }
 
     private static class StatementComparator
-        implements ObjectComparator<StatementWrapper> {
+            implements ObjectComparator<StatementWrapper> {
 
         public boolean equals(StatementWrapper s1, StatementWrapper s2) {
 
@@ -373,7 +375,8 @@ public final class StatementManager {
                    && s1.cursorProps == s2.cursorProps
                    && s1.generatedType == s2.generatedType
                    && ResultMetaData.areGeneratedReguestsCompatible(
-                       s1.generatedMetaData, s2.generatedMetaData);
+                       s1.generatedMetaData,
+                       s2.generatedMetaData);
         }
 
         public int hashCode(StatementWrapper a) {

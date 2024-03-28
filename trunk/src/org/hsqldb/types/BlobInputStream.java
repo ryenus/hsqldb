@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,8 +58,11 @@ public class BlobInputStream extends InputStream {
     int                           streamBlockSize;
     public final SessionInterface session;
 
-    public BlobInputStream(SessionInterface session, BlobData blob,
-                           long offset, long length) {
+    public BlobInputStream(
+            SessionInterface session,
+            BlobData blob,
+            long offset,
+            long length) {
 
         final long blobLength = blob.length(session);
 
@@ -78,8 +81,7 @@ public class BlobInputStream extends InputStream {
             return -1;
         }
 
-        if (buffer == null
-                || currentPosition >= bufferOffset + buffer.length) {
+        if (buffer == null || currentPosition >= bufferOffset + buffer.length) {
             try {
                 checkClosed();
                 readIntoBuffer();
@@ -128,7 +130,6 @@ public class BlobInputStream extends InputStream {
     }
 
     private void checkClosed() throws IOException {
-
         if (isClosed || blob.isClosed()) {
             throw new IOException(Error.getMessage(ErrorCode.X_0F503));
         }
@@ -146,7 +147,10 @@ public class BlobInputStream extends InputStream {
             readLength = streamBlockSize;
         }
 
-        buffer = blob.getBytes(session, currentPosition, (int) readLength);
+        buffer       = blob.getBytes(
+            session,
+            currentPosition,
+            (int) readLength);
         bufferOffset = currentPosition;
     }
 

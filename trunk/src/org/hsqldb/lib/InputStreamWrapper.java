@@ -63,8 +63,9 @@ public class InputStreamWrapper implements InputStreamInterface {
             if (limitSize == -1) {
                 return -1;
             } else {
-                throw new IOException("stream not reached the end"
-                                      + fetchedSize + " " + limitSize);
+                throw new IOException(
+                    "stream not reached the end" + fetchedSize + " "
+                    + limitSize);
             }
         }
 
@@ -93,8 +94,9 @@ public class InputStreamWrapper implements InputStreamInterface {
             if (limitSize == -1) {
                 return -1;
             } else {
-                throw new IOException("stream not reached the end"
-                                      + fetchedSize + " " + limitSize);
+                throw new IOException(
+                    "stream not reached the end" + fetchedSize + " "
+                    + limitSize);
             }
         }
 

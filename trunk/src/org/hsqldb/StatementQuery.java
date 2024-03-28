@@ -51,11 +51,15 @@ public class StatementQuery extends StatementDMQL {
 
     public static final StatementQuery[] emptyArray = new StatementQuery[]{};
 
-    StatementQuery(Session session, QueryExpression queryExpression,
-                   CompileContext compileContext) {
+    StatementQuery(
+            Session session,
+            QueryExpression queryExpression,
+            CompileContext compileContext) {
 
-        super(StatementTypes.SELECT_CURSOR, StatementTypes.X_SQL_DATA,
-              session.getCurrentSchemaHsqlName());
+        super(
+            StatementTypes.SELECT_CURSOR,
+            StatementTypes.X_SQL_DATA,
+            session.getCurrentSchemaHsqlName());
 
         this.statementReturnType = StatementTypes.RETURN_RESULT;
         this.queryExpression     = queryExpression;
@@ -66,7 +70,8 @@ public class StatementQuery extends StatementDMQL {
 
     Result getResult(Session session) {
 
-        Result result = queryExpression.getResult(session,
+        Result result = queryExpression.getResult(
+            session,
             session.getMaxRows());
 
         result.setStatement(this);
@@ -85,8 +90,9 @@ public class StatementQuery extends StatementDMQL {
                 return queryExpression.getMetaData();
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StatementQuery.getResultMetaData()");
+                throw Error.runtimeError(
+                    ErrorCode.U_S0500,
+                    "StatementQuery.getResultMetaData()");
         }
     }
 
@@ -106,14 +112,12 @@ public class StatementQuery extends StatementDMQL {
     }
 
     void collectTableNamesForWrite(OrderedHashSet<HsqlName> set) {
-
         if (queryExpression.isUpdatable) {
             queryExpression.getBaseTableNames(set);
         }
     }
 
     public int getResultProperties() {
-
         return queryExpression.isUpdatable
                ? ResultProperties.updatablePropsValue
                : ResultProperties.defaultPropsValue;

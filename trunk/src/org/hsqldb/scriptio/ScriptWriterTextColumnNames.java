@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,9 @@ public class ScriptWriterTextColumnNames extends ScriptWriterText {
         rowOut.setMode(RowOutputTextLog.MODE_INSERT);
         rowOut.writeBytes(BYTES_INSERT_INTO);
         rowOut.writeString(table.getName().statementName);
-        rowOut.writeString(table.getColumnListSQL(table.getColumnMap(),
-                table.getColumnCount()));
+        rowOut.writeString(
+            table.getColumnListSQL(table.getColumnMap(),
+                                   table.getColumnCount()));
         rowOut.writeBytes(BYTES_VALUES);
         rowOut.writeData(row, table.getColumnTypes());
         rowOut.writeBytes(BYTES_TERM);

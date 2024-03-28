@@ -218,7 +218,6 @@ public class RowAVLDisk extends RowAVL {
     }
 
     public synchronized void setChanged(boolean flag) {
-
         hasNodesChanged = flag;
         hasDataChanged  = flag;
         isNew           = flag;
@@ -266,8 +265,9 @@ public class RowAVLDisk extends RowAVL {
             keepCount--;
 
             if (keepCount < 0) {
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "RowAVLDisk - keep count");
+                throw Error.runtimeError(
+                    ErrorCode.U_S0500,
+                    "RowAVLDisk - keep count");
             }
         }
 

@@ -85,10 +85,15 @@ public class ReferenceObject implements SchemaObject {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(Tokens.T_CREATE).append(' ').append(Tokens.T_SYNONYM);
-        sb.append(' ').append(name.getSchemaQualifiedStatementName());
-        sb.append(' ').append(Tokens.T_FOR).append(' ');
-        sb.append(target.getSchemaQualifiedStatementName());
+        sb.append(Tokens.T_CREATE)
+          .append(' ')
+          .append(Tokens.T_SYNONYM)
+          .append(' ')
+          .append(name.getSchemaQualifiedStatementName())
+          .append(' ')
+          .append(Tokens.T_FOR)
+          .append(' ')
+          .append(target.getSchemaQualifiedStatementName());
 
         return sb.toString();
     }

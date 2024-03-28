@@ -52,7 +52,6 @@ public class HsqlByteArrayInputStream extends InputStream implements DataInput {
     protected int    count;
 
     public HsqlByteArrayInputStream(byte[] buf) {
-
         this.buffer = buf;
         this.pos    = 0;
         this.count  = buf.length;
@@ -220,7 +219,6 @@ public class HsqlByteArrayInputStream extends InputStream implements DataInput {
 
 // methods that extend java.io.InputStream
     public int read() {
-
         return (pos < count)
                ? (buffer[pos++] & 0xff)
                : -1;

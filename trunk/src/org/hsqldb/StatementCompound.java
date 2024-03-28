@@ -61,12 +61,13 @@ public class StatementCompound extends Statement implements RangeGroup {
     boolean             isAtomic;
 
     //
-    ColumnSchema[]    variables      = ColumnSchema.emptyArray;
-    StatementCursor[] cursors        = StatementCursor.emptyArray;
-    OrderedHashMap<String, ColumnSchema> scopeVariables = new OrderedHashMap<>();
-    RangeVariable[]   rangeVariables = RangeVariable.emptyArray;
-    Table[]           tables         = Table.emptyArray;
-    OrderedHashMap<String, Table>    scopeTables;
+    ColumnSchema[]                       variables = ColumnSchema.emptyArray;
+    StatementCursor[]                    cursors = StatementCursor.emptyArray;
+    OrderedHashMap<String, ColumnSchema> scopeVariables =
+        new OrderedHashMap<>();
+    RangeVariable[] rangeVariables = RangeVariable.emptyArray;
+    Table[]                              tables         = Table.emptyArray;
+    OrderedHashMap<String, Table>        scopeTables;
 
     //
     int variablesOffset;
@@ -97,8 +98,9 @@ public class StatementCompound extends Statement implements RangeGroup {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StatementCompound");
+                throw Error.runtimeError(
+                    ErrorCode.U_S0500,
+                    "StatementCompound");
         }
 
         this.parent = parent;
@@ -302,8 +304,12 @@ public class StatementCompound extends Statement implements RangeGroup {
         ColumnSchema[] columns = new ColumnSchema[colNames.length];
 
         for (int i = 0; i < colNames.length; i++) {
-            columns[i] = new ColumnSchema(colNames[i], colTypes[i], false,
-                                          false, null);
+            columns[i] = new ColumnSchema(
+                colNames[i],
+                colTypes[i],
+                false,
+                false,
+                null);
 
             columns[i].setParameterMode(SchemaObject.ParameterModes.PARAM_IN);
         }
@@ -334,9 +340,9 @@ public class StatementCompound extends Statement implements RangeGroup {
                 initialiseVariables(session);
 
                 result = executeBlock(session);
-
                 break;
             }
+
             case StatementTypes.FOR :
                 result = executeForLoop(session);
                 break;
@@ -345,17 +351,18 @@ public class StatementCompound extends Statement implements RangeGroup {
             case StatementTypes.WHILE :
             case StatementTypes.REPEAT : {
                 result = executeLoop(session);
-
                 break;
             }
+
             case StatementTypes.IF : {
                 result = executeIf(session);
-
                 break;
             }
+
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StatementCompound");
+                throw Error.runtimeError(
+                    ErrorCode.U_S0500,
+                    "StatementCompound");
         }
 
         if (result.isError()) {
@@ -375,7 +382,8 @@ public class StatementCompound extends Statement implements RangeGroup {
 
             if (hasUndoHandler) {
                 String name = HsqlNameManager.getAutoSavepointNameString(
-                    session.actionSCN, session.sessionContext.depth);
+                    session.actionSCN,
+                    session.sessionContext.depth);
 
                 session.savepoint(name);
             }
@@ -441,8 +449,9 @@ public class StatementCompound extends Statement implements RangeGroup {
                  * schema manipulation conditions are never handled
                  */
                 if (handler.handlesCondition(sqlState)) {
-                    String labelString = label == null ? null
-                                                       : label.name;
+                    String labelString = label == null
+                                         ? null
+                                         : label.name;
 
                     switch (handler.handlerType) {
 
@@ -455,13 +464,17 @@ public class StatementCompound extends Statement implements RangeGroup {
                                 session.rollbackToSavepoint();
                             }
 
-                            result = Result.newPSMResult(StatementTypes.LEAVE,
-                                                         labelString, null);
+                            result = Result.newPSMResult(
+                                StatementTypes.LEAVE,
+                                labelString,
+                                null);
                             break;
 
                         case StatementHandler.EXIT :
-                            result = Result.newPSMResult(StatementTypes.LEAVE,
-                                                         labelString, null);
+                            result = Result.newPSMResult(
+                                StatementTypes.LEAVE,
+                                labelString,
+                                null);
                             break;
                     }
 
@@ -501,8 +514,10 @@ public class StatementCompound extends Statement implements RangeGroup {
         while (queryResult.navigator.next()) {
             Object[] data = queryResult.navigator.getCurrent();
 
-            initialiseVariables(session, data,
-                                queryResult.metaData.getColumnCount());
+            initialiseVariables(
+                session,
+                data,
+                queryResult.metaData.getColumnCount());
 
             for (int i = 0; i < statements.length; i++) {
                 result = executeProtected(session, statements[i]);
@@ -571,7 +586,6 @@ public class StatementCompound extends Statement implements RangeGroup {
 
                 if (!Boolean.TRUE.equals(result.getValueObject())) {
                     result = Result.updateZeroResult;
-
                     break;
                 }
             }
@@ -637,7 +651,6 @@ public class StatementCompound extends Statement implements RangeGroup {
 
                 if (Boolean.TRUE.equals(result.getValueObject())) {
                     result = Result.updateZeroResult;
-
                     break;
                 }
             }
@@ -787,6 +800,7 @@ public class StatementCompound extends Statement implements RangeGroup {
     public void setRoot(Routine routine) {
 
         root = routine;
+
 /*
         if (condition != null) {
             condition.setRoot(routine);
@@ -817,8 +831,9 @@ public class StatementCompound extends Statement implements RangeGroup {
 
         if (parent != null && parent.scopeVariables != null) {
             for (int i = 0; i < parent.scopeVariables.size(); i++) {
-                list.add(parent.scopeVariables.getKeyAt(i),
-                         parent.scopeVariables.get(i));
+                list.add(
+                    parent.scopeVariables.getKeyAt(i),
+                    parent.scopeVariables.get(i));
             }
         }
 
@@ -840,12 +855,20 @@ public class StatementCompound extends Statement implements RangeGroup {
         scopeVariables = list;
 
         RangeVariable[] parameterRangeVariables = root.getRangeVariables();
-        RangeVariable range = new RangeVariable(list, null, true,
+        RangeVariable range = new RangeVariable(
+            list,
+            null,
+            true,
             RangeVariable.VARIALBE_RANGE);
 
         rangeVariables = new RangeVariable[parameterRangeVariables.length + 1];
 
-        System.arraycopy(parameterRangeVariables, 0, rangeVariables, 0, parameterRangeVariables.length);
+        System.arraycopy(
+            parameterRangeVariables,
+            0,
+            rangeVariables,
+            0,
+            parameterRangeVariables.length);
 
         rangeVariables[parameterRangeVariables.length] = range;
 
@@ -892,8 +915,9 @@ public class StatementCompound extends Statement implements RangeGroup {
 
         if (parent != null && parent.scopeTables != null) {
             for (int i = 0; i < parent.scopeTables.size(); i++) {
-                list.add(parent.scopeTables.getKeyAt(i),
-                         parent.scopeTables.get(i));
+                list.add(
+                    parent.scopeTables.getKeyAt(i),
+                    parent.scopeTables.get(i));
             }
         }
 
@@ -922,8 +946,9 @@ public class StatementCompound extends Statement implements RangeGroup {
             boolean         added  = list.add(cursor.getCursorName().name);
 
             if (!added) {
-                throw Error.error(ErrorCode.X_42606,
-                                  cursor.getCursorName().name);
+                throw Error.error(
+                    ErrorCode.X_42606,
+                    cursor.getCursorName().name);
             }
         }
     }
@@ -943,17 +968,20 @@ public class StatementCompound extends Statement implements RangeGroup {
 
     private void initialiseVariables(Session session) {
 
-        Object[] vars   = session.sessionContext.routineVariables;
+        Object[] vars = session.sessionContext.routineVariables;
 
         for (int i = 0; i < variables.length; i++) {
             try {
-                vars[variablesOffset + i] = variables[i].getDefaultValue(session);
+                vars[variablesOffset + i] = variables[i].getDefaultValue(
+                    session);
             } catch (HsqlException e) {}
         }
     }
 
-    private void initialiseVariables(Session session, Object[] data,
-                                     int count) {
+    private void initialiseVariables(
+            Session session,
+            Object[] data,
+            int count) {
 
         Object[] vars = session.sessionContext.routineVariables;
 

@@ -52,10 +52,11 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
 
     public IntKeyHashMap(int initialCapacity) throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.intKeyOrValue,
-              BaseHashMap.objectKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.intKeyOrValue,
+            BaseHashMap.objectKeyOrValue,
+            false);
     }
 
     public boolean containsKey(Object key) {
@@ -216,7 +217,6 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
         }
     }
 
-
     private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
@@ -231,7 +231,6 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
             return new MapEntry<>(key, value);
         }
     }
-
 
     private class KeySet extends AbstractReadOnlyCollection<Integer>
             implements Set<Integer> {
@@ -248,7 +247,6 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
             return size() == 0;
         }
     }
-
 
     private class Values extends AbstractReadOnlyCollection<V> {
 

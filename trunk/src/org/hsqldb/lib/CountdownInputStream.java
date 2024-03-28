@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 // fredt@users - 1.9.0 corrected read(byte[], int, int)
+
 /**
  * Counts down from a specified value the number of bytes actually read
  * from the wrapped InputStream. <p>
@@ -132,12 +133,12 @@ public final class CountdownInputStream extends InputStream {
     }
 
     public int available() throws IOException {
-        return Math.min(m_input.available(),
-                        (int) Math.min(Integer.MAX_VALUE, m_count));
+        return Math.min(
+            m_input.available(),
+            (int) Math.min(Integer.MAX_VALUE, m_count));
     }
 
     public long skip(long count) throws IOException {
-
         return (count <= 0)
                ? 0
                : m_input.skip(Math.min(m_count, count));

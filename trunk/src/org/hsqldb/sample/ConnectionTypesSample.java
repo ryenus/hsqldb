@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,8 @@ public class ConnectionTypesSample extends java.util.Vector {
         // Something useful
         addElement("Sybase");
         addElement("com.sybase.jdbc.SybDriver");
-        addElement("jdbc:sybase:Tds:"
-                   + "\u00ABhost?\u00BB:2638/\u00ABdatabase?\u00BB");
+        addElement(
+            "jdbc:sybase:Tds:"
+            + "\u00ABhost?\u00BB:2638/\u00ABdatabase?\u00BB");
     }
 }

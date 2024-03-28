@@ -55,14 +55,10 @@ public class View extends TableDerived {
     //
     private HsqlName[] columnNames;
 
-    /**
-     * Names of SCHEMA objects referenced in VIEW
-     */
+    /** Names of SCHEMA objects referenced in VIEW */
     private OrderedHashSet<HsqlName> schemaObjectNames;
 
-    /**
-     * check option
-     */
+    /** check option */
     private int checkOption;
 
     //
@@ -94,8 +90,10 @@ public class View extends TableDerived {
      */
     public void compile(Session session, SchemaObject parentObject) {
 
-        ParserDQL p = new ParserDQL(session, new Scanner(session, statement),
-                                    null);
+        ParserDQL p = new ParserDQL(
+            session,
+            new Scanner(session, statement),
+            null);
 
         p.isViewDefinition = true;
 
@@ -117,7 +115,9 @@ public class View extends TableDerived {
             }
 
             TableUtil.setColumnsInSchemaTable(
-                this, columnNames, queryExpression.getColumnTypes());
+                this,
+                columnNames,
+                queryExpression.getColumnTypes());
         }
 
         //
@@ -270,8 +270,9 @@ public class View extends TableDerived {
         statement = sql;
     }
 
-    public TableDerived newDerivedTable(Session session,
-                                        CompileContext baseContext) {
+    public TableDerived newDerivedTable(
+            Session session,
+            CompileContext baseContext) {
 
         TableDerived td;
         ParserDQL    p = new ParserDQL(session, new Scanner(), baseContext);

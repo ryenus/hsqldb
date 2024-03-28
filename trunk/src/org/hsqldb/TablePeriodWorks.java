@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,18 +42,17 @@ import org.hsqldb.types.TimestampData;
  * existing table which may result in a new Table object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.3
  * @since 2.5.0
  */
 class TablePeriodWorks {
 
-    private Table    table;
-    private Session  session;
+    private Table   table;
+    private Session session;
 
     public TablePeriodWorks(Session session, Table table) {
-
-        this.table    = table;
-        this.session  = session;
+        this.table   = table;
+        this.session = session;
     }
 
     void addSystemPeriod(PeriodDefinition period) {

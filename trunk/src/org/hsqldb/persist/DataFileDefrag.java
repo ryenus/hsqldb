@@ -69,7 +69,6 @@ final class DataFileDefrag {
     LongLookup    pointerLookup;
 
     DataFileDefrag(Database db, DataFileCache cache) {
-
         this.database     = db;
         this.dataCache    = cache;
         this.dataFileName = cache.getFileName();
@@ -81,7 +80,8 @@ final class DataFileDefrag {
 
         database.logger.logDetailEvent("Defrag process begins");
 
-        HsqlArrayList<Table> allTables = database.schemaManager.getAllTables(true);
+        HsqlArrayList<Table> allTables = database.schemaManager.getAllTables(
+            true);
 
         rootsList = new long[allTables.size()][];
 
@@ -92,8 +92,8 @@ final class DataFileDefrag {
 
             if (table.getTableType() == TableBase.CACHED_TABLE) {
                 RowStoreAVLDisk store =
-                    (RowStoreAVLDisk) database.persistentStoreCollection
-                        .getStore(table);
+                    (RowStoreAVLDisk) database.persistentStoreCollection.getStore(
+                        table);
                 long size = store.elementCount();
 
                 if (size > maxSize) {
@@ -149,9 +149,8 @@ final class DataFileDefrag {
                 long[] roots = rootsList[i];
 
                 if (roots != null) {
-                    database.logger.logDetailEvent("roots: "
-                                                   + StringUtil.getList(roots,
-                                                       ",", ""));
+                    database.logger.logDetailEvent(
+                        "roots: " + StringUtil.getList(roots, ",", ""));
                 }
             }
         } catch (OutOfMemoryError e) {
@@ -171,13 +170,12 @@ final class DataFileDefrag {
 
             if (error instanceof OutOfMemoryError) {
                 database.logger.logInfoEvent(
-                    "defrag failed - out of memory - required: "
-                    + maxSize * 8);
+                    "defrag failed - out of memory - required: " + maxSize * 8);
             }
 
             if (error == null) {
-                database.logger.logDetailEvent("Defrag transfer complete: "
-                                               + stopw.elapsedTime());
+                database.logger.logDetailEvent(
+                    "Defrag transfer complete: " + stopw.elapsedTime());
             } else {
                 database.logger.logSevereEvent("defrag failed ", error);
 
@@ -191,14 +189,14 @@ final class DataFileDefrag {
     long[] writeTableToDataFile(Session session, Table table) {
 
         RowStoreAVLDisk store =
-            (RowStoreAVLDisk) table.database.persistentStoreCollection
-                .getStore(table);
+            (RowStoreAVLDisk) table.database.persistentStoreCollection.getStore(
+                table);
         long[] rootsArray = table.getIndexRootsArray();
 
         pointerLookup.clear();
-        database.logger.logDetailEvent("lookup begins "
-                                       + table.getName().statementName + " "
-                                       + stopw.elapsedTime());
+        database.logger.logDetailEvent(
+            "lookup begins " + table.getName().statementName + " "
+            + stopw.elapsedTime());
         store.moveDataToSpace(dataFileOut, pointerLookup);
 
         for (int i = 0; i < table.getIndexCount(); i++) {
@@ -219,14 +217,14 @@ final class DataFileDefrag {
         long count = store.elementCount();
 
         if (count != pointerLookup.size()) {
-            database.logger.logSevereEvent("discrepency in row count "
-                                           + table.getName().name + " "
-                                           + count + " "
-                                           + pointerLookup.size(), null);
+            database.logger.logSevereEvent(
+                "discrepency in row count " + table.getName().name + " "
+                + count + " " + pointerLookup.size(),
+                null);
         }
 
-        database.logger.logDetailEvent("table written "
-                                       + table.getName().statementName);
+        database.logger.logDetailEvent(
+            "table written " + table.getName().statementName);
 
         return rootsArray;
     }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,6 @@ public class RowInputTextQuoted extends RowInputText {
     int                      charLength = 0;
 
     public RowInputTextQuoted(TextFileSettings textFileSettings) {
-
         super(textFileSettings);
 
         this.quoteChar = textFileSettings.quoteChar;
@@ -113,6 +112,7 @@ public class RowInputTextQuoted extends RowInputText {
                         } else {
                             sb.append(text.charAt(next));
                         }
+
                         break;
 
                     case NEED_END_QUOTE :
@@ -121,6 +121,7 @@ public class RowInputTextQuoted extends RowInputText {
                         } else {
                             sb.append(text.charAt(next));
                         }
+
                         break;
 
                     case FOUND_QUOTE :
@@ -147,6 +148,7 @@ public class RowInputTextQuoted extends RowInputText {
                                 state = NORMAL_FIELD;
                             }
                         }
+
                         break;
                 }
 

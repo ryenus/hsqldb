@@ -81,9 +81,13 @@ public class ExpressionColumnAccessor extends Expression {
         return null;
     }
 
-    public List<Expression> resolveColumnReferences(Session session,
-                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(
+            Session session,
+            RangeGroup rangeGroup,
+            int rangeCount,
+            RangeGroup[] rangeGroups,
+            List<Expression> unresolvedSet,
+            boolean acceptsSequences) {
         return unresolvedSet;
     }
 
@@ -101,25 +105,31 @@ public class ExpressionColumnAccessor extends Expression {
         return column.getName().name;
     }
 
-    public OrderedHashSet<Expression> getUnkeyedColumns(OrderedHashSet<Expression> unresolvedSet) {
+    public OrderedHashSet<Expression> getUnkeyedColumns(
+            OrderedHashSet<Expression> unresolvedSet) {
         return unresolvedSet;
     }
 
     /**
      * collects all range variables in expression tree
      */
-    OrderedHashSet<RangeVariable> collectRangeVariables(RangeVariable[] rangeVariables,
-                                                        OrderedHashSet<RangeVariable> set) {
+    OrderedHashSet<RangeVariable> collectRangeVariables(
+            RangeVariable[] rangeVariables,
+            OrderedHashSet<RangeVariable> set) {
         return set;
     }
 
-    Expression replaceAliasInOrderBy(Session session, Expression[] columns,
-                                     int length) {
+    Expression replaceAliasInOrderBy(
+            Session session,
+            Expression[] columns,
+            int length) {
         return this;
     }
 
-    Expression replaceColumnReferences(Session session, RangeVariable range,
-                                       Expression[] list) {
+    Expression replaceColumnReferences(
+            Session session,
+            RangeVariable range,
+            Expression[] list) {
         return this;
     }
 
@@ -150,8 +160,9 @@ public class ExpressionColumnAccessor extends Expression {
         return column == other.getColumn();
     }
 
-    void replaceRangeVariables(RangeVariable[] ranges,
-                               RangeVariable[] newRanges) {}
+    void replaceRangeVariables(
+            RangeVariable[] ranges,
+            RangeVariable[] newRanges) {}
 
     void resetColumnReferences() {}
 

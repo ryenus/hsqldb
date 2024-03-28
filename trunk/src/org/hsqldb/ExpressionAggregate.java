@@ -69,8 +69,9 @@ public class ExpressionAggregate extends Expression {
     public String getSQL() {
 
         StringBuilder sb   = new StringBuilder(64);
-        String        left = getContextSQL(nodes.length > 0 ? nodes[LEFT]
-                                                            : null);
+        String        left = getContextSQL(nodes.length > 0
+                                           ? nodes[LEFT]
+                                           : null);
 
         switch (opType) {
 
@@ -130,8 +131,9 @@ public class ExpressionAggregate extends Expression {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "ExpressionAggregate");
+                throw Error.runtimeError(
+                    ErrorCode.U_S0500,
+                    "ExpressionAggregate");
         }
 
         return sb.toString();
@@ -205,12 +207,21 @@ public class ExpressionAggregate extends Expression {
         return sb.toString();
     }
 
-    public List<Expression> resolveColumnReferences(Session session,
-                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(
+            Session session,
+            RangeGroup rangeGroup,
+            int rangeCount,
+            RangeGroup[] rangeGroups,
+            List<Expression> unresolvedSet,
+            boolean acceptsSequences) {
 
-        List<Expression> conditionSet = nodes[RIGHT].resolveColumnReferences(session,
-            rangeGroup, rangeCount, rangeGroups, null, false);
+        List<Expression> conditionSet = nodes[RIGHT].resolveColumnReferences(
+            session,
+            rangeGroup,
+            rangeCount,
+            rangeGroups,
+            null,
+            false);
 
         if (conditionSet != null) {
             ExpressionColumn.checkColumnsResolved(conditionSet);
@@ -296,8 +307,10 @@ public class ExpressionAggregate extends Expression {
                         int digits =
                             ((NumberType) dataType).getDecimalPrecision();
 
-                        return NumberType.getNumberType(Types.SQL_DECIMAL,
-                                                        digits + scale, scale);
+                        return NumberType.getNumberType(
+                            Types.SQL_DECIMAL,
+                            digits + scale,
+                            scale);
 
                     case Types.SQL_REAL :
                     case Types.SQL_FLOAT :
@@ -315,6 +328,7 @@ public class ExpressionAggregate extends Expression {
                         throw Error.error(ErrorCode.X_42563);
                 }
             }
+
             case OpTypes.SUM : {
                 switch (typeCode) {
 
@@ -333,20 +347,25 @@ public class ExpressionAggregate extends Expression {
 
                     case Types.SQL_NUMERIC :
                     case Types.SQL_DECIMAL :
-                        return Type.getType(dataType.typeCode, null, null,
-                                            dataType.precision * 2,
-                                            dataType.scale);
+                        return Type.getType(
+                            dataType.typeCode,
+                            null,
+                            null,
+                            dataType.precision * 2,
+                            dataType.scale);
 
                     case Types.SQL_INTERVAL_MONTH :
                     case Types.SQL_INTERVAL_SECOND :
                         return IntervalType.newIntervalType(
-                            dataType.typeCode, DTIType.maxIntervalPrecision,
+                            dataType.typeCode,
+                            DTIType.maxIntervalPrecision,
                             dataType.scale);
 
                     default :
                         throw Error.error(ErrorCode.X_42563);
                 }
             }
+
             case OpTypes.MIN :
             case OpTypes.MAX :
                 if (dataType.isArrayType() || dataType.isLobType()) {
@@ -360,6 +379,7 @@ public class ExpressionAggregate extends Expression {
                 if (dataType.isBooleanType()) {
                     return Type.SQL_BOOLEAN;
                 }
+
                 break;
 
             case OpTypes.STDDEV_POP :
@@ -369,14 +389,16 @@ public class ExpressionAggregate extends Expression {
                 if (dataType.isNumberType()) {
                     return Type.SQL_DOUBLE;
                 }
+
                 break;
 
             case OpTypes.USER_AGGREGATE :
                 return dataType;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "ExpressionAggregate");
+                throw Error.runtimeError(
+                    ErrorCode.U_S0500,
+                    "ExpressionAggregate");
         }
 
         throw Error.error(ErrorCode.X_42563);
@@ -395,7 +417,8 @@ public class ExpressionAggregate extends Expression {
         return false;
     }
 
-    public SetFunction updateAggregatingValue(Session session,
+    public SetFunction updateAggregatingValue(
+            Session session,
             SetFunction currValue) {
 
         if (!nodes[RIGHT].testCondition(session)) {
@@ -415,8 +438,10 @@ public class ExpressionAggregate extends Expression {
         return currValue;
     }
 
-    public SetFunction updateAggregatingValue(Session session,
-                                              SetFunction currValue, SetFunction value) {
+    public SetFunction updateAggregatingValue(
+            Session session,
+            SetFunction currValue,
+            SetFunction value) {
 
         if (currValue == null) {
             currValue = getSetFunction(session);
@@ -429,9 +454,12 @@ public class ExpressionAggregate extends Expression {
 
     SetFunction getSetFunction(Session session) {
 
-        return new SetFunctionValueAggregate(session, opType,
-                                             nodes[LEFT].dataType, dataType,
-                                             isDistinctAggregate);
+        return new SetFunctionValueAggregate(
+            session,
+            opType,
+            nodes[LEFT].dataType,
+            dataType,
+            isDistinctAggregate);
     }
 
     /**
@@ -444,8 +472,9 @@ public class ExpressionAggregate extends Expression {
     public Object getAggregatedValue(Session session, SetFunction currValue) {
 
         if (currValue == null) {
-            return opType == OpTypes.COUNT ? Long.valueOf(0)
-                                           : null;
+            return opType == OpTypes.COUNT
+                   ? Long.valueOf(0)
+                   : null;
         }
 
         return currValue.getValue();

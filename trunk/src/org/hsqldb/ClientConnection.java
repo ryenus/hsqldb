@@ -34,8 +34,11 @@ package org.hsqldb;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+
 import java.net.Socket;
+
 import java.text.SimpleDateFormat;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -64,7 +67,7 @@ import org.hsqldb.types.HsqlDateTime;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.1
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class ClientConnection implements SessionInterface, Cloneable {
@@ -126,10 +129,16 @@ public class ClientConnection implements SessionInterface, Cloneable {
     /**
      * Establishes a connection to the server.
      */
-    public ClientConnection(String host, int port, String path,
-                            String database, boolean isTLS,
-                            boolean isTLSWrapper, String user,
-                            String password, TimeZone timeZone) {
+    public ClientConnection(
+            String host,
+            int port,
+            String path,
+            String database,
+            boolean isTLS,
+            boolean isTLSWrapper,
+            String user,
+            String password,
+            TimeZone timeZone) {
 
         this.host         = host;
         this.port         = port;
@@ -137,15 +146,19 @@ public class ClientConnection implements SessionInterface, Cloneable {
         this.database     = database;
         this.isTLS        = isTLS;
         this.isTLSWrapper = isTLSWrapper;
-        this.zoneSeconds = timeZone.getOffset(System.currentTimeMillis())
-                           / 1000;
-        this.zoneString = timeZone.getID();
+        this.zoneSeconds = timeZone.getOffset(
+            System.currentTimeMillis()) / 1000;
+        this.zoneString   = timeZone.getID();
 
         initStructures();
         initConnection(host, port, isTLS);
 
-        Result login = Result.newConnectionAttemptRequest(user, password,
-            database, zoneString, zoneSeconds);
+        Result login = Result.newConnectionAttemptRequest(
+            user,
+            password,
+            database,
+            zoneString,
+            zoneSeconds);
         Result resultIn = execute(login);
 
         if (resultIn.isError()) {
@@ -202,13 +215,12 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
         try {
             if (isTLSWrapper) {
-                socket =
-                    HsqlSocketFactory.getInstance(false).createSocket(host,
-                                                  port);
+                socket = HsqlSocketFactory.getInstance(false)
+                                          .createSocket(host, port);
             }
 
-            socket = HsqlSocketFactory.getInstance(isTLS).createSocket(socket,
-                                                   host, port);
+            socket = HsqlSocketFactory.getInstance(isTLS)
+                                      .createSocket(socket, host, port);
 
             socket.setTcpNoDelay(true);
 
@@ -221,8 +233,10 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
             // The details from "e" should not be thrown away here.  This is
             // very useful info for end users to diagnose the runtime problem.
-            throw new HsqlException(e, Error.getStateString(ErrorCode.X_08001),
-                                    -ErrorCode.X_08001);
+            throw new HsqlException(
+                e,
+                Error.getStateString(ErrorCode.X_08001),
+                -ErrorCode.X_08001);
         }
     }
 
@@ -254,8 +268,10 @@ public class ClientConnection implements SessionInterface, Cloneable {
         }
     }
 
-    public synchronized RowSetNavigatorClient getRows(long navigatorId,
-            int offset, int size) {
+    public synchronized RowSetNavigatorClient getRows(
+            long navigatorId,
+            int offset,
+            int size) {
 
         try {
             resultOut.setResultType(ResultConstants.REQUESTDATA);
@@ -372,9 +388,11 @@ public class ClientConnection implements SessionInterface, Cloneable {
     public synchronized void setReadOnlyDefault(boolean mode) {
 
         if (mode != isReadOnlyDefault) {
-            setAttribute(SessionInterface.INFO_CONNECTION_READONLY,
-                         mode ? Boolean.TRUE
-                              : Boolean.FALSE);
+            setAttribute(
+                SessionInterface.INFO_CONNECTION_READONLY,
+                mode
+                ? Boolean.TRUE
+                : Boolean.FALSE);
 
             isReadOnlyDefault = mode;
         }
@@ -392,9 +410,11 @@ public class ClientConnection implements SessionInterface, Cloneable {
     public synchronized void setAutoCommit(boolean mode) {
 
         if (mode != isAutoCommit) {
-            setAttribute(SessionInterface.INFO_AUTOCOMMIT, mode ? Boolean.TRUE
-                                                                : Boolean
-                                                                .FALSE);
+            setAttribute(
+                SessionInterface.INFO_AUTOCOMMIT,
+                mode
+                ? Boolean.TRUE
+                : Boolean.FALSE);
 
             isAutoCommit = mode;
         }
@@ -405,7 +425,6 @@ public class ClientConnection implements SessionInterface, Cloneable {
     }
 
     public synchronized int getIsolation() {
-
         Object info = getAttribute(SessionInterface.INFO_ISOLATION);
 
         return ((Integer) info).intValue();
@@ -423,8 +442,9 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
     public synchronized void prepareCommit() {
 
-        resultOut.setAsTransactionEndRequest(ResultConstants.PREPARECOMMIT,
-                                             null);
+        resultOut.setAsTransactionEndRequest(
+            ResultConstants.PREPARECOMMIT,
+            null);
 
         Result in = execute(resultOut);
 
@@ -446,8 +466,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
     public synchronized void rollback(boolean chain) {
 
-        resultOut.setAsTransactionEndRequest(ResultConstants.TX_ROLLBACK,
-                                             null);
+        resultOut.setAsTransactionEndRequest(ResultConstants.TX_ROLLBACK, null);
 
         Result in = execute(resultOut);
 
@@ -459,7 +478,8 @@ public class ClientConnection implements SessionInterface, Cloneable {
     public synchronized void rollbackToSavepoint(String name) {
 
         resultOut.setAsTransactionEndRequest(
-            ResultConstants.TX_SAVEPOINT_NAME_ROLLBACK, name);
+            ResultConstants.TX_SAVEPOINT_NAME_ROLLBACK,
+            name);
 
         Result in = execute(resultOut);
 
@@ -481,7 +501,8 @@ public class ClientConnection implements SessionInterface, Cloneable {
     public synchronized void releaseSavepoint(String name) {
 
         resultOut.setAsTransactionEndRequest(
-            ResultConstants.TX_SAVEPOINT_NAME_RELEASE, name);
+            ResultConstants.TX_SAVEPOINT_NAME_RELEASE,
+            name);
 
         Result in = execute(resultOut);
 
@@ -526,11 +547,13 @@ public class ClientConnection implements SessionInterface, Cloneable {
         databaseID = resultIn.getDatabaseId();
     }
 
-    protected void write(Result r) throws IOException, HsqlException {
+    protected void write(Result r) throws IOException,
+            HsqlException {
         r.write(this, dataOutput, rowOut);
     }
 
-    protected Result read() throws IOException, HsqlException {
+    protected Result read() throws IOException,
+                                   HsqlException {
 
         Result result = Result.newResult(dataInput, rowIn);
 
@@ -564,14 +587,12 @@ public class ClientConnection implements SessionInterface, Cloneable {
     }
 
     public BlobDataID createBlob(long length) {
-
         BlobDataID blob = new BlobDataID(getLobId());
 
         return blob;
     }
 
     public ClobDataID createClob(long length) {
-
         ClobDataID clob = new ClobDataID(getLobId());
 
         return clob;
@@ -607,8 +628,9 @@ public class ClientConnection implements SessionInterface, Cloneable {
     public Calendar getCalendarGMT() {
 
         if (calendarGMT == null) {
-            calendarGMT = new GregorianCalendar(TimeZone.getTimeZone("GMT"),
-                                                HsqlDateTime.defaultLocale);
+            calendarGMT = new GregorianCalendar(
+                TimeZone.getTimeZone("GMT"),
+                HsqlDateTime.defaultLocale);
 
             calendarGMT.setLenient(false);
         }
@@ -619,11 +641,13 @@ public class ClientConnection implements SessionInterface, Cloneable {
     public SimpleDateFormat getSimpleDateFormatGMT() {
 
         if (simpleDateFormatGMT == null) {
-            simpleDateFormatGMT = new SimpleDateFormat("MMMM",
-                    HsqlDateTime.defaultLocale);
+            simpleDateFormatGMT = new SimpleDateFormat(
+                "MMMM",
+                HsqlDateTime.defaultLocale);
 
-            Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"),
-                                                 HsqlDateTime.defaultLocale);
+            Calendar cal = new GregorianCalendar(
+                TimeZone.getTimeZone("GMT"),
+                HsqlDateTime.defaultLocale);
 
             cal.setLenient(false);
             simpleDateFormatGMT.setCalendar(cal);
@@ -645,7 +669,10 @@ public class ClientConnection implements SessionInterface, Cloneable {
         if (clientProperties == null) {
             if (clientPropertiesString.length() > 0) {
                 clientProperties = HsqlProperties.delimitedArgPairsToProps(
-                    clientPropertiesString, "=", ";", null);
+                    clientPropertiesString,
+                    "=",
+                    ";",
+                    null);
             } else {
                 clientProperties = new HsqlProperties();
             }

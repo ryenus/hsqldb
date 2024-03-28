@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,7 +115,6 @@ public class HashIndex {
      * Reset the index as empty.
      */
     public void clear() {
-
         Arrays.fill(linkTable, 0, newNodePointer, 0);
         Arrays.fill(hashTable, -1);
         resetTables();
@@ -254,7 +253,6 @@ public class HashIndex {
                 }
 
                 found = true;
-
                 break;
             }
         }
@@ -269,8 +267,12 @@ public class HashIndex {
             }
         }
 
-        System.arraycopy(linkTable, lookup + 1, linkTable, lookup,
-                         newNodePointer - lookup - 1);
+        System.arraycopy(
+            linkTable,
+            lookup + 1,
+            linkTable,
+            lookup,
+            newNodePointer - lookup - 1);
 
         linkTable[newNodePointer - 1] = 0;
 
@@ -305,8 +307,12 @@ public class HashIndex {
             }
         }
 
-        System.arraycopy(linkTable, lookup, linkTable, lookup + 1,
-                         newNodePointer - lookup);
+        System.arraycopy(
+            linkTable,
+            lookup,
+            linkTable,
+            lookup + 1,
+            newNodePointer - lookup);
 
         newNodePointer++;
 

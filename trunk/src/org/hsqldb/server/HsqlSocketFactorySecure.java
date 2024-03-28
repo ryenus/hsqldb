@@ -35,9 +35,11 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
 import java.security.Principal;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLServerSocket;
@@ -60,7 +62,7 @@ import org.hsqldb.lib.StringConverter;
  * @since 1.7.2
  */
 public final class HsqlSocketFactorySecure extends HsqlSocketFactory
-implements HandshakeCompletedListener {
+        implements HandshakeCompletedListener {
 
 // --------------------------------- members -----------------------------------
 
@@ -140,15 +142,19 @@ implements HandshakeCompletedListener {
      * @param port the port to which to bind the secure ServerSocket
      * @throws Exception if a network or security provider error occurs
      */
-    public ServerSocket createServerSocket(int port,
-                                           String address) throws Exception {
+    public ServerSocket createServerSocket(
+            int port,
+            String address)
+            throws Exception {
 
         SSLServerSocket ss;
         InetAddress     addr;
 
         addr = InetAddress.getByName(address);
         ss = (SSLServerSocket) getServerSocketFactoryImpl().createServerSocket(
-            port, 128, addr);
+            port,
+            128,
+            addr);
 
         if (Error.TRACESYSTEMOUT) {
             Error.printSystemOut("[" + this + "]: createServerSocket()");
@@ -185,8 +191,11 @@ implements HandshakeCompletedListener {
      * @param port the server port
      * @throws Exception if a network or security provider error occurs
      */
-    public Socket createSocket(Socket socket, String host,
-                               int port) throws Exception {
+    public Socket createSocket(
+            Socket socket,
+            String host,
+            int port)
+            throws Exception {
 
         SSLSocket sslSocket;
 
@@ -194,8 +203,11 @@ implements HandshakeCompletedListener {
             return createSocket(host, port);
         }
 
-        sslSocket = (SSLSocket) getSocketFactoryImpl().createSocket(socket,
-                host, port, true);
+        sslSocket = (SSLSocket) getSocketFactoryImpl().createSocket(
+            socket,
+            host,
+            port,
+            true);
 
         sslSocket.addHandshakeCompletedListener(this);
         sslSocket.startHandshake();
@@ -337,6 +349,7 @@ implements HandshakeCompletedListener {
         int             end;
 
         chain = session.getPeerCertificates();
+
         if (chain == null || chain.length == 0) {
             throw new UnknownHostException(
                 Error.getMessage(ErrorCode.M_SERVER_SECURE_VERIFY_1));
@@ -359,8 +372,11 @@ implements HandshakeCompletedListener {
 
         start += 3;
         end   = DN.indexOf(',', start);
-        CN    = DN.substring(start, (end > -1) ? end
-                                               : DN.length());
+        CN    = DN.substring(
+            start,
+            (end > -1)
+            ? end
+            : DN.length());
 
         if (CN.length() < 1) {
             throw new UnknownHostException(
@@ -371,10 +387,9 @@ implements HandshakeCompletedListener {
 
             // TLS_HOSTNAME_MISMATCH
             throw new UnknownHostException(
-                Error.getMessage(
-                    ErrorCode.M_SERVER_SECURE_VERIFY_3, 0, new String[] {
-                CN, host
-            }));
+                Error.getMessage(ErrorCode.M_SERVER_SECURE_VERIFY_3,
+                                 0,
+                                 new String[]{ CN, host }));
         }
     }
 

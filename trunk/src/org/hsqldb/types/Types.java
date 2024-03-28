@@ -63,6 +63,7 @@ public class Types {
     public static final String TimestampClassName = "java.sql.Timestamp";
     public static final String BlobClassName      = "java.sql.Blob";
     public static final String ClobClassName      = "java.sql.Clob";
+
     /*
      SQL specifies predefined data types named by the following <key word>s:
      CHARACTER, CHARACTER VARYING, CHARACTER LARGE OBJECT, BINARY LARGE OBJECT,
@@ -74,25 +75,25 @@ public class Types {
      */
 
     // CLI type list from Table 37
-    public static final int SQL_CHAR              = 1;
-    public static final int SQL_NUMERIC           = 2;
-    public static final int SQL_DECIMAL           = 3;
-    public static final int SQL_INTEGER           = 4;
-    public static final int SQL_SMALLINT          = 5;
-    public static final int SQL_FLOAT             = 6;
-    public static final int SQL_REAL              = 7;
-    public static final int SQL_DOUBLE            = 8;
-    public static final int SQL_VARCHAR           = 12;
-    public static final int SQL_BOOLEAN           = 16;
-    public static final int SQL_USER_DEFINED_TYPE = 17;
-    public static final int SQL_ROW               = 19;
-    public static final int SQL_REF               = 20;
-    public static final int SQL_BIGINT            = 25;             // different in JDBC
-    public static final int SQL_BLOB              = 30;             // different in JDBC
-    public static final int SQL_CLOB              = 40;             // different in JDBC
-    public static final int SQL_ARRAY             = 50;             // different in JDBC - not predefined
-    public static final int SQL_MULTISET = 55;                      //
-    public static final int SQL_BINARY   = 60;                      // different in JDBC -in SQL post-2003
+    public static final int SQL_CHAR                      = 1;
+    public static final int SQL_NUMERIC                   = 2;
+    public static final int SQL_DECIMAL                   = 3;
+    public static final int SQL_INTEGER                   = 4;
+    public static final int SQL_SMALLINT                  = 5;
+    public static final int SQL_FLOAT                     = 6;
+    public static final int SQL_REAL                      = 7;
+    public static final int SQL_DOUBLE                    = 8;
+    public static final int SQL_VARCHAR                   = 12;
+    public static final int SQL_BOOLEAN                   = 16;
+    public static final int SQL_USER_DEFINED_TYPE         = 17;
+    public static final int SQL_ROW                       = 19;
+    public static final int SQL_REF                       = 20;
+    public static final int SQL_BIGINT = 25;                        // different in JDBC
+    public static final int SQL_BLOB = 30;                          // different in JDBC
+    public static final int SQL_CLOB = 40;                          // different in JDBC
+    public static final int SQL_ARRAY = 50;                         // different in JDBC - not predefined
+    public static final int SQL_MULTISET                  = 55;     //
+    public static final int SQL_BINARY = 60;                        // different in JDBC -in SQL post-2003
     public static final int SQL_VARBINARY = 61;                     // different in JDBC - in SQL post-2003
     public static final int SQL_DATE                      = 91;
     public static final int SQL_TIME                      = 92;
@@ -140,8 +141,8 @@ public class Types {
     // such as:
     // SQL 2003 Part 9: Management of External Data (SQL/MED) : DATALINK
     // SQL 2003 Part 14: XML-Related Specifications (SQL/XML) : XML
-    public static final int SQL_BIT         = 14;                   // is in SQL99 but removed from 2003
-    public static final int SQL_BIT_VARYING = 15;                   // is in SQL99 but removed from 2003
+    public static final int SQL_BIT = 14;                 // is in SQL99 but removed from 2003
+    public static final int SQL_BIT_VARYING = 15;         // is in SQL99 but removed from 2003
     public static final int SQL_DATALINK         = 70;
     public static final int SQL_UDT              = 17;
     public static final int SQL_UDT_LOCATOR      = 18;
@@ -150,8 +151,8 @@ public class Types {
     public static final int SQL_ARRAY_LOCATOR    = 51;
     public static final int SQL_MULTISET_LOCATOR = 56;
     public static final int SQL_ALL_TYPES        = 0;
-    public static final int SQL_DATETIME         = 9;               // collective name
-    public static final int SQL_INTERVAL         = 10;              // collective name
+    public static final int SQL_DATETIME         = 9;     // collective name
+    public static final int SQL_INTERVAL         = 10;    // collective name
     public static final int SQL_XML              = 137;
 
     // These values are taken from various SQL CLI header files
@@ -317,7 +318,7 @@ public class Types {
      * to as a type code, that identifies the generic SQL type
      * {@code MULTISET}.
      */
-    public static final int MULTISET = 0;                           // no java.sql.Types definition
+    public static final int MULTISET = 0;    // no java.sql.Types definition
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
@@ -511,71 +512,22 @@ public class Types {
      * column type -- such determinations are handled in DITypeInfo.
      */
     public static final int[][] ALL_TYPES = {
-        {
-            SQL_ARRAY, TYPE_SUB_DEFAULT
-        }, {
-            SQL_BIGINT, TYPE_SUB_DEFAULT
-        }, {
-            SQL_BINARY, TYPE_SUB_DEFAULT
-        }, {
-            SQL_VARBINARY, TYPE_SUB_DEFAULT
-        }, {
-            SQL_BLOB, TYPE_SUB_DEFAULT
-        }, {
-            SQL_BOOLEAN, TYPE_SUB_DEFAULT
-        }, {
-            SQL_CHAR, TYPE_SUB_DEFAULT
-        }, {
-            SQL_CLOB, TYPE_SUB_DEFAULT
-        }, {
-            DATALINK, TYPE_SUB_DEFAULT
-        }, {
-            SQL_DATE, TYPE_SUB_DEFAULT
-        }, {
-            SQL_DECIMAL, TYPE_SUB_DEFAULT
-        }, {
-            DISTINCT, TYPE_SUB_DEFAULT
-        }, {
-            SQL_DOUBLE, TYPE_SUB_DEFAULT
-        }, {
-            SQL_FLOAT, TYPE_SUB_DEFAULT
-        }, {
-            SQL_INTEGER, TYPE_SUB_DEFAULT
-        }, {
-            JAVA_OBJECT, TYPE_SUB_DEFAULT
-        }, {
-            SQL_NCHAR, TYPE_SUB_DEFAULT
-        }, {
-            NCLOB, TYPE_SUB_DEFAULT
-        }, {
-            SQL_ALL_TYPES, TYPE_SUB_DEFAULT
-        }, {
-            SQL_NUMERIC, TYPE_SUB_DEFAULT
-        }, {
-            SQL_NVARCHAR, TYPE_SUB_DEFAULT
-        }, {
-            OTHER, TYPE_SUB_DEFAULT
-        }, {
-            SQL_REAL, TYPE_SUB_DEFAULT
-        }, {
-            SQL_REF, TYPE_SUB_DEFAULT
-        }, {
-            ROWID, TYPE_SUB_DEFAULT
-        }, {
-            SQL_SMALLINT, TYPE_SUB_DEFAULT
-        }, {
-            STRUCT, TYPE_SUB_DEFAULT
-        }, {
-            SQL_TIME, TYPE_SUB_DEFAULT
-        }, {
-            SQL_TIMESTAMP, TYPE_SUB_DEFAULT
-        }, {
-            TINYINT, TYPE_SUB_DEFAULT
-        }, {
-            SQL_VARCHAR, TYPE_SUB_DEFAULT
-        }, {
-            SQL_XML, TYPE_SUB_DEFAULT
-        }
+        { SQL_ARRAY, TYPE_SUB_DEFAULT }, { SQL_BIGINT, TYPE_SUB_DEFAULT },
+        { SQL_BINARY, TYPE_SUB_DEFAULT }, { SQL_VARBINARY, TYPE_SUB_DEFAULT },
+        { SQL_BLOB, TYPE_SUB_DEFAULT }, { SQL_BOOLEAN, TYPE_SUB_DEFAULT },
+        { SQL_CHAR, TYPE_SUB_DEFAULT }, { SQL_CLOB, TYPE_SUB_DEFAULT },
+        { DATALINK, TYPE_SUB_DEFAULT }, { SQL_DATE, TYPE_SUB_DEFAULT },
+        { SQL_DECIMAL, TYPE_SUB_DEFAULT }, { DISTINCT, TYPE_SUB_DEFAULT },
+        { SQL_DOUBLE, TYPE_SUB_DEFAULT }, { SQL_FLOAT, TYPE_SUB_DEFAULT },
+        { SQL_INTEGER, TYPE_SUB_DEFAULT }, { JAVA_OBJECT, TYPE_SUB_DEFAULT },
+        { SQL_NCHAR, TYPE_SUB_DEFAULT }, { NCLOB, TYPE_SUB_DEFAULT },
+        { SQL_ALL_TYPES, TYPE_SUB_DEFAULT }, { SQL_NUMERIC, TYPE_SUB_DEFAULT },
+        { SQL_NVARCHAR, TYPE_SUB_DEFAULT }, { OTHER, TYPE_SUB_DEFAULT },
+        { SQL_REAL, TYPE_SUB_DEFAULT }, { SQL_REF, TYPE_SUB_DEFAULT },
+        { ROWID, TYPE_SUB_DEFAULT }, { SQL_SMALLINT, TYPE_SUB_DEFAULT },
+        { STRUCT, TYPE_SUB_DEFAULT }, { SQL_TIME, TYPE_SUB_DEFAULT },
+        { SQL_TIMESTAMP, TYPE_SUB_DEFAULT }, { TINYINT, TYPE_SUB_DEFAULT },
+        { SQL_VARCHAR, TYPE_SUB_DEFAULT }, { SQL_XML, TYPE_SUB_DEFAULT }
     };
 
 // lookup for types
@@ -618,10 +570,12 @@ public class Types {
         javaTypeNumbers.put("java.time.LocalDate", Types.SQL_DATE);
         javaTypeNumbers.put("java.time.LocalTime", Types.SQL_TIME);
         javaTypeNumbers.put("java.time.LocalDateTime", Types.SQL_TIMESTAMP);
-        javaTypeNumbers.put("java.time.OffsetDateTime",
-                            Types.SQL_TIMESTAMP_WITH_TIME_ZONE);
-        javaTypeNumbers.put("java.time.OffsetTime",
-                            Types.SQL_TIME_WITH_TIME_ZONE);
+        javaTypeNumbers.put(
+            "java.time.OffsetDateTime",
+            Types.SQL_TIMESTAMP_WITH_TIME_ZONE);
+        javaTypeNumbers.put(
+            "java.time.OffsetTime",
+            Types.SQL_TIME_WITH_TIME_ZONE);
         javaTypeNumbers.put("java.time.Duration", Types.SQL_INTERVAL_SECOND);
         javaTypeNumbers.put("java.time.Period", Types.SQL_INTERVAL_MONTH);
 
@@ -822,7 +776,8 @@ public class Types {
         try {
             return Integer.getInteger(
                 HsqlDatabaseProperties.system_max_char_or_varchar_display_size,
-                32766).intValue();
+                32766)
+                          .intValue();
         } catch (SecurityException e) {
             return 32766;
         }
