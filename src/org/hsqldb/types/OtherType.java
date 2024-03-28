@@ -56,8 +56,9 @@ public final class OtherType extends Type {
     }
 
     public int displaySize() {
-        return precision > Integer.MAX_VALUE ? Integer.MAX_VALUE
-                                             : (int) precision;
+        return precision > Integer.MAX_VALUE
+               ? Integer.MAX_VALUE
+               : (int) precision;
     }
 
     public int getJDBCTypeCode() {
@@ -131,8 +132,10 @@ public final class OtherType extends Type {
     }
 
     // to review - if conversion is supported, then must be serializable and wrapped
-    public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) {
+    public Object convertToType(
+            SessionInterface session,
+            Object a,
+            Type otherType) {
         return a;
     }
 

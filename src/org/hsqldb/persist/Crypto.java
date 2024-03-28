@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,12 @@ package org.hsqldb.persist;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -71,21 +73,24 @@ public class Crypto {
     final Cipher          outStreamCipher;
     final IvParameterSpec ivSpec;
 
-    public Crypto(String keyString, String ivString, String cipherName,
-                  String provider) {
+    public Crypto(
+            String keyString,
+            String ivString,
+            String cipherName,
+            String provider) {
 
         final String keyAlgorithm = (cipherName.contains("/"))
-                                    ? cipherName.substring(0,
+                                    ? cipherName.substring(
+                                        0,
                                         cipherName.indexOf("/"))
                                     : cipherName;
 
         try {
-            byte[] encodedKey =
-                StringConverter.hexStringToByteArray(keyString);
+            byte[] encodedKey = StringConverter.hexStringToByteArray(keyString);
 
             if (ivString != null && !ivString.isEmpty()) {
-                byte[] encodedIv =
-                    StringConverter.hexStringToByteArray(ivString);
+                byte[] encodedIv = StringConverter.hexStringToByteArray(
+                    ivString);
 
                 ivSpec = new IvParameterSpec(encodedIv);
             } else {
@@ -93,9 +98,9 @@ public class Crypto {
             }
 
             key       = new SecretKeySpec(encodedKey, keyAlgorithm);
-            outCipher = provider == null ? Cipher.getInstance(cipherName)
-                                         : Cipher.getInstance(cipherName,
-                                         provider);
+            outCipher = provider == null
+                        ? Cipher.getInstance(cipherName)
+                        : Cipher.getInstance(cipherName, provider);
 
             if (ivSpec == null) {
                 outCipher.init(Cipher.ENCRYPT_MODE, key);
@@ -103,9 +108,9 @@ public class Crypto {
                 outCipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
             }
 
-            outStreamCipher = provider == null ? Cipher.getInstance(cipherName)
-                                               : Cipher.getInstance(cipherName,
-                                               provider);
+            outStreamCipher = provider == null
+                              ? Cipher.getInstance(cipherName)
+                              : Cipher.getInstance(cipherName, provider);
 
             if (ivSpec == null) {
                 outStreamCipher.init(Cipher.ENCRYPT_MODE, key);
@@ -113,9 +118,9 @@ public class Crypto {
                 outStreamCipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
             }
 
-            inCipher = provider == null ? Cipher.getInstance(cipherName)
-                                        : Cipher.getInstance(cipherName,
-                                        provider);
+            inCipher = provider == null
+                       ? Cipher.getInstance(cipherName)
+                       : Cipher.getInstance(cipherName, provider);
 
             if (ivSpec == null) {
                 inCipher.init(Cipher.DECRYPT_MODE, key);
@@ -123,9 +128,9 @@ public class Crypto {
                 inCipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
             }
 
-            inStreamCipher = provider == null ? Cipher.getInstance(cipherName)
-                                              : Cipher.getInstance(cipherName,
-                                              provider);
+            inStreamCipher = provider == null
+                             ? Cipher.getInstance(cipherName)
+                             : Cipher.getInstance(cipherName, provider);
 
             if (ivSpec == null) {
                 inStreamCipher.init(Cipher.DECRYPT_MODE, key);
@@ -189,8 +194,12 @@ public class Crypto {
         }
     }
 
-    public synchronized int decode(byte[] source, int sourceOffset,
-                                   int length, byte[] dest, int destOffset) {
+    public synchronized int decode(
+            byte[] source,
+            int sourceOffset,
+            int length,
+            byte[] dest,
+            int destOffset) {
 
         if (inCipher == null) {
             return length;
@@ -203,8 +212,12 @@ public class Crypto {
                 inCipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
             }
 
-            return inCipher.doFinal(source, sourceOffset, length, dest,
-                                    destOffset);
+            return inCipher.doFinal(
+                source,
+                sourceOffset,
+                length,
+                dest,
+                destOffset);
         } catch (java.security.InvalidKeyException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         } catch (BadPaddingException e) {
@@ -218,8 +231,12 @@ public class Crypto {
         }
     }
 
-    public synchronized int encode(byte[] source, int sourceOffset,
-                                   int length, byte[] dest, int destOffset) {
+    public synchronized int encode(
+            byte[] source,
+            int sourceOffset,
+            int length,
+            byte[] dest,
+            int destOffset) {
 
         if (outCipher == null) {
             return length;
@@ -232,8 +249,12 @@ public class Crypto {
                 outCipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
             }
 
-            return outCipher.doFinal(source, sourceOffset, length, dest,
-                                     destOffset);
+            return outCipher.doFinal(
+                source,
+                sourceOffset,
+                length,
+                dest,
+                destOffset);
         } catch (java.security.InvalidKeyException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         } catch (BadPaddingException e) {
@@ -252,10 +273,11 @@ public class Crypto {
         try {
             KeyGenerator generator = provider == null
                                      ? KeyGenerator.getInstance(cipherName)
-                                     : KeyGenerator.getInstance(cipherName,
+                                     : KeyGenerator.getInstance(
+                                         cipherName,
                                          provider);
-            SecretKey key = generator.generateKey();
-            byte[]    raw = key.getEncoded();
+            SecretKey    key       = generator.generateKey();
+            byte[]       raw       = key.getEncoded();
 
             return raw;
         } catch (java.security.NoSuchAlgorithmException e) {

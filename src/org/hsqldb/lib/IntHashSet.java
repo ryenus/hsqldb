@@ -48,28 +48,31 @@ public class IntHashSet extends BaseHashMap {
 
     public IntHashSet(int initialCapacity) throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.intKeyOrValue,
-              BaseHashMap.noKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.intKeyOrValue,
+            BaseHashMap.noKeyOrValue,
+            false);
     }
 
     public IntHashSet(int[] elements) {
 
-        super(elements.length,
-              BaseHashMap.intKeyOrValue,
-              BaseHashMap.noKeyOrValue,
-              false);
+        super(
+            elements.length,
+            BaseHashMap.intKeyOrValue,
+            BaseHashMap.noKeyOrValue,
+            false);
 
         addAll(elements);
     }
 
     public IntHashSet(int[] elementsA, int[] elementsB) {
 
-        super(elementsA.length + elementsB.length,
-              BaseHashMap.intKeyOrValue,
-              BaseHashMap.noKeyOrValue,
-              false);
+        super(
+            elementsA.length + elementsB.length,
+            BaseHashMap.intKeyOrValue,
+            BaseHashMap.noKeyOrValue,
+            false);
 
         addAll(elementsA);
         addAll(elementsB);
@@ -199,7 +202,6 @@ public class IntHashSet extends BaseHashMap {
     }
 
     public int[] toArray() {
-
         int[] array = new int[size()];
 
         return toIntArray(array, true);

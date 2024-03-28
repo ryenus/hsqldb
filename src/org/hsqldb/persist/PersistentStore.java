@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,8 +77,11 @@ public interface PersistentStore {
 
     boolean canRead(Session session, long key, int mode, int[] colMap);
 
-    boolean canRead(Session session, CachedObject object, int mode,
-                    int[] colMap);
+    boolean canRead(
+            Session session,
+            CachedObject object,
+            int mode,
+            int[] colMap);
 
     CachedObject get(RowInputInterface in);
 
@@ -88,8 +91,7 @@ public interface PersistentStore {
 
     int getDefaultObjectSize();
 
-    CachedObject getNewCachedObject(Session session, Object object,
-                                    boolean tx);
+    CachedObject getNewCachedObject(Session session, Object object, boolean tx);
 
     void removeAll();
 
@@ -102,8 +104,11 @@ public interface PersistentStore {
     //
     void delete(Session session, Row row);
 
-    RowAction addDeleteActionToRow(Session session, Row row, int[] colMap,
-                                   boolean isMV);
+    RowAction addDeleteActionToRow(
+            Session session,
+            Row row,
+            int[] colMap,
+            boolean isMV);
 
     void indexRow(Session session, Row row);
 
@@ -153,8 +158,11 @@ public interface PersistentStore {
 
     Index[] getAccessorKeys();
 
-    void moveData(Session session, PersistentStore other, int[] colIndex,
-                  int adjust);
+    void moveData(
+            Session session,
+            PersistentStore other,
+            int[] colIndex,
+            int adjust);
 
     void reindex(Session session, Index index, Index useIndex);
 

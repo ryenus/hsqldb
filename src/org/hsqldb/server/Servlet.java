@@ -73,6 +73,7 @@ package org.hsqldb.server;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import java.util.TimeZone;
 
 import javax.servlet.ServletConfig;
@@ -156,16 +157,18 @@ public class Servlet extends HttpServlet {
         }
 
 // begin WEB-INF patch */
-        String useWebInfStr =
-            getInitParameter("hsqldb.server.use_web-inf_path");
+        String useWebInfStr = getInitParameter(
+            "hsqldb.server.use_web-inf_path");
 
         if (!dbStr.equals(".") && "true".equalsIgnoreCase(useWebInfStr)) {
             String realPath = getServletContext().getRealPath("/");
+
             // bug #1350 to work with Tomcat 8 and above
             if (realPath != null) {
                 if (!realPath.endsWith("/")) {
                     realPath += '/';
                 }
+
                 dbStr = realPath + "WEB-INF/" + dbStr;
             }
         }
@@ -205,9 +208,11 @@ public class Servlet extends HttpServlet {
         return lModified++;
     }
 
-    public void doGet(HttpServletRequest request,
-                      HttpServletResponse response)
-                      throws IOException, ServletException {
+    public void doGet(
+            HttpServletRequest request,
+            HttpServletResponse response)
+            throws IOException,
+                   ServletException {
 
         String query = request.getQueryString();
 
@@ -238,9 +243,11 @@ public class Servlet extends HttpServlet {
         }
     }
 
-    public void doPost(HttpServletRequest request,
-                       HttpServletResponse response)
-                       throws IOException, ServletException {
+    public void doPost(
+            HttpServletRequest request,
+            HttpServletResponse response)
+            throws IOException,
+                   ServletException {
 
         DataInputStream  inStream = null;
         DataOutputStream dataOut  = null;
@@ -252,8 +259,7 @@ public class Servlet extends HttpServlet {
             long           sessionID  = inStream.readLong();
             int            mode       = inStream.readByte();
             RowInputBinary rowIn      = new RowInputBinary(BUFFER_SIZE);
-            Session session = DatabaseManager.getSession(databaseID,
-                sessionID);
+            Session session = DatabaseManager.getSession(databaseID, sessionID);
             Result resultIn = Result.newResult(session, mode, inStream, rowIn);
 
             resultIn.setDatabaseId(databaseID);
@@ -264,14 +270,15 @@ public class Servlet extends HttpServlet {
 
             if (type == ResultConstants.CONNECT) {
                 try {
-                    session =
-                        DatabaseManager.newSession(dbType, dbPath,
-                                                   resultIn.getMainString(),
-                                                   resultIn.getSubString(),
-                                                   new HsqlProperties(),
-                                                   TimeZone.getDefault());
-                    resultOut =
-                        Result.newConnectionAcknowledgeResponse(session);
+                    session = DatabaseManager.newSession(
+                        dbType,
+                        dbPath,
+                        resultIn.getMainString(),
+                        resultIn.getSubString(),
+                        new HsqlProperties(),
+                        TimeZone.getDefault());
+                    resultOut = Result.newConnectionAcknowledgeResponse(
+                        session);
                 } catch (HsqlException e) {
                     resultOut = Result.newErrorResult(e);
                 }
@@ -286,9 +293,9 @@ public class Servlet extends HttpServlet {
                 // Only acquire output-stream after headers are set
                 dataOut = new DataOutputStream(response.getOutputStream());
 
-                dataOut.writeByte(ResultConstants.DISCONNECT);      // Mode
-                dataOut.writeInt(4);                                // Length Int of first result is always read! Minvalue is 4: It is the number of bytes of the current result (it includes the length of this Int itself)
-                dataOut.writeByte(ResultConstants.NONE);            // No Additional results
+                dataOut.writeByte(ResultConstants.DISCONNECT);    // Mode
+                dataOut.writeInt(4);                              // Length Int of first result is always read! Minvalue is 4: It is the number of bytes of the current result (it includes the length of this Int itself)
+                dataOut.writeByte(ResultConstants.NONE);          // No Additional results
                 dataOut.close();
 
                 return;
@@ -315,7 +322,7 @@ public class Servlet extends HttpServlet {
             RowOutputBinary  rowOut     = new RowOutputBinary(BUFFER_SIZE, 1);
 
             resultOut.write(session, tempOutput, rowOut);
-            response.setHeader("Cache-Control", "no-cache");        // DB-traffic should not be cached by proxies
+            response.setHeader("Cache-Control", "no-cache");      // DB-traffic should not be cached by proxies
             response.setContentType("application/octet-stream");
             response.setContentLength(memStream.size());
 

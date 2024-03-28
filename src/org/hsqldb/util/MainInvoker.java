@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import java.util.ArrayList;
 
 /**
@@ -88,8 +89,9 @@ public class MainInvoker {
                         syntaxFailure();
                     }
 
-                    invoke((String) outList.remove(0),
-                           (String[]) outList.toArray(emptyStringArray));
+                    invoke(
+                        (String) outList.remove(0),
+                        (String[]) outList.toArray(emptyStringArray));
                     outList.clear();
                 } else {
                     outList.add(sa[curInArg]);
@@ -100,8 +102,9 @@ public class MainInvoker {
                 syntaxFailure();
             }
 
-            invoke((String) outList.remove(0),
-                   (String[]) outList.toArray(emptyStringArray));
+            invoke(
+                (String) outList.remove(0),
+                (String[]) outList.toArray(emptyStringArray));
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -116,6 +119,7 @@ public class MainInvoker {
         + "    java org.hsqldb.util.MainInvoker --help\n\n"
         + "Note that you can only invoke classes in 'named' (non-default) "
         + "packages.  Delimit multiple classes with empty strings.";
+
     static {
         if (!LS.equals("\n")) {
             SYNTAX_MSG = SYNTAX_MSG.replaceAll("\n", LS);
@@ -132,18 +136,20 @@ public class MainInvoker {
      * @throws IllegalAccessException on no access
      * @throws InvocationTargetException on invocation failure
      */
-    public static void invoke(String className,
-                              String[] args)
-                              throws ClassNotFoundException,
-                                     NoSuchMethodException,
-                                     IllegalAccessException,
-                                     InvocationTargetException {
+    public static void invoke(
+            String className,
+            String[] args)
+            throws ClassNotFoundException,
+                   NoSuchMethodException,
+                   IllegalAccessException,
+                   InvocationTargetException {
 
         Class    c;
         Method   method;
         Class[]  stringArrayCA = { emptyStringArray.getClass() };
-        Object[] objectArray   = { (args == null) ? emptyStringArray
-                                                  : args };
+        Object[] objectArray   = { (args == null)
+                                   ? emptyStringArray
+                                   : args };
 
         c      = Class.forName(className);
         method = c.getMethod("main", stringArrayCA);

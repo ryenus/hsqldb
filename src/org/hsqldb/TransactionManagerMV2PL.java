@@ -45,11 +45,11 @@ import org.hsqldb.persist.PersistentStore;
  * @since 2.0.0
  */
 public class TransactionManagerMV2PL extends TransactionManagerCommon
-implements TransactionManager {
+        implements TransactionManager {
 
     // functional unit - merged committed transactions
     HsqlDeque<RowAction[]> committedTransactions    = new HsqlDeque<>();
-    LongDeque committedTransactionSCNs = new LongDeque();
+    LongDeque              committedTransactionSCNs = new LongDeque();
 
     public TransactionManagerMV2PL(Database db) {
 
@@ -150,14 +150,14 @@ implements TransactionManager {
 
             // session.actionTimestamp is the committed tx timestamp
             if (session == lobSession
-                    || getFirstLiveTransactionTimestamp()
-                       > session.actionSCN) {
+                    || getFirstLiveTransactionTimestamp() > session.actionSCN) {
                 RowAction[] list = session.rowActionList.getArray();
 
                 mergeTransaction(list, 0, limit, session.actionSCN);
                 finaliseRows(session, list, 0, limit);
             } else {
-                RowAction[] list = session.rowActionList.toArray(RowAction.emptyArray);
+                RowAction[] list = session.rowActionList.toArray(
+                    RowAction.emptyArray);
 
                 addToCommittedQueue(session, list);
             }
@@ -199,7 +199,7 @@ implements TransactionManager {
     public void rollbackSavepoint(Session session, int index) {
 
         long timestamp = session.sessionContext.savepointTimestamps.get(index);
-        Integer oi = session.sessionContext.savepoints.get(index);
+        Integer oi     = session.sessionContext.savepoints.get(index);
         int     start  = oi.intValue();
 
         while (session.sessionContext.savepoints.size() > index + 1) {
@@ -231,7 +231,8 @@ implements TransactionManager {
         for (int i = limit - 1; i >= start; i--) {
             RowAction action = session.rowActionList.get(i);
 
-            if (action == null || action.type == RowActionBase.ACTION_NONE
+            if (action == null
+                    || action.type == RowActionBase.ACTION_NONE
                     || action.type == RowActionBase.ACTION_DELETE_FINAL) {
                 continue;
             }
@@ -270,12 +271,18 @@ implements TransactionManager {
         session.rowActionList.setSize(start);
     }
 
-    public RowAction addDeleteAction(Session session, Table table,
-                                     PersistentStore store, Row row,
-                                     int[] changedColumns) {
+    public RowAction addDeleteAction(
+            Session session,
+            Table table,
+            PersistentStore store,
+            Row row,
+            int[] changedColumns) {
 
-        RowAction action = store.addDeleteActionToRow(session, row,
-            changedColumns, true);
+        RowAction action = store.addDeleteActionToRow(
+            session,
+            row,
+            changedColumns,
+            true);
 
         if (table.isTemp) {
             store.delete(session, row);
@@ -292,19 +299,24 @@ implements TransactionManager {
         return action;
     }
 
-    public void addInsertAction(Session session, Table table,
-                                PersistentStore store, Row row,
-                                int[] changedColumns) {
+    public void addInsertAction(
+            Session session,
+            Table table,
+            PersistentStore store,
+            Row row,
+            int[] changedColumns) {
 
         RowAction action = row.rowAction;
 
         if (action == null) {
+
 /*
             System.out.println("null insert action " + session + " "
                                + session.actionTimestamp);
 */
-            throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
-                                     "null insert action ");
+            throw Error.runtimeError(
+                ErrorCode.GENERAL_ERROR,
+                "null insert action ");
         }
 
         store.indexRow(session, row);
@@ -319,8 +331,12 @@ implements TransactionManager {
     }
 
 // functional unit - accessibility of rows
-    public boolean canRead(Session session, PersistentStore store, Row row,
-                           int mode, int[] colMap) {
+    public boolean canRead(
+            Session session,
+            PersistentStore store,
+            Row row,
+            int mode,
+            int[] colMap) {
 
         RowAction action = row.rowAction;
 
@@ -347,6 +363,7 @@ implements TransactionManager {
 
             // get session commit timestamp
             committedTransactionSCNs.addLast(session.actionSCN);
+
 /* debug 190
             if (committedTransactions.size() > 64) {
                 System.out.println("******* excessive transaction queue");
@@ -363,7 +380,7 @@ implements TransactionManager {
         long timestamp = getFirstLiveTransactionTimestamp();
 
         while (true) {
-            long     commitTimestamp = 0;
+            long        commitTimestamp = 0;
             RowAction[] actions         = null;
 
             synchronized (committedTransactionSCNs) {
@@ -465,8 +482,11 @@ implements TransactionManager {
         }
     }
 
-    public void resetSession(Session session, Session targetSession,
-                             long statementTimestamp, int mode) {
+    public void resetSession(
+            Session session,
+            Session targetSession,
+            long statementTimestamp,
+            int mode) {
         super.resetSession(session, targetSession, statementTimestamp, mode);
     }
 

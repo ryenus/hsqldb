@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -180,16 +180,18 @@ public interface OpTypes {
         OpTypes.SEQUENCE
     };
     //J+
-    OrderedIntHashSet emptyExpressionSet   = new OrderedIntHashSet();
+
+    OrderedIntHashSet emptyExpressionSet = new OrderedIntHashSet();
     OrderedIntHashSet aggregateFunctionSet = new OrderedIntHashSet(aggOpTypes);
-    OrderedIntHashSet columnExpressionSet =
-        new OrderedIntHashSet(columnOpTypes);
-    OrderedIntHashSet subqueryExpressionSet =
-        new OrderedIntHashSet(subqueryOpTypes);
-    OrderedIntHashSet subqueryAggregateExpressionSet =
-        new OrderedIntHashSet(subqueryOpTypes, aggOpTypes);
-    OrderedIntHashSet functionExpressionSet =
-        new OrderedIntHashSet(functionOpTypes);
-    OrderedIntHashSet sequenceExpressionSet =
-        new OrderedIntHashSet(sequenceOpTypes);
+    OrderedIntHashSet columnExpressionSet = new OrderedIntHashSet(
+        columnOpTypes);
+    OrderedIntHashSet subqueryExpressionSet = new OrderedIntHashSet(
+        subqueryOpTypes);
+    OrderedIntHashSet subqueryAggregateExpressionSet = new OrderedIntHashSet(
+        subqueryOpTypes,
+        aggOpTypes);
+    OrderedIntHashSet functionExpressionSet = new OrderedIntHashSet(
+        functionOpTypes);
+    OrderedIntHashSet sequenceExpressionSet = new OrderedIntHashSet(
+        sequenceOpTypes);
 }

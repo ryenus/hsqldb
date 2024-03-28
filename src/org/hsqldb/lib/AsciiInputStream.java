@@ -53,18 +53,22 @@ public class AsciiInputStream extends InputStream {
      * is 7;
      */
     public static final int ASCII_BITS = 7;
+
     /**
      * is 0b01111111
      */
     public static final int ASCII_MASK = 0b01111111;
+
     /**
      * is 2^7 - 1 (127)
      */
     public static final int ASCII_MAX = 127;
+
     /**
      * is 2^7 (128)
      */
     public static final int NON_ASCII_MIN = 128;
+
     /**
      * is '?'
      */

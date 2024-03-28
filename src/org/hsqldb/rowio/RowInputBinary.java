@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb.rowio;
 
 import java.io.EOFException;
 import java.io.IOException;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -86,7 +87,6 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
      * to the current one for out.
      */
     public RowInputBinary(RowOutputBinary out) {
-
         super(out.getBuffer());
 
         this.out = out;
@@ -97,8 +97,10 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             super.readFully(b);
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
-                              "RowInputBinary" + ' ' + getFilePosition());
+            throw Error.error(
+                e,
+                ErrorCode.GENERAL_IO_ERROR,
+                "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -107,8 +109,10 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readLong();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
-                              "RowInputBinary" + ' ' + getFilePosition());
+            throw Error.error(
+                e,
+                ErrorCode.GENERAL_IO_ERROR,
+                "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -117,8 +121,10 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readInt();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
-                              "RowInputBinary" + ' ' + getFilePosition());
+            throw Error.error(
+                e,
+                ErrorCode.GENERAL_IO_ERROR,
+                "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -127,8 +133,10 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readShort();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
-                              "RowInputBinary" + ' ' + getFilePosition());
+            throw Error.error(
+                e,
+                ErrorCode.GENERAL_IO_ERROR,
+                "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -137,8 +145,10 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readChar();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
-                              "RowInputBinary" + ' ' + getFilePosition());
+            throw Error.error(
+                e,
+                ErrorCode.GENERAL_IO_ERROR,
+                "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -147,8 +157,10 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readByte();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
-                              "RowInputBinary" + ' ' + getFilePosition());
+            throw Error.error(
+                e,
+                ErrorCode.GENERAL_IO_ERROR,
+                "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -157,8 +169,10 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readBoolean();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
-                              "RowInputBinary" + ' ' + getFilePosition());
+            throw Error.error(
+                e,
+                ErrorCode.GENERAL_IO_ERROR,
+                "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -172,8 +186,9 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
             int length = readInt();
 
             if (length < 0) {
-                throw Error.error(ErrorCode.GENERAL_IO_ERROR,
-                                  "RowInputBinary - negative length");
+                throw Error.error(
+                    ErrorCode.GENERAL_IO_ERROR,
+                    "RowInputBinary - negative length");
             }
 
             String s = StringConverter.readUTF(buffer, pos, length);
@@ -183,13 +198,14 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
 
             return s;
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
-                              "RowInputBinary" + ' ' + getFilePosition());
+            throw Error.error(
+                e,
+                ErrorCode.GENERAL_IO_ERROR,
+                "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
     public boolean readNull() {
-
         int b = readByte();
 
         return b == 0;
@@ -225,8 +241,9 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
     }
 
     protected Boolean readBoole() {
-        return readBoolean() ? Boolean.TRUE
-                             : Boolean.FALSE;
+        return readBoolean()
+               ? Boolean.TRUE
+               : Boolean.FALSE;
     }
 
     protected TimeData readTime(Type type) {
@@ -239,7 +256,6 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
     }
 
     protected TimestampData readDate(Type type) {
-
         long date = readLong();
 
         return new TimestampData(date);
@@ -255,7 +271,6 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
     }
 
     protected IntervalMonthData readYearMonthInterval(Type type) {
-
         long months = readLong();
 
         return new IntervalMonthData(months, (IntervalType) type);
@@ -292,14 +307,12 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
     }
 
     protected ClobData readClob() {
-
         long id = readLong();
 
         return new ClobDataID(id);
     }
 
     protected BlobData readBlob() {
-
         long id = readLong();
 
         return new BlobDataID(id);

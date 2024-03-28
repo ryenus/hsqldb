@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,38 +95,43 @@ public final class SqlInvariants {
     public static final HsqlName SYSTEM_INDEX_HSQLNAME;
 
     static {
-        INFORMATION_SCHEMA_HSQLNAME =
-            HsqlNameManager.newSystemObjectName(INFORMATION_SCHEMA,
-                SchemaObject.SCHEMA);
-        SESSION_SCHEMA_HSQLNAME =
-            HsqlNameManager.newSystemObjectName(SESSION_SCHEMA,
-                SchemaObject.SCHEMA);
-        SYSTEM_SCHEMA_HSQLNAME =
-            HsqlNameManager.newSystemObjectName(SYSTEM_SCHEMA,
-                SchemaObject.SCHEMA);
-        LOBS_SCHEMA_HSQLNAME = HsqlNameManager.newSystemObjectName(LOBS_SCHEMA,
-                SchemaObject.SCHEMA);
-        SQLJ_SCHEMA_HSQLNAME = HsqlNameManager.newSystemObjectName(SQLJ_SCHEMA,
-                SchemaObject.SCHEMA);
-        SYSTEM_SUBQUERY_HSQLNAME =
-            HsqlNameManager.newSystemObjectName(SYSTEM_SUBQUERY,
-                SchemaObject.TABLE);
-        MODULE_HSQLNAME = HsqlNameManager.newSystemObjectName(MODULE,
-                SchemaObject.SCHEMA);
-        DUAL_TABLE_HSQLNAME = HsqlNameManager.newSystemObjectName(DUAL,
-                SchemaObject.TABLE);
-        DUAL_TABLE_HSQLNAME.schema = SYSTEM_SCHEMA_HSQLNAME;
-        DUAL_COLUMN_HSQLNAME = HsqlNameManager.newSystemObjectName(DUMMY,
-                SchemaObject.COLUMN);
+        INFORMATION_SCHEMA_HSQLNAME = HsqlNameManager.newSystemObjectName(
+            INFORMATION_SCHEMA,
+            SchemaObject.SCHEMA);
+        SESSION_SCHEMA_HSQLNAME = HsqlNameManager.newSystemObjectName(
+            SESSION_SCHEMA,
+            SchemaObject.SCHEMA);
+        SYSTEM_SCHEMA_HSQLNAME = HsqlNameManager.newSystemObjectName(
+            SYSTEM_SCHEMA,
+            SchemaObject.SCHEMA);
+        LOBS_SCHEMA_HSQLNAME = HsqlNameManager.newSystemObjectName(
+            LOBS_SCHEMA,
+            SchemaObject.SCHEMA);
+        SQLJ_SCHEMA_HSQLNAME = HsqlNameManager.newSystemObjectName(
+            SQLJ_SCHEMA,
+            SchemaObject.SCHEMA);
+        SYSTEM_SUBQUERY_HSQLNAME = HsqlNameManager.newSystemObjectName(
+            SYSTEM_SUBQUERY,
+            SchemaObject.TABLE);
+        MODULE_HSQLNAME = HsqlNameManager.newSystemObjectName(
+            MODULE,
+            SchemaObject.SCHEMA);
+        DUAL_TABLE_HSQLNAME = HsqlNameManager.newSystemObjectName(
+            DUAL,
+            SchemaObject.TABLE);
+        DUAL_TABLE_HSQLNAME.schema  = SYSTEM_SCHEMA_HSQLNAME;
+        DUAL_COLUMN_HSQLNAME = HsqlNameManager.newSystemObjectName(
+            DUMMY,
+            SchemaObject.COLUMN);
         DUAL_COLUMN_HSQLNAME.parent = DUAL_TABLE_HSQLNAME;
-        SYSTEM_INDEX_HSQLNAME = HsqlNameManager.newSystemObjectName(IDX,
-                SchemaObject.INDEX);
+        SYSTEM_INDEX_HSQLNAME = HsqlNameManager.newSystemObjectName(
+            IDX,
+            SchemaObject.INDEX);
 
         SYSTEM_SUBQUERY_HSQLNAME.setSchemaIfNull(SYSTEM_SCHEMA_HSQLNAME);
     }
 
     public static void checkSchemaNameNotSystem(String name) {
-
         if (isSystemSchemaName(name)) {
             throw Error.error(ErrorCode.X_42503, name);
         }
@@ -134,14 +139,10 @@ public final class SqlInvariants {
 
     public static boolean isSystemSchemaName(String name) {
 
-        if (SqlInvariants.DEFINITION_SCHEMA.equals(name)
-                || SqlInvariants.INFORMATION_SCHEMA.equals(name)
-                || SqlInvariants.SYSTEM_SCHEMA.equals(name)
-                || SqlInvariants.SQLJ_SCHEMA.equals(name)) {
-            return true;
-        }
-
-        return false;
+        return SqlInvariants.DEFINITION_SCHEMA.equals(name)
+               || SqlInvariants.INFORMATION_SCHEMA.equals(name)
+               || SqlInvariants.SYSTEM_SCHEMA.equals(name)
+               || SqlInvariants.SQLJ_SCHEMA.equals(name);
     }
 
     public static boolean isLobsSchemaName(String name) {
@@ -154,12 +155,8 @@ public final class SqlInvariants {
             name = name.schema;
         }
 
-        if (SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.equals(name)
-                || SqlInvariants.SYSTEM_SCHEMA_HSQLNAME.equals(name)
-                || SqlInvariants.SQLJ_SCHEMA_HSQLNAME.equals(name)) {
-            return true;
-        }
-
-        return false;
+        return SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.equals(name)
+               || SqlInvariants.SYSTEM_SCHEMA_HSQLNAME.equals(name)
+               || SqlInvariants.SQLJ_SCHEMA_HSQLNAME.equals(name);
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,9 +56,10 @@ public class RowInsertVersioning implements RowInsertInterface {
     PersistentStore       store;
     Index                 index = null;
 
-    public RowInsertVersioning(Session session, ErrorLogger callback,
-                               int mode) {
-
+    public RowInsertVersioning(
+            Session session,
+            ErrorLogger callback,
+            int mode) {
         this.session  = session;
         this.callback = callback;
         this.mode     = mode;
@@ -121,43 +122,46 @@ public class RowInsertVersioning implements RowInsertInterface {
 
             TimestampData ts      = currentRow.getSystemStartVersion();
             Object[]      newData = rowSet.getData(startNewRow);
-            int compare = compareColumn(ts, newData,
-                                        table.getSystemPeriodStartIndex());
+            int compare = compareColumn(
+                ts,
+                newData,
+                table.getSystemPeriodStartIndex());
 
             if (compare < 0) {
+
                 // both start and end row TS are before new data row
                 ts = currentRow.getSystemEndVersion();
-                compare = compareColumn(ts, newData,
-                                        table.getSystemPeriodStartIndex());
+                compare = compareColumn(
+                    ts,
+                    newData,
+                    table.getSystemPeriodStartIndex());
 
                 if (compare <= 0) {
                     continue;
                 } else {
                     reportFailed = true;
-
                     break;
                 }
             }
 
             if (compare > 0) {
                 reportFailed = true;
-
                 break;
             }
 
             ts = currentRow.getSystemEndVersion();
-            compare = compareColumn(ts, newData,
-                                    table.getSystemPeriodEndIndex());
+            compare = compareColumn(
+                ts,
+                newData,
+                table.getSystemPeriodEndIndex());
 
             if (compare == 0) {
                 startNewRow++;
-
                 continue;
             }
 
             if (ts.getSeconds() == DateTimeType.epochLimitSeconds) {
                 it.removeCurrent();
-
                 break;
             }
         }
@@ -181,14 +185,16 @@ public class RowInsertVersioning implements RowInsertInterface {
     }
 
     void resetTable(Table newTable, PersistentStore newStore) {
-
         table = newTable;
         store = newStore;
         index = newTable.getPrimaryIndex();
     }
 
     int compareColumn(TimestampData ts, Object[] data, int colIndex) {
-        return Type.SQL_TIMESTAMP_WITH_TIME_ZONE.compare(session, ts,
-                data[colIndex]);
+
+        return Type.SQL_TIMESTAMP_WITH_TIME_ZONE.compare(
+            session,
+            ts,
+            data[colIndex]);
     }
 }

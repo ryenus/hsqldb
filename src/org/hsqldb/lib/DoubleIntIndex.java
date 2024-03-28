@@ -812,14 +812,12 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     public void sortOnKeys() {
-
         sortOnValues = false;
 
         fastQuickSort();
     }
 
     public void sortOnValues() {
-
         sortOnValues = true;
 
         fastQuickSort();
@@ -1053,7 +1051,6 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     protected void doubleCapacity() {
-
         keys     = (int[]) ArrayUtil.resizeArray(keys, capacity * 2);
         values   = (int[]) ArrayUtil.resizeArray(values, capacity * 2);
         capacity *= 2;
@@ -1061,16 +1058,18 @@ public class DoubleIntIndex implements LongLookup {
 
     public void removeRange(int start, int limit) {
 
-        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT,
-                              keys,
-                              count,
-                              start,
-                              start - limit);
-        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT,
-                              values,
-                              count,
-                              start,
-                              start - limit);
+        ArrayUtil.adjustArray(
+            ArrayUtil.CLASS_CODE_INT,
+            keys,
+            count,
+            start,
+            start - limit);
+        ArrayUtil.adjustArray(
+            ArrayUtil.CLASS_CODE_INT,
+            values,
+            count,
+            start,
+            start - limit);
 
         count -= (limit - start);
     }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2023, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,9 +91,11 @@ public final class TextFileSettings {
      */
     TextFileSettings(HsqlDatabaseProperties dbProps, String settingsString) {
 
-        HsqlProperties tableprops =
-            HsqlProperties.delimitedArgPairsToProps(settingsString, "=", ";",
-                "textdb");
+        HsqlProperties tableprops = HsqlProperties.delimitedArgPairsToProps(
+            settingsString,
+            "=",
+            ";",
+            "textdb");
 
         switch (tableprops.errorCodes.length) {
 
@@ -151,30 +153,30 @@ public final class TextFileSettings {
         }
 
         //-- get booleans
-        isIgnoreFirst =
-            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_ignore_first);
+        isIgnoreFirst = dbProps.isPropertyTrue(
+            HsqlDatabaseProperties.textdb_ignore_first);
         isIgnoreFirst = tableprops.isPropertyTrue(
-            HsqlDatabaseProperties.textdb_ignore_first, isIgnoreFirst);
-        isQuoted =
-            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_quoted);
-        isQuoted =
-            tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_quoted,
-                                      isQuoted);
-        isAllQuoted =
-            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_all_quoted);
-        isAllQuoted =
-            tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_all_quoted,
-                                      isAllQuoted);
-        isNullDef =
-            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_null_def);
-        isNullDef =
-            tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_null_def,
-                                      isNullDef);
-        charEncoding =
-            dbProps.getStringProperty(HsqlDatabaseProperties.textdb_encoding);
-        charEncoding =
-            tableprops.getProperty(HsqlDatabaseProperties.textdb_encoding,
-                                   charEncoding);
+            HsqlDatabaseProperties.textdb_ignore_first,
+            isIgnoreFirst);
+        isQuoted = dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_quoted);
+        isQuoted = tableprops.isPropertyTrue(
+            HsqlDatabaseProperties.textdb_quoted,
+            isQuoted);
+        isAllQuoted = dbProps.isPropertyTrue(
+            HsqlDatabaseProperties.textdb_all_quoted);
+        isAllQuoted = tableprops.isPropertyTrue(
+            HsqlDatabaseProperties.textdb_all_quoted,
+            isAllQuoted);
+        isNullDef = dbProps.isPropertyTrue(
+            HsqlDatabaseProperties.textdb_null_def);
+        isNullDef = tableprops.isPropertyTrue(
+            HsqlDatabaseProperties.textdb_null_def,
+            isNullDef);
+        charEncoding = dbProps.getStringProperty(
+            HsqlDatabaseProperties.textdb_encoding);
+        charEncoding = tableprops.getProperty(
+            HsqlDatabaseProperties.textdb_encoding,
+            charEncoding);
 
         // UTF-8 files can begin with BOM 3-byte sequence
         // UTF-16 files can begin with BOM 2-byte sequence for big-endian
@@ -208,20 +210,24 @@ public final class TextFileSettings {
             HsqlDatabaseProperties.textdb_cache_scale);
 
         cacheScale = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_scale, cacheScale);
+            HsqlDatabaseProperties.textdb_cache_scale,
+            cacheScale);
 
         int cacheSizeScale = dbProps.getIntegerProperty(
             HsqlDatabaseProperties.textdb_cache_size_scale);
 
         cacheSizeScale = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_size_scale, cacheSizeScale);
+            HsqlDatabaseProperties.textdb_cache_size_scale,
+            cacheSizeScale);
 
 //
-        maxCacheRows = (1 << cacheScale) * 3;
+        maxCacheRows  = (1 << cacheScale) * 3;
         maxCacheRows = dbProps.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_rows, maxCacheRows);
+            HsqlDatabaseProperties.textdb_cache_rows,
+            maxCacheRows);
         maxCacheRows = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_rows, maxCacheRows);
+            HsqlDatabaseProperties.textdb_cache_rows,
+            maxCacheRows);
         maxCacheBytes = ((1 << cacheSizeScale) * maxCacheRows) / 1024;
 
         if (maxCacheBytes < 4) {
@@ -229,9 +235,11 @@ public final class TextFileSettings {
         }
 
         maxCacheBytes = dbProps.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_size, maxCacheBytes);
+            HsqlDatabaseProperties.textdb_cache_size,
+            maxCacheBytes);
         maxCacheBytes = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_size, maxCacheBytes);
+            HsqlDatabaseProperties.textdb_cache_size,
+            maxCacheBytes);
         maxCacheBytes *= 1024;
     }
 
@@ -307,7 +315,6 @@ public final class TextFileSettings {
 
                 if (next >= len) {
                     sb.append(BACKSLASH_CHAR);
-
                     break;
                 }
 
@@ -334,9 +341,9 @@ public final class TextFileSettings {
                 } else if (ch == 'u') {
                     start++;
 
-                    sb.append(
-                        (char) Integer.parseInt(
-                            sep.substring(start, start + 4), 16));
+                    String digits = sep.substring(start, start + 4);
+
+                    sb.append((char) Integer.parseInt(digits, 16));
 
                     start += 4;
                 } else if (sep.startsWith("semi", next)) {

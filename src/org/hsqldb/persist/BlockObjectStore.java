@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,10 +50,12 @@ public class BlockObjectStore extends SimpleStore {
     final int         storageSize;
     final int         blockSize;
 
-    public BlockObjectStore(DataFileCache cache,
-                            TableSpaceManager tableSpaceManager,
-                            Class<?> objectClass, int storageSize,
-                            int blockSize) {
+    public BlockObjectStore(
+            DataFileCache cache,
+            TableSpaceManager tableSpaceManager,
+            Class<?> objectClass,
+            int storageSize,
+            int blockSize) {
 
         this.cache        = cache;
         this.spaceManager = tableSpaceManager;
@@ -120,9 +122,8 @@ public class BlockObjectStore extends SimpleStore {
     private CachedObject getNewInstance() {
 
         try {
-            CachedObject object =
-                (CachedObject) constructor.newInstance(new Object[]{
-                    Integer.valueOf(blockSize) });
+            CachedObject object = (CachedObject) constructor.newInstance(
+                new Object[]{ Integer.valueOf(blockSize) });
 
             return object;
         } catch (Exception e) {

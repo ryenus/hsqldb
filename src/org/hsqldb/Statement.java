@@ -293,7 +293,6 @@ public abstract class Statement {
     public void clearStructures(Session session) {}
 
     void setDatabaseObjects(Session session, CompileContext compileContext) {
-
         parameters = compileContext.getParameters();
 
         setParameterMetaData();
@@ -320,8 +319,8 @@ public abstract class Statement {
 //            outlen++;
 //            offset = 1;
 //        }
-        parameterMetaData =
-            ResultMetaData.newParameterMetaData(parameters.length);
+        parameterMetaData = ResultMetaData.newParameterMetaData(
+            parameters.length);
 
 // NO: Not yet
 //        if (hasReturnValue) {
@@ -341,7 +340,7 @@ public abstract class Statement {
             // always i + 1.  We currently use the convention of @p0 to name the
             // return value OUT parameter
             parameterMetaData.columnLabels[idx] = StatementDMQL.PCOL_PREFIX
-                                                  + (i + 1);
+                    + (i + 1);
             parameterMetaData.columnTypes[idx] = parameters[i].dataType;
 
             if (parameters[i].dataType == null) {
@@ -356,11 +355,10 @@ public abstract class Statement {
                 parameterMode = parameters[i].column.getParameterMode();
             }
 
-            parameterMetaData.paramModes[idx] = parameterMode;
-            parameterMetaData.paramNullable[idx] =
-                parameters[i].column == null
-                ? SchemaObject.Nullability.NULLABLE
-                : parameters[i].column.getNullability();
+            parameterMetaData.paramModes[idx]    = parameterMode;
+            parameterMetaData.paramNullable[idx] = parameters[i].column == null
+                    ? SchemaObject.Nullability.NULLABLE
+                    : parameters[i].column.getNullability();
         }
     }
 }

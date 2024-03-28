@@ -77,8 +77,12 @@ public interface RowOutputInterface extends Cloneable {
 
     void writeData(Row row, Type[] types);
 
-    void writeData(int l, Type[] types, Object[] data, OrderedHashMap<String, ColumnSchema> cols,
-                   int[] primaryKeys);
+    void writeData(
+            int l,
+            Type[] types,
+            Object[] data,
+            OrderedHashMap<String, ColumnSchema> cols,
+            int[] primaryKeys);
 
     int getSize(Row row);
 

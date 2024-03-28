@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,8 +102,7 @@ public class ArrayType extends Type {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(dataType.getNameString()).append(' ');
-        sb.append(Tokens.T_ARRAY);
+        sb.append(dataType.getNameString()).append(' ').append(Tokens.T_ARRAY);
 
         if (maxCardinality != defaultArrayCardinality) {
             sb.append('[').append(maxCardinality).append(']');
@@ -116,8 +115,9 @@ public class ArrayType extends Type {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(dataType.getFullNameString()).append(' ');
-        sb.append(Tokens.T_ARRAY);
+        sb.append(dataType.getFullNameString())
+          .append(' ')
+          .append(Tokens.T_ARRAY);
 
         if (maxCardinality != defaultArrayCardinality) {
             sb.append('[').append(maxCardinality).append(']');
@@ -130,8 +130,7 @@ public class ArrayType extends Type {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(dataType.getDefinition()).append(' ');
-        sb.append(Tokens.T_ARRAY);
+        sb.append(dataType.getDefinition()).append(' ').append(Tokens.T_ARRAY);
 
         if (maxCardinality != defaultArrayCardinality) {
             sb.append('[').append(maxCardinality).append(']');
@@ -200,8 +199,10 @@ public class ArrayType extends Type {
         return arrb;
     }
 
-    public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) {
+    public Object convertToType(
+            SessionInterface session,
+            Object a,
+            Type otherType) {
 
         if (a == null) {
             return null;
@@ -284,15 +285,19 @@ public class ArrayType extends Type {
         if (a instanceof Object[]) {
             Object[] data = (Object[]) a;
 
-            return new JDBCArray(data, this.collectionBaseType(), this,
-                                 session);
+            return new JDBCArray(
+                data,
+                this.collectionBaseType(),
+                this,
+                session);
         }
 
         throw Error.error(ErrorCode.X_42561);
     }
 
-    public Object convertToDefaultType(SessionInterface sessionInterface,
-                                       Object o) {
+    public Object convertToDefaultType(
+            SessionInterface sessionInterface,
+            Object o) {
         return o;
     }
 
@@ -314,8 +319,7 @@ public class ArrayType extends Type {
         Object[]      arra = (Object[]) a;
         StringBuilder sb   = new StringBuilder();
 
-        sb.append(Tokens.T_ARRAY);
-        sb.append('[');
+        sb.append(Tokens.T_ARRAY).append('[');
 
         for (int i = 0; i < arra.length; i++) {
             if (i > 0) {
@@ -453,14 +457,15 @@ public class ArrayType extends Type {
         Type otherComponent = other.collectionBaseType();
 
         if (dataType.equals(otherComponent)) {
-            return ((ArrayType) other).maxCardinality > maxCardinality ? other
-                                                                       : this;
+            return ((ArrayType) other).maxCardinality > maxCardinality
+                   ? other
+                   : this;
         }
 
         Type newComponent = dataType.getAggregateType(otherComponent);
-        int cardinality = ((ArrayType) other).maxCardinality > maxCardinality
-                          ? ((ArrayType) other).maxCardinality
-                          : maxCardinality;
+        int  cardinality  = ((ArrayType) other).maxCardinality > maxCardinality
+                            ? ((ArrayType) other).maxCardinality
+                            : maxCardinality;
 
         return new ArrayType(newComponent, cardinality);
     }
@@ -509,8 +514,12 @@ public class ArrayType extends Type {
         Object[] array = new Object[size];
 
         System.arraycopy(a, 0, array, 0, ((Object[]) a).length);
-        System.arraycopy(b, 0, array, ((Object[]) a).length,
-                         ((Object[]) b).length);
+        System.arraycopy(
+            b,
+            0,
+            array,
+            ((Object[]) a).length,
+            ((Object[]) b).length);
 
         return array;
     }

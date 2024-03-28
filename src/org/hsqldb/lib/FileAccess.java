@@ -75,6 +75,5 @@ public interface FileAccess {
         void sync() throws IOException;
     }
 
-
     FileSync getFileSync(OutputStream os) throws IOException;
 }

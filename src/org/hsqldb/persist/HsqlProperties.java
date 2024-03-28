@@ -34,6 +34,7 @@ package org.hsqldb.persist;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -112,7 +113,6 @@ public class HsqlProperties {
     }
 
     public String setPropertyIfNotExists(String key, String value) {
-
         value = getProperty(key, value);
 
         return setProperty(key, value);
@@ -134,8 +134,10 @@ public class HsqlProperties {
         return getIntegerProperty(stringProps, key, defaultValue);
     }
 
-    public static int getIntegerProperty(Properties props, String key,
-                                         int defaultValue) {
+    public static int getIntegerProperty(
+            Properties props,
+            String key,
+            int defaultValue) {
 
         String prop = props.getProperty(key);
 
@@ -280,10 +282,12 @@ public class HsqlProperties {
      */
     protected void addError(int code, String key) {
 
-        errorCodes = (int[]) ArrayUtil.resizeArray(errorCodes,
-                errorCodes.length + 1);
-        errorKeys = (String[]) ArrayUtil.resizeArray(errorKeys,
-                errorKeys.length + 1);
+        errorCodes = (int[]) ArrayUtil.resizeArray(
+            errorCodes,
+            errorCodes.length + 1);
+        errorKeys = (String[]) ArrayUtil.resizeArray(
+            errorKeys,
+            errorKeys.length + 1);
         errorCodes[errorCodes.length - 1] = code;
         errorKeys[errorKeys.length - 1]   = key;
     }
@@ -306,15 +310,17 @@ public class HsqlProperties {
             if (p.equals("--help") || p.equals("-help")) {
                 props.addError(NO_VALUE_FOR_KEY, p.substring(1));
             } else if (p.startsWith("--")) {
-                String value = i + 1 < arg.length ? arg[i + 1]
-                                                  : "";
+                String value = i + 1 < arg.length
+                               ? arg[i + 1]
+                               : "";
 
                 props.setProperty(type + "." + p.substring(2), value);
 
                 i++;
             } else if (p.charAt(0) == '-') {
-                String value = i + 1 < arg.length ? arg[i + 1]
-                                                  : "";
+                String value = i + 1 < arg.length
+                               ? arg[i + 1]
+                               : "";
 
                 props.setProperty(type + "." + p.substring(1), value);
 
@@ -345,8 +351,11 @@ public class HsqlProperties {
      *
      * Any key without a value is added to the list of errors.
      */
-    public static HsqlProperties delimitedArgPairsToProps(String s,
-            String pairsep, String dlimiter, String type) {
+    public static HsqlProperties delimitedArgPairsToProps(
+            String s,
+            String pairsep,
+            String dlimiter,
+            String type) {
 
         HsqlProperties props       = new HsqlProperties();
         int            currentpair = 0;
@@ -359,16 +368,19 @@ public class HsqlProperties {
             }
 
             // find value within the segment
-            int valindex = s.substring(0, nextpair).indexOf(pairsep,
-                                       currentpair);
+            int valindex = s.substring(0, nextpair)
+                            .indexOf(pairsep, currentpair);
 
             if (valindex == -1) {
-                props.addError(NO_VALUE_FOR_KEY,
-                               s.substring(currentpair, nextpair).trim());
+                props.addError(
+                    NO_VALUE_FOR_KEY,
+                    s.substring(currentpair, nextpair).trim());
             } else {
                 String key = s.substring(currentpair, valindex).trim();
-                String value = s.substring(valindex + pairsep.length(),
-                                           nextpair).trim();
+                String value = s.substring(
+                    valindex + pairsep.length(),
+                    nextpair)
+                                .trim();
 
                 if (type != null) {
                     key = type + "." + key;
@@ -401,8 +413,7 @@ public class HsqlProperties {
 
     public void validate() {}
 
-    public static PropertyMeta newMeta(String name, int type,
-                                       long defaultVal) {
+    public static PropertyMeta newMeta(String name, int type, long defaultVal) {
 
         PropertyMeta meta = new PropertyMeta();
 
@@ -414,8 +425,10 @@ public class HsqlProperties {
         return meta;
     }
 
-    public static PropertyMeta newMeta(String name, int type,
-                                       String defaultValue) {
+    public static PropertyMeta newMeta(
+            String name,
+            int type,
+            String defaultValue) {
 
         PropertyMeta meta = new PropertyMeta();
 
@@ -427,8 +440,11 @@ public class HsqlProperties {
         return meta;
     }
 
-    public static PropertyMeta newMeta(String name, int type,
-                                       String defaultValue, String[] options) {
+    public static PropertyMeta newMeta(
+            String name,
+            int type,
+            String defaultValue,
+            String[] options) {
 
         PropertyMeta meta = new PropertyMeta();
 
@@ -441,22 +457,28 @@ public class HsqlProperties {
         return meta;
     }
 
-    public static PropertyMeta newMeta(String name, int type,
-                                       boolean defaultValue) {
+    public static PropertyMeta newMeta(
+            String name,
+            int type,
+            boolean defaultValue) {
 
         PropertyMeta meta = new PropertyMeta();
 
         meta.propName         = name;
         meta.propType         = type;
         meta.propClass        = "Boolean";
-        meta.propDefaultValue = defaultValue ? Boolean.TRUE
-                                             : Boolean.FALSE;
+        meta.propDefaultValue = defaultValue
+                                ? Boolean.TRUE
+                                : Boolean.FALSE;
 
         return meta;
     }
 
-    public static PropertyMeta newMeta(String name, int type,
-                                       int defaultValue, int[] values) {
+    public static PropertyMeta newMeta(
+            String name,
+            int type,
+            int defaultValue,
+            int[] values) {
 
         PropertyMeta meta = new PropertyMeta();
 
@@ -469,9 +491,12 @@ public class HsqlProperties {
         return meta;
     }
 
-    public static PropertyMeta newMeta(String name, int type,
-                                       int defaultValue, int rangeLow,
-                                       int rangeHigh) {
+    public static PropertyMeta newMeta(
+            String name,
+            int type,
+            int defaultValue,
+            int rangeLow,
+            int rangeHigh) {
 
         PropertyMeta meta = new PropertyMeta();
 
@@ -489,8 +514,10 @@ public class HsqlProperties {
     /**
      * Performs any range checking for property and return an error message
      */
-    public static String validateProperty(String key, String value,
-                                          PropertyMeta meta) {
+    public static String validateProperty(
+            String key,
+            String value,
+            PropertyMeta meta) {
 
         if (meta.propClass.equals("Boolean")) {
             value = value.toLowerCase();
@@ -512,6 +539,7 @@ public class HsqlProperties {
 
                 return "value not supported for property: " + key;
             }
+
             return null;
         }
 

@@ -32,6 +32,7 @@
 package org.hsqldb.resources;
 
 import java.lang.reflect.Method;
+
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -67,7 +68,8 @@ public final class ResourceBundleHandler {
     private static HashMap<String, Integer> bundleHandleMap = new HashMap<>();
 
     /** List whose elements are {@code ResourceBundle} objects */
-    private static HsqlArrayList<ResourceBundle> bundleList = new HsqlArrayList<>();
+    private static HsqlArrayList<ResourceBundle> bundleList =
+        new HsqlArrayList<>();
 
     /**
      * The resource path prefix of the {@code ResourceBundle} objects
@@ -87,7 +89,6 @@ public final class ResourceBundleHandler {
      * @return Value of property locale.
      */
     public static Locale getLocale() {
-
         synchronized (mutex) {
             return locale;
         }
@@ -194,12 +195,10 @@ public final class ResourceBundleHandler {
     private static Method getNewGetBundleMethod() {
 
         Class<ResourceBundle> clazz;
-        Class[] args;
+        Class[]               args;
 
         clazz = ResourceBundle.class;
-        args  = new Class[] {
-            String.class, Locale.class, ClassLoader.class
-        };
+        args  = new Class[]{ String.class, Locale.class, ClassLoader.class };
 
         try {
             return clazz.getMethod("getBundle", args);
@@ -222,10 +221,12 @@ public final class ResourceBundleHandler {
      * @param locale the locale for which a resource bundle is desired
      * @param cl the class loader from which to load the resource bundle
      */
-    public static ResourceBundle getBundle(String name, Locale locale,
-                                           ClassLoader cl)
-                                           throws NullPointerException,
-                                               MissingResourceException {
+    public static ResourceBundle getBundle(
+            String name,
+            Locale locale,
+            ClassLoader cl)
+            throws NullPointerException,
+                   MissingResourceException {
 
         if (cl == null) {
             return ResourceBundle.getBundle(name, locale);
@@ -234,9 +235,7 @@ public final class ResourceBundleHandler {
         } else {
             try {
                 return (ResourceBundle) newGetBundleMethod.invoke(null,
-                        new Object[] {
-                    name, locale, cl
-                });
+                        new Object[]{ name, locale, cl });
             } catch (Exception e) {
                 return ResourceBundle.getBundle(name, locale);
             }

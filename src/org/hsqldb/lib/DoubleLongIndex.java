@@ -61,7 +61,6 @@ public final class DoubleLongIndex implements LongLookup {
     private long targetSearchValue;
 
     public DoubleLongIndex(int capacity) {
-
         this.capacity = capacity;
         keys          = new long[capacity];
         values        = new long[capacity];
@@ -559,14 +558,12 @@ public final class DoubleLongIndex implements LongLookup {
     }
 
     private void doubleCapacity() {
-
         keys     = (long[]) ArrayUtil.resizeArray(keys, capacity * 2);
         values   = (long[]) ArrayUtil.resizeArray(values, capacity * 2);
         capacity *= 2;
     }
 
     public void copyTo(DoubleLongIndex other) {
-
         System.arraycopy(keys, 0, other.keys, 0, count);
         System.arraycopy(values, 0, other.values, 0, count);
         other.setSize(count);

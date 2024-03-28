@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,9 +75,12 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     /**
      *
      */
-    public TableSpaceManagerBlocks(DataSpaceManager spaceManager, int spaceId,
-                                   int fileBlockSize, int capacity,
-                                   int fileScale) {
+    public TableSpaceManagerBlocks(
+            DataSpaceManager spaceManager,
+            int spaceId,
+            int fileBlockSize,
+            int capacity,
+            int fileScale) {
 
         this.spaceManager  = spaceManager;
         this.spaceID       = spaceId;
@@ -106,8 +109,10 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         initialiseFileBlock(null, blockFreePos, blockLimit);
     }
 
-    public void initialiseFileBlock(LongLookup spaceList, long blockFreePos,
-                                    long blockLimit) {
+    public void initialiseFileBlock(
+            LongLookup spaceList,
+            long blockFreePos,
+            long blockLimit) {
 
         isInitialised     = true;
         freshBlockFreePos = blockFreePos;
@@ -157,7 +162,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
             freshBlockLimit   = position;
         }
 
-        freshBlockLimit += blockSize;
+        freshBlockLimit   += blockSize;
         currentBlockFloor = (freshBlockFreePos / fileBlockSize)
                             * (fileBlockSize / scale);
         currentBlockLimit = freshBlockLimit / scale;
@@ -322,8 +327,11 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         spaceList.compactLookupAsIntervals();
 
         if (full) {
-            spaceManager.freeTableSpace(spaceID, spaceList, freshBlockFreePos,
-                                        freshBlockLimit);
+            spaceManager.freeTableSpace(
+                spaceID,
+                spaceList,
+                freshBlockFreePos,
+                freshBlockLimit);
             spaceList.clear();
             spaceList.setValuesSearchTarget();
         } else {

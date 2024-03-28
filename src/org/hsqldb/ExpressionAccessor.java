@@ -46,30 +46,35 @@ import org.hsqldb.types.Type;
 public class ExpressionAccessor extends Expression {
 
     ExpressionAccessor(Expression left, Expression right) {
-
         super(OpTypes.ARRAY_ACCESS);
 
-        nodes = new Expression[] {
-            left, right
-        };
+        nodes = new Expression[]{ left, right };
     }
 
     public ColumnSchema getColumn() {
         return nodes[LEFT].getColumn();
     }
 
-    public List<Expression> resolveColumnReferences(Session session,
-                                                    RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-                                                    List<Expression> unresolvedSet, boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(
+            Session session,
+            RangeGroup rangeGroup,
+            int rangeCount,
+            RangeGroup[] rangeGroups,
+            List<Expression> unresolvedSet,
+            boolean acceptsSequences) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
                 continue;
             }
 
-            unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeGroup, rangeCount, rangeGroups, unresolvedSet,
-                    acceptsSequences);
+            unresolvedSet = nodes[i].resolveColumnReferences(
+                session,
+                rangeGroup,
+                rangeCount,
+                rangeGroups,
+                unresolvedSet,
+                acceptsSequences);
         }
 
         return unresolvedSet;
@@ -122,8 +127,11 @@ public class ExpressionAccessor extends Expression {
     /**
      * Assignment result
      */
-    public Object[] getUpdatedArray(Session session, Object[] array,
-                                    Object value, boolean copy) {
+    public Object[] getUpdatedArray(
+            Session session,
+            Object[] array,
+            Object value,
+            boolean copy) {
 
         if (array == null) {
             throw Error.error(ErrorCode.X_2200E);
@@ -167,8 +175,7 @@ public class ExpressionAccessor extends Expression {
         StringBuilder sb   = new StringBuilder(64);
         String        left = getContextSQL(nodes[LEFT]);
 
-        sb.append(left).append('[');
-        sb.append(nodes[RIGHT].getSQL()).append(']');
+        sb.append(left).append('[').append(nodes[RIGHT].getSQL()).append(']');
 
         return sb.toString();
     }

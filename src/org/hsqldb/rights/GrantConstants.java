@@ -42,20 +42,28 @@ public interface GrantConstants {
 
     /** Flag required to SELECT from a table. */
     int SELECT = 1 << 0;
+
     /** Flag required to DELETE from a table. */
     int DELETE = 1 << 1;
+
     /** Flag required to INSERT into a table. */
     int INSERT = 1 << 2;
+
     /** Flag required to UPDATE a table. */
     int UPDATE = 1 << 3;
+
     /** Flag required to use a sequence. */
     int USAGE = 1 << 4;
+
     /** Flag required to execute a routine. */
     int EXECUTE = 1 << 5;
+
     /** Flag required for check or assertion constraint referencing a column. */
     int REFERENCES = 1 << 6;
+
     /** Flag required to use of a trigger. */
     int TRIGGER = 1 << 7;
+
     /** Combined flag permitting any action. */
     int ALL = SELECT | DELETE | INSERT | UPDATE | USAGE | EXECUTE;
 }

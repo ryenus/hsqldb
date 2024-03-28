@@ -53,11 +53,14 @@ public class HsqlServerFactory {
 
     private HsqlServerFactory() {}
 
-    public static HsqlSocketRequestHandler createHsqlServer(String dbFilePath,
-            boolean debugMessages, boolean silentMode) throws SQLException {
+    public static HsqlSocketRequestHandler createHsqlServer(
+            String dbFilePath,
+            boolean debugMessages,
+            boolean silentMode)
+            throws SQLException {
 
-        ServerProperties props =
-            new ServerProperties(ServerConstants.SC_PROTOCOL_HSQL);
+        ServerProperties props = new ServerProperties(
+            ServerConstants.SC_PROTOCOL_HSQL);
 
         props.setProperty("server.dbname.0", "");
         props.setProperty("server.database.0", dbFilePath);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -149,9 +149,9 @@ public class Log {
             // delete log file as zero length file is possible
             // fall through
             case HsqlDatabaseProperties.FILES_NOT_MODIFIED :
-                database.logger.logInfoEvent(
-                    "open start - state not modified");
+                database.logger.logInfoEvent("open start - state not modified");
                 deleteLogFile();
+
                 /*
                  * if startup is after a SHUTDOWN SCRIPT and there are CACHED
                  * or TEXT tables, perform a checkpoint so that the .script
@@ -168,6 +168,7 @@ public class Log {
                         checkpoint();
                     }
                 }
+
                 break;
         }
 
@@ -199,8 +200,9 @@ public class Log {
         }
 
         // set this one last to save the props
-        properties.setProperty(HsqlDatabaseProperties.hsqldb_script_format,
-                               database.logger.propScriptFormat);
+        properties.setProperty(
+            HsqlDatabaseProperties.hsqldb_script_format,
+            database.logger.propScriptFormat);
         properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED_NEW);
         deleteLogFile();
 
@@ -227,8 +229,7 @@ public class Log {
         boolean complete = renameNewScriptFile();
 
         if (complete) {
-            properties.setDBModified(
-                HsqlDatabaseProperties.FILES_NOT_MODIFIED);
+            properties.setDBModified(HsqlDatabaseProperties.FILES_NOT_MODIFIED);
         }
     }
 
@@ -275,7 +276,8 @@ public class Log {
 
         if (!result) {
             database.logger.logSevereEvent(
-                "checkpoint failed - see previous error", null);
+                "checkpoint failed - see previous error",
+                null);
         }
 
         return reopenResult;
@@ -330,10 +332,10 @@ public class Log {
                 cache.reset();
             }
 
-            properties.setProperty(HsqlDatabaseProperties.hsqldb_script_format,
-                                   database.logger.propScriptFormat);
-            properties.setDBModified(
-                HsqlDatabaseProperties.FILES_MODIFIED_NEW);
+            properties.setProperty(
+                HsqlDatabaseProperties.hsqldb_script_format,
+                database.logger.propScriptFormat);
+            properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED_NEW);
 
             if (cache != null) {
                 deleteBackupFile();
@@ -352,11 +354,11 @@ public class Log {
         renameNewScriptFile();
 
         try {
-            properties.setDBModified(
-                HsqlDatabaseProperties.FILES_NOT_MODIFIED);
+            properties.setDBModified(HsqlDatabaseProperties.FILES_NOT_MODIFIED);
         } catch (Throwable e) {
             database.logger.logSevereEvent(
-                "logger.checkpointClose properties file save failed", e);
+                "logger.checkpointClose properties file save failed",
+                e);
         }
 
         database.logger.logInfoEvent("checkpointClose end");
@@ -420,18 +422,20 @@ public class Log {
                 database.schemaManager.setTempIndexRoots(null);
             }
 
-            database.getProperties().setProperty(
-                HsqlDatabaseProperties.hsqldb_script_format,
-                database.logger.propScriptFormat);
-            database.getProperties().setDBModified(
-                HsqlDatabaseProperties.FILES_MODIFIED_NEW_DATA);
+            database.getProperties()
+                    .setProperty(
+                        HsqlDatabaseProperties.hsqldb_script_format,
+                        database.logger.propScriptFormat);
+            database.getProperties()
+                    .setDBModified(
+                        HsqlDatabaseProperties.FILES_MODIFIED_NEW_DATA);
             closeLog();
             deleteLogFile();
             deleteBackupFile();
             renameNewDataFile();
             renameNewScriptFile();
-            database.getProperties().setDBModified(
-                HsqlDatabaseProperties.FILES_NOT_MODIFIED);
+            database.getProperties()
+                    .setDBModified(HsqlDatabaseProperties.FILES_NOT_MODIFIED);
             cache.open(false);
 
             if (dbLogWriter != null) {
@@ -464,7 +468,8 @@ public class Log {
         }
 
         long fileSize = cache.getFileFreePos();
-        long limit = database.logger.propDataFileDefragLimit * fileSize / 100;
+        long limit    = database.logger.propDataFileDefragLimit * fileSize
+                        / 100;
         long floor    = database.logger.propDataFileSpace * 1024L * 1024 * 2;
 
         if (floor > limit) {
@@ -570,7 +575,6 @@ public class Log {
     }
 
     void synchLog() {
-
         if (dbLogWriter != null) {
             dbLogWriter.forceSync();
         }
@@ -594,8 +598,8 @@ public class Log {
     void closeLog() {
 
         if (dbLogWriter != null) {
-            database.logger.logDetailEvent("log close size: "
-                                           + dbLogWriter.size());
+            database.logger.logDetailEvent(
+                "log close size: " + dbLogWriter.size());
             dbLogWriter.close();
         }
     }
@@ -606,11 +610,17 @@ public class Log {
 
         try {
             if (crypto == null) {
-                dbLogWriter = new ScriptWriterText(database, logFileName,
-                                                   false, false, false);
+                dbLogWriter = new ScriptWriterText(
+                    database,
+                    logFileName,
+                    false,
+                    false,
+                    false);
             } else {
-                dbLogWriter = new ScriptWriterEncode(database, logFileName,
-                                                     crypto);
+                dbLogWriter = new ScriptWriterEncode(
+                    database,
+                    logFileName,
+                    crypto);
             }
 
             dbLogWriter.setWriteDelay(writeDelay);
@@ -633,15 +643,17 @@ public class Log {
         if (crypto == null) {
             boolean compressed = database.logger.propScriptFormat == 3;
 
-            scw = new ScriptWriterText(database,
-                                       scriptFileName
-                                       + Logger.newFileExtension, full,
-                                           compressed);
+            scw = new ScriptWriterText(
+                database,
+                scriptFileName + Logger.newFileExtension,
+                full,
+                compressed);
         } else {
-            scw = new ScriptWriterEncode(database,
-                                         scriptFileName
-                                         + Logger.newFileExtension, full,
-                                             crypto);
+            scw = new ScriptWriterEncode(
+                database,
+                scriptFileName + Logger.newFileExtension,
+                full,
+                crypto);
         }
 
         scw.writeAll();
@@ -663,15 +675,20 @@ public class Log {
             if (crypto == null) {
                 boolean compressed = database.logger.propScriptFormat == 3;
 
-                scr = new ScriptReaderText(database, scriptFileName,
-                                           compressed);
+                scr = new ScriptReaderText(
+                    database,
+                    scriptFileName,
+                    compressed);
             } else {
-                scr = new ScriptReaderDecode(database, scriptFileName, crypto,
-                                             false);
+                scr = new ScriptReaderDecode(
+                    database,
+                    scriptFileName,
+                    crypto,
+                    false);
             }
 
-            Session session =
-                database.sessionManager.getSysSessionForScript(database);
+            Session session = database.sessionManager.getSysSessionForScript(
+                database);
 
             scr.readAll(session);
             scr.close();
@@ -689,7 +706,7 @@ public class Log {
             database.logger.logWarningEvent("Script processing failure", e);
 
             if (e instanceof HsqlException) {
-                throw (HsqlException) e;
+                throw(HsqlException) e;
             } else if (e instanceof IOException) {
                 throw Error.error(ErrorCode.FILE_IO_ERROR, e);
             } else if (e instanceof OutOfMemoryError) {
@@ -706,8 +723,9 @@ public class Log {
     private void processLog() {
 
         if (fa.isStreamElement(logFileName)) {
-            boolean fullReplay = database.getURLProperties().isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_full_log_replay);
+            boolean fullReplay = database.getURLProperties()
+                                         .isPropertyTrue(
+                                             HsqlDatabaseProperties.hsqldb_full_log_replay);
 
             ScriptRunner.runScript(database, logFileName, fullReplay);
         }
@@ -740,7 +758,8 @@ public class Log {
             deleteFile(fileAccess, baseFileName);
 
             return fileAccess.renameElementOrCopy(
-                baseFileName + Logger.newFileExtension, baseFileName,
+                baseFileName + Logger.newFileExtension,
+                baseFileName,
                 database.logger);
         }
 
@@ -751,7 +770,6 @@ public class Log {
      * Deletes the leftovers from any previous unfinished operations.
      */
     void deleteNewAndOldFiles() {
-
         deleteOldFiles();
         deleteFile(fa, dataFileName + Logger.newFileExtension);
         deleteFile(fa, scriptFileName + Logger.newFileExtension);

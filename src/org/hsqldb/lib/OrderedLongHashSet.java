@@ -52,10 +52,11 @@ public class OrderedLongHashSet extends BaseHashMap {
             int initialCapacity)
             throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.longKeyOrValue,
-              BaseHashMap.noKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.longKeyOrValue,
+            BaseHashMap.noKeyOrValue,
+            false);
 
         isList = true;
     }
@@ -107,7 +108,6 @@ public class OrderedLongHashSet extends BaseHashMap {
     }
 
     public long get(int index) {
-
         checkRange(index);
 
         return longKeyTable[index];
@@ -177,7 +177,6 @@ public class OrderedLongHashSet extends BaseHashMap {
     }
 
     private void checkRange(int i) {
-
         if (i < 0 || i >= size()) {
             throw new IndexOutOfBoundsException();
         }

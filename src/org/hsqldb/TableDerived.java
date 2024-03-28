@@ -90,8 +90,12 @@ public class TableDerived extends Table {
     /**
      * For named sunbqueries.
      */
-    public TableDerived(Database database, HsqlName name, int type,
-                        HsqlName[] colNames, Type[] colTypes) {
+    public TableDerived(
+            Database database,
+            HsqlName name,
+            int type,
+            HsqlName[] colNames,
+            Type[] colTypes) {
 
         this(database, name, type);
 
@@ -107,9 +111,13 @@ public class TableDerived extends Table {
         createPrimaryKey(null, null, false);
     }
 
-    public TableDerived(Database database, HsqlName name, int type,
-                        Type[] columnTypes, OrderedHashMap<String, ColumnSchema> columnList,
-                        int[] pkColumns) {
+    public TableDerived(
+            Database database,
+            HsqlName name,
+            int type,
+            Type[] columnTypes,
+            OrderedHashMap<String, ColumnSchema> columnList,
+            int[] pkColumns) {
 
         this(database, name, type);
 
@@ -120,9 +128,14 @@ public class TableDerived extends Table {
         createPrimaryKey(null, pkColumns, true);
     }
 
-    public TableDerived(Database database, HsqlName name, int type,
-                        QueryExpression queryExpression,
-                        Expression dataExpression, int opType, int depth) {
+    public TableDerived(
+            Database database,
+            HsqlName name,
+            int type,
+            QueryExpression queryExpression,
+            Expression dataExpression,
+            int opType,
+            int depth) {
 
         super(database, name, type);
 
@@ -172,8 +185,9 @@ public class TableDerived extends Table {
         }
     }
 
-    public TableDerived newDerivedTable(Session session,
-                                        CompileContext baseContext) {
+    public TableDerived newDerivedTable(
+            Session session,
+            CompileContext baseContext) {
 
         TableDerived td = this;
 
@@ -186,9 +200,10 @@ public class TableDerived extends Table {
 
             td = p.XreadSubqueryTableBody(tableName, OpTypes.TABLE_SUBQUERY);
 
-            td.queryExpression.resolve(session,
-                                       p.compileContext.getOuterRanges(),
-                                       null);
+            td.queryExpression.resolve(
+                session,
+                p.compileContext.getOuterRanges(),
+                null);
 
             td.columnList   = columnList;
             td.columnCount  = columnList.size();
@@ -269,15 +284,15 @@ public class TableDerived extends Table {
     }
 
     public Table getBaseTable() {
-        return queryExpression == null ? this
-                                       : queryExpression.getBaseTable();
+        return queryExpression == null
+               ? this
+               : queryExpression.getBaseTable();
     }
 
     public int[] getBaseTableColumnMap() {
-
-        return queryExpression == null ? null
-                                       : queryExpression
-                                           .getBaseTableColumnMap();
+        return queryExpression == null
+               ? null
+               : queryExpression.getBaseTableColumnMap();
     }
 
     public QueryExpression getQueryExpression() {
@@ -318,7 +333,8 @@ public class TableDerived extends Table {
                 throw Error.error(ErrorCode.X_42593);
             }
 
-            OrderedHashMap<String, ColumnSchema> newColumnList = new OrderedHashMap<>();
+            OrderedHashMap<String, ColumnSchema> newColumnList =
+                new OrderedHashMap<>();
 
             for (int i = 0; i < columnCount; i++) {
                 ColumnSchema col = columnList.get(i);
@@ -348,8 +364,9 @@ public class TableDerived extends Table {
             ArrayUtil.fillSequence(cols);
         }
 
-        int[] pkcols = uniqueRows ? cols
-                                  : null;
+        int[] pkcols = uniqueRows
+                       ? cols
+                       : null;
 
         createPrimaryKey(null, pkcols, false);
 
@@ -431,7 +448,6 @@ public class TableDerived extends Table {
     }
 
     public void materialiseCorrelated(Session session) {
-
         if (isCorrelated()) {
             materialise(session);
         }
@@ -466,7 +482,6 @@ public class TableDerived extends Table {
     }
 
     public Object getValue(Session session) {
-
         Object[] data = getValues(session);
 
         return data[0];
@@ -474,7 +489,8 @@ public class TableDerived extends Table {
 
     public RowSetNavigatorData getNavigator(Session session) {
 
-        RowSetNavigatorData navigator = new RowSetNavigatorDataTable(session,
+        RowSetNavigatorData navigator = new RowSetNavigatorDataTable(
+            session,
             this);
 
         return navigator;

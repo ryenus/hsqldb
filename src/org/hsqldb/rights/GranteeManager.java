@@ -79,8 +79,8 @@ public class GranteeManager {
 
     static {
         HsqlName name = HsqlNameManager.newSystemObjectName(
-                            SqlInvariants.SYSTEM_AUTHORIZATION_NAME,
-                            SchemaObject.GRANTEE);
+            SqlInvariants.SYSTEM_AUTHORIZATION_NAME,
+            SchemaObject.GRANTEE);
 
         systemAuthorisation          = new User(name, null);
         systemAuthorisation.isSystem = true;
@@ -101,40 +101,49 @@ public class GranteeManager {
      * Keys include all USER and ROLE names
      */
     private OrderedHashMap<String, Grantee> map = new OrderedHashMap<>();
+
     /**
      * Map of role-Strings-to-Grantee-object.<p>
      * Keys include all ROLES names
      */
     private OrderedHashMap<String, Grantee> roleMap = new OrderedHashMap<>();
+
     /**
      * Used only to pass the SchemaManager to Grantees for checking
      * schema authorizations.
      */
     Database database;
+
     /**
      * MessageDigest instance for database
      */
     private MessageDigest digester;
+
     /**
      * MessageDigest algorithm
      */
     private String digestAlgo;
+
     /**
      * The PUBLIC role.
      */
     Grantee publicRole;
+
     /**
      * The DBA role.
      */
     Grantee dbaRole;
+
     /**
      * The role for schema creation rights.
      */
     Grantee schemaRole;
+
     /**
      * The role for changing authorization rights.
      */
     Grantee changeAuthRole;
+
     /**
      * The role for script operations rights.
      */
@@ -196,7 +205,8 @@ public class GranteeManager {
     }
 
     static final IntValueHashMap<String> rightsStringLookup =
-        new IntValueHashMap<>(11);
+        new IntValueHashMap<>(
+            11);
 
     static {
         rightsStringLookup.put(Tokens.T_ALL, GrantConstants.ALL);
@@ -234,12 +244,13 @@ public class GranteeManager {
             SchemaObject[] routines =
                 ((RoutineSchema) dbObject).getSpecificRoutines();
 
-            grant(session,
-                  granteeList,
-                  routines,
-                  right,
-                  grantor,
-                  withGrantOption);
+            grant(
+                session,
+                granteeList,
+                routines,
+                right,
+                grantor,
+                withGrantOption);
 
             return;
         }
@@ -251,13 +262,15 @@ public class GranteeManager {
         }
 
         if (!grantor.isAccessible(dbObject)) {
-            throw Error.error(ErrorCode.X_0L000,
-                              grantor.getName().getNameString());
+            throw Error.error(
+                ErrorCode.X_0L000,
+                grantor.getName().getNameString());
         }
 
         if (!grantor.isGrantable(dbObject, right)) {
-            session.addWarning(Error.error(ErrorCode.W_01007,
-                                           grantor.getName().getNameString()));
+            session.addWarning(
+                Error.error(ErrorCode.W_01007,
+                            grantor.getName().getNameString()));
 
             return;
         }
@@ -273,8 +286,9 @@ public class GranteeManager {
 
             if (!grantee.isRole) {
                 if (right.hasFilter()) {
-                    throw Error.error(ErrorCode.X_0P000,
-                                      grantee.getName().name);
+                    throw Error.error(
+                        ErrorCode.X_0P000,
+                        grantee.getName().name);
                 }
             }
 
@@ -301,19 +315,21 @@ public class GranteeManager {
                 continue;
             }
 
-            grant(session,
-                  granteeList,
-                  routines[i],
-                  right,
-                  grantor,
-                  withGrantOption);
+            grant(
+                session,
+                granteeList,
+                routines[i],
+                right,
+                grantor,
+                withGrantOption);
 
             granted = true;
         }
 
         if (!granted) {
-            throw Error.error(ErrorCode.X_0L000,
-                              grantor.getName().getNameString());
+            throw Error.error(
+                ErrorCode.X_0L000,
+                grantor.getName().getNameString());
         }
     }
 
@@ -374,8 +390,9 @@ public class GranteeManager {
         }
 
         if (!grantor.isGrantable(role)) {
-            throw Error.error(ErrorCode.X_0L000,
-                              grantor.getName().getNameString());
+            throw Error.error(
+                ErrorCode.X_0L000,
+                grantor.getName().getNameString());
         }
 
         grantee.grant(role);
@@ -420,8 +437,9 @@ public class GranteeManager {
             }
 
             if (!grantor.isAdmin()) {
-                throw Error.error(ErrorCode.X_0L000,
-                                  grantor.getName().getNameString());
+                throw Error.error(
+                    ErrorCode.X_0L000,
+                    grantor.getName().getNameString());
             }
         }
     }
@@ -472,12 +490,13 @@ public class GranteeManager {
             SchemaObject[] routines =
                 ((RoutineSchema) dbObject).getSpecificRoutines();
 
-            revoke(granteeList,
-                   routines,
-                   rights,
-                   grantor,
-                   grantOption,
-                   cascade);
+            revoke(
+                granteeList,
+                routines,
+                rights,
+                grantor,
+                grantOption,
+                cascade);
 
             return;
         }
@@ -520,12 +539,13 @@ public class GranteeManager {
             boolean cascade) {
 
         for (int i = 0; i < routines.length; i++) {
-            revoke(granteeList,
-                   routines[i],
-                   rights,
-                   grantor,
-                   grantOption,
-                   cascade);
+            revoke(
+                granteeList,
+                routines[i],
+                rights,
+                grantor,
+                grantOption,
+                cascade);
         }
     }
 

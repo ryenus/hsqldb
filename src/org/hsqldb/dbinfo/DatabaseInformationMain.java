@@ -53,7 +53,6 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.WrapperIterator;
-import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.HsqlProperties.PropertyMeta;
@@ -164,9 +163,9 @@ class DatabaseInformationMain extends DatabaseInformation {
     protected static final HashSet<String> nonCachedTablesSet;
 
     /** The table types HSQLDB supports. */
-    protected static final String[] tableTypes = new String[] {
-        "GLOBAL TEMPORARY", "SYSTEM TABLE", "TABLE", "VIEW"
-    };
+    protected static final String[] tableTypes = new String[]{
+        "GLOBAL TEMPORARY",
+        "SYSTEM TABLE", "TABLE", "VIEW" };
 
     /* Provides naming support. */
     static {
@@ -175,8 +174,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             sysTableHsqlNames  = new HsqlName[sysTableNames.length];
 
             for (int i = 0; i < sysTableNames.length; i++) {
-                sysTableHsqlNames[i] =
-                    HsqlNameManager.newInfoSchemaTableName(sysTableNames[i]);
+                sysTableHsqlNames[i] = HsqlNameManager.newInfoSchemaTableName(
+                    sysTableNames[i]);
                 sysTableHsqlNames[i].schema =
                     SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
                 sysTableSessionDependent[i] = true;
@@ -247,14 +246,18 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return an enumeration over all the tables in this database
      */
     protected final Iterator<Table> allTables() {
-
-        return new WrapperIterator<Table>(
+        return new WrapperIterator<>(
             database.schemaManager.databaseTableIterator(),
-            new WrapperIterator<Table>(sysTables, true));
+            new WrapperIterator<>(sysTables, true));
     }
 
     protected final Iterator<Table> allUserTables() {
         return database.schemaManager.databaseTableIterator();
+    }
+
+    /** ensures int or long value is CARDINAL_NUMBER (Long) for insertion in sys table */
+    protected final Long cardinal(long value) {
+        return Long.valueOf(value);
     }
 
     /**
@@ -264,8 +267,10 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @param tableIndex int value identifying the system table to generate
      * @return the system table corresponding to the specified tableIndex value
      */
-    protected Table generateTable(Session session, PersistentStore store,
-                                  int tableIndex) {
+    protected Table generateTable(
+            Session session,
+            PersistentStore store,
+            int tableIndex) {
 
 //        Please note that this class produces non-null tables for
 //        just those absolutely essential to the JDBC 1 spec and the
@@ -430,7 +435,6 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @param name of the table
      */
     protected final Table createBlankTable(HsqlName name) {
-
         return new Table(database, name, TableBase.INFO_SCHEMA_TABLE);
     }
 
@@ -476,8 +480,10 @@ class DatabaseInformationMain extends DatabaseInformation {
         return nonCachedTablesSet.contains(name);
     }
 
-    public final void setStore(Session session, Table table,
-                               PersistentStore store) {
+    public final void setStore(
+            Session session,
+            Table table,
+            PersistentStore store) {
 
         long dbscts = database.schemaManager.getSchemaChangeTimestamp();
 
@@ -619,8 +625,9 @@ class DatabaseInformationMain extends DatabaseInformation {
      * set of visible columns that uniquely identifies a row
      * for each accessible table defined within this database
      */
-    final Table SYSTEM_BESTROWIDENTIFIER(Session session,
-                                         PersistentStore store) {
+    final Table SYSTEM_BESTROWIDENTIFIER(
+            Session session,
+            PersistentStore store) {
 
         Table t = sysTables[SYSTEM_BESTROWIDENTIFIER];
 
@@ -645,18 +652,20 @@ class DatabaseInformationMain extends DatabaseInformation {
             // for unique:  TABLE_CAT, TABLE_SCHEM, TABLE_NAME, COLUMN_NAME
             // false PK, as TABLE_CAT and/or TABLE_SCHEM may be null
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_BESTROWIDENTIFIER].name, false,
+                sysTableHsqlNames[SYSTEM_BESTROWIDENTIFIER].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                0, 8, 9, 10, 1
-            }, false);
+            t.createPrimaryKeyConstraint(
+                name,
+                new int[]{ 0, 8, 9, 10, 1 },
+                false);
 
             return t;
         }
 
         // calculated column values
-        Integer scope;           // { temp, transaction, session }
+        Integer scope;    // { temp, transaction, session }
         Integer pseudo;
 
         //-------------------------------------------
@@ -672,6 +681,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         Boolean inKey;           // column participates in PK or AK?
 
         //-------------------------------------------
+
         /*
          * @todo -  Maybe include: - backing index (constraint) name?
          *       - column sequence in index (constraint)?
@@ -679,12 +689,12 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         //-------------------------------------------
         // Intermediate holders
-        Iterator<Table>       tables;
-        Table          table;
-        DITableInfo    ti;
-        int[]          cols;
-        Object[]       row;
-        HsqlProperties p;
+        Iterator<Table> tables;
+        Table           table;
+        DITableInfo     ti;
+        int[]           cols;
+        Object[]        row;
+        HsqlProperties  p;
 
         // Column number mappings
         final int iscope          = 0;
@@ -702,7 +712,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int iinKey          = 12;
 
         // Initialization
-        ti = new DITableInfo();
+        ti     = new DITableInfo();
         tables = allUserTables();
 
         boolean translateTTI = database.sqlTranslateTTI;
@@ -724,8 +734,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             ti.setTable(table);
 
-            inKey        = table.isBestRowIdentifiersStrict() ? Boolean.TRUE
-                                                              : Boolean.FALSE;
+            inKey        = table.isBestRowIdentifiersStrict()
+                           ? Boolean.TRUE
+                           : Boolean.FALSE;
             tableCatalog = table.getCatalogName().name;
             tableSchema  = table.getSchemaName().name;
             tableName    = table.getName().name;
@@ -745,22 +756,22 @@ class DatabaseInformationMain extends DatabaseInformation {
                     }
                 }
 
-                row                 = t.getEmptyRowData();
-                row[iscope]         = scope;
-                row[icolumn_name]   = column.getName().name;
-                row[idata_type]     = ValuePool.getInt(type.getJDBCTypeCode());
-                row[itype_name]     = type.getNameString();
-                row[icolumn_size] = ValuePool.getInt(type.getJDBCPrecision());
-                row[ibuffer_length] = null;
+                row                  = t.getEmptyRowData();
+                row[iscope]          = scope;
+                row[icolumn_name]    = column.getName().name;
+                row[idata_type]      = type.getJDBCTypeCode();
+                row[itype_name]      = type.getNameString();
+                row[icolumn_size]    = type.getJDBCPrecision();
+                row[ibuffer_length]  = null;
                 row[idecimal_digits] = type.acceptsScale()
-                                       ? ValuePool.getInt(type.getJDBCScale())
+                                       ? type.getJDBCScale()
                                        : null;
-                row[ipseudo_column] = pseudo;
-                row[itable_cat]     = tableCatalog;
-                row[itable_schem]   = tableSchema;
-                row[itable_name]    = tableName;
-                row[inullable] = ValuePool.getInt(column.getNullability());
-                row[iinKey]         = inKey;
+                row[ipseudo_column]  = pseudo;
+                row[itable_cat]      = tableCatalog;
+                row[itable_schem]    = tableSchema;
+                row[itable_name]     = tableName;
+                row[inullable]       = column.getNullability();
+                row[iinKey]          = inKey;
 
                 t.insertSys(session, store, row);
             }
@@ -842,23 +853,22 @@ class DatabaseInformationMain extends DatabaseInformation {
             // ----------------------------------------------------------------
             // JDBC 4.0 - added Mustang b86
             // ----------------------------------------------------------------
-            addColumn(t, "IS_AUTOINCREMENT", YES_OR_NO);            // 22
+            addColumn(t, "IS_AUTOINCREMENT", YES_OR_NO);    // 22
 
             // ----------------------------------------------------------------
             // JDBC 4.1
             // ----------------------------------------------------------------
-            addColumn(t, "IS_GENERATEDCOLUMN", YES_OR_NO);          // 23
+            addColumn(t, "IS_GENERATEDCOLUMN", YES_OR_NO);    // 23
 
             // order: TABLE_SCHEM, TABLE_NAME, ORDINAL_POSITION
             // added for unique: TABLE_CAT
             // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_COLUMNS].name, false,
+                sysTableHsqlNames[SYSTEM_COLUMNS].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2, 16
-            }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0, 1, 2, 16 }, false);
 
             return t;
         }
@@ -869,11 +879,11 @@ class DatabaseInformationMain extends DatabaseInformation {
         String tableName;
 
         // intermediate holders
-        int         columnCount;
-        Iterator<Table>    tables;
-        Table       table;
-        Object[]    row;
-        DITableInfo ti;
+        int             columnCount;
+        Iterator<Table> tables;
+        Table           table;
+        Object[]        row;
+        DITableInfo     ti;
 
         // column number mappings
         final int itable_cat         = 0;
@@ -916,8 +926,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             table = tables.next();
 
             /* requires access to the actual columns */
-            OrderedHashSet<HsqlName> colNameSet =
-                session.getGrantee().getColumnsForAllPrivileges(table);
+            OrderedHashSet<HsqlName> colNameSet = session.getGrantee()
+                    .getColumnsForAllPrivileges(table);
 
             if (!isAccessible(session, table)) {
                 continue;
@@ -951,57 +961,53 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[itable_schem]       = tableSchema;
                 row[itable_name]        = tableName;
                 row[icolumn_name]       = column.getName().name;
-                row[idata_type] = ValuePool.getInt(type.getJDBCTypeCode());
+                row[idata_type]         = type.getJDBCTypeCode();
                 row[itype_name]         = type.getNameString();
-                row[icolumn_size]       = ValuePool.INTEGER_0;
-                row[ichar_octet_length] = ValuePool.INTEGER_0;
+                row[icolumn_size]       = 0;
+                row[ichar_octet_length] = 0;
 
                 if (type.isArrayType()) {
                     row[itype_name] = type.getDefinition();
                 }
 
                 if (type.isCharacterType()) {
-                    row[icolumn_size] =
-                        ValuePool.getInt(type.getJDBCPrecision());
+                    row[icolumn_size] = type.getJDBCPrecision();
 
                     // this is length not octet_length, for character columns
-                    row[ichar_octet_length] =
-                        ValuePool.getInt(type.getJDBCPrecision());
+                    row[ichar_octet_length] = type.getJDBCPrecision();
                 }
 
                 if (type.isBinaryType()) {
-                    row[icolumn_size] =
-                        ValuePool.getInt(type.getJDBCPrecision());
-                    row[ichar_octet_length] =
-                        ValuePool.getInt(type.getJDBCPrecision());
+                    row[icolumn_size]       = type.getJDBCPrecision();
+                    row[ichar_octet_length] = type.getJDBCPrecision();
                 }
 
                 if (type.isNumberType()) {
-                    row[icolumn_size] = ValuePool.getInt(
-                        ((NumberType) type).getNumericPrecisionInRadix());
-                    row[inum_prec_radix] =
-                        ValuePool.getInt(type.getPrecisionRadix());
+                    row[icolumn_size] =
+                        ((NumberType) type).getNumericPrecisionInRadix();
+                    row[inum_prec_radix] = type.getPrecisionRadix();
 
                     if (type.isExactNumberType()) {
-                        row[idecimal_digits] = ValuePool.getLong(type.scale);
+                        row[idecimal_digits] = type.scale;
                     }
                 }
 
                 if (type.isDateTimeType()) {
                     int size = column.getDataType().displaySize();
 
-                    row[icolumn_size] = ValuePool.getInt(size);
-                    row[isql_datetime_sub] = ValuePool.getInt(
-                        ((DateTimeType) type).getSqlDateTimeSub());
+                    row[icolumn_size] = size;
+                    row[isql_datetime_sub] =
+                        ((DateTimeType) type).getSqlDateTimeSub();
                 }
 
-                row[inullable] = ValuePool.getInt(column.getNullability());
+                row[inullable]         = column.getNullability();
                 row[iremark]           = ti.getColRemarks(i);
                 row[icolumn_def]       = column.getDefaultSQL();
-                row[isql_data_type]    = ValuePool.getInt(type.typeCode);
-                row[iordinal_position] = ValuePool.getInt(i + 1);
-                row[iis_nullable]      = column.isNullable() ? "YES"
-                                                             : "NO";
+                row[isql_data_type]    = type.typeCode;
+                row[iordinal_position] = i + 1;
+                row[iis_nullable]      = column.isNullable()
+                                         ? "YES"
+                                         : "NO";
 
                 if (type.isDistinctType() || type.isDomainType()) {
                     row[itype_name]        = type.getTypeDefinition();
@@ -1009,10 +1015,12 @@ class DatabaseInformationMain extends DatabaseInformation {
                 }
 
                 // JDBC 4.0
-                row[iis_autoinc]   = column.isIdentity() ? "YES"
-                                                         : "NO";
-                row[iis_generated] = column.isGenerated() ? "YES"
-                                                          : "NO";
+                row[iis_autoinc]   = column.isIdentity()
+                                     ? "YES"
+                                     : "NO";
+                row[iis_generated] = column.isGenerated()
+                                     ? "YES"
+                                     : "NO";
 
                 t.insertSys(session, store, row);
             }
@@ -1081,12 +1089,14 @@ class DatabaseInformationMain extends DatabaseInformation {
             // false PK, as FKTABLE_CAT, FKTABLE_SCHEM and/or FK_NAME
             // may be null
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_CROSSREFERENCE].name, false,
+                sysTableHsqlNames[SYSTEM_CROSSREFERENCE].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                4, 5, 6, 8, 11
-            }, false);
+            t.createPrimaryKeyConstraint(
+                name,
+                new int[]{ 4, 5, 6, 8, 11 },
+                false);
 
             return t;
         }
@@ -1108,18 +1118,18 @@ class DatabaseInformationMain extends DatabaseInformation {
         Integer deferrability;
 
         // Intermediate holders
-        Iterator<Table>      tables;
-        Table         table;
-        Table         fkTable;
-        Table         pkTable;
-        int           columnCount;
-        int[]         mainCols;
-        int[]         refCols;
-        Constraint[]  constraints;
-        Constraint    constraint;
-        int           constraintCount;
+        Iterator<Table>           tables;
+        Table                     table;
+        Table                     fkTable;
+        Table                     pkTable;
+        int                       columnCount;
+        int[]                     mainCols;
+        int[]                     refCols;
+        Constraint[]              constraints;
+        Constraint                constraint;
+        int                       constraintCount;
         HsqlArrayList<Constraint> fkConstraintsList;
-        Object[]      row;
+        Object[]                  row;
 
         // column number mappings
         final int ipk_table_cat   = 0;
@@ -1162,10 +1172,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             for (int i = 0; i < constraintCount; i++) {
                 constraint = constraints[i];
 
-                if (constraint.getConstraintType() == SchemaObject
-                        .ConstraintTypes
-                        .FOREIGN_KEY && isAccessible(session, constraint
-                            .getRef())) {
+                if (constraint.getConstraintType()
+                        == SchemaObject.ConstraintTypes.FOREIGN_KEY
+                        && isAccessible(session, constraint.getRef())) {
                     fkConstraintsList.add(constraint);
                 }
             }
@@ -1190,14 +1199,14 @@ class DatabaseInformationMain extends DatabaseInformation {
             columnCount    = refCols.length;
             fkName         = constraint.getRefName().name;
             pkName         = constraint.getUniqueName().name;
-            deferrability  = ValuePool.getInt(constraint.getDeferability());
+            deferrability  = constraint.getDeferability();
 
             //pkName = constraint.getMainIndex().getName().name;
-            deleteRule = ValuePool.getInt(constraint.getDeleteAction());
-            updateRule = ValuePool.getInt(constraint.getUpdateAction());
+            deleteRule = constraint.getDeleteAction();
+            updateRule = constraint.getUpdateAction();
 
             for (int j = 0; j < columnCount; j++) {
-                keySequence          = ValuePool.getInt(j + 1);
+                keySequence          = j + 1;
                 pkColumnName = pkTable.getColumn(mainCols[j]).getNameString();
                 fkColumnName = fkTable.getColumn(refCols[j]).getNameString();
                 row                  = t.getEmptyRowData();
@@ -1284,12 +1293,16 @@ class DatabaseInformationMain extends DatabaseInformation {
             // added for unique: INDEX_QUALIFIER, TABLE_NAME
             // false PK, as INDEX_QUALIFIER may be null
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_INDEXINFO].name, false,
+                sysTableHsqlNames[SYSTEM_INDEXINFO].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
+            t.createPrimaryKeyConstraint(
+                name,
+                new int[] {
                 0, 1, 2, 3, 4, 5, 7, 8
-            }, false);
+            },
+                false);
 
             return t;
         }
@@ -1306,19 +1319,19 @@ class DatabaseInformationMain extends DatabaseInformation {
         //Integer ordinalPosition;
         //String  columnName;
         //String  ascOrDesc;
-        Integer cardinality;
-        Integer pages;
+        Long    cardinality;
+        Long    pages;
         String  filterCondition;
         Integer rowCardinality;
 
         // Intermediate holders
         Iterator<Table> tables;
-        Table    table;
-        int      indexCount;
-        int[]    cols;
-        int      col;
-        int      colCount;
-        Object[] row;
+        Table           table;
+        int             indexCount;
+        int[]           cols;
+        int             col;
+        int             colCount;
+        Object[]        row;
 
         // column number mappings
         final int itable_cat        = 0;
@@ -1369,13 +1382,14 @@ class DatabaseInformationMain extends DatabaseInformation {
                 }
 
                 indexName      = index.getName().name;
-                nonUnique      = index.isUnique() ? Boolean.FALSE
-                                                  : Boolean.TRUE;
+                nonUnique      = index.isUnique()
+                                 ? Boolean.FALSE
+                                 : Boolean.TRUE;
                 cardinality    = null;
-                pages          = ValuePool.INTEGER_0;
+                pages          = 0L;
                 rowCardinality = null;
                 cols           = index.getColumns();
-                indexType      = ValuePool.getInt(3);
+                indexType      = 3;
 
                 for (int k = 0; k < colCount; k++) {
                     col                    = cols[k];
@@ -1387,9 +1401,8 @@ class DatabaseInformationMain extends DatabaseInformation {
                     row[iindex_qualifier]  = indexQualifier;
                     row[iindex_name]       = indexName;
                     row[itype]             = indexType;
-                    row[iordinal_position] = ValuePool.getInt(k + 1);
-                    row[icolumn_name] =
-                        table.getColumn(cols[k]).getName().name;
+                    row[iordinal_position] = k + 1;
+                    row[icolumn_name] = table.getColumn(cols[k]).getName().name;
                     row[iasc_or_desc]      = "A";
                     row[icardinality]      = cardinality;
                     row[ipages]            = pages;
@@ -1452,12 +1465,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // added for unique: TABLE_NAME, TABLE_SCHEM, TABLE_CAT
             // false PK, as  TABLE_SCHEM and/or TABLE_CAT may be null
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_PRIMARYKEYS].name, false,
+                sysTableHsqlNames[SYSTEM_PRIMARYKEYS].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                3, 2, 1, 0
-            }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 3, 2, 1, 0 }, false);
 
             return t;
         }
@@ -1472,12 +1484,12 @@ class DatabaseInformationMain extends DatabaseInformation {
         String primaryKeyName;
 
         // Intermediate holders
-        Iterator<Table>   tables;
-        Table      table;
-        Object[]   row;
-        Constraint constraint;
-        int[]      cols;
-        int        colCount;
+        Iterator<Table> tables;
+        Table           table;
+        Object[]        row;
+        Constraint      constraint;
+        int[]           cols;
+        int             colCount;
 
         // column number mappings
         final int itable_cat   = 0;
@@ -1493,7 +1505,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = tables.next();
 
-            if (table.isView() || !isAccessible(session, table)
+            if (table.isView()
+                    || !isAccessible(session, table)
                     || !table.hasPrimaryKey()) {
                 continue;
             }
@@ -1512,7 +1525,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[itable_schem] = tableSchema;
                 row[itable_name]  = tableName;
                 row[icolumn_name] = table.getColumn(cols[j]).getName().name;
-                row[ikey_seq]     = ValuePool.getInt(j + 1);
+                row[ikey_seq]     = j + 1;
                 row[ipk_name]     = primaryKeyName;
 
                 t.insertSys(session, store, row);
@@ -1607,19 +1620,19 @@ class DatabaseInformationMain extends DatabaseInformation {
             // ----------------------------------------------------------------
             // required
             // ----------------------------------------------------------------
-            addColumn(t, "PROCEDURE_CAT", SQL_IDENTIFIER);          // 0
-            addColumn(t, "PROCEDURE_SCHEM", SQL_IDENTIFIER);        // 1
-            addColumn(t, "PROCEDURE_NAME", SQL_IDENTIFIER);         // not null
-            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);            // not null
-            addColumn(t, "COLUMN_TYPE", Type.SQL_SMALLINT);         // not null
-            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);           // not null
-            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);              // not null
-            addColumn(t, "PRECISION", Type.SQL_INTEGER);            // 7
-            addColumn(t, "LENGTH", Type.SQL_INTEGER);               // 8
-            addColumn(t, "SCALE", Type.SQL_SMALLINT);               // 9
-            addColumn(t, "RADIX", Type.SQL_SMALLINT);               // 10
-            addColumn(t, "NULLABLE", Type.SQL_SMALLINT);            // not null
-            addColumn(t, "REMARKS", CHARACTER_DATA);                // 12
+            addColumn(t, "PROCEDURE_CAT", SQL_IDENTIFIER);      // 0
+            addColumn(t, "PROCEDURE_SCHEM", SQL_IDENTIFIER);    // 1
+            addColumn(t, "PROCEDURE_NAME", SQL_IDENTIFIER);     // not null
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);        // not null
+            addColumn(t, "COLUMN_TYPE", Type.SQL_SMALLINT);     // not null
+            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);       // not null
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);          // not null
+            addColumn(t, "PRECISION", Type.SQL_INTEGER);        // 7
+            addColumn(t, "LENGTH", Type.SQL_INTEGER);           // 8
+            addColumn(t, "SCALE", Type.SQL_SMALLINT);           // 9
+            addColumn(t, "RADIX", Type.SQL_SMALLINT);           // 10
+            addColumn(t, "NULLABLE", Type.SQL_SMALLINT);        // not null
+            addColumn(t, "REMARKS", CHARACTER_DATA);            // 12
 
             // ----------------------------------------------------------------
             // JDBC 4.0
@@ -1635,12 +1648,14 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order: PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME, ORDINAL_POSITION
             //
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_PROCEDURECOLUMNS].name, false,
+                sysTableHsqlNames[SYSTEM_PROCEDURECOLUMNS].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2, 19, 17
-            }, false);
+            t.createPrimaryKeyConstraint(
+                name,
+                new int[]{ 0, 1, 2, 19, 17 },
+                false);
 
             return t;
         }
@@ -1668,12 +1683,12 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int specific_name           = 19;
 
         // intermediate holders
-        int           columnCount;
-        Iterator<SchemaObject>      routines;
-        RoutineSchema routineSchema;
-        Routine       routine;
-        Object[]      row;
-        Type          type;
+        int                    columnCount;
+        Iterator<SchemaObject> routines;
+        RoutineSchema          routineSchema;
+        Routine                routine;
+        Object[]               row;
+        Type                   type;
 
         // Initialization
         boolean translateTTI = database.sqlTranslateTTI;
@@ -1712,57 +1727,51 @@ class DatabaseInformationMain extends DatabaseInformation {
                     row[procedure_name] = routine.getName().name;
 
                     HsqlName colName   = column.getName();
-                    String   colString = (colName == null) ? ""
-                                                           : colName.name;
+                    String   colString = (colName == null)
+                                         ? ""
+                                         : colName.name;
 
-                    row[parameter_name]   = colString;
-                    row[ordinal_position] = ValuePool.getInt(j + 1);
-                    row[parameter_mode] =
-                        ValuePool.getInt(column.getParameterMode());
-                    row[data_type] = type.getFullNameString();
-                    row[data_type_sql_id] =
-                        ValuePool.getInt(type.getJDBCTypeCode());
-                    row[numeric_precision]      = ValuePool.INTEGER_0;
-                    row[character_octet_length] = ValuePool.INTEGER_0;
+                    row[parameter_name]         = colString;
+                    row[ordinal_position]       = j + 1;
+                    row[parameter_mode]         = column.getParameterMode();
+                    row[data_type]              = type.getFullNameString();
+                    row[data_type_sql_id]       = type.getJDBCTypeCode();
+                    row[numeric_precision]      = 0;
+                    row[character_octet_length] = 0;
 
                     if (type.isCharacterType()) {
-                        row[numeric_precision] =
-                            ValuePool.getInt(type.getJDBCPrecision());
+                        row[numeric_precision] = type.getJDBCPrecision();
 
                         // this is length not octet_length, for character columns
-                        row[character_octet_length] =
-                            ValuePool.getInt(type.getJDBCPrecision());
+                        row[character_octet_length] = type.getJDBCPrecision();
                     }
 
                     if (type.isBinaryType()) {
-                        row[numeric_precision] =
-                            ValuePool.getInt(type.getJDBCPrecision());
-                        row[character_octet_length] =
-                            ValuePool.getInt(type.getJDBCPrecision());
+                        row[numeric_precision]      = type.getJDBCPrecision();
+                        row[character_octet_length] = type.getJDBCPrecision();
                     }
 
                     if (type.isNumberType()) {
-                        row[numeric_precision] = ValuePool.getInt(
-                            ((NumberType) type).getNumericPrecisionInRadix());
-                        row[numeric_precision_radix] =
-                            ValuePool.getLong(type.getPrecisionRadix());
+                        row[numeric_precision] =
+                            ((NumberType) type).getNumericPrecisionInRadix();
+                        row[numeric_precision_radix] = type.getPrecisionRadix();
 
                         if (type.isExactNumberType()) {
-                            row[numeric_scale] = ValuePool.getLong(type.scale);
+                            row[numeric_scale] = type.scale;
                         }
                     }
 
                     if (type.isDateTimeType()) {
                         int size = column.getDataType().displaySize();
 
-                        row[numeric_precision] = ValuePool.getInt(size);
+                        row[numeric_precision] = size;
                     }
 
-                    row[sql_data_type] =
-                        ValuePool.getInt(column.getDataType().typeCode);
-                    row[nullable] = ValuePool.getInt(column.getNullability());
-                    row[is_nullable] = column.isNullable() ? "YES"
-                                                           : "NO";
+                    row[sql_data_type] = column.getDataType().typeCode;
+                    row[nullable]      = column.getNullability();
+                    row[is_nullable]   = column.isNullable()
+                                         ? "YES"
+                                         : "NO";
 
                     t.insertSys(session, store, row);
                 }
@@ -1812,13 +1821,13 @@ class DatabaseInformationMain extends DatabaseInformation {
             // ----------------------------------------------------------------
             // required
             // ----------------------------------------------------------------
-            addColumn(t, "PROCEDURE_CAT", SQL_IDENTIFIER);        // 0
-            addColumn(t, "PROCEDURE_SCHEM", SQL_IDENTIFIER);      // 1
-            addColumn(t, "PROCEDURE_NAME", SQL_IDENTIFIER);       // 2
-            addColumn(t, "COL_4", Type.SQL_INTEGER);              // 3
-            addColumn(t, "COL_5", Type.SQL_INTEGER);              // 4
-            addColumn(t, "COL_6", Type.SQL_INTEGER);              // 5
-            addColumn(t, "REMARKS", CHARACTER_DATA);              // 6
+            addColumn(t, "PROCEDURE_CAT", SQL_IDENTIFIER);      // 0
+            addColumn(t, "PROCEDURE_SCHEM", SQL_IDENTIFIER);    // 1
+            addColumn(t, "PROCEDURE_NAME", SQL_IDENTIFIER);     // 2
+            addColumn(t, "COL_4", Type.SQL_INTEGER);            // 3
+            addColumn(t, "COL_5", Type.SQL_INTEGER);            // 4
+            addColumn(t, "COL_6", Type.SQL_INTEGER);            // 5
+            addColumn(t, "REMARKS", CHARACTER_DATA);            // 6
 
             // basically: function (returns result), procedure (no return value)
             // or unknown (say, a trigger callout routine)
@@ -1827,18 +1836,17 @@ class DatabaseInformationMain extends DatabaseInformation {
             // ----------------------------------------------------------------
             // JDBC 4.0
             // ----------------------------------------------------------------
-            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);        // 8
-            addColumn(t, "FUNCTION_TYPE", Type.SQL_INTEGER);      // 9
+            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);      // 8
+            addColumn(t, "FUNCTION_TYPE", Type.SQL_INTEGER);    // 9
 
             // ----------------------------------------------------------------
             // order: PROCEDURE_CAT, PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_PROCEDURES].name, false,
+                sysTableHsqlNames[SYSTEM_PROCEDURES].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2, 8
-            }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0, 1, 2, 8 }, false);
 
             return t;
         }
@@ -1856,8 +1864,9 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int function_type     = 9;
 
         //
-        Iterator<SchemaObject> it = database.schemaManager.databaseObjectIterator(
-            SchemaObject.SPECIFIC_ROUTINE);
+        Iterator<SchemaObject> it =
+            database.schemaManager.databaseObjectIterator(
+                SchemaObject.SPECIFIC_ROUTINE);
 
         while (it.hasNext()) {
             Routine  routine = (Routine) it.next();
@@ -1872,11 +1881,13 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[procedure_schema] = routine.getSchemaName().name;
             row[procedure_name]   = routine.getName().name;
             row[remarks]          = routine.getName().comment;
-            row[procedure_type] = routine.isProcedure() ? ValuePool.INTEGER_1
-                                                        : ValuePool.INTEGER_2;
+            row[procedure_type]   = routine.isProcedure()
+                                    ? 1
+                                    : 2;
             row[specific_name]    = routine.getSpecificName().name;
-            row[function_type] = routine.returnsTable() ? ValuePool.INTEGER_2
-                                                        : ValuePool.INTEGER_1;
+            row[function_type]    = routine.returnsTable()
+                                    ? 2
+                                    : 1;
 
             t.insertSys(session, store, row);
         }
@@ -1897,7 +1908,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *                                                  stored in the database.
      * </ul>
      */
-    final Table SYSTEM_CONNECTION_PROPERTIES(Session session,
+    final Table SYSTEM_CONNECTION_PROPERTIES(
+            Session session,
             PersistentStore store) {
 
         Table t = sysTables[SYSTEM_CONNECTION_PROPERTIES];
@@ -1912,7 +1924,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "DESCRIPTION", SQL_IDENTIFIER);      // not null
 
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_CONNECTION_PROPERTIES].name, false,
+                sysTableHsqlNames[SYSTEM_CONNECTION_PROPERTIES].name,
+                false,
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
@@ -1927,7 +1940,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int imax_len       = 1;
         final int idefault_value = 2;
         final int idescription   = 3;
-        Iterator<PropertyMeta> it = HsqlDatabaseProperties.getUrlUserConnectionProperties();
+        Iterator<PropertyMeta> it =
+            HsqlDatabaseProperties.getUrlUserConnectionProperties();
 
         while (it.hasNext()) {
             PropertyMeta meta     = it.next();
@@ -1938,9 +1952,10 @@ class DatabaseInformationMain extends DatabaseInformation {
             Object def = meta.propDefaultValue;
 
             row[iname]          = meta.propName;
-            row[imax_len]       = ValuePool.getInt(8);
-            row[idefault_value] = def == null ? null
-                                              : def.toString();
+            row[imax_len]       = 8;
+            row[idefault_value] = def == null
+                                  ? null
+                                  : def.toString();
             row[idescription]   = "see HyperSQL guide";
 
             t.insertSys(session, store, row);
@@ -1975,11 +1990,20 @@ class DatabaseInformationMain extends DatabaseInformation {
      *      (["BUILTIN" | "USER DEFINED"] "ROUTINE" | "TRIGGER") | "ALIAS", etc.
      *
      */
-    protected void addProcRows(Session session, Table t, HsqlArrayList<String> l,
-                               String cat, String schem, String pName,
-                               Integer ip, Integer op, Integer rs,
-                               String remark, Integer pType,
-                               String specificName, String origin) {
+    protected void addProcRows(
+            Session session,
+            Table t,
+            HsqlArrayList<String> l,
+            String cat,
+            String schem,
+            String pName,
+            Integer ip,
+            Integer op,
+            Integer rs,
+            String remark,
+            Integer pType,
+            String specificName,
+            String origin) {
 
         PersistentStore store = t.getRowStore(session);
 
@@ -2062,17 +2086,30 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @param specificName the specific name of the procedure (typically but
      *   not limited to a fully qualified Java Method name and signature)
      */
-    protected void addPColRows(Session session, Table t, HsqlArrayList<String> l,
-                               String cat, String schem, String pName,
-                               String cName, Integer cType, Integer dType,
-                               String tName, Integer prec, Integer len,
-                               Integer scale, Integer radix,
-                               Integer nullability, String remark,
-                               String colDefault, Integer sqlDataType,
-                               Integer sqlDateTimeSub,
-                               Integer charOctetLength,
-                               Integer ordinalPosition, String isNullable,
-                               String specificName) {
+    protected void addPColRows(
+            Session session,
+            Table t,
+            HsqlArrayList<String> l,
+            String cat,
+            String schem,
+            String pName,
+            String cName,
+            Integer cType,
+            Integer dType,
+            String tName,
+            Integer prec,
+            Integer len,
+            Integer scale,
+            Integer radix,
+            Integer nullability,
+            String remark,
+            String colDefault,
+            Integer sqlDataType,
+            Integer sqlDateTimeSub,
+            Integer charOctetLength,
+            Integer ordinalPosition,
+            String isNullable,
+            String specificName) {
 
         PersistentStore store = t.getRowStore(session);
 
@@ -2193,7 +2230,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order: TABLE_SCHEM
             // true PK, as rows never have null TABLE_SCHEM
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_SCHEMAS].name, false,
+                sysTableHsqlNames[SYSTEM_SCHEMAS].name,
+                false,
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
@@ -2219,8 +2257,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             row[0] = schema.getNameString();
             row[1] = database.getCatalogName().name;
-            row[2] = schema.equals(defschema) ? Boolean.TRUE
-                                              : Boolean.FALSE;
+            row[2] = schema.equals(defschema)
+                     ? Boolean.TRUE
+                     : Boolean.FALSE;
 
             t.insertSys(session, store, row);
         }
@@ -2271,8 +2310,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             // -------------------------------------------------------------
             addColumn(t, "TABLE_CAT", SQL_IDENTIFIER);
             addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);       // not null
-            addColumn(t, "TABLE_TYPE", CHARACTER_DATA);       // not null
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);    // not null
+            addColumn(t, "TABLE_TYPE", CHARACTER_DATA);    // not null
             addColumn(t, "REMARKS", CHARACTER_DATA);
 
             // -------------------------------------------------------------
@@ -2296,22 +2335,21 @@ class DatabaseInformationMain extends DatabaseInformation {
             // added for unique: TABLE_CAT
             // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_TABLES].name, false,
+                sysTableHsqlNames[SYSTEM_TABLES].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                3, 1, 2, 0
-            }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 3, 1, 2, 0 }, false);
 
             return t;
         }
 
         // intermediate holders
-        Iterator<Table>    tables;
-        Table       table;
-        Object[]    row;
-        HsqlName    accessKey;
-        DITableInfo ti;
+        Iterator<Table> tables;
+        Table           table;
+        Object[]        row;
+        HsqlName        accessKey;
+        DITableInfo     ti;
 
         // column number mappings
         // JDBC 1
@@ -2347,18 +2385,20 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             ti.setTable(table);
 
-            row               = t.getEmptyRowData();
-            row[itable_cat]   = database.getCatalogName().name;
-            row[itable_schem] = table.getSchemaName().name;
-            row[itable_name]  = table.getName().name;
-            row[itable_type]  = ti.getJDBCStandardType();
-            row[iremark]      = ti.getRemark();
-            row[ihsqldb_type] = ti.getHsqlType();
-            row[iread_only]   = table.isDataReadOnly() ? Boolean.TRUE
-                                                       : Boolean.FALSE;
+            row                 = t.getEmptyRowData();
+            row[itable_cat]     = database.getCatalogName().name;
+            row[itable_schem]   = table.getSchemaName().name;
+            row[itable_name]    = table.getName().name;
+            row[itable_type]    = ti.getJDBCStandardType();
+            row[iremark]        = ti.getRemark();
+            row[ihsqldb_type]   = ti.getHsqlType();
+            row[iread_only]     = table.isDataReadOnly()
+                                  ? Boolean.TRUE
+                                  : Boolean.FALSE;
             row[icommit_action] = table.isTemp()
-                                  ? (table.onCommitPreserve() ? "PRESERVE"
-                                                              : "DELETE")
+                                  ? (table.onCommitPreserve()
+                                     ? "PRESERVE"
+                                     : "DELETE")
                                   : null;
 
             t.insertSys(session, store, row);
@@ -2409,7 +2449,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order: TABLE_TYPE
             // true PK
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_TABLETYPES].name, false,
+                sysTableHsqlNames[SYSTEM_TABLETYPES].name,
+                false,
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
@@ -2510,12 +2551,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order:  DATA_TYPE, TYPE_NAME
             // true primary key
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_TYPEINFO].name, false,
+                sysTableHsqlNames[SYSTEM_TYPEINFO].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                1, 0
-            }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 1, 0 }, true);
 
             return t;
         }
@@ -2547,10 +2587,10 @@ class DatabaseInformationMain extends DatabaseInformation {
         //------------------------------------------
         // not in JDBC, but in SQL CLI SQLDA / ODBC
         //------------------------------------------
-        final int iinterval_precision = 18;
-        Object[]  row;
+        final int        iinterval_precision = 18;
+        Object[]         row;
         Iterator<String> it           = Type.typeNames.keySet().iterator();
-        boolean   translateTTI = database.sqlTranslateTTI;
+        boolean          translateTTI = database.sqlTranslateTTI;
 
         while (it.hasNext()) {
             String typeName = it.next();
@@ -2569,16 +2609,18 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             row             = t.getEmptyRowData();
             row[itype_name] = typeName;
-            row[idata_type] = ValuePool.getInt(type.getJDBCTypeCode());
+            row[idata_type] = type.getJDBCTypeCode();
 
             long maxPrecision = type.getMaxPrecision();
 
             row[iprecision] = maxPrecision > Integer.MAX_VALUE
-                              ? ValuePool.INTEGER_MAX
-                              : ValuePool.getInt((int) maxPrecision);
+                              ? Integer.MAX_VALUE
+                              : (int) maxPrecision;
 
-            if (type.isBinaryType() || type.isCharacterType()
-                    || type.isDateTimeType() || type.isIntervalType()) {
+            if (type.isBinaryType()
+                    || type.isCharacterType()
+                    || type.isDateTimeType()
+                    || type.isIntervalType()) {
                 row[iliteral_prefix] = "'";
                 row[iliteral_suffix] = "'";
             }
@@ -2586,40 +2628,42 @@ class DatabaseInformationMain extends DatabaseInformation {
             if (type.acceptsPrecision() && type.acceptsScale()) {
                 row[icreate_params] = "PRECISION,SCALE";
             } else if (type.acceptsPrecision()) {
-                row[icreate_params] = type.isNumberType() ? "PRECISION"
-                                                          : "LENGTH";
+                row[icreate_params] = type.isNumberType()
+                                      ? "PRECISION"
+                                      : "LENGTH";
             } else if (type.acceptsScale()) {
                 row[icreate_params] = "SCALE";
             }
 
-            row[inullable] = ValuePool.INTEGER_1;
-            row[icase_sensitive] =
-                type.isCharacterType()
-                && type.getCollation().isCaseSensitive() ? Boolean.TRUE
-                                                         : Boolean.FALSE;
+            row[inullable] = 1;
+            row[icase_sensitive] = type.isCharacterType()
+                                   && type.getCollation().isCaseSensitive()
+                                   ? Boolean.TRUE
+                                   : Boolean.FALSE;
 
             if (type.isLobType()) {
-                row[isearchable] = ValuePool.INTEGER_0;
+                row[isearchable] = 0;
             } else if (type.isCharacterType()
                        || (type.isBinaryType() && !type.isBitType())) {
-                row[isearchable] = ValuePool.getInt(3);
+                row[isearchable] = 3;
             } else {
-                row[isearchable] = ValuePool.getInt(2);
+                row[isearchable] = 2;
             }
 
             row[iunsigned_attribute] = Boolean.FALSE;
-            row[ifixed_prec_scale] =
-                type.typeCode == Types.SQL_NUMERIC
-                || type.typeCode == Types.SQL_DECIMAL ? Boolean.TRUE
-                                                      : Boolean.FALSE;
-            row[iauto_increment]   = type.isIntegralType() ? Boolean.TRUE
-                                                           : Boolean.FALSE;
-            row[ilocal_type_name]  = null;
-            row[iminimum_scale]    = ValuePool.INTEGER_0;
-            row[imaximum_scale]    = ValuePool.getInt(type.getMaxScale());
-            row[isql_data_type]    = null;
-            row[isql_datetime_sub] = null;
-            row[inum_prec_radix] = ValuePool.getInt(type.getPrecisionRadix());
+            row[ifixed_prec_scale] = type.typeCode == Types.SQL_NUMERIC
+                                     || type.typeCode == Types.SQL_DECIMAL
+                                     ? Boolean.TRUE
+                                     : Boolean.FALSE;
+            row[iauto_increment]     = type.isIntegralType()
+                                       ? Boolean.TRUE
+                                       : Boolean.FALSE;
+            row[ilocal_type_name]    = null;
+            row[iminimum_scale]      = 0;
+            row[imaximum_scale]      = type.getMaxScale();
+            row[isql_data_type]      = null;
+            row[isql_datetime_sub]   = null;
+            row[inum_prec_radix]     = type.getPrecisionRadix();
 
             //------------------------------------------
             if (type.isIntervalType()) {
@@ -2631,7 +2675,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         row             = t.getEmptyRowData();
         row[itype_name] = "DISTINCT";
-        row[idata_type] = ValuePool.getInt(Types.DISTINCT);
+        row[idata_type] = Types.DISTINCT;
 
         return t;
     }
@@ -2768,7 +2812,8 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             //
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_UDTS].name, false,
+                sysTableHsqlNames[SYSTEM_UDTS].name,
+                false,
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, null, false);
@@ -2787,7 +2832,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int remarks      = 5;
         final int base_type    = 6;
         Iterator<SchemaObject> it =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TYPE);
+            database.schemaManager.databaseObjectIterator(
+                SchemaObject.TYPE);
 
         while (it.hasNext()) {
             Type distinct = (Type) it.next();
@@ -2809,9 +2855,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             data[type_schema]  = distinct.getSchemaName().name;
             data[type_name]    = distinct.getName().name;
             data[class_name]   = type.getJDBCClassName();
-            data[data_type]    = ValuePool.getInt(Types.DISTINCT);
+            data[data_type]    = Types.DISTINCT;
             data[remarks]      = null;
-            data[base_type]    = ValuePool.getInt(type.getJDBCTypeCode());
+            data[base_type]    = type.getJDBCTypeCode();
 
             t.insertSys(session, store, data);
         }
@@ -2882,11 +2928,12 @@ class DatabaseInformationMain extends DatabaseInformation {
             // -----------------------------------------------------------------
             addColumn(t, "TABLE_CAT", SQL_IDENTIFIER);
             addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);          // not null
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);    // not null
 
             // -----------------------------------------------------------------
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_VERSIONCOLUMNS].name, false,
+                sysTableHsqlNames[SYSTEM_VERSIONCOLUMNS].name,
+                false,
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, null, false);
@@ -2909,8 +2956,8 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         //
         Iterator<Table> tables;
-        Table    table;
-        Object[] row;
+        Table           table;
+        Object[]        row;
 
         tables = allUserTables();
 
@@ -2936,17 +2983,17 @@ class DatabaseInformationMain extends DatabaseInformation {
                     continue;
                 }
 
-                row              = t.getEmptyRowData();
-                row[scope]       = Integer.valueOf(0);
-                row[column_name] = column.getNameString();
-                row[data_type] =
-                    Integer.valueOf(column.getDataType().getJDBCTypeCode());
-                row[type_name] = column.getDataType().getNameString();
-                row[column_size] =
-                    Integer.valueOf(column.getDataType().displaySize());
+                row                = t.getEmptyRowData();
+                row[scope]         = Integer.valueOf(0);
+                row[column_name]   = column.getNameString();
+                row[data_type] = Integer.valueOf(
+                    column.getDataType().getJDBCTypeCode());
+                row[type_name]     = column.getDataType().getNameString();
+                row[column_size] = Integer.valueOf(
+                    column.getDataType().displaySize());
                 row[buffer_length] = Integer.valueOf(0);
-                row[decimal_digits] =
-                    Integer.valueOf(column.getDataType().scale);
+                row[decimal_digits] = Integer.valueOf(
+                    column.getDataType().scale);
                 row[pseudo_column] = Integer.valueOf(1);
                 row[table_catalog] = database.getCatalogName().name;
                 row[table_schema]  = name.schema.name;
@@ -2981,7 +3028,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order: USER
             // true PK
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_USERS].name, false,
+                sysTableHsqlNames[SYSTEM_USERS].name,
+                false,
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
@@ -2991,9 +3039,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         // Intermediate holders
         HsqlArrayList<User> users;
-        User          user;
-        Object[]      row;
-        HsqlName      initialSchema;
+        User                user;
+        Object[]            row;
+        HsqlName            initialSchema;
 
         // Initialization
         users = database.getUserManager().listVisibleUsers(session);
@@ -3004,15 +3052,18 @@ class DatabaseInformationMain extends DatabaseInformation {
             user          = users.get(i);
             initialSchema = user.getInitialSchema();
             row[0]        = user.getName().getNameString();
-            row[1]        = user.isAdmin() ? Boolean.TRUE
-                                           : Boolean.FALSE;
-            row[2]        = ((initialSchema == null) ? null
-                                                     : initialSchema.name);
-            row[3]        = user.isLocalOnly ? Tokens.T_LOCAL
-                                             : user.isExternalOnly
-                                               ? Tokens.T_EXTERNAL
-                                               : Tokens.T_ANY;
-            row[4] = user.getPasswordDigest();
+            row[1]        = user.isAdmin()
+                            ? Boolean.TRUE
+                            : Boolean.FALSE;
+            row[2]        = ((initialSchema == null)
+                             ? null
+                             : initialSchema.name);
+            row[3]        = user.isLocalOnly
+                            ? Tokens.T_LOCAL
+                            : user.isExternalOnly
+                              ? Tokens.T_EXTERNAL
+                              : Tokens.T_ANY;
+            row[4]        = user.getPasswordDigest();
 
             t.insertSys(session, store, row);
         }
@@ -3068,12 +3119,16 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "IS_GRANTABLE", YES_OR_NO);           // not null
 
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[COLUMN_PRIVILEGES].name, false,
+                sysTableHsqlNames[COLUMN_PRIVILEGES].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
+            t.createPrimaryKeyConstraint(
+                name,
+                new int[] {
                 2, 3, 4, 5, 6, 1, 0
-            }, false);
+            },
+                false);
 
             return t;
         }
@@ -3085,10 +3140,10 @@ class DatabaseInformationMain extends DatabaseInformation {
         Grantee granteeObject;
 
 // intermediate holders
-        User     user;
+        User            user;
         Iterator<Table> tables;
-        Table    table;
-        Object[] row;
+        Table           table;
+        Object[]        row;
 
 // column number mappings
         final int grantor        = 0;
@@ -3101,8 +3156,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int is_grantable   = 7;
 
         // enumerations
-        OrderedHashSet<Grantee> grantees =
-            session.getGrantee().getGranteeAndAllRolesWithPublic();
+        OrderedHashSet<Grantee> grantees = session.getGrantee()
+                .getGranteeAndAllRolesWithPublic();
 
 // Initialization
         tables = allTables();
@@ -3117,9 +3172,11 @@ class DatabaseInformationMain extends DatabaseInformation {
                 granteeObject = grantees.get(i);
 
                 OrderedHashSet<Right> rights =
-                    granteeObject.getAllDirectPrivileges(table);
+                    granteeObject.getAllDirectPrivileges(
+                        table);
                 OrderedHashSet<Right> grants =
-                    granteeObject.getAllGrantedPrivileges(table);
+                    granteeObject.getAllGrantedPrivileges(
+                        table);
 
                 if (!grants.isEmpty()) {
                     grants.addAll(rights);
@@ -3131,13 +3188,14 @@ class DatabaseInformationMain extends DatabaseInformation {
                     Right right          = rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
-                    for (int k = 0; k < Right.tablePrivilegeTypes.length;
-                            k++) {
+                    for (int k = 0; k < Right.tablePrivilegeTypes.length; k++) {
                         OrderedHashSet<HsqlName> columnList =
                             right.getColumnsForPrivilege(
-                                table, Right.tablePrivilegeTypes[k]);
+                                table,
+                                Right.tablePrivilegeTypes[k]);
                         OrderedHashSet<HsqlName> grantableList =
-                            grantableRight.getColumnsForPrivilege(table,
+                            grantableRight.getColumnsForPrivilege(
+                                table,
                                 Right.tablePrivilegeTypes[k]);
 
                         for (int l = 0; l < columnList.size(); l++) {
@@ -3151,10 +3209,12 @@ class DatabaseInformationMain extends DatabaseInformation {
                             row[table_name]     = tableName;
                             row[column_name]    = fullName.name;
                             row[privilege_type] = Right.tablePrivilegeNames[k];
-                            row[is_grantable] =
-                                right.getGrantee() == table.getOwner()
-                                || grantableList.contains(fullName) ? "YES"
-                                                                    : "NO";
+                            row[is_grantable] = right.getGrantee()
+                                                == table.getOwner()
+                                                || grantableList.contains(
+                                                    fullName)
+                                                ? "YES"
+                                                : "NO";
 
                             try {
                                 t.insertSys(session, store, row);
@@ -3263,11 +3323,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order SEQUENCE_CATALOG, SEQUENCE_SCHEMA, SEQUENCE_NAME
             // false PK, as CATALOG may be null
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SEQUENCES].name, false, SchemaObject.INDEX);
+                sysTableHsqlNames[SEQUENCES].name,
+                false,
+                SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2
-            }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0, 1, 2 }, false);
 
             return t;
         }
@@ -3292,9 +3352,9 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int next_value                 = 16;
 
         //
-        Iterator<SchemaObject>       it;
-        Object[]       row;
-        NumberSequence sequence;
+        Iterator<SchemaObject> it;
+        Object[]               row;
+        NumberSequence         sequence;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.SEQUENCE);
@@ -3309,24 +3369,25 @@ class DatabaseInformationMain extends DatabaseInformation {
             row = t.getEmptyRowData();
 
             NumberType type = (NumberType) sequence.getDataType();
-            int radix =
-                (type.typeCode == Types.SQL_NUMERIC || type.typeCode == Types
-                    .SQL_DECIMAL) ? 10
-                                  : 2;
+            int radix = (type.typeCode == Types.SQL_NUMERIC
+                         || type.typeCode == Types.SQL_DECIMAL)
+                        ? 10
+                        : 2;
 
             row[sequence_catalog]           = database.getCatalogName().name;
             row[sequence_schema]            = sequence.getSchemaName().name;
             row[sequence_name]              = sequence.getName().name;
             row[data_type] = sequence.getDataType().getFullNameString();
-            row[numeric_precision] = ValuePool.getInt(type.getPrecision());
-            row[numeric_precision_radix]    = ValuePool.getInt(radix);
-            row[numeric_scale]              = ValuePool.INTEGER_0;
+            row[numeric_precision]          = type.getPrecision();
+            row[numeric_precision_radix]    = radix;
+            row[numeric_scale]              = 0;
             row[start_value] = String.valueOf(sequence.getStartValue());
             row[minimum_value] = String.valueOf(sequence.getMinValue());
             row[maximum_value] = String.valueOf(sequence.getMaxValue());
             row[increment] = String.valueOf(sequence.getIncrement());
-            row[cycle_option]               = sequence.isCycle() ? "YES"
-                                                                 : "NO";
+            row[cycle_option]               = sequence.isCycle()
+                                              ? "YES"
+                                              : "NO";
             row[declared_data_type]         = row[data_type];
             row[declared_numeric_precision] = row[numeric_precision];
             row[declared_numeric_scale]     = row[numeric_scale];
@@ -3368,12 +3429,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order SEQUENCE_CATALOG, SEQUENCE_SCHEMA, SEQUENCE_NAME
             // false PK, as CATALOG may be null
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_SEQUENCES].name, false,
+                sysTableHsqlNames[SYSTEM_SEQUENCES].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2
-            }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0, 1, 2 }, false);
 
             return t;
         }
@@ -3397,9 +3457,9 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int next_value                 = 15;
 
         //
-        Iterator<SchemaObject>       it;
-        Object[]       row;
-        NumberSequence sequence;
+        Iterator<SchemaObject> it;
+        Object[]               row;
+        NumberSequence         sequence;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.SEQUENCE);
@@ -3414,23 +3474,24 @@ class DatabaseInformationMain extends DatabaseInformation {
             row = t.getEmptyRowData();
 
             NumberType type = (NumberType) sequence.getDataType();
-            int radix =
-                (type.typeCode == Types.SQL_NUMERIC || type.typeCode == Types
-                    .SQL_DECIMAL) ? 10
-                                  : 2;
+            int radix = (type.typeCode == Types.SQL_NUMERIC
+                         || type.typeCode == Types.SQL_DECIMAL)
+                        ? 10
+                        : 2;
 
             row[sequence_catalog]           = database.getCatalogName().name;
             row[sequence_schema]            = sequence.getSchemaName().name;
             row[sequence_name]              = sequence.getName().name;
             row[data_type] = sequence.getDataType().getFullNameString();
-            row[numeric_precision] = ValuePool.getInt(type.getPrecision());
-            row[numeric_precision_radix]    = ValuePool.getInt(radix);
-            row[numeric_scale]              = ValuePool.INTEGER_0;
+            row[numeric_precision]          = type.getPrecision();
+            row[numeric_precision_radix]    = radix;
+            row[numeric_scale]              = 0;
             row[maximum_value] = String.valueOf(sequence.getMaxValue());
             row[minimum_value] = String.valueOf(sequence.getMinValue());
             row[increment] = String.valueOf(sequence.getIncrement());
-            row[cycle_option]               = sequence.isCycle() ? "YES"
-                                                                 : "NO";
+            row[cycle_option]               = sequence.isCycle()
+                                              ? "YES"
+                                              : "NO";
             row[declared_data_type]         = row[data_type];
             row[declared_numeric_precision] = row[numeric_precision];
             row[declared_numeric_scale]     = row[numeric_scale];
@@ -3451,27 +3512,27 @@ class DatabaseInformationMain extends DatabaseInformation {
 
 */
 
-/**
-     * The TABLE_PRIVILEGES view has one row for each visible access
-     * right for each accessible table defined within this database. <p>
-     *
-     * Each row is a table privilege description with the following columns:
-     *
-     * <pre class="SqlCodeExample">
-     * GRANTOR      VARCHAR   grantor of access
-     * GRANTEE      VARCHAR   grantee of access
-     * TABLE_CATALOG    VARCHAR   table catalog
-     * TABLE_SCHEMA  VARCHAR   table schema
-     * TABLE_NAME   VARCHAR   table name
-     * PRIVILEGE_TYPE    VARCHAR   { "SELECT" | "INSERT" | "UPDATE" | "DELETE" | "REFERENCES" | "TRIGGER" }
-     * IS_GRANTABLE VARCHAR   { "YES" | "NO" }
-     * WITH_HIERARCHY   { "YES" | "NO" }
-     * </pre>
-     *
-     * @return a {@code Table} object describing the visible
-     *        access rights for each accessible table
-     *        defined within this database
-     */
+    /**
+         * The TABLE_PRIVILEGES view has one row for each visible access
+         * right for each accessible table defined within this database. <p>
+         *
+         * Each row is a table privilege description with the following columns:
+         *
+         * <pre class="SqlCodeExample">
+         * GRANTOR      VARCHAR   grantor of access
+         * GRANTEE      VARCHAR   grantee of access
+         * TABLE_CATALOG    VARCHAR   table catalog
+         * TABLE_SCHEMA  VARCHAR   table schema
+         * TABLE_NAME   VARCHAR   table name
+         * PRIVILEGE_TYPE    VARCHAR   { "SELECT" | "INSERT" | "UPDATE" | "DELETE" | "REFERENCES" | "TRIGGER" }
+         * IS_GRANTABLE VARCHAR   { "YES" | "NO" }
+         * WITH_HIERARCHY   { "YES" | "NO" }
+         * </pre>
+         *
+         * @return a {@code Table} object describing the visible
+         *        access rights for each accessible table
+         *        defined within this database
+         */
     final Table TABLE_PRIVILEGES(Session session, PersistentStore store) {
 
         Table t = sysTables[TABLE_PRIVILEGES];
@@ -3490,12 +3551,16 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             //
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[TABLE_PRIVILEGES].name, false,
+                sysTableHsqlNames[TABLE_PRIVILEGES].name,
+                false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
+            t.createPrimaryKeyConstraint(
+                name,
+                new int[] {
                 0, 1, 2, 3, 4, 5, 6
-            }, false);
+            },
+                false);
 
             return t;
         }
@@ -3509,8 +3574,8 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         // intermediate holders
         Iterator<Table> tables;
-        Table    table;
-        Object[] row;
+        Table           table;
+        Object[]        row;
 
         // column number mappings
         final int grantor        = 0;
@@ -3521,8 +3586,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int privilege_type = 5;
         final int is_grantable   = 6;
         final int with_hierarchy = 7;
-        OrderedHashSet<Grantee> grantees =
-            session.getGrantee().getGranteeAndAllRolesWithPublic();
+        OrderedHashSet<Grantee> grantees = session.getGrantee()
+                .getGranteeAndAllRolesWithPublic();
 
         tables = allTables();
 
@@ -3536,9 +3601,11 @@ class DatabaseInformationMain extends DatabaseInformation {
                 granteeObject = grantees.get(i);
 
                 OrderedHashSet<Right> rights =
-                    granteeObject.getAllDirectPrivileges(table);
+                    granteeObject.getAllDirectPrivileges(
+                        table);
                 OrderedHashSet<Right> grants =
-                    granteeObject.getAllGrantedPrivileges(table);
+                    granteeObject.getAllGrantedPrivileges(
+                        table);
 
                 if (!grants.isEmpty()) {
                     grants.addAll(rights);
@@ -3550,25 +3617,25 @@ class DatabaseInformationMain extends DatabaseInformation {
                     Right right          = rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
-                    for (int k = 0; k < Right.tablePrivilegeTypes.length;
-                            k++) {
+                    for (int k = 0; k < Right.tablePrivilegeTypes.length; k++) {
                         if (!right.canAccess(Right.tablePrivilegeTypes[k])) {
                             continue;
                         }
 
                         privilege           = Right.tablePrivilegeNames[k];
                         row                 = t.getEmptyRowData();
-                        row[grantor] = right.getGrantor().getName().name;
-                        row[grantee] = right.getGrantee().getName().name;
+                        row[grantor]        = right.getGrantor().getName().name;
+                        row[grantee]        = right.getGrantee().getName().name;
                         row[table_catalog]  = tableCatalog;
                         row[table_schema]   = tableSchema;
                         row[table_name]     = tableName;
                         row[privilege_type] = privilege;
-                        row[is_grantable] =
-                            right.getGrantee() == table.getOwner()
-                            || grantableRight.canAccess(
-                                Right.tablePrivilegeTypes[k]) ? "YES"
-                                                              : "NO";
+                        row[is_grantable] = right.getGrantee()
+                                            == table.getOwner()
+                                            || grantableRight.canAccess(
+                                                Right.tablePrivilegeTypes[k])
+                                            ? "YES"
+                                            : "NO";
                         row[with_hierarchy] = "NO";
 
                         try {
@@ -3604,31 +3671,31 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             //
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[TABLES].name, false, SchemaObject.INDEX);
+                sysTableHsqlNames[TABLES].name,
+                false,
+                SchemaObject.INDEX);
 
-            t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2,
-            }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0, 1, 2, }, false);
 
             return t;
         }
 
         // intermediate holders
-        Iterator<Table>  tables;
-        Table     table;
-        Object[]  row;
-        final int table_catalog                = 0;
-        final int table_schema                 = 1;
-        final int table_name                   = 2;
-        final int table_type                   = 3;
-        final int self_referencing_column_name = 4;
-        final int reference_generation         = 5;
-        final int user_defined_type_catalog    = 6;
-        final int user_defined_type_schema     = 7;
-        final int user_defined_type_name       = 8;
-        final int is_insertable_into           = 9;
-        final int is_typed                     = 10;
-        final int commit_action                = 11;
+        Iterator<Table> tables;
+        Table           table;
+        Object[]        row;
+        final int       table_catalog                = 0;
+        final int       table_schema                 = 1;
+        final int       table_name                   = 2;
+        final int       table_type                   = 3;
+        final int       self_referencing_column_name = 4;
+        final int       reference_generation         = 5;
+        final int       user_defined_type_catalog    = 6;
+        final int       user_defined_type_schema     = 7;
+        final int       user_defined_type_name       = 8;
+        final int       is_insertable_into           = 9;
+        final int       is_typed                     = 10;
+        final int       commit_action                = 11;
 
         // Initialization
         tables = allTables();
@@ -3650,7 +3717,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                 case TableBase.INFO_SCHEMA_TABLE :
                 case TableBase.VIEW_TABLE :
-                    row[table_type] = "VIEW";
+                    row[table_type]         = "VIEW";
                     row[is_insertable_into] = table.isInsertable()
                                               ? Tokens.T_YES
                                               : Tokens.T_NO;
@@ -3681,10 +3748,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[user_defined_type_schema]     = null;
             row[user_defined_type_name]       = null;
             row[is_typed]                     = "NO";
-            row[commit_action] = table.isTemp()
-                                 ? (table.onCommitPreserve() ? "PRESERVE"
-                                                             : "DELETE")
-                                 : null;
+            row[commit_action]                = table.isTemp()
+                    ? (table.onCommitPreserve()
+                       ? "PRESERVE"
+                       : "DELETE")
+                    : null;
 
             t.insertSys(session, store, row);
         }
@@ -3708,7 +3776,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a {@code Table} object naming the accessible
      *        catalogs defined within this database
      */
-    final Table INFORMATION_SCHEMA_CATALOG_NAME(Session session,
+    final Table INFORMATION_SCHEMA_CATALOG_NAME(
+            Session session,
             PersistentStore store) {
 
         Table t = sysTables[INFORMATION_SCHEMA_CATALOG_NAME];
@@ -3723,7 +3792,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             // true PK
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[INFORMATION_SCHEMA_CATALOG_NAME].name,
-                false, SchemaObject.INDEX);
+                false,
+                SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 

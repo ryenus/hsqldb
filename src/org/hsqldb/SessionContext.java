@@ -66,24 +66,26 @@ public class SessionContext {
 
     //
     OrderedHashMap<String, ColumnSchema> sessionVariables;
-    RangeVariable[] sessionVariablesRange;
-    RangeGroup[]    sessionVariableRangeGroups;
+    RangeVariable[]                      sessionVariablesRange;
+    RangeGroup[]                         sessionVariableRangeGroups;
 
     //
     private HsqlArrayList<Object> stack;
-    Object[]              diagnosticsVariables = ValuePool.emptyObjectArray;
-    Object[]              routineArguments     = ValuePool.emptyObjectArray;
-    Object[]              routineVariables     = ValuePool.emptyObjectArray;
-    Result[]              routineCursors       = Result.emptyArray;
-    Object[]              dynamicArguments     = ValuePool.emptyObjectArray;
-    Object[][]            triggerArguments     = null;
-    public int            depth;
-    boolean               isInRoutine;
 
     //
-    Number         lastIdentity = ValuePool.INTEGER_0;
+    Object[]   diagnosticsVariables = ValuePool.emptyObjectArray;
+    Object[]   routineArguments     = ValuePool.emptyObjectArray;
+    Object[]   routineVariables     = ValuePool.emptyObjectArray;
+    Result[]   routineCursors       = Result.emptyArray;
+    Object[]   dynamicArguments     = ValuePool.emptyObjectArray;
+    Object[][] triggerArguments     = null;
+    public int depth;
+    boolean    isInRoutine;
+
+    //
+    Number                          lastIdentity = ValuePool.INTEGER_0;
     OrderedHashMap<String, Integer> savepoints;
-    LongDeque      savepointTimestamps;
+    LongDeque                       savepointTimestamps;
 
     // range variable data
     RangeIterator[] rangeIterators;
@@ -98,7 +100,7 @@ public class SessionContext {
 
     //
     public volatile Statement currentStatement;
-    public volatile boolean invalidStatement;
+    public volatile boolean   invalidStatement;
 
     //
     public int rownum;
@@ -107,7 +109,7 @@ public class SessionContext {
      * Reusable set of all FK constraints that have so far been enforced while
      * a cascading insert or delete is in progress.
      */
-    HashSet<Constraint>               constraintPath;
+    HashSet<Constraint>   constraintPath;
     StatementResultUpdate rowUpdateStatement = new StatementResultUpdate();
 
     //
@@ -119,7 +121,7 @@ public class SessionContext {
      */
     SessionContext(Session session) {
 
-        this.session = session;
+        this.session          = session;
         diagnosticsVariables =
             new Object[ExpressionColumn.diagnosticsVariableTokens.length];
         rangeIterators        = new RangeIterator[8];
@@ -127,18 +129,21 @@ public class SessionContext {
         savepointTimestamps   = new LongDeque();
         sessionVariables      = new OrderedHashMap<>();
         sessionVariablesRange = new RangeVariable[1];
-        sessionVariablesRange[0] = new RangeVariable(sessionVariables, null,
-                true, RangeVariable.VARIALBE_RANGE);
-        sessionVariableRangeGroups = new RangeGroup[]{
-            new RangeGroupSimple(sessionVariablesRange, true) };
-        isAutoCommit = false;
-        isReadOnly   = false;
-        noSQL        = false;
-        isInRoutine  = false;
+        sessionVariablesRange[0] = new RangeVariable(
+            sessionVariables,
+            null,
+            true,
+            RangeVariable.VARIALBE_RANGE);
+        sessionVariableRangeGroups = new RangeGroup[]{ new RangeGroupSimple(
+            sessionVariablesRange,
+            true) };
+        isAutoCommit          = false;
+        isReadOnly            = false;
+        noSQL                 = false;
+        isInRoutine           = false;
     }
 
     void resetStack() {
-
         while (depth > 0) {
             pop(isInRoutine);
         }
@@ -205,8 +210,9 @@ public class SessionContext {
         isAutoCommit         = (Boolean) stack.remove(stack.size() - 1);
         lastIdentity         = (Number) stack.remove(stack.size() - 1);
         savepointTimestamps  = (LongDeque) stack.remove(stack.size() - 1);
-        savepoints           = (OrderedHashMap<String, Integer>) stack.remove(stack.size() - 1);
-        rangeIterators = (RangeIterator[]) stack.remove(stack.size() - 1);
+        savepoints = (OrderedHashMap<String, Integer>) stack.remove(
+            stack.size() - 1);
+        rangeIterators       = (RangeIterator[]) stack.remove(stack.size() - 1);
         routineCursors       = (Result[]) stack.remove(stack.size() - 1);
         routineVariables     = (Object[]) stack.remove(stack.size() - 1);
         triggerArguments     = ((Object[][]) stack.remove(stack.size() - 1));
@@ -226,7 +232,6 @@ public class SessionContext {
     }
 
     public void pushDynamicArguments(Object[] args) {
-
         push();
 
         dynamicArguments = args;
@@ -277,11 +282,11 @@ public class SessionContext {
         int position = rangeVariable.rangePosition;
 
         if (position >= rangeIterators.length) {
-            int size = (int) ArrayUtil.getBinaryNormalisedCeiling(position
-                + 1);
+            int size = (int) ArrayUtil.getBinaryNormalisedCeiling(position + 1);
 
-            rangeIterators =
-                (RangeIterator[]) ArrayUtil.resizeArray(rangeIterators, size);
+            rangeIterators = (RangeIterator[]) ArrayUtil.resizeArray(
+                rangeIterators,
+                size);
         }
 
         rangeIterators[position] = checkIterator;
@@ -294,11 +299,11 @@ public class SessionContext {
         int position = iterator.getRangePosition();
 
         if (position >= rangeIterators.length) {
-            int size = (int) ArrayUtil.getBinaryNormalisedCeiling(position
-                + 1);
+            int size = (int) ArrayUtil.getBinaryNormalisedCeiling(position + 1);
 
-            rangeIterators =
-                (RangeIterator[]) ArrayUtil.resizeArray(rangeIterators, size);
+            rangeIterators = (RangeIterator[]) ArrayUtil.resizeArray(
+                rangeIterators,
+                size);
         }
 
         rangeIterators[position] = iterator;
@@ -314,7 +319,6 @@ public class SessionContext {
 
                 if (o instanceof RangeIterator[]) {
                     ranges = (RangeIterator[]) o;
-
                     break;
                 }
             }
@@ -324,7 +328,6 @@ public class SessionContext {
     }
 
     public void unsetRangeIterator(RangeIterator iterator) {
-
         int position = iterator.getRangePosition();
 
         rangeIterators[position] = null;
@@ -374,7 +377,6 @@ public class SessionContext {
     }
 
     public void popRoutineTables() {
-
         sessionTables.clear();
 
         sessionTables = popSessionTables;

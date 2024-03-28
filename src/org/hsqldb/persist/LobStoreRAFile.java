@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,8 +54,8 @@ public class LobStoreRAFile implements LobStore {
         this.fileName     = database.getPath() + ".lobs";
 
         try {
-            boolean exists =
-                database.logger.getFileAccess().isStreamElement(fileName);
+            boolean exists = database.logger.getFileAccess()
+                                            .isStreamElement(fileName);
 
             if (exists) {
                 openFile();
@@ -70,8 +70,12 @@ public class LobStoreRAFile implements LobStore {
         try {
             boolean readonly = database.isFilesReadOnly();
 
-            file = new RAFileSimple(database.logger, fileName, readonly ? "r"
-                                                                        : "rws");
+            file = new RAFileSimple(
+                database.logger,
+                fileName,
+                readonly
+                ? "r"
+                : "rws");
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
@@ -97,8 +101,10 @@ public class LobStoreRAFile implements LobStore {
         }
     }
 
-    public void setBlockBytes(byte[] dataBytes, int blockAddress,
-                              int blockCount) {
+    public void setBlockBytes(
+            byte[] dataBytes,
+            int blockAddress,
+            int blockCount) {
 
         if (file == null) {
             openFile();
@@ -115,8 +121,11 @@ public class LobStoreRAFile implements LobStore {
         }
     }
 
-    public void setBlockBytes(byte[] dataBytes, long position, int offset,
-                              int length) {
+    public void setBlockBytes(
+            byte[] dataBytes,
+            long position,
+            int offset,
+            int length) {
 
         if (length == 0) {
             return;
@@ -176,7 +185,6 @@ public class LobStoreRAFile implements LobStore {
     }
 
     public void synch() {
-
         if (file != null) {
             file.synch();
         }

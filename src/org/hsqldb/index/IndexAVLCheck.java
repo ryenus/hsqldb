@@ -57,10 +57,11 @@ public class IndexAVLCheck {
 
     public static Result checkAllTables(Session session, int type) {
 
-        Result result = IndexStats.newEmptyResult();
+        Result result     = IndexStats.newEmptyResult();
         HsqlArrayList<Table> allTables =
-            session.database.schemaManager.getAllTables(true);
-        int tableCount = allTables.size();
+            session.database.schemaManager.getAllTables(
+                true);
+        int    tableCount = allTables.size();
 
         for (int i = 0; i < tableCount; i++) {
             Table table = allTables.get(i);
@@ -88,8 +89,11 @@ public class IndexAVLCheck {
         return result;
     }
 
-    public static void checkTable(Session session, Table table, Result result,
-                                  int type) {
+    public static void checkTable(
+            Session session,
+            Table table,
+            Result result,
+            int type) {
 
         RowStoreAVL tableStore =
             (RowStoreAVL) table.database.persistentStoreCollection.getStore(
@@ -123,9 +127,11 @@ public class IndexAVLCheck {
         }
     }
 
-    public static void reindexTable(Session session, Table table,
-                                    PersistentStore store,
-                                    IndexStats[] indexStats) {
+    public static void reindexTable(
+            Session session,
+            Table table,
+            PersistentStore store,
+            IndexStats[] indexStats) {
 
         Index   readIndex = null;
         boolean reindex   = false;
@@ -133,7 +139,6 @@ public class IndexAVLCheck {
         for (int i = 0; i < indexStats.length; i++) {
             if (!indexStats[i].hasErrors) {
                 readIndex = table.getIndex(i);
-
                 break;
             }
         }
@@ -141,7 +146,8 @@ public class IndexAVLCheck {
         if (readIndex == null) {
             session.database.logger.logSevereEvent(
                 "could not recreate damaged indexes for table: "
-                + table.getName().statementName, null);
+                + table.getName().statementName,
+                null);
 
             return;
         }
@@ -160,7 +166,8 @@ public class IndexAVLCheck {
         if (reindex) {
             session.database.logger.logSevereEvent(
                 "recreated damaged indexes for table: "
-                + table.getName().statementName, null);
+                + table.getName().statementName,
+                null);
         }
     }
 
@@ -175,18 +182,18 @@ public class IndexAVLCheck {
         final NodeAVLDisk     rootNode;
 
         //
-        IntKeyHashMap<BitMap>      bitMaps;
-        IntKeyHashMap<BitMap>      bitMapsPos;
-        OrderedLongHashSet badRows;
-        OrderedLongHashSet loopedRows;
-        OrderedLongHashSet ignoreRows;
+        IntKeyHashMap<BitMap> bitMaps;
+        IntKeyHashMap<BitMap> bitMapsPos;
+        OrderedLongHashSet    badRows;
+        OrderedLongHashSet    loopedRows;
+        OrderedLongHashSet    ignoreRows;
         HsqlArrayList<String> unorderedRows = new HsqlArrayList<>();
-        int                branchPosition;
-        int                leafPosition;
-        long               errorRowCount;
-        long               rowCount;
-        long               loopCount;
-        boolean            printErrors = false;
+        int                   branchPosition;
+        int                   leafPosition;
+        long                  errorRowCount;
+        long                  rowCount;
+        long                  loopCount;
+        boolean               printErrors = false;
 
         /**
          * Uses one arraylist for the nodes near the root and another array list
@@ -194,23 +201,27 @@ public class IndexAVLCheck {
          *
          * Returns nodes to depth of 32
          */
-        public IndexAVLProbe(Session session, PersistentStore store,
-                             IndexAVL index, NodeAVL rootNode) {
+        public IndexAVLProbe(
+                Session session,
+                PersistentStore store,
+                IndexAVL index,
+                NodeAVL rootNode) {
 
             DataFileCache cache = store.getCache();
 
-            this.fileBlockItemCount = cache == null ? 0
-                                                    : store.getCache()
-                                                    .spaceManager
-                                                        .getFileBlockItemCount();
-            this.cacheScale = cache == null ? 0
-                                            : store.getCache()
-                                                .getDataFileScale();
-            this.session  = session;
-            this.store    = store;
-            this.index    = index;
-            this.rootNode = cache == null ? null
-                                          : (NodeAVLDisk) rootNode;
+            this.fileBlockItemCount = cache == null
+                                      ? 0
+                                      : store.getCache().spaceManager
+                                             .getFileBlockItemCount();
+            this.cacheScale         = cache == null
+                                      ? 0
+                                      : store.getCache().getDataFileScale();
+            this.session            = session;
+            this.store              = store;
+            this.index              = index;
+            this.rootNode           = cache == null
+                                      ? null
+                                      : (NodeAVLDisk) rootNode;
         }
 
         public IndexStats getStats() {
@@ -229,7 +240,8 @@ public class IndexAVLCheck {
         }
 
         public boolean hasErrors() {
-            return !(errorRowCount == 0 && loopCount == 0
+            return !(errorRowCount == 0
+                     && loopCount == 0
                      && unorderedRows.isEmpty());
         }
 
@@ -289,8 +301,12 @@ public class IndexAVLCheck {
                     NodeAVL fnext = index.next(store, f);
 
                     if (fnext != null) {
-                        int c = index.compareRowForInsertOrDelete(session,
-                            fnext.getRow(store), f.getRow(store), true, 0);
+                        int c = index.compareRowForInsertOrDelete(
+                            session,
+                            fnext.getRow(store),
+                            f.getRow(store),
+                            true,
+                            0);
 
                         if (c <= 0) {
                             if (errors < 10) {
@@ -369,8 +385,10 @@ public class IndexAVLCheck {
          * goes to maxDepth
          * include is false to exclude a node that has readable index pointers but unreadable data
          */
-        private void getNodesFrom(int depth, NodeAVLDisk node,
-                                  boolean include) {
+        private void getNodesFrom(
+                int depth,
+                NodeAVLDisk node,
+                boolean include) {
 
             if (node == null) {
                 return;
@@ -409,7 +427,8 @@ public class IndexAVLCheck {
 
                         if (next.getParentPos() != pos) {
                             NodeAVLDisk parentNode =
-                                (NodeAVLDisk) node.getParent(store);
+                                (NodeAVLDisk) node.getParent(
+                                    store);
 
                             loopCount++;
                         }
@@ -457,7 +476,8 @@ public class IndexAVLCheck {
 
                         if (next.getParentPos() != pos) {
                             NodeAVLDisk parentNode =
-                                (NodeAVLDisk) node.getParent(store);
+                                (NodeAVLDisk) node.getParent(
+                                    store);
 
                             loopCount++;
                         }
@@ -535,8 +555,7 @@ public class IndexAVLCheck {
             BitMap bitMap = bitMaps.get(blockIndex);
 
             if (bitMap == null) {
-                bitMap =
-                    new BitMap(new int[fileBlockItemCount / Integer.SIZE]);
+                bitMap = new BitMap(new int[fileBlockItemCount / Integer.SIZE]);
 
                 bitMaps.put(blockIndex, bitMap);
             }
@@ -564,8 +583,7 @@ public class IndexAVLCheck {
             BitMap bitMap = bitMapsPos.get(blockIndex);
 
             if (bitMap == null) {
-                bitMap =
-                    new BitMap(new int[fileBlockItemCount / Integer.SIZE]);
+                bitMap = new BitMap(new int[fileBlockItemCount / Integer.SIZE]);
 
                 bitMapsPos.put(blockIndex, bitMap);
             }

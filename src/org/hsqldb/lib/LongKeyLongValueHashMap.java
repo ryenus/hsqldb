@@ -57,14 +57,14 @@ public class LongKeyLongValueHashMap extends BaseHashMap
             int initialCapacity)
             throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.longKeyOrValue,
-              BaseHashMap.longKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.longKeyOrValue,
+            BaseHashMap.longKeyOrValue,
+            false);
     }
 
     public LongKeyLongValueHashMap(boolean minimize) {
-
         this(8);
 
         minimizeOnEmpty = minimize;
@@ -203,7 +203,6 @@ public class LongKeyLongValueHashMap extends BaseHashMap
     }
 
     public boolean remove(long key) {
-
         Long value = (Long) super.remove(key, 0, null, null, false, false);
 
         return value != null;
@@ -273,7 +272,6 @@ public class LongKeyLongValueHashMap extends BaseHashMap
         }
     }
 
-
     private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
@@ -288,7 +286,6 @@ public class LongKeyLongValueHashMap extends BaseHashMap
             return new MapEntry<>(key, value);
         }
     }
-
 
     private class KeySet extends AbstractReadOnlyCollection<Long>
             implements Set<Long> {
@@ -305,7 +302,6 @@ public class LongKeyLongValueHashMap extends BaseHashMap
             return size() == 0;
         }
     }
-
 
     private class Values extends AbstractReadOnlyCollection<Long> {
 

@@ -34,7 +34,9 @@ package org.hsqldb.persist;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+
 import java.text.SimpleDateFormat;
+
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -210,41 +212,44 @@ public class Logger implements EventLogInterface {
 
         if (propIsFileDatabase) {
             hasFileProps = database.databaseProperties.load();
-            hasScript = fileAccess.isStreamElement(database.getPath()
-                                                   + scriptFileExtension);
+            hasScript = fileAccess.isStreamElement(
+                database.getPath() + scriptFileExtension);
 
             boolean version18 = database.databaseProperties.isVersion18();
 
             if (version18) {
-                throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION,
-                                  "unsupported old database version");
+                throw Error.error(
+                    ErrorCode.WRONG_DATABASE_FILE_VERSION,
+                    "unsupported old database version");
             }
 
             boolean exists = hasScript;
 
             if (!exists) {
-                exists = fileAccess.isStreamElement(database.getPath()
-                                                    + scriptFileExtension
-                                                    + Logger.newFileExtension);
+                exists = fileAccess.isStreamElement(
+                    database.getPath() + scriptFileExtension
+                    + Logger.newFileExtension);
 
                 if (exists) {
                     database.databaseProperties.setDBModified(
                         HsqlDatabaseProperties.FILES_MODIFIED_NEW);
                 } else {
-                    exists = fileAccess.isStreamElement(database.getPath()
-                                                        + dataFileExtension);
+                    exists = fileAccess.isStreamElement(
+                        database.getPath() + dataFileExtension);
 
                     if (exists) {
-                        throw Error.error(ErrorCode.DATA_FILE_ERROR,
-                                          "database files not complete");
+                        throw Error.error(
+                            ErrorCode.DATA_FILE_ERROR,
+                            "database files not complete");
                     }
 
-                    exists = fileAccess.isStreamElement(database.getPath()
-                                                        + backupFileExtension);
+                    exists = fileAccess.isStreamElement(
+                        database.getPath() + backupFileExtension);
 
                     if (exists) {
-                        throw Error.error(ErrorCode.DATA_FILE_ERROR,
-                                          "database files not complete");
+                        throw Error.error(
+                            ErrorCode.DATA_FILE_ERROR,
+                            "database files not complete");
                     }
                 }
             }
@@ -261,16 +266,16 @@ public class Logger implements EventLogInterface {
 
             boolean checkExists = database.isFilesInJar();
 
-            checkExists |=
-                (database.urlProperties
-                    .isPropertyTrue(HsqlDatabaseProperties
-                        .url_ifexists) || !database.urlProperties
-                            .isPropertyTrue(HsqlDatabaseProperties
-                                .url_create, true));
+            checkExists |= (database.urlProperties.isPropertyTrue(
+                HsqlDatabaseProperties.url_ifexists)
+                            || !database.urlProperties.isPropertyTrue(
+                                HsqlDatabaseProperties.url_create,
+                                true));
 
             if (checkExists) {
-                throw Error.error(ErrorCode.DATABASE_NOT_EXISTS,
-                                  database.getPath());
+                throw Error.error(
+                    ErrorCode.DATABASE_NOT_EXISTS,
+                    database.getPath());
             }
 
             database.databaseProperties.setURLProperties(
@@ -285,20 +290,24 @@ public class Logger implements EventLogInterface {
             if (database.urlProperties.isPropertyTrue(
                     HsqlDatabaseProperties.hsqldb_files_readonly)) {
                 database.databaseProperties.setProperty(
-                    HsqlDatabaseProperties.hsqldb_files_readonly, true);
+                    HsqlDatabaseProperties.hsqldb_files_readonly,
+                    true);
             }
 
             if (database.urlProperties.isPropertyTrue(
                     HsqlDatabaseProperties.hsqldb_readonly)) {
                 database.databaseProperties.setProperty(
-                    HsqlDatabaseProperties.hsqldb_readonly, true);
+                    HsqlDatabaseProperties.hsqldb_readonly,
+                    true);
             }
 
             // hsqldb.lock_file=false is applied
             if (!database.urlProperties.isPropertyTrue(
-                    HsqlDatabaseProperties.hsqldb_lock_file, true)) {
+                    HsqlDatabaseProperties.hsqldb_lock_file,
+                    true)) {
                 database.databaseProperties.setProperty(
-                    HsqlDatabaseProperties.hsqldb_lock_file, false);
+                    HsqlDatabaseProperties.hsqldb_lock_file,
+                    false);
             }
         }
 
@@ -325,8 +334,9 @@ public class Logger implements EventLogInterface {
 
         logsStatements = false;
 
-        boolean useLock = database.getProperties().isPropertyTrue(
-            HsqlDatabaseProperties.hsqldb_lock_file);
+        boolean useLock = database.getProperties()
+                                  .isPropertyTrue(
+                                      HsqlDatabaseProperties.hsqldb_lock_file);
 
         if (useLock && !database.isFilesReadOnly()) {
             acquireLock(database.getPath());
@@ -345,21 +355,24 @@ public class Logger implements EventLogInterface {
 
         // URL database properties that can override .script file settings
         int level = database.urlProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_applog, -1);
+            HsqlDatabaseProperties.hsqldb_applog,
+            -1);
 
         if (level >= 0) {
             setEventLogLevel(level, false);
         }
 
         level = database.urlProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_extlog, -1);
+            HsqlDatabaseProperties.hsqldb_extlog,
+            -1);
 
         if (level >= 0) {
             setExternalEventLogLevel(level);
         }
 
         level = database.urlProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_sqllog, -1);
+            HsqlDatabaseProperties.hsqldb_sqllog,
+            -1);
 
         if (level >= 0) {
             setEventLogLevel(level, true);
@@ -381,7 +394,8 @@ public class Logger implements EventLogInterface {
 
             crypto = new Crypto(cryptKey, cryptIv, cryptType, cryptProvider);
             cryptLobs = database.urlProperties.isPropertyTrue(
-                HsqlDatabaseProperties.url_crypt_lobs, true);
+                HsqlDatabaseProperties.url_crypt_lobs,
+                true);
         }
 
         if (database.databaseProperties.isPropertyTrue(
@@ -397,15 +411,15 @@ public class Logger implements EventLogInterface {
         // handle invalid paths as well as access issues
         if (!database.isFilesReadOnly()) {
             if (database.getType() == DatabaseType.DB_MEM) {
-                tempDirectoryPath = database.getProperties().getStringProperty(
-                    HsqlDatabaseProperties.hsqldb_temp_directory);
+                tempDirectoryPath = database.getProperties()
+                                            .getStringProperty(
+                                                HsqlDatabaseProperties.hsqldb_temp_directory);
             } else {
                 tempDirectoryPath = database.getPath() + ".tmp";
             }
 
             if (tempDirectoryPath != null) {
-                tempDirectoryPath =
-                    FileUtil.makeDirectories(tempDirectoryPath);
+                tempDirectoryPath = FileUtil.makeDirectories(tempDirectoryPath);
             }
         }
 
@@ -416,17 +430,20 @@ public class Logger implements EventLogInterface {
         propMaxFreeBlocks = ArrayUtil.getTwoPowerFloor(propMaxFreeBlocks);
 
         if (database.urlProperties.isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_large_data, false)) {
+                HsqlDatabaseProperties.hsqldb_large_data,
+                false)) {
             propLargeData = true;
         }
 
         if (!database.databaseProperties.isPropertyTrue(
-                HsqlDatabaseProperties.sql_pad_space, true)) {
+                HsqlDatabaseProperties.sql_pad_space,
+                true)) {
             database.collation.setPadding(false);
         }
 
-        String temp = database.getProperties().getStringProperty(
-            HsqlDatabaseProperties.hsqldb_digest);
+        String temp = database.getProperties()
+                              .getStringProperty(
+                                  HsqlDatabaseProperties.hsqldb_digest);
 
         database.granteeManager.setDigestAlgo(temp);
 
@@ -479,8 +496,7 @@ public class Logger implements EventLogInterface {
         if (Tokens.T_SERIALIZABLE.equalsIgnoreCase(txLevel)) {
             database.defaultIsolationLevel = SessionInterface.TX_SERIALIZABLE;
         } else {
-            database.defaultIsolationLevel =
-                SessionInterface.TX_READ_COMMITTED;
+            database.defaultIsolationLevel = SessionInterface.TX_READ_COMMITTED;
         }
 
         database.txConflictRollback =
@@ -577,14 +593,12 @@ public class Logger implements EventLogInterface {
 
         propNioDataFile = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_nio_data_file);
-        propNioMaxSize =
-            database.databaseProperties.getIntegerProperty(
-                HsqlDatabaseProperties.hsqldb_nio_max_size) * 1024L * 1024L;
+        propNioMaxSize = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_nio_max_size) * 1024L * 1024L;
         propCacheMaxRows = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_cache_rows);
-        propCacheMaxSize =
-            database.databaseProperties.getIntegerProperty(
-                HsqlDatabaseProperties.hsqldb_cache_size) * 1024L;
+        propCacheMaxSize = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_cache_size) * 1024L;
 
         setLobFileScaleNoCheck(
             database.databaseProperties.getIntegerProperty(
@@ -701,7 +715,10 @@ public class Logger implements EventLogInterface {
     String newUniqueName() {
 
         String name = StringUtil.toPaddedString(
-            Long.toHexString(System.currentTimeMillis()), 16, '0', false);
+            Long.toHexString(System.currentTimeMillis()),
+            16,
+            '0',
+            false);
 
         name = "HSQLDB" + name.substring(6).toUpperCase(Locale.ENGLISH);
 
@@ -759,9 +776,10 @@ public class Logger implements EventLogInterface {
             return;
         }
 
-        fwLogger = FrameworkLogger.getLog(SimpleLog.logTypeNameEngine,
-                                          "hsqldb.db."
-                                          + database.getNameString());
+        fwLogger = FrameworkLogger.getLog(
+            SimpleLog.logTypeName,
+            "hsqldb.db." + database.getNameString());
+
         /*
         sqlLogger = FrameworkLogger.getLog(SimpleLog.logTypeNameEngine,
                                            "hsqldb.sql."
@@ -855,9 +873,12 @@ public class Logger implements EventLogInterface {
         }
     }
 
-    public void logStatementEvent(Session session, Statement statement,
-                                  Object[] paramValues, Result result,
-                                  int level) {
+    public void logStatementEvent(
+            Session session,
+            Statement statement,
+            Object[] paramValues,
+            Result result,
+            int level) {
 
         if (sqlLog != null && level <= propSqlLogLevel) {
             String sessionId   = Long.toString(session.getId());
@@ -934,9 +955,9 @@ public class Logger implements EventLogInterface {
      * Records a Log entry for the specified SQL statement, on behalf of
      * the specified Session object.
      */
-    public synchronized void writeOtherStatement(Session session,
+    public synchronized void writeOtherStatement(
+            Session session,
             String statement) {
-
         if (loggingEnabled) {
             log.writeOtherStatement(session, statement);
         }
@@ -945,9 +966,10 @@ public class Logger implements EventLogInterface {
     /**
      * Used exclusively by PersistentStore objects
      */
-    public synchronized void writeInsertStatement(Session session, Row row,
+    public synchronized void writeInsertStatement(
+            Session session,
+            Row row,
             Table table) {
-
         if (loggingEnabled) {
             log.writeInsertStatement(session, row, table);
         }
@@ -956,9 +978,10 @@ public class Logger implements EventLogInterface {
     /**
      * Used exclusively by PersistentStore objects
      */
-    public synchronized void writeDeleteStatement(Session session, Table t,
+    public synchronized void writeDeleteStatement(
+            Session session,
+            Table t,
             Object[] row) {
-
         if (loggingEnabled) {
             log.writeDeleteStatement(session, t, row);
         }
@@ -967,9 +990,9 @@ public class Logger implements EventLogInterface {
     /**
      * Used at transaction commit
      */
-    public synchronized void writeSequenceStatement(Session session,
+    public synchronized void writeSequenceStatement(
+            Session session,
             NumberSequence s) {
-
         if (loggingEnabled) {
             log.writeSequenceStatement(session, s);
         }
@@ -991,7 +1014,6 @@ public class Logger implements EventLogInterface {
     }
 
     public synchronized void synchLog() {
-
         if (loggingEnabled) {
             log.synchLog();
         }
@@ -1028,8 +1050,9 @@ public class Logger implements EventLogInterface {
 
                     if (log != null && result.getUpdateCount() > 0) {
                         log.synchLog();
-                        logDetailEvent("Deleted unused LOBs, count: "
-                                       + result.getUpdateCount());
+                        logDetailEvent(
+                            "Deleted unused LOBs, count: "
+                            + result.getUpdateCount());
                     }
                 }
             }
@@ -1045,8 +1068,9 @@ public class Logger implements EventLogInterface {
         if (logsStatements) {
             logInfoEvent("Checkpoint start");
             log.checkpoint(session, defrag);
-            logInfoEvent("Checkpoint end - txts: "
-                         + database.txManager.getSystemChangeNumber());
+            logInfoEvent(
+                "Checkpoint end - txts: "
+                + database.txManager.getSystemChangeNumber());
         }
     }
 
@@ -1070,7 +1094,6 @@ public class Logger implements EventLogInterface {
      *  Sets logging on or off.
      */
     public synchronized void setLogData(boolean mode) {
-
         propLogData    = mode;
         loggingEnabled = propLogData && !database.isFilesReadOnly();
         loggingEnabled &= logsStatements;
@@ -1090,8 +1113,9 @@ public class Logger implements EventLogInterface {
 
         propScriptFormat = format;
 
-        checkpointState.compareAndSet(stateCheckpointNormal,
-                                      stateCheckpointRequired);
+        checkpointState.compareAndSet(
+            stateCheckpointNormal,
+            stateCheckpointRequired);
     }
 
     /**
@@ -1177,8 +1201,9 @@ public class Logger implements EventLogInterface {
     }
 
     public int getDataFileFactor() {
-        return propLargeData ? largeDataFactor
-                             : 1;
+        return propLargeData
+               ? largeDataFactor
+               : 1;
     }
 
     public void setDataFileSpace(boolean value) {
@@ -1234,7 +1259,6 @@ public class Logger implements EventLogInterface {
     }
 
     public void setLobFileScaleNoCheck(int value) {
-
         checkPower(value, 5);
 
         propLobBlockSize = value * 1024;
@@ -1277,7 +1301,8 @@ public class Logger implements EventLogInterface {
         return propDataFileDefragLimit;
     }
 
-    public void setDefaultTextTableProperties(String source,
+    public void setDefaultTextTableProperties(
+            String source,
             HsqlProperties props) {
 
         props.setProperty(HsqlDatabaseProperties.url_check_props, true);
@@ -1314,20 +1339,21 @@ public class Logger implements EventLogInterface {
     }
 
     static void checkPower(int n, int max) {
-
         if (!ArrayUtil.isTwoPower(n, max)) {
             throw Error.error(ErrorCode.X_42556);
         }
     }
 
     public void setCheckpointRequired() {
-        checkpointState.compareAndSet(stateCheckpointNormal,
-                                      stateCheckpointRequired);
+        checkpointState.compareAndSet(
+            stateCheckpointNormal,
+            stateCheckpointRequired);
     }
 
     public boolean needsCheckpointReset() {
-        return checkpointState.compareAndSet(stateCheckpointRequired,
-                                             stateCheckpointDue);
+        return checkpointState.compareAndSet(
+            stateCheckpointRequired,
+            stateCheckpointDue);
     }
 
     public boolean hasLockFile() {
@@ -1354,9 +1380,10 @@ public class Logger implements EventLogInterface {
         lockFile = null;
     }
 
-    public PersistentStore newStore(Session session,
-                                    PersistentStoreCollection collection,
-                                    TableBase table) {
+    public PersistentStore newStore(
+            Session session,
+            PersistentStoreCollection collection,
+            TableBase table) {
 
         switch (table.getTableType()) {
 
@@ -1400,20 +1427,36 @@ public class Logger implements EventLogInterface {
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
     }
 
-    public Index newIndex(HsqlName name, long id, TableBase table,
-                          int[] columns, boolean[] descending,
-                          boolean[] nullsLast, Type[] colTypes, boolean pk,
-                          boolean unique, boolean constraint,
-                          boolean forward) {
+    public Index newIndex(
+            HsqlName name,
+            long id,
+            TableBase table,
+            int[] columns,
+            boolean[] descending,
+            boolean[] nullsLast,
+            Type[] colTypes,
+            boolean pk,
+            boolean unique,
+            boolean constraint,
+            boolean forward) {
 
         switch (table.getTableType()) {
 
             case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.SYSTEM_TABLE :
             case TableBase.MEMORY_TABLE :
-                return new IndexAVLMemory(name, id, table, columns,
-                                          descending, nullsLast, colTypes, pk,
-                                          unique, constraint, forward);
+                return new IndexAVLMemory(
+                    name,
+                    id,
+                    table,
+                    columns,
+                    descending,
+                    nullsLast,
+                    colTypes,
+                    pk,
+                    unique,
+                    constraint,
+                    forward);
 
             case TableBase.CACHED_TABLE :
             case TableBase.CHANGE_SET_TABLE :
@@ -1424,9 +1467,18 @@ public class Logger implements EventLogInterface {
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.VIEW_TABLE :
             case TableBase.TRANSITION_TABLE :
-                return new IndexAVL(name, id, table, columns, descending,
-                                    nullsLast, colTypes, pk, unique,
-                                    constraint, forward);
+                return new IndexAVL(
+                    name,
+                    id,
+                    table,
+                    columns,
+                    descending,
+                    nullsLast,
+                    colTypes,
+                    pk,
+                    unique,
+                    constraint,
+                    forward);
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
@@ -1435,7 +1487,7 @@ public class Logger implements EventLogInterface {
     public HashMap<String, String> getPropertyValueMap() {
 
         HashMap<String, String> map   = new HashMap<>();
-        String  value = null;
+        String                  value = null;
 
         map.put(HsqlDatabaseProperties.sql_avg_scale,
                 String.valueOf(database.sqlAvgScale));
@@ -1533,10 +1585,9 @@ public class Logger implements EventLogInterface {
         }
 
         map.put(HsqlDatabaseProperties.hsqldb_tx_level, value);
-        map.put(
-            HsqlDatabaseProperties.hsqldb_reconfig_logging,
-            System.getProperty(
-                HsqlDatabaseProperties.hsqldb_reconfig_logging));
+        map.put(HsqlDatabaseProperties.hsqldb_reconfig_logging,
+                System.getProperty(
+                    HsqlDatabaseProperties.hsqldb_reconfig_logging));
 
         if (HsqlDatabaseProperties.methodClassNames != null) {
             map.put(HsqlDatabaseProperties.hsqldb_method_class_names,
@@ -1583,18 +1634,18 @@ public class Logger implements EventLogInterface {
                 String.valueOf(propDataFileDefragLimit));
         map.put(HsqlDatabaseProperties.hsqldb_files_space,
                 String.valueOf(propDataFileSpace));
-        map.put(
-            HsqlDatabaseProperties.hsqldb_files_readonly,
-            database.databaseProperties.isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_files_readonly) ? "true"
-                                                              : "false");
+        map.put(HsqlDatabaseProperties.hsqldb_files_readonly,
+                database.databaseProperties.isPropertyTrue(
+                    HsqlDatabaseProperties.hsqldb_files_readonly)
+                ? "true"
+                : "false");
         map.put(HsqlDatabaseProperties.hsqldb_large_data,
                 String.valueOf(propLargeData));
-        map.put(
-            HsqlDatabaseProperties.hsqldb_lock_file,
-            database.databaseProperties.isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_lock_file) ? "true"
-                                                         : "false");
+        map.put(HsqlDatabaseProperties.hsqldb_lock_file,
+                database.databaseProperties.isPropertyTrue(
+                    HsqlDatabaseProperties.hsqldb_lock_file)
+                ? "true"
+                : "false");
         map.put(HsqlDatabaseProperties.hsqldb_log_data,
                 String.valueOf(propLogData));
         map.put(HsqlDatabaseProperties.hsqldb_log_size,
@@ -1604,8 +1655,7 @@ public class Logger implements EventLogInterface {
         map.put(HsqlDatabaseProperties.hsqldb_nio_max_size,
                 String.valueOf(propNioMaxSize / (1024 * 1024)));
         map.put(HsqlDatabaseProperties.hsqldb_script_format,
-                ScriptWriterBase.LIST_SCRIPT_FORMATS[propScriptFormat]
-                    .toLowerCase());
+                ScriptWriterBase.LIST_SCRIPT_FORMATS[propScriptFormat].toLowerCase());
         map.put(HsqlDatabaseProperties.hsqldb_temp_directory,
                 tempDirectoryPath);
         map.put(HsqlDatabaseProperties.hsqldb_tx_conflict_rollback,
@@ -1615,11 +1665,13 @@ public class Logger implements EventLogInterface {
         map.put(HsqlDatabaseProperties.hsqldb_result_max_memory_rows,
                 String.valueOf(database.getResultMaxMemoryRows()));
         map.put(HsqlDatabaseProperties.hsqldb_readonly,
-                database.isReadOnly() ? "true"
-                                      : "false");
+                database.isReadOnly()
+                ? "true"
+                : "false");
         map.put(HsqlDatabaseProperties.hsqldb_files_readonly,
-                database.isFilesReadOnly() ? "true"
-                                           : "false");
+                database.isFilesReadOnly()
+                ? "true"
+                : "false");
         map.put(HsqlDatabaseProperties.hsqldb_write_delay,
                 String.valueOf(propWriteDelay != 0));
         map.put(HsqlDatabaseProperties.hsqldb_write_delay_millis,
@@ -1633,7 +1685,7 @@ public class Logger implements EventLogInterface {
     public List<String> getPropertiesSQLArray(boolean indexRoots) {
 
         HsqlArrayList<String> list = new HsqlArrayList<>();
-        StringBuilder sb   = new StringBuilder();
+        StringBuilder         sb   = new StringBuilder();
 
         sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
         sb.append(Tokens.T_NAME).append(' ').append(database.getNameString());
@@ -1696,8 +1748,7 @@ public class Logger implements EventLogInterface {
         switch (database.defaultIsolationLevel) {
 
             case SessionInterface.TX_READ_COMMITTED :
-                sb.append(Tokens.T_READ).append(' ').append(
-                    Tokens.T_COMMITTED);
+                sb.append(Tokens.T_READ).append(' ').append(Tokens.T_COMMITTED);
                 break;
 
             case SessionInterface.TX_SERIALIZABLE :
@@ -1711,8 +1762,9 @@ public class Logger implements EventLogInterface {
         sb.append(Tokens.T_ROLLBACK).append(' ');
         sb.append(Tokens.T_ON).append(' ');
         sb.append(Tokens.T_CONFLICT).append(' ');
-        sb.append(database.txConflictRollback ? Tokens.T_TRUE
-                                              : Tokens.T_FALSE);
+        sb.append(database.txConflictRollback
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
 
@@ -1721,8 +1773,9 @@ public class Logger implements EventLogInterface {
             sb.append(' ').append(Tokens.T_ROLLBACK).append(' ');
             sb.append(Tokens.T_ON).append(' ');
             sb.append(Tokens.T_INTERRUPT).append(' ');
-            sb.append(database.txInterruptRollback ? Tokens.T_TRUE
-                                                   : Tokens.T_FALSE);
+            sb.append(database.txInterruptRollback
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -1758,15 +1811,17 @@ public class Logger implements EventLogInterface {
         //
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_NAMES).append(' ');
-        sb.append(database.sqlEnforceNames ? Tokens.T_TRUE
-                                           : Tokens.T_FALSE);
+        sb.append(database.sqlEnforceNames
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_RESTRICT).append(' ');
         sb.append(Tokens.T_EXEC).append(' ');
-        sb.append(database.sqlRestrictExec ? Tokens.T_TRUE
-                                           : Tokens.T_FALSE);
+        sb.append(database.sqlRestrictExec
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
 
@@ -1774,42 +1829,48 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_REGULAR).append(' ');
             sb.append(Tokens.T_NAMES).append(' ');
-            sb.append(database.sqlRegularNames ? Tokens.T_TRUE
-                                               : Tokens.T_FALSE);
+            sb.append(database.sqlRegularNames
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
 
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_REFERENCES).append(' ');
-        sb.append(database.sqlEnforceRefs ? Tokens.T_TRUE
-                                          : Tokens.T_FALSE);
+        sb.append(database.sqlEnforceRefs
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_SIZE).append(' ');
-        sb.append(database.sqlEnforceSize ? Tokens.T_TRUE
-                                          : Tokens.T_FALSE);
+        sb.append(database.sqlEnforceSize
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_TYPES).append(' ');
-        sb.append(database.sqlEnforceTypes ? Tokens.T_TRUE
-                                           : Tokens.T_FALSE);
+        sb.append(database.sqlEnforceTypes
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_TDC).append(' ');
         sb.append(Tokens.T_DELETE).append(' ');
-        sb.append(database.sqlEnforceTDCD ? Tokens.T_TRUE
-                                          : Tokens.T_FALSE);
+        sb.append(database.sqlEnforceTDCD
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_TDC).append(' ');
         sb.append(Tokens.T_UPDATE).append(' ');
-        sb.append(database.sqlEnforceTDCU ? Tokens.T_TRUE
-                                          : Tokens.T_FALSE);
+        sb.append(database.sqlEnforceTDCU
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
 
         if (!database.sqlTranslateTTI) {
@@ -1817,8 +1878,9 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_TRANSLATE).append(' ').append(Tokens.T_TTI);
             sb.append(' ').append(Tokens.T_TYPES).append(' ');
-            sb.append(database.sqlTranslateTTI ? Tokens.T_TRUE
-                                               : Tokens.T_FALSE);
+            sb.append(database.sqlTranslateTTI
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
         }
 
@@ -1826,8 +1888,9 @@ public class Logger implements EventLogInterface {
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_SYS).append(' ').append(Tokens.T_INDEX);
         sb.append(' ').append(Tokens.T_NAMES).append(' ');
-        sb.append(database.sqlSysIndexNames ? Tokens.T_TRUE
-                                            : Tokens.T_FALSE);
+        sb.append(database.sqlSysIndexNames
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
 
         if (!database.sqlCharLiteral) {
@@ -1835,8 +1898,9 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_CHARACTER).append(' ');
             sb.append(Tokens.T_LITERAL).append(' ');
-            sb.append(database.sqlCharLiteral ? Tokens.T_TRUE
-                                              : Tokens.T_FALSE);
+            sb.append(database.sqlCharLiteral
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
         }
 
@@ -1844,8 +1908,9 @@ public class Logger implements EventLogInterface {
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_CONCAT_WORD).append(' ');
         sb.append(Tokens.T_NULLS).append(' ');
-        sb.append(database.sqlConcatNulls ? Tokens.T_TRUE
-                                          : Tokens.T_FALSE);
+        sb.append(database.sqlConcatNulls
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
 
         if (!database.sqlNullsFirst) {
@@ -1853,8 +1918,9 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_NULLS).append(' ');
             sb.append(Tokens.T_FIRST).append(' ');
-            sb.append(database.sqlNullsFirst ? Tokens.T_TRUE
-                                             : Tokens.T_FALSE);
+            sb.append(database.sqlNullsFirst
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
         }
 
@@ -1863,8 +1929,9 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_NULLS).append(' ');
             sb.append(Tokens.T_ORDER).append(' ');
-            sb.append(database.sqlNullsOrder ? Tokens.T_TRUE
-                                             : Tokens.T_FALSE);
+            sb.append(database.sqlNullsOrder
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
         }
 
@@ -1872,15 +1939,17 @@ public class Logger implements EventLogInterface {
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_UNIQUE).append(' ');
         sb.append(Tokens.T_NULLS).append(' ');
-        sb.append(database.sqlUniqueNulls ? Tokens.T_TRUE
-                                          : Tokens.T_FALSE);
+        sb.append(database.sqlUniqueNulls
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_CONVERT).append(' ');
         sb.append(Tokens.T_TRUNCATE).append(' ');
-        sb.append(database.sqlConvertTruncate ? Tokens.T_TRUE
-                                              : Tokens.T_FALSE);
+        sb.append(database.sqlConvertTruncate
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
@@ -1904,16 +1973,18 @@ public class Logger implements EventLogInterface {
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_DOUBLE).append(' ');
         sb.append(Tokens.T_NAN).append(' ');
-        sb.append(database.sqlDoubleNaN ? Tokens.T_TRUE
-                                        : Tokens.T_FALSE);
+        sb.append(database.sqlDoubleNaN
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
 
         if (database.sqlIgnoreCase) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_IGNORECASE).append(' ');
-            sb.append(database.sqlIgnoreCase ? Tokens.T_TRUE
-                                             : Tokens.T_FALSE);
+            sb.append(database.sqlIgnoreCase
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -1923,8 +1994,9 @@ public class Logger implements EventLogInterface {
             sb.append(Tokens.T_LONGVAR).append(' ');
             sb.append(Tokens.T_IS).append(' ');
             sb.append(Tokens.T_LOB).append(' ');
-            sb.append(database.sqlLongvarIsLob ? Tokens.T_TRUE
-                                               : Tokens.T_FALSE);
+            sb.append(database.sqlLongvarIsLob
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -1934,8 +2006,9 @@ public class Logger implements EventLogInterface {
             sb.append(Tokens.T_LOWER).append(' ');
             sb.append(Tokens.T_CASE).append(' ');
             sb.append(Tokens.T_IDENTIFIER).append(' ');
-            sb.append(database.sqlLowerCaseIdentifier ? Tokens.T_TRUE
-                                                      : Tokens.T_FALSE);
+            sb.append(database.sqlLowerCaseIdentifier
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -1944,8 +2017,9 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_TRUNCATE).append(' ');
             sb.append(Tokens.T_TRAILING).append(' ');
-            sb.append(database.sqlTruncateTrailing ? Tokens.T_TRUE
-                                                   : Tokens.T_FALSE);
+            sb.append(database.sqlTruncateTrailing
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -1954,8 +2028,9 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_DB2).append(' ');
-            sb.append(database.sqlSyntaxDb2 ? Tokens.T_TRUE
-                                            : Tokens.T_FALSE);
+            sb.append(database.sqlSyntaxDb2
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -1964,8 +2039,9 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_MSS).append(' ');
-            sb.append(database.sqlSyntaxMss ? Tokens.T_TRUE
-                                            : Tokens.T_FALSE);
+            sb.append(database.sqlSyntaxMss
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -1974,8 +2050,9 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_MYS).append(' ');
-            sb.append(database.sqlSyntaxMys ? Tokens.T_TRUE
-                                            : Tokens.T_FALSE);
+            sb.append(database.sqlSyntaxMys
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -1984,8 +2061,9 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_ORA).append(' ');
-            sb.append(database.sqlSyntaxOra ? Tokens.T_TRUE
-                                            : Tokens.T_FALSE);
+            sb.append(database.sqlSyntaxOra
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -1994,8 +2072,9 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_PGS).append(' ');
-            sb.append(database.sqlSyntaxPgs ? Tokens.T_TRUE
-                                            : Tokens.T_FALSE);
+            sb.append(database.sqlSyntaxPgs
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -2066,8 +2145,9 @@ public class Logger implements EventLogInterface {
         if (propCompressLobs) {
             sb.append("SET FILES ").append(Tokens.T_LOB).append(' ');
             sb.append(Tokens.T_COMPRESSED).append(' ');
-            sb.append(propCompressLobs ? Tokens.T_TRUE
-                                       : Tokens.T_FALSE);
+            sb.append(propCompressLobs
+                      ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -2077,8 +2157,9 @@ public class Logger implements EventLogInterface {
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET FILES ").append(Tokens.T_NIO).append(' ');
-        sb.append(propNioDataFile ? Tokens.T_TRUE
-                                  : Tokens.T_FALSE);
+        sb.append(propNioDataFile
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET FILES ").append(Tokens.T_NIO).append(' ');
@@ -2087,8 +2168,9 @@ public class Logger implements EventLogInterface {
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');
-        sb.append(propLogData ? Tokens.T_TRUE
-                              : Tokens.T_FALSE);
+        sb.append(propLogData
+                  ? Tokens.T_TRUE
+                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');
@@ -2103,8 +2185,12 @@ public class Logger implements EventLogInterface {
         return list;
     }
 
-    public void backup(String destPath, boolean script, boolean blocking,
-                       boolean compressed, boolean files) {
+    public void backup(
+            String destPath,
+            boolean script,
+            boolean blocking,
+            boolean compressed,
+            boolean files) {
 
         if (!backupState.compareAndSet(stateNormal, stateBackup)) {
             throw Error.error(ErrorCode.BACKUP_ERROR, "backup in progress");
@@ -2115,8 +2201,12 @@ public class Logger implements EventLogInterface {
 
             try {
                 synchronized (this) {
-                    backupInternal(destPath, script, blocking, compressed,
-                                   files);
+                    backupInternal(
+                        destPath,
+                        script,
+                        blocking,
+                        compressed,
+                        files);
                 }
             } finally {
                 backupState.set(stateNormal);
@@ -2131,88 +2221,104 @@ public class Logger implements EventLogInterface {
         }
     }
 
-    public SimpleDateFormat fileDateFormat =
-        new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-    private static final char runtimeFileDelim =
-        System.getProperty("file.separator").charAt(0);
+    public SimpleDateFormat fileDateFormat = new SimpleDateFormat(
+        "yyyyMMdd'T'HHmmss");
+    private static final char runtimeFileDelim = System.getProperty(
+        "file.separator")
+            .charAt(0);
     DbBackup backup;
 
-    void backupInternal(String destPath, boolean script, boolean blocking,
-                        boolean compressed, boolean asFiles) {
+    void backupInternal(
+            String destPath,
+            boolean script,
+            boolean blocking,
+            boolean compressed,
+            boolean asFiles) {
 
         String scriptName = null;
         String dbPath     = database.getPath();
+
         /* If want to add db Id also, will need to pass either Database
          * instead of dbPath, or pass dbPath + Id from StatementCommand.
          */
-        String instanceName = new File(dbPath).getName();
-        char   lastChar     = destPath.charAt(destPath.length() - 1);
+        String  instanceName = new File(dbPath).getName();
+        char    lastChar     = destPath.charAt(destPath.length() - 1);
         boolean generateName = (lastChar == '/'
                                 || lastChar == runtimeFileDelim);
-        File archiveFile;
+        File    archiveFile;
 
         if (asFiles) {
             if (!generateName) {
-                throw Error.error(null, ErrorCode.UNSUPPORTED_FILENAME_SUFFIX,
-                                  0, new String[] {
-                    "", "/"
-                });
+                throw Error.error(
+                    null,
+                    ErrorCode.UNSUPPORTED_FILENAME_SUFFIX,
+                    0,
+                    new String[]{ "", "/" });
             }
 
             destPath = getSecurePath(destPath, true, false);
 
             if (destPath == null) {
-                throw Error.error(ErrorCode.BACKUP_ERROR,
-                                  "access to directory denied");
+                throw Error.error(
+                    ErrorCode.BACKUP_ERROR,
+                    "access to directory denied");
             }
 
             archiveFile = new File(destPath);
 
             archiveFile.mkdirs();
 
-            File[] files = FileUtil.getDatabaseMainFileList(destPath
-                + instanceName);
+            File[] files = FileUtil.getDatabaseMainFileList(
+                destPath + instanceName);
 
             if (files == null || files.length != 0) {
-                throw Error.error(ErrorCode.BACKUP_ERROR,
-                                  "files exist in directory");
+                throw Error.error(
+                    ErrorCode.BACKUP_ERROR,
+                    "files exist in directory");
             }
         } else {
-            String defaultSuffix = compressed ? ".tar.gz"
-                                              : ".tar";
+            String defaultSuffix = compressed
+                                   ? ".tar.gz"
+                                   : ".tar";
 
             if (generateName) {
-                archiveFile =
-                    (new File(destPath.substring(0, destPath.length() - 1),
-                              instanceName + '-'
-                              + fileDateFormat.format(new java.util.Date())
-                              + defaultSuffix));
+                archiveFile = (new File(
+                    destPath.substring(0, destPath.length() - 1),
+                    instanceName + '-'
+                    + fileDateFormat.format(new java.util.Date())
+                    + defaultSuffix));
             } else {
                 archiveFile = new File(destPath);
             }
 
-            boolean nameImpliesCompress =
-                archiveFile.getName().endsWith(".tar.gz")
-                || archiveFile.getName().endsWith(".tgz");
+            boolean nameImpliesCompress = archiveFile.getName().endsWith(
+                ".tar.gz")
+                                          || archiveFile.getName().endsWith(
+                                              ".tgz");
 
             if ((!nameImpliesCompress)
                     && !archiveFile.getName().endsWith(".tar")) {
-                throw Error.error(null, ErrorCode.UNSUPPORTED_FILENAME_SUFFIX,
-                                  0, new String[] {
-                    archiveFile.getName(), ".tar, .tar.gz, .tgz"
-                });
+                throw Error.error(
+                    null,
+                    ErrorCode.UNSUPPORTED_FILENAME_SUFFIX,
+                    0,
+                    new String[]{ archiveFile.getName(),
+                                  ".tar, .tar.gz, .tgz" });
             }
 
             if (compressed != nameImpliesCompress) {
-                throw Error.error(null, ErrorCode.COMPRESSION_SUFFIX_MISMATCH,
-                                  0, new String[] {
-                    String.valueOf(compressed), archiveFile.getName()
-                });
+                throw Error.error(
+                    null,
+                    ErrorCode.COMPRESSION_SUFFIX_MISMATCH,
+                    0,
+                    new String[]{ String.valueOf(
+                        compressed), archiveFile.getName() });
             }
 
             if (archiveFile.exists()) {
-                throw Error.error(ErrorCode.BACKUP_ERROR,
-                                  "file exists :" + archiveFile.getName());
+                throw Error.error(
+                    ErrorCode.BACKUP_ERROR,
+                    "file exists :" + archiveFile.getName());
             }
         }
 
@@ -2221,8 +2327,8 @@ public class Logger implements EventLogInterface {
         }
 
         try {
-            logInfoEvent("Initiating backup of instance '" + instanceName
-                         + "'");
+            logInfoEvent(
+                "Initiating backup of instance '" + instanceName + "'");
 
             // By default, DbBackup will throw if archiveFile (or
             // corresponding work file) already exist.  That's just what we
@@ -2234,11 +2340,16 @@ public class Logger implements EventLogInterface {
                     return;
                 }
 
-                path = path + "/" + new File(database.getPath()).getName();
+                path       = path + "/" + new File(
+                    database.getPath()).getName();
                 scriptName = path + scriptFileExtension;
 
-                ScriptWriterText dsw = new ScriptWriterText(database,
-                    scriptName, true, true, true);
+                ScriptWriterText dsw = new ScriptWriterText(
+                    database,
+                    scriptName,
+                    true,
+                    true,
+                    true);
 
                 dsw.writeAll();
                 dsw.close();
@@ -2257,11 +2368,11 @@ public class Logger implements EventLogInterface {
 
                     if (hasCache()) {
                         DataFileCache dataFileCache = getCache();
-                        RAShadowFile shadowFile =
+                        RAShadowFile  shadowFile =
                             dataFileCache.getShadowFile();
 
                         file = new File(dataFileCache.dataFileName);
-                        isw = new InputStreamWrapper(
+                        isw  = new InputStreamWrapper(
                             new FileInputStream(file));
 
                         isw.setSizeLimit(dataFileCache.fileStartFreePosition);
@@ -2280,8 +2391,7 @@ public class Logger implements EventLogInterface {
                     if (fileLength == 0) {
                         backup.setFileIgnore(logFileExtension);
                     } else {
-                        isw = new InputStreamWrapper(
-                            new FileInputStream(file));
+                        isw = new InputStreamWrapper(new FileInputStream(file));
 
                         isw.setSizeLimit(fileLength);
                         backup.setStream(logFileExtension, isw);
@@ -2295,8 +2405,9 @@ public class Logger implements EventLogInterface {
                 }
             }
 
-            logInfoEvent("Successfully backed up instance '" + instanceName
-                         + "' to '" + destPath + "'");
+            logInfoEvent(
+                "Successfully backed up instance '" + instanceName + "' to '"
+                + destPath + "'");
         } catch (IOException ioe) {
             throw Error.error(ioe, ErrorCode.FILE_IO_ERROR, ioe.toString());
         } catch (TarMalformatException tme) {
@@ -2317,8 +2428,10 @@ public class Logger implements EventLogInterface {
      *  hsqldb.allow_full_path is false. Returns the path otherwise.
      *
      */
-    public String getSecurePath(String path, boolean allowFull,
-                                boolean includeRes) {
+    public String getSecurePath(
+            String path,
+            boolean allowFull,
+            boolean includeRes) {
 
         if (database.getType() == DatabaseType.DB_RES) {
             if (includeRes) {
@@ -2337,7 +2450,8 @@ public class Logger implements EventLogInterface {
         }
 
         // absolute paths
-        if (path.startsWith("/") || path.startsWith("\\")
+        if (path.startsWith("/")
+                || path.startsWith("\\")
                 || path.contains(":")) {
             if (allowFull || propTextAllowFullPath) {
                 return path;
@@ -2355,9 +2469,9 @@ public class Logger implements EventLogInterface {
             }
         }
 
-        String fullPath =
-            new File(new File(database.getPath()
-                              + ".properties").getAbsolutePath()).getParent();
+        String fullPath = new File(
+            new File(database.getPath()
+                     + ".properties").getAbsolutePath()).getParent();
 
         if (fullPath != null) {
             path = fullPath + File.separator + path;

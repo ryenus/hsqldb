@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,8 +72,9 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
             newFreePosition = filePosition + rowSize;
 
             if (newFreePosition > cache.maxDataFileSize) {
-                cache.logSevereEvent("data file reached maximum size "
-                                     + cache.dataFileName, null);
+                cache.logSevereEvent(
+                    "data file reached maximum size " + cache.dataFileName,
+                    null);
 
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
@@ -92,8 +93,10 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
 
     public void addFileBlock(long blockFreePos, long blockLimit) {}
 
-    public void initialiseFileBlock(LongLookup lookup, long blockFreePos,
-                                    long blockLimit) {}
+    public void initialiseFileBlock(
+            LongLookup lookup,
+            long blockFreePos,
+            long blockLimit) {}
 
     public void reset() {}
 

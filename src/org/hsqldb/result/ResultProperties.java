@@ -70,21 +70,18 @@ public class ResultProperties {
     }
 
     public static int getJDBCHoldability(int props) {
-
         return isHoldable(props)
                ? ResultConstants.HOLD_CURSORS_OVER_COMMIT
                : ResultConstants.CLOSE_CURSORS_AT_COMMIT;
     }
 
     public static int getJDBCConcurrency(int props) {
-
         return isReadOnly(props)
                ? ResultConstants.CONCUR_READ_ONLY
                : ResultConstants.CONCUR_UPDATABLE;
     }
 
     public static int getJDBCScrollability(int props) {
-
         return isScrollable(props)
                ? ResultConstants.TYPE_SCROLL_INSENSITIVE
                : ResultConstants.TYPE_FORWARD_ONLY;
@@ -112,70 +109,60 @@ public class ResultProperties {
     }
 
     public static boolean isUpdatable(int props) {
-
         return (props & (1 << idx_updatable)) == 0
                ? false
                : true;
     }
 
     public static boolean isScrollable(int props) {
-
         return (props & (1 << idx_scrollable)) == 0
                ? false
                : true;
     }
 
     public static boolean isHoldable(int props) {
-
         return (props & (1 << idx_holdable)) == 0
                ? false
                : true;
     }
 
     public static boolean isSensitive(int props) {
-
         return (props & (1 << idx_sensitive)) == 0
                ? false
                : true;
     }
 
     public static boolean isReadOnly(int props) {
-
         return (props & (1 << idx_updatable)) == 0
                ? true
                : false;
     }
 
     public static boolean isHeld(int props) {
-
         return (props & (1 << idx_isheld)) == 0
                ? false
                : true;
     }
 
     public static int addUpdatable(int props, boolean flag) {
-
         return flag
                ? props | ((1) << idx_updatable)
                : props & ( ~(1 << idx_updatable));
     }
 
     public static int addHoldable(int props, boolean flag) {
-
         return flag
                ? props | ((1) << idx_holdable)
                : props & ( ~(1 << idx_holdable));
     }
 
     public static int addScrollable(int props, boolean flag) {
-
         return flag
                ? props | ((1) << idx_scrollable)
                : props & ( ~(1 << idx_scrollable));
     }
 
     public static int addIsHeld(int props, boolean flag) {
-
         return flag
                ? props | ((1) << idx_isheld)
                : props & ( ~(1 << idx_isheld));

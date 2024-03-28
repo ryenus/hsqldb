@@ -59,11 +59,13 @@ public class SimpleLog {
     public static final int LOG_RESULT  = 4;
 
     //
-    public static final String logTypeNameEngine = "ENGINE";
-    static final String[] appLogTypeNames = { "", "ERROR ", "WARNING", "NORMAL",
-                                              "DETAIL" };
-    static final String[] sqlLogTypeNames = { "", "BASIC ", "NORMAL", "DETAIL",
-                                              "RESULT" };
+    public static final String logTypeName = "ENGINE";
+    static final String[] appLogTypeNames = {
+        "", "ERROR ", "WARNING", "NORMAL", "DETAIL"
+    };
+    static final String[] sqlLogTypeNames = {
+        "", "BASIC ", "NORMAL", "DETAIL", "RESULT"
+    };
 
     //
     private PrintWriter   writer;
@@ -124,7 +126,6 @@ public class SimpleLog {
     }
 
     public void setLevel(int level) {
-
         this.level = level;
 
         setupWriter();
@@ -228,7 +229,6 @@ public class SimpleLog {
     }
 
     public void flush() {
-
         if (writer != null) {
             writer.flush();
         }

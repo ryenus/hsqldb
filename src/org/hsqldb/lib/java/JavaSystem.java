@@ -93,14 +93,15 @@ public final class JavaSystem {
         if (javaVersion > 8) {
             try {
                 Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-                Field    unsafeField =
-                    unsafeClass.getDeclaredField("theUnsafe");
+                Field    unsafeField = unsafeClass.getDeclaredField(
+                    "theUnsafe");
 
                 unsafeField.setAccessible(true);
 
                 Object unsafe = unsafeField.get(null);
-                Method invokeCleaner = unsafeClass.getMethod("invokeCleaner",
-                                                             java.nio.ByteBuffer.class);
+                Method invokeCleaner = unsafeClass.getMethod(
+                    "invokeCleaner",
+                    java.nio.ByteBuffer.class);
 
                 invokeCleaner.invoke(unsafe, buffer);
 

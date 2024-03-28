@@ -168,7 +168,6 @@ public class HsqlByteArrayOutputStream extends OutputStream
     }
 
     public void writeByte(int v) {
-
         ensureRoom(1);
 
         buffer[count++] = (byte) v;
@@ -232,7 +231,6 @@ public class HsqlByteArrayOutputStream extends OutputStream
 
     // methods that extend java.io.OutputStream
     public void write(int b) {
-
         ensureRoom(1);
 
         buffer[count++] = (byte) b;

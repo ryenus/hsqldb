@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,14 +56,13 @@ public final class ValuePool {
     static ValuePoolHashMap stringPool;
     static final int        SPACE_STRING_SIZE       = 64;
     static final int        DEFAULT_VALUE_POOL_SIZE = 4096;
-    static final int[]      defaultPoolLookupSize   = new int[] {
+    static final int[] defaultPoolLookupSize = new int[]{
+        DEFAULT_VALUE_POOL_SIZE,
         DEFAULT_VALUE_POOL_SIZE, DEFAULT_VALUE_POOL_SIZE,
-        DEFAULT_VALUE_POOL_SIZE, DEFAULT_VALUE_POOL_SIZE,
-        DEFAULT_VALUE_POOL_SIZE
-    };
-    static final int POOLS_COUNT            = defaultPoolLookupSize.length;
-    static final int defaultSizeFactor      = 2;
-    static final int defaultMaxStringLength = 16;
+        DEFAULT_VALUE_POOL_SIZE, DEFAULT_VALUE_POOL_SIZE };
+    static final int        POOLS_COUNT = defaultPoolLookupSize.length;
+    static final int        defaultSizeFactor       = 2;
+    static final int        defaultMaxStringLength  = 16;
 
     //
     static ValuePoolHashMap[] poolList;
@@ -90,12 +89,12 @@ public final class ValuePool {
     public static final Integer INTEGER_0 = ValuePool.getInt(0);
     public static final Integer INTEGER_1 = ValuePool.getInt(1);
     public static final Integer INTEGER_2 = ValuePool.getInt(2);
-    public static final Integer INTEGER_MAX =
-        ValuePool.getInt(Integer.MAX_VALUE);
-    public static final BigDecimal BIG_DECIMAL_0 =
-        ValuePool.getBigDecimal(BigDecimal.valueOf(0));
-    public static final BigDecimal BIG_DECIMAL_1 =
-        ValuePool.getBigDecimal(new BigDecimal(1));
+    public static final Integer INTEGER_MAX = ValuePool.getInt(
+        Integer.MAX_VALUE);
+    public static final BigDecimal BIG_DECIMAL_0 = ValuePool.getBigDecimal(
+        BigDecimal.valueOf(0));
+    public static final BigDecimal BIG_DECIMAL_1 = ValuePool.getBigDecimal(
+        new BigDecimal(1));
 
     //
     public static final String[] emptyStringArray = new String[]{};
@@ -115,8 +114,10 @@ public final class ValuePool {
             for (int i = 0; i < POOLS_COUNT; i++) {
                 int size = sizeArray[i];
 
-                poolList[i] = new ValuePoolHashMap(size, size * sizeFactor,
-                                                   BaseHashMap.PURGE_HALF);
+                poolList[i] = new ValuePoolHashMap(
+                    size,
+                    size * sizeFactor,
+                    BaseHashMap.PURGE_HALF);
             }
 
             intPool        = poolList[0];
@@ -150,21 +151,18 @@ public final class ValuePool {
     }
 
     public static Integer getInt(int val) {
-
         synchronized (intPool) {
             return intPool.getOrAddInteger(val);
         }
     }
 
     public static Long getLong(long val) {
-
         synchronized (longPool) {
             return longPool.getOrAddLong(val);
         }
     }
 
     public static Double getDouble(long val) {
-
         synchronized (doublePool) {
             return doublePool.getOrAddDouble(val);
         }
@@ -182,7 +180,6 @@ public final class ValuePool {
     }
 
     public static String getSubString(String val, int start, int limit) {
-
         synchronized (stringPool) {
             return stringPool.getOrAddString(val.substring(start, limit));
         }
@@ -200,7 +197,8 @@ public final class ValuePool {
     }
 
     public static Boolean getBoolean(boolean b) {
-        return b ? Boolean.TRUE
-                 : Boolean.FALSE;
+        return b
+               ? Boolean.TRUE
+               : Boolean.FALSE;
     }
 }

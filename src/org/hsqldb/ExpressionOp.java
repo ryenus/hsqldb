@@ -148,24 +148,27 @@ public class ExpressionOp extends Expression {
         switch (e.dataType.typeCode) {
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                dataType = DateTimeType.getDateTimeType(Types.SQL_TIME,
-                        e.dataType.scale);
+                dataType = DateTimeType.getDateTimeType(
+                    Types.SQL_TIME,
+                    e.dataType.scale);
                 break;
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                dataType = DateTimeType.getDateTimeType(Types.SQL_TIMESTAMP,
-                        e.dataType.scale);
+                dataType = DateTimeType.getDateTimeType(
+                    Types.SQL_TIMESTAMP,
+                    e.dataType.scale);
                 break;
 
             case Types.SQL_TIME :
-                dataType =
-                    DateTimeType.getDateTimeType(Types.SQL_TIME_WITH_TIME_ZONE,
-                                                 e.dataType.scale);
+                dataType = DateTimeType.getDateTimeType(
+                    Types.SQL_TIME_WITH_TIME_ZONE,
+                    e.dataType.scale);
                 break;
 
             case Types.SQL_TIMESTAMP :
                 dataType = DateTimeType.getDateTimeType(
-                    Types.SQL_TIMESTAMP_WITH_TIME_ZONE, e.dataType.scale);
+                    Types.SQL_TIMESTAMP_WITH_TIME_ZONE,
+                    e.dataType.scale);
                 break;
 
             default :
@@ -175,12 +178,16 @@ public class ExpressionOp extends Expression {
         this.alias = e.alias;
     }
 
-    public static Expression getCastExpression(Session session, Expression e,
+    public static Expression getCastExpression(
+            Session session,
+            Expression e,
             Type dataType) {
 
         if (e.getType() == OpTypes.VALUE) {
-            Object value = dataType.castToType(session, e.getValue(session),
-                                               e.getDataType());
+            Object value = dataType.castToType(
+                session,
+                e.getValue(session),
+                e.getDataType());
 
             return new ExpressionValue(value, dataType);
         }
@@ -188,13 +195,16 @@ public class ExpressionOp extends Expression {
         return new ExpressionOp(e, dataType);
     }
 
-    public static Expression getConvertExpression(Session session,
-            Expression e, Type dataType) {
+    public static Expression getConvertExpression(
+            Session session,
+            Expression e,
+            Type dataType) {
 
         if (e.getType() == OpTypes.VALUE) {
-            Object value = dataType.convertToType(session,
-                                                  e.getValue(session),
-                                                  e.getDataType());
+            Object value = dataType.convertToType(
+                session,
+                e.getValue(session),
+                e.getDataType());
 
             return new ExpressionValue(value, dataType);
         }
@@ -209,10 +219,12 @@ public class ExpressionOp extends Expression {
     public String getSQL() {
 
         StringBuilder sb    = new StringBuilder(64);
-        String        left  = getContextSQL(nodes.length > 0 ? nodes[LEFT]
-                                                             : null);
-        String        right = getContextSQL(nodes.length > 1 ? nodes[RIGHT]
-                                                             : null);
+        String        left  = getContextSQL(nodes.length > 0
+                ? nodes[LEFT]
+                : null);
+        String        right = getContextSQL(nodes.length > 1
+                ? nodes[RIGHT]
+                : null);
 
         switch (opType) {
 
@@ -222,22 +234,31 @@ public class ExpressionOp extends Expression {
                 }
 
                 if (dataType == null) {
-                    throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "ExpressionOp");
+                    throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
                 }
 
                 return dataType.convertToSQLString(valueData);
 
             case OpTypes.LIKE_ARG :
-                sb.append(' ').append(Tokens.T_LIKE).append(' ');
-                sb.append(left).append(' ').append(right).append(' ');
+                sb.append(' ')
+                  .append(Tokens.T_LIKE)
+                  .append(' ')
+                  .append(left)
+                  .append(' ')
+                  .append(right)
+                  .append(' ');
                 break;
 
             case OpTypes.CAST :
-                sb.append(' ').append(Tokens.T_CAST).append('(');
-                sb.append(left).append(' ').append(Tokens.T_AS).append(' ');
-                sb.append(dataType.getTypeDefinition());
-                sb.append(')');
+                sb.append(' ')
+                  .append(Tokens.T_CAST)
+                  .append('(')
+                  .append(left)
+                  .append(' ')
+                  .append(Tokens.T_AS)
+                  .append(' ')
+                  .append(dataType.getTypeDefinition())
+                  .append(')');
                 break;
 
             case OpTypes.CONVERT :
@@ -245,8 +266,13 @@ public class ExpressionOp extends Expression {
                 break;
 
             case OpTypes.CASEWHEN :
-                sb.append(' ').append(Tokens.T_CASEWHEN).append('(');
-                sb.append(left).append(',').append(right).append(')');
+                sb.append(' ')
+                  .append(Tokens.T_CASEWHEN)
+                  .append('(')
+                  .append(left)
+                  .append(',')
+                  .append(right)
+                  .append(')');
                 break;
 
             case OpTypes.ALTERNATIVE :
@@ -255,17 +281,28 @@ public class ExpressionOp extends Expression {
 
             case OpTypes.LIMIT :
                 if (left != null) {
-                    sb.append(' ').append(Tokens.T_OFFSET).append(' ');
-                    sb.append(left).append(' ');
+                    sb.append(' ')
+                      .append(Tokens.T_OFFSET)
+                      .append(' ')
+                      .append(left)
+                      .append(' ');
                 }
 
                 if (right != null) {
-                    sb.append(' ').append(Tokens.T_FETCH).append(' ');
-                    sb.append(Tokens.T_FIRST);
-                    sb.append(right).append(' ').append(right).append(' ');
-                    sb.append(Tokens.T_ROWS).append(' ').append(Tokens.T_ONLY);
-                    sb.append(' ');
+                    sb.append(' ')
+                      .append(Tokens.T_FETCH)
+                      .append(' ')
+                      .append(Tokens.T_FIRST)
+                      .append(right)
+                      .append(' ')
+                      .append(right)
+                      .append(' ')
+                      .append(Tokens.T_ROWS)
+                      .append(' ')
+                      .append(Tokens.T_ONLY)
+                      .append(' ');
                 }
+
                 break;
 
             case OpTypes.ZONE_MODIFIER :
@@ -273,18 +310,20 @@ public class ExpressionOp extends Expression {
 
                 if (nodes[RIGHT] == null) {
                     sb.append(Tokens.T_LOCAL).append(' ');
-
                     break;
                 }
 
-                sb.append(Tokens.T_TIME).append(' ').append(Tokens.T_ZONE);
-                sb.append(' ');
-                sb.append(right);
+                sb.append(Tokens.T_TIME)
+                  .append(' ')
+                  .append(Tokens.T_ZONE)
+                  .append(' ')
+                  .append(right);
                 break;
 
             case OpTypes.CONCAT_WS :
-                sb.append(Tokens.T_CONCAT_WS).append(Tokens.OPENBRACKET);
-                sb.append(left);
+                sb.append(Tokens.T_CONCAT_WS)
+                  .append(Tokens.OPENBRACKET)
+                  .append(left);
 
                 for (int i = 0; i < nodes.length; i++) {
                     sb.append(',').append(nodes[i].getSQL());
@@ -313,38 +352,43 @@ public class ExpressionOp extends Expression {
         switch (opType) {
 
             case OpTypes.VALUE :
-                sb.append("VALUE = ").append(
-                    dataType.convertToSQLString(valueData));
-                sb.append(", TYPE = ").append(dataType.getNameString());
+                sb.append("VALUE = ")
+                  .append(dataType.convertToSQLString(valueData))
+                  .append(", TYPE = ")
+                  .append(dataType.getNameString());
 
                 return sb.toString();
 
             case OpTypes.LIKE_ARG :
-                sb.append(Tokens.T_LIKE).append(' ').append("ARG ");
-                sb.append(dataType.getTypeDefinition());
-                sb.append(' ');
+                sb.append(Tokens.T_LIKE)
+                  .append(' ')
+                  .append("ARG ")
+                  .append(dataType.getTypeDefinition())
+                  .append(' ');
                 break;
 
             case OpTypes.VALUELIST :
                 sb.append(Tokens.T_VALUE).append(' ').append("LIST ");
 
                 for (int i = 0; i < nodes.length; i++) {
-                    sb.append(nodes[i].describe(session, blanks + 1));
-                    sb.append(' ');
+                    sb.append(nodes[i].describe(session, blanks + 1))
+                      .append(' ');
                 }
 
                 return sb.toString();
 
             case OpTypes.CAST :
-                sb.append(Tokens.T_CAST).append(' ');
-                sb.append(dataType.getTypeDefinition());
-                sb.append(' ');
+                sb.append(Tokens.T_CAST)
+                  .append(' ')
+                  .append(dataType.getTypeDefinition())
+                  .append(' ');
                 break;
 
             case OpTypes.CONVERT :
-                sb.append(Tokens.T_CONVERT).append(' ');
-                sb.append(dataType.getTypeDefinition());
-                sb.append(' ');
+                sb.append(Tokens.T_CONVERT)
+                  .append(' ')
+                  .append(dataType.getTypeDefinition())
+                  .append(' ');
                 break;
 
             case OpTypes.CASEWHEN :
@@ -359,25 +403,27 @@ public class ExpressionOp extends Expression {
         }
 
         if (getLeftNode() != null) {
-            sb.append(" arg_left=[");
-            sb.append(nodes[LEFT].describe(session, blanks + 1));
-            sb.append(']');
+            sb.append(" arg_left=[")
+              .append(nodes[LEFT].describe(session, blanks + 1))
+              .append(']');
         }
 
         if (getRightNode() != null) {
-            sb.append(" arg_right=[");
-            sb.append(nodes[RIGHT].describe(session, blanks + 1));
-            sb.append(']');
+            sb.append(" arg_right=[")
+              .append(nodes[RIGHT].describe(session, blanks + 1))
+              .append(']');
         }
 
         return sb.toString();
     }
 
-    public List<Expression> resolveColumnReferences(Session session,
-                                                    RangeGroup rangeGroup, int rangeCount,
-                                                    RangeGroup[] rangeGroups,
-                                                    List<Expression> unresolvedSet,
-                                                    boolean acceptsSequences) {
+    public List<Expression> resolveColumnReferences(
+            Session session,
+            RangeGroup rangeGroup,
+            int rangeCount,
+            RangeGroup[] rangeGroups,
+            List<Expression> unresolvedSet,
+            boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -397,9 +443,13 @@ public class ExpressionOp extends Expression {
                 continue;
             }
 
-            unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeGroup, rangeCount, rangeGroups, unresolvedSet,
-                    acceptsSequences);
+            unresolvedSet = nodes[i].resolveColumnReferences(
+                session,
+                rangeGroup,
+                rangeCount,
+                rangeGroups,
+                unresolvedSet,
+                acceptsSequences);
         }
 
         return unresolvedSet;
@@ -432,12 +482,12 @@ public class ExpressionOp extends Expression {
                         && (nodes[RIGHT] == null
                             || nodes[RIGHT].opType == OpTypes.VALUE)) {
                     setAsConstantValue(session, parent);
-
                     break;
                 }
 
                 break;
             }
+
             case OpTypes.CAST :
             case OpTypes.CONVERT : {
                 Expression node     = nodes[LEFT];
@@ -455,6 +505,7 @@ public class ExpressionOp extends Expression {
 
                 break;
             }
+
             case OpTypes.ZONE_MODIFIER :
                 if (nodes[LEFT].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
@@ -543,6 +594,7 @@ public class ExpressionOp extends Expression {
                         throw Error.error(ErrorCode.X_42563);
                     }
                 }
+
                 break;
 
             case OpTypes.PREFIX :
@@ -598,8 +650,9 @@ public class ExpressionOp extends Expression {
             if (expr.exprSubType == OpTypes.CAST) {
                 dataType = expr.nodes[RIGHT].dataType;
             } else {
-                dataType = Type.getAggregateType(expr.nodes[RIGHT].dataType,
-                                                 dataType);
+                dataType = Type.getAggregateType(
+                    expr.nodes[RIGHT].dataType,
+                    dataType);
             }
 
             if (expr.nodes[RIGHT].nodes[RIGHT].opType == OpTypes.CASEWHEN) {
@@ -640,12 +693,14 @@ public class ExpressionOp extends Expression {
                 expr.nodes[LEFT].dataType = Type.SQL_BOOLEAN;
             }
 
-            expr.nodes[RIGHT].nodes[LEFT].resolveTypes(session,
-                    expr.nodes[RIGHT]);
+            expr.nodes[RIGHT].nodes[LEFT].resolveTypes(
+                session,
+                expr.nodes[RIGHT]);
 
             if (expr.nodes[RIGHT].nodes[RIGHT].opType != OpTypes.CASEWHEN) {
-                expr.nodes[RIGHT].nodes[RIGHT].resolveTypes(session,
-                        expr.nodes[RIGHT]);
+                expr.nodes[RIGHT].nodes[RIGHT].resolveTypes(
+                    session,
+                    expr.nodes[RIGHT]);
             }
 
             expr = expr.nodes[RIGHT].nodes[RIGHT];
@@ -670,16 +725,16 @@ public class ExpressionOp extends Expression {
                 int     escapeChar = Integer.MAX_VALUE;
 
                 if (dataType.isBinaryType()) {
-                    BinaryData left =
-                        (BinaryData) nodes[LEFT].getValue(session);
+                    BinaryData left = (BinaryData) nodes[LEFT].getValue(
+                        session);
 
                     if (left == null) {
                         return null;
                     }
 
                     if (hasEscape) {
-                        BinaryData right =
-                            (BinaryData) nodes[RIGHT].getValue(session);
+                        BinaryData right = (BinaryData) nodes[RIGHT].getValue(
+                            session);
 
                         if (right == null) {
                             return null;
@@ -706,7 +761,6 @@ public class ExpressionOp extends Expression {
 
                                 newArray[j++] = array[i];
                                 wasEscape     = false;
-
                                 continue;
                             }
 
@@ -725,7 +779,6 @@ public class ExpressionOp extends Expression {
 
                                 newArray[j++] = array[i];
                                 wasEscape     = false;
-
                                 continue;
                             }
 
@@ -739,25 +792,26 @@ public class ExpressionOp extends Expression {
                         newArray[j++] = array[i];
                     }
 
-                    newArray =
-                        (byte[]) ArrayUtil.resizeArrayIfDifferent(newArray, j);
+                    newArray = (byte[]) ArrayUtil.resizeArrayIfDifferent(
+                        newArray,
+                        j);
 
                     return new BinaryData(newArray, false);
                 } else {
-                    String left =
-                        (String) Type.SQL_VARCHAR.convertToType(session,
-                            nodes[LEFT].getValue(session),
-                            nodes[LEFT].getDataType());
+                    String left = (String) Type.SQL_VARCHAR.convertToType(
+                        session,
+                        nodes[LEFT].getValue(session),
+                        nodes[LEFT].getDataType());
 
                     if (left == null) {
                         return null;
                     }
 
                     if (hasEscape) {
-                        String right =
-                            (String) Type.SQL_VARCHAR.convertToType(session,
-                                nodes[RIGHT].getValue(session),
-                                nodes[RIGHT].getDataType());
+                        String right = (String) Type.SQL_VARCHAR.convertToType(
+                            session,
+                            nodes[RIGHT].getValue(session),
+                            nodes[RIGHT].getDataType());
 
                         if (right == null) {
                             return null;
@@ -784,7 +838,6 @@ public class ExpressionOp extends Expression {
 
                                 newArray[j++] = array[i];
                                 wasEscape     = false;
-
                                 continue;
                             }
 
@@ -803,7 +856,6 @@ public class ExpressionOp extends Expression {
 
                                 newArray[j++] = array[i];
                                 wasEscape     = false;
-
                                 continue;
                             }
 
@@ -820,6 +872,7 @@ public class ExpressionOp extends Expression {
                     return new String(newArray, 0, j);
                 }
             }
+
             case OpTypes.ORDER_BY :
                 return nodes[LEFT].getValue(session);
 
@@ -831,8 +884,9 @@ public class ExpressionOp extends Expression {
                         return null;
                     }
 
-                    CharacterType type = (CharacterType) nodes[RIGHT].dataType;
-                    long length = type.size(session, value);
+                    CharacterType type   =
+                        (CharacterType) nodes[RIGHT].dataType;
+                    long          length = type.size(session, value);
 
                     type  = (CharacterType) nodes[LEFT].dataType;
                     value = nodes[LEFT].getValue(session);
@@ -841,11 +895,16 @@ public class ExpressionOp extends Expression {
                         return null;
                     }
 
-                    return type.substring(session, value, 0, length, true,
-                                          false);
+                    return type.substring(
+                        session,
+                        value,
+                        0,
+                        length,
+                        true,
+                        false);
                 } else {
-                    BinaryData value =
-                        (BinaryData) nodes[RIGHT].getValue(session);
+                    BinaryData value = (BinaryData) nodes[RIGHT].getValue(
+                        session);
 
                     if (value == null) {
                         return null;
@@ -863,53 +922,63 @@ public class ExpressionOp extends Expression {
                     return type.substring(session, value, 0, length, true);
                 }
             }
+
             case OpTypes.CAST : {
-                Object value =
-                    dataType.castToType(session,
-                                        nodes[LEFT].getValue(session),
-                                        nodes[LEFT].dataType);
+                Object value = dataType.castToType(
+                    session,
+                    nodes[LEFT].getValue(session),
+                    nodes[LEFT].dataType);
 
                 if (dataType.userTypeModifier != null) {
                     Constraint[] constraints =
                         dataType.userTypeModifier.getConstraints();
 
                     for (int i = 0; i < constraints.length; i++) {
-                        constraints[i].checkCheckConstraint(session, null,
-                                                            null, value);
+                        constraints[i].checkCheckConstraint(
+                            session,
+                            null,
+                            null,
+                            value);
                     }
                 }
 
                 return value;
             }
+
             case OpTypes.CONVERT : {
-                Object value =
-                    dataType.convertToType(session,
-                                           nodes[LEFT].getValue(session),
-                                           nodes[LEFT].dataType);
+                Object value = dataType.convertToType(
+                    session,
+                    nodes[LEFT].getValue(session),
+                    nodes[LEFT].dataType);
 
                 if (dataType.userTypeModifier != null) {
                     Constraint[] constraints =
                         dataType.userTypeModifier.getConstraints();
 
                     for (int i = 0; i < constraints.length; i++) {
-                        constraints[i].checkCheckConstraint(session, null,
-                                                            null, value);
+                        constraints[i].checkCheckConstraint(
+                            session,
+                            null,
+                            null,
+                            value);
                     }
                 }
 
                 return value;
             }
+
             case OpTypes.CASEWHEN : {
                 Boolean result = (Boolean) nodes[LEFT].getValue(session);
 
                 if (Boolean.TRUE.equals(result)) {
-                    return nodes[RIGHT].nodes[LEFT].getValue(session,
-                            dataType);
+                    return nodes[RIGHT].nodes[LEFT].getValue(session, dataType);
                 } else {
-                    return nodes[RIGHT].nodes[RIGHT].getValue(session,
-                            dataType);
+                    return nodes[RIGHT].nodes[RIGHT].getValue(
+                        session,
+                        dataType);
                 }
             }
+
             case OpTypes.CONCAT_WS : {
                 String sep = (String) nodes[LEFT].getValue(session);
 
@@ -938,12 +1007,12 @@ public class ExpressionOp extends Expression {
 
                 return sb.toString();
             }
+
             case OpTypes.ZONE_MODIFIER : {
                 Object leftValue  = nodes[LEFT].getValue(session);
-                Object rightValue = nodes[RIGHT] == null ? null
-                                                         : nodes[RIGHT]
-                                                             .getValue(
-                                                                 session);
+                Object rightValue = nodes[RIGHT] == null
+                                    ? null
+                                    : nodes[RIGHT].getValue(session);
 
                 if (leftValue == null) {
                     return null;
@@ -952,8 +1021,12 @@ public class ExpressionOp extends Expression {
                 boolean atLocal = nodes[RIGHT] == null;
 
                 if (atLocal) {
-                    return ((DateTimeType) dataType).changeZone(session,
-                            leftValue, nodes[LEFT].dataType, 0, atLocal);
+                    return ((DateTimeType) dataType).changeZone(
+                        session,
+                        leftValue,
+                        nodes[LEFT].dataType,
+                        0,
+                        atLocal);
                 }
 
                 if (rightValue == null) {
@@ -962,22 +1035,30 @@ public class ExpressionOp extends Expression {
 
                 if (nodes[RIGHT].dataType.isCharacterType()) {
                     if (DateTimeType.zoneIDs.contains(rightValue)) {
-                        return ((DateTimeType) dataType).changeZone(session,
-                                leftValue, nodes[LEFT].dataType,
-                                (String) rightValue);
+                        return ((DateTimeType) dataType).changeZone(
+                            session,
+                            leftValue,
+                            nodes[LEFT].dataType,
+                            (String) rightValue);
                     } else {
                         rightValue =
-                            Type.SQL_INTERVAL_HOUR_TO_MINUTE
-                                .convertToDefaultType(session, rightValue);
+                            Type.SQL_INTERVAL_HOUR_TO_MINUTE.convertToDefaultType(
+                                session,
+                                rightValue);
                     }
                 }
 
-                long zoneSeconds = ((IntervalSecondData) rightValue).getSeconds();
+                long zoneSeconds =
+                    ((IntervalSecondData) rightValue).getSeconds();
 
-                return ((DateTimeType) dataType).changeZone(session,
-                        leftValue, nodes[LEFT].dataType, (int) zoneSeconds,
-                        false);
+                return ((DateTimeType) dataType).changeZone(
+                    session,
+                    leftValue,
+                    nodes[LEFT].dataType,
+                    (int) zoneSeconds,
+                    false);
             }
+
             case OpTypes.LIMIT :
 
             // fall through

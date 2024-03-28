@@ -74,9 +74,9 @@ public class TextCache extends DataFileCache {
     TextFileSettings textFileSettings;
 
     //state of Cache
-    protected String          header;
-    protected Table           table;
-    private LongKeyHashMap<CachedObject>    uncommittedCache;
+    protected String                     header;
+    protected Table                      table;
+    private LongKeyHashMap<CachedObject> uncommittedCache;
     HsqlByteArrayOutputStream buffer = new HsqlByteArrayOutputStream(128);
 
     //
@@ -97,14 +97,17 @@ public class TextCache extends DataFileCache {
         uncommittedCache = new LongKeyHashMap<>();
     }
 
-    protected void initParams(Database database, String settingsString,
-                              boolean defrag) {
+    protected void initParams(
+            Database database,
+            String settingsString,
+            boolean defrag) {
 
         this.database = database;
         fa            = FileUtil.getFileUtil();
-        textFileSettings = new TextFileSettings(database.getProperties(),
-                settingsString);
-        dataFileName = textFileSettings.getFileName();
+        textFileSettings = new TextFileSettings(
+            database.getProperties(),
+            settingsString);
+        dataFileName  = textFileSettings.getFileName();
 
         if (dataFileName == null) {
             throw Error.error(ErrorCode.X_S0501);
@@ -143,8 +146,11 @@ public class TextCache extends DataFileCache {
                        ? RAFile.DATA_FILE_JAR
                        : RAFile.DATA_FILE_TEXT;
 
-            dataFile = RAFile.newScaledRAFile(database, dataFileName,
-                                              readonly, type);
+            dataFile = RAFile.newScaledRAFile(
+                database,
+                dataFileName,
+                readonly,
+                type);
             fileFreePosition = dataFile.length();
 
             if (fileFreePosition > maxDataFileSize) {
@@ -155,11 +161,11 @@ public class TextCache extends DataFileCache {
 
             spaceManager = new DataSpaceManagerSimple(this, readonly);
         } catch (Throwable t) {
-            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_TextCache_opening_file_error,
-                              new String[] {
-                dataFileName, t.toString()
-            });
+            throw Error.error(
+                t,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_TextCache_opening_file_error,
+                new String[]{ dataFileName, t.toString() });
         }
 
         cacheReadonly = readonly;
@@ -199,11 +205,11 @@ public class TextCache extends DataFileCache {
 
             uncommittedCache.clear();
         } catch (Throwable t) {
-            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_TextCache_closing_file_error,
-                              new String[] {
-                dataFileName, t.toString()
-            });
+            throw Error.error(
+                t,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_TextCache_closing_file_error,
+                new String[]{ dataFileName, t.toString() });
         } finally {
             writeLock.unlock();
         }
@@ -231,11 +237,11 @@ public class TextCache extends DataFileCache {
                 FileUtil.getFileUtil().delete(dataFileName);
             }
         } catch (Throwable t) {
-            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_TextCache_purging_file_error,
-                              new String[] {
-                dataFileName, t.toString()
-            });
+            throw Error.error(
+                t,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_TextCache_purging_file_error,
+                new String[]{ dataFileName, t.toString() });
         } finally {
             writeLock.unlock();
         }
@@ -307,8 +313,10 @@ public class TextCache extends DataFileCache {
     }
 
     /** cannot use isInMemory() for text cached object */
-    public CachedObject get(CachedObject object, PersistentStore store,
-                            boolean keep) {
+    public CachedObject get(
+            CachedObject object,
+            PersistentStore store,
+            boolean keep) {
 
         if (object == null) {
             return null;
@@ -329,11 +337,13 @@ public class TextCache extends DataFileCache {
                 dataFile.read(buffer.getBuffer(), 0, object.getStorageSize());
                 buffer.setSize(object.getStorageSize());
 
-                String rowString =
-                    buffer.toString(textFileSettings.charEncoding);
+                String rowString = buffer.toString(
+                    textFileSettings.charEncoding);
 
-                ((RowInputText) rowIn).setSource(rowString, object.getPos(),
-                                                 buffer.size());
+                ((RowInputText) rowIn).setSource(
+                    rowString,
+                    object.getPos(),
+                    buffer.size());
                 store.get(object, rowIn);
                 cache.put(object);
 
@@ -345,9 +355,9 @@ public class TextCache extends DataFileCache {
 
                 return object;
             } catch (Throwable t) {
-                database.logger.logSevereEvent(dataFileName
-                                               + " getFromFile problem "
-                                               + object.getPos(), t);
+                database.logger.logSevereEvent(
+                    dataFileName + " getFromFile problem " + object.getPos(),
+                    t);
                 cache.clearUnchanged();
 
                 return object;
@@ -405,7 +415,8 @@ public class TextCache extends DataFileCache {
                 this.header = header;
             } catch (HsqlException e) {
                 throw new HsqlException(
-                    e, Error.getMessage(ErrorCode.GENERAL_IO_ERROR),
+                    e,
+                    Error.getMessage(ErrorCode.GENERAL_IO_ERROR),
                     ErrorCode.GENERAL_IO_ERROR);
             }
 
@@ -449,7 +460,11 @@ public class TextCache extends DataFileCache {
     }
 
     public TextFileReader getTextFileReader() {
-        return TextFileReader8.newTextFileReader(dataFile, textFileSettings,
-                rowIn, cacheReadonly);
+
+        return TextFileReader8.newTextFileReader(
+            dataFile,
+            textFileSettings,
+            rowIn,
+            cacheReadonly);
     }
 }

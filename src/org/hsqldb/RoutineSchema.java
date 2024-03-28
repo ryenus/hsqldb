@@ -126,8 +126,10 @@ public class RoutineSchema implements SchemaObject {
         return array;
     }
 
-    public void addSpecificRoutine(HsqlNameManager nameManager,
-                                   Routine routine, boolean replace) {
+    public void addSpecificRoutine(
+            HsqlNameManager nameManager,
+            Routine routine,
+            boolean replace) {
 
         int    signature     = routine.getParameterSignature();
         Type[] types         = routine.getParameterTypes();
@@ -150,7 +152,6 @@ public class RoutineSchema implements SchemaObject {
                 for (int j = 0; j < types.length; j++) {
                     if (!routines[i].parameterTypes[j].equals(types[j])) {
                         match = false;
-
                         break;
                     }
                 }
@@ -160,7 +161,6 @@ public class RoutineSchema implements SchemaObject {
                         routine.setSpecificName(routines[i].getSpecificName());
 
                         matchPosition = i;
-
                         break;
                     } else {
                         throw Error.error(ErrorCode.X_42605);
@@ -183,8 +183,9 @@ public class RoutineSchema implements SchemaObject {
         routine.routineSchema = this;
 
         if (matchPosition == routines.length) {
-            routines = (Routine[]) ArrayUtil.resizeArray(routines,
-                    routines.length + 1);
+            routines = (Routine[]) ArrayUtil.resizeArray(
+                routines,
+                routines.length + 1);
         }
 
         routines[matchPosition] = routine;
@@ -194,9 +195,11 @@ public class RoutineSchema implements SchemaObject {
 
         for (int i = 0; i < this.routines.length; i++) {
             if (routines[i] == routine) {
-                routines = (Routine[]) ArrayUtil.toAdjustedArray(routines,
-                        null, i, -1);
-
+                routines = (Routine[]) ArrayUtil.toAdjustedArray(
+                    routines,
+                    null,
+                    i,
+                    -1);
                 break;
             }
         }
@@ -213,8 +216,8 @@ public class RoutineSchema implements SchemaObject {
         if (routine == null) {
             StringBuilder sb = new StringBuilder();
 
-            sb.append(name.getSchemaQualifiedStatementName());
-            sb.append(Tokens.T_OPENBRACKET);
+            sb.append(name.getSchemaQualifiedStatementName())
+              .append(Tokens.T_OPENBRACKET);
 
             for (int i = 0; i < types.length; i++) {
                 if (i != 0) {
@@ -276,7 +279,6 @@ public class RoutineSchema implements SchemaObject {
                         return routines[i];
                     } else {
                         matchIndex = i;
-
                         continue outerLoop;
                     }
                 }
@@ -300,8 +302,8 @@ public class RoutineSchema implements SchemaObject {
                     continue;
                 }
 
-                typeDifference =
-                    types[j].precedenceDegree(routines[i].parameterTypes[j]);
+                typeDifference = types[j].precedenceDegree(
+                    routines[i].parameterTypes[j]);
 
                 if (typeDifference < -NumberType.DOUBLE_WIDTH) {
 
@@ -320,7 +322,6 @@ public class RoutineSchema implements SchemaObject {
 
             if (matchIndex == -1) {
                 matchIndex = i;
-
                 continue;
             }
 
@@ -331,8 +332,8 @@ public class RoutineSchema implements SchemaObject {
 
                 int oldDiff = types[j].precedenceDegree(
                     routines[matchIndex].parameterTypes[j]);
-                int newDiff =
-                    types[j].precedenceDegree(routines[i].parameterTypes[j]);
+                int newDiff = types[j].precedenceDegree(
+                    routines[i].parameterTypes[j]);
 
                 if (oldDiff == newDiff) {
                     continue;
@@ -346,8 +347,9 @@ public class RoutineSchema implements SchemaObject {
             }
         }
 
-        return matchIndex < 0 ? null
-                              : routines[matchIndex];
+        return matchIndex < 0
+               ? null
+               : routines[matchIndex];
     }
 
     public Routine getSpecificRoutine(int paramCount) {

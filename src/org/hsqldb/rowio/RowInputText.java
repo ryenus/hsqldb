@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -457,8 +457,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return (IntervalSecondData) scanner.newInterval(s,
-                (IntervalType) type);
+        return (IntervalSecondData) scanner.newInterval(s, (IntervalType) type);
     }
 
     protected Boolean readBoole() {
@@ -475,8 +474,9 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return s.equalsIgnoreCase("TRUE") ? Boolean.TRUE
-                                          : Boolean.FALSE;
+        return s.equalsIgnoreCase("TRUE")
+               ? Boolean.TRUE
+               : Boolean.FALSE;
     }
 
     protected Object readOther() {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.hsqldb.types;
 import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.util.Arrays;
 
 import org.hsqldb.SessionInterface;
@@ -51,24 +52,28 @@ import org.hsqldb.lib.ArrayUtil;
  */
 public class BinaryData implements BlobData {
 
-    public static final BinaryData singleBitZero =
-        new BinaryData(new byte[]{ 0 }, 1);
-    public static final BinaryData singleBitOne =
-        new BinaryData(new byte[]{ -0x80 }, 1);
+    public static final BinaryData singleBitZero = new BinaryData(
+        new byte[]{ 0 },
+        1);
+    public static final BinaryData singleBitOne = new BinaryData(
+        new byte[]{ -0x80 },
+        1);
     public static final byte[] zeroLengthBytes = new byte[0];
-    public static final BinaryData zeroLengthBinary =
-        new BinaryData(zeroLengthBytes, false);
-    long             id;
-    protected byte[] data;
-    private boolean  isBits;
-    private long     bitLength;
-    private int      hashCode = 0;
+    public static final BinaryData zeroLengthBinary = new BinaryData(
+        zeroLengthBytes,
+        false);
+    long                       id;
+    protected byte[]           data;
+    private boolean            isBits;
+    private long               bitLength;
+    private int                hashCode = 0;
 
     public static BinaryData getBitData(byte[] data, long bitLength) {
 
         if (bitLength == 1) {
-            return data[0] == 0 ? singleBitZero
-                                : singleBitOne;
+            return data[0] == 0
+                   ? singleBitZero
+                   : singleBitOne;
         }
 
         return new BinaryData(data, bitLength);
@@ -104,17 +109,23 @@ public class BinaryData implements BlobData {
 
         data = new byte[(int) length];
 
-        System.arraycopy(b1.getBytes(session, 0, (int) b1.length(session)), 0,
-                         data, 0, (int) b1.length(session));
-        System.arraycopy(b2.getBytes(session, 0, (int) b2.length(session)), 0,
-                         data, (int) b1.length(session),
-                         (int) b2.length(session));
+        System.arraycopy(
+            b1.getBytes(session, 0, (int) b1.length(session)),
+            0,
+            data,
+            0,
+            (int) b1.length(session));
+        System.arraycopy(
+            b2.getBytes(session, 0, (int) b2.length(session)),
+            0,
+            data,
+            (int) b1.length(session),
+            (int) b2.length(session));
 
         this.bitLength = (int) length * 8L;
     }
 
     public BinaryData(byte[] data, long bitLength) {
-
         this.data      = data;
         this.bitLength = bitLength;
         this.isBits    = true;
@@ -169,8 +180,10 @@ public class BinaryData implements BlobData {
         return new BlobInputStream(session, this, 0L, length(session));
     }
 
-    public InputStream getBinaryStream(SessionInterface session, long pos,
-                                       long length) {
+    public InputStream getBinaryStream(
+            SessionInterface session,
+            long pos,
+            long length) {
 
         if (!isInLimits(data.length, pos, length)) {
             throw new IndexOutOfBoundsException();
@@ -179,8 +192,12 @@ public class BinaryData implements BlobData {
         return new BlobInputStream(session, this, pos, length(session));
     }
 
-    public void setBytes(SessionInterface session, long pos, byte[] bytes,
-                         int offset, int length) {
+    public void setBytes(
+            SessionInterface session,
+            long pos,
+            byte[] bytes,
+            int offset,
+            int length) {
 
         if (!isInLimits(data.length, pos, 0)) {
             throw new IndexOutOfBoundsException();
@@ -199,8 +216,12 @@ public class BinaryData implements BlobData {
         setBytes(session, pos, bytes, 0, bytes.length);
     }
 
-    public void setBytes(SessionInterface session, long pos, BlobData b,
-                         long offset, long length) {
+    public void setBytes(
+            SessionInterface session,
+            long pos,
+            BlobData b,
+            long offset,
+            long length) {
 
         if (length > Integer.MAX_VALUE) {
             throw new IndexOutOfBoundsException();
@@ -211,8 +232,10 @@ public class BinaryData implements BlobData {
         setBytes(session, pos, bytes, 0, bytes.length);
     }
 
-    public void setBinaryStream(SessionInterface session, long pos,
-                                InputStream in) {
+    public void setBinaryStream(
+            SessionInterface session,
+            long pos,
+            InputStream in) {
 
         //
     }
@@ -229,8 +252,7 @@ public class BinaryData implements BlobData {
         return new BinaryData(data, true);
     }
 
-    public long position(SessionInterface session, byte[] pattern,
-                         long start) {
+    public long position(SessionInterface session, byte[] pattern, long start) {
 
         if (pattern.length > data.length) {
             return -1;
@@ -243,15 +265,19 @@ public class BinaryData implements BlobData {
         return ArrayUtil.find(data, (int) start, data.length, pattern);
     }
 
-    public long position(SessionInterface session, BlobData pattern,
-                         long start) {
+    public long position(
+            SessionInterface session,
+            BlobData pattern,
+            long start) {
 
         if (pattern.length(session) > data.length) {
             return -1;
         }
 
-        byte[] bytes = pattern.getBytes(session, 0,
-                                        (int) pattern.length(session));
+        byte[] bytes = pattern.getBytes(
+            session,
+            0,
+            (int) pattern.length(session));
 
         return position(session, bytes, start);
     }

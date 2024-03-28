@@ -54,9 +54,11 @@ final class RAFileSimple implements RandomAccessInterface {
     final boolean           readOnly;
     final EventLogInterface logger;
 
-    RAFileSimple(EventLogInterface logger, String name,
-                 String openMode) throws IOException {
-
+    RAFileSimple(
+            EventLogInterface logger,
+            String name,
+            String openMode)
+            throws IOException {
         this.file   = new RandomAccessFile(name, openMode);
         this.logger = logger;
         readOnly    = openMode.equals("r");

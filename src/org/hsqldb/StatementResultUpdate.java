@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -110,8 +110,8 @@ public class StatementResultUpdate extends StatementDML {
 
                 RowSetNavigatorDataChange list =
                     session.sessionContext.getRowSetDataChange();
-                Object[] data =
-                    (Object[]) ArrayUtil.duplicateArray(row.getData());
+                Object[] data = (Object[]) ArrayUtil.duplicateArray(
+                    row.getData());
                 boolean[] columnCheck = baseTable.getNewColumnCheckList();
 
                 for (int i = 0; i < baseColumnMap.length; i++) {
@@ -125,13 +125,17 @@ public class StatementResultUpdate extends StatementDML {
 
                 int[] colMap = ArrayUtil.booleanArrayToIntIndexes(columnCheck);
 
-                list.addRow(session, row, data, baseTable.getColumnTypes(),
-                            colMap);
+                list.addRow(
+                    session,
+                    row,
+                    data,
+                    baseTable.getColumnTypes(),
+                    colMap);
                 list.endMainDataSet();
                 update(session, baseTable, list, null);
-
                 break;
             }
+
             case ResultConstants.DELETE_CURSOR : {
                 row = getRow(session, args);
 
@@ -145,9 +149,9 @@ public class StatementResultUpdate extends StatementDML {
                 list.addRow(row);
                 list.endMainDataSet();
                 delete(session, baseTable, list, null);
-
                 break;
             }
+
             case ResultConstants.INSERT_CURSOR : {
                 Object[] data = baseTable.getNewRowData(session);
 
@@ -188,8 +192,11 @@ public class StatementResultUpdate extends StatementDML {
         return row;
     }
 
-    void setRowActionProperties(Result result, int action,
-                                StatementQuery statement, Type[] types) {
+    void setRowActionProperties(
+            Result result,
+            int action,
+            StatementQuery statement,
+            Type[] types) {
 
         QueryExpression qe = statement.queryExpression;
 
@@ -214,32 +221,32 @@ public class StatementResultUpdate extends StatementDML {
             case StatementTypes.CALL : {
                 break;
             }
-            case StatementTypes.INSERT : {
-                session.getGrantee().checkInsert(targetTable,
-                                                 insertCheckColumns);
 
+            case StatementTypes.INSERT : {
+                session.getGrantee()
+                       .checkInsert(targetTable, insertCheckColumns);
                 break;
             }
+
             case StatementTypes.SELECT_CURSOR :
                 break;
 
             case StatementTypes.DELETE_WHERE : {
                 session.getGrantee().checkDelete(targetTable);
-
                 break;
             }
+
             case StatementTypes.UPDATE_WHERE : {
-                session.getGrantee().checkUpdate(targetTable,
-                                                 updateCheckColumns);
-
+                session.getGrantee()
+                       .checkUpdate(targetTable, updateCheckColumns);
                 break;
             }
-            case StatementTypes.MERGE : {
-                session.getGrantee().checkInsert(targetTable,
-                                                 insertCheckColumns);
-                session.getGrantee().checkUpdate(targetTable,
-                                                 updateCheckColumns);
 
+            case StatementTypes.MERGE : {
+                session.getGrantee()
+                       .checkInsert(targetTable, insertCheckColumns);
+                session.getGrantee()
+                       .checkUpdate(targetTable, updateCheckColumns);
                 break;
             }
         }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,7 +106,6 @@ public final class BooleanType extends Type {
     public Type getCombinedType(Session session, Type other, int operation) {
 
         switch (operation) {
-
             case OpTypes.EQUAL :
                 if (other.isBooleanType()) {
                     return this;
@@ -133,17 +132,21 @@ public final class BooleanType extends Type {
         boolean boola = ((Boolean) a).booleanValue();
         boolean boolb = ((Boolean) b).booleanValue();
 
-        return (boola == boolb) ? 0
-                                : (boolb ? -1
-                                         : 1);
+        return (boola == boolb)
+               ? 0
+               : (boolb
+                  ? -1
+                  : 1);
     }
 
     public Object convertToTypeLimits(SessionInterface session, Object a) {
         return a;
     }
 
-    public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) {
+    public Object convertToType(
+            SessionInterface session,
+            Object a,
+            Type otherType) {
 
         if (a == null) {
             return a;
@@ -159,20 +162,26 @@ public final class BooleanType extends Type {
                 BinaryData b = (BinaryData) a;
 
                 if (b.bitLength(session) == 1) {
-                    return BitMap.isSet(b.getBytes(), 0) ? Boolean.TRUE
-                                                         : Boolean.FALSE;
+                    return BitMap.isSet(b.getBytes(), 0)
+                           ? Boolean.TRUE
+                           : Boolean.FALSE;
                 }
 
                 break;
             }
+
             case Types.SQL_CLOB :
                 a = Type.SQL_VARCHAR.convertToType(session, a, otherType);
 
             // fall through
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR : {
-                a = ((CharacterType) otherType).trim(session, a, ' ', true,
-                                                     true);
+                a = ((CharacterType) otherType).trim(
+                    session,
+                    a,
+                    ' ',
+                    true,
+                    true);
 
                 if (((String) a).equalsIgnoreCase(Tokens.T_TRUE)) {
                     return Boolean.TRUE;
@@ -184,10 +193,12 @@ public final class BooleanType extends Type {
 
                 break;
             }
+
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
-                return NumberType.isZero(a) ? Boolean.FALSE
-                                            : Boolean.TRUE;
+                return NumberType.isZero(a)
+                       ? Boolean.FALSE
+                       : Boolean.TRUE;
 
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -207,8 +218,10 @@ public final class BooleanType extends Type {
     /**
      * ResultSet getBoolean support
      */
-    public Object convertToTypeJDBC(SessionInterface session, Object a,
-                                    Type otherType) {
+    public Object convertToTypeJDBC(
+            SessionInterface session,
+            Object a,
+            Type otherType) {
 
         if (a == null) {
             return a;
@@ -251,8 +264,9 @@ public final class BooleanType extends Type {
         } else if (a instanceof String) {
             return convertToType(session, a, Type.SQL_VARCHAR);
         } else if (a instanceof Number) {
-            return NumberType.isZero(a) ? Boolean.FALSE
-                                        : Boolean.TRUE;
+            return NumberType.isZero(a)
+                   ? Boolean.FALSE
+                   : Boolean.TRUE;
         }
 
         throw Error.error(ErrorCode.X_42561);
@@ -268,8 +282,9 @@ public final class BooleanType extends Type {
             return null;
         }
 
-        return ((Boolean) a).booleanValue() ? Tokens.T_TRUE
-                                            : Tokens.T_FALSE;
+        return ((Boolean) a).booleanValue()
+               ? Tokens.T_TRUE
+               : Tokens.T_FALSE;
     }
 
     public String convertToSQLString(Object a) {
@@ -278,8 +293,9 @@ public final class BooleanType extends Type {
             return Tokens.T_UNKNOWN;
         }
 
-        return ((Boolean) a).booleanValue() ? Tokens.T_TRUE
-                                            : Tokens.T_FALSE;
+        return ((Boolean) a).booleanValue()
+               ? Tokens.T_TRUE
+               : Tokens.T_FALSE;
     }
 
     public void convertToJSON(Object a, StringBuilder sb) {
@@ -295,18 +311,19 @@ public final class BooleanType extends Type {
         sb.append(val);
     }
 
-
     public boolean canConvertFrom(Type otherType) {
 
         return otherType.typeCode == Types.SQL_ALL_TYPES
-               || otherType.isBooleanType() || otherType.isCharacterType()
+               || otherType.isBooleanType()
+               || otherType.isCharacterType()
                || otherType.isIntegralType()
                || (otherType.isBitType() && otherType.precision == 1);
     }
 
     public int canMoveFrom(Type otherType) {
-        return otherType.isBooleanType() ? ReType.keep
-                                         : ReType.change;
+        return otherType.isBooleanType()
+               ? ReType.keep
+               : ReType.change;
     }
 
     public static BooleanType getBooleanType() {

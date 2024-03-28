@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.util.zip.GZIPInputStream;
 
 import org.hsqldb.Database;
@@ -58,16 +59,20 @@ public class ScriptReaderDecode extends ScriptReaderText {
     Crypto          crypto;
     byte[]          buffer = new byte[256];
 
-    public ScriptReaderDecode(Database db, String fileName, Crypto crypto,
-                              boolean forLog) throws IOException {
+    public ScriptReaderDecode(
+            Database db,
+            String fileName,
+            Crypto crypto,
+            boolean forLog)
+            throws IOException {
 
         super(db, fileName);
 
         this.crypto = crypto;
 
         try {
-            inputStream =
-                db.logger.getFileAccess().openInputStreamElement(fileName);
+            inputStream = db.logger.getFileAccess()
+                                   .openInputStreamElement(fileName);
             bufferedStream = new BufferedInputStream(inputStream);
             rowIn          = new RowInputTextLog();
 
@@ -76,8 +81,9 @@ public class ScriptReaderDecode extends ScriptReaderText {
             } else {
                 cryptoStream = crypto.getInputStream(bufferedStream);
                 gzipStream   = new GZIPInputStream(cryptoStream);
-                dataStreamIn = new LineReader(gzipStream,
-                                              JavaSystem.CS_ISO_8859_1);
+                dataStreamIn = new LineReader(
+                    gzipStream,
+                    JavaSystem.CS_ISO_8859_1);
             }
         } catch (Throwable t) {
             close();

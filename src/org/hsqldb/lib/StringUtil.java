@@ -234,9 +234,7 @@ public class StringUtil {
         StringBuilder sb  = new StringBuilder(len * 16);
 
         for (int i = 0; i < len; i++) {
-            sb.append(quote);
-            sb.append(s[i]);
-            sb.append(quote);
+            sb.append(quote).append(s[i]).append(quote);
 
             if (i + 1 < len) {
                 sb.append(separator);
@@ -268,9 +266,7 @@ public class StringUtil {
         StringBuilder sb  = new StringBuilder(len * 8);
 
         for (int i = 0; i < len; i++) {
-            sb.append(quote);
-            sb.append(s[i]);
-            sb.append(quote);
+            sb.append(quote).append(s[i]).append(quote);
 
             if (i + 1 < len) {
                 sb.append(separator);
@@ -286,9 +282,7 @@ public class StringUtil {
         StringBuilder sb  = new StringBuilder(len * 8);
 
         for (int i = 0; i < len; i++) {
-            sb.append(quote);
-            sb.append(s[i]);
-            sb.append(quote);
+            sb.append(quote).append(s[i]).append(quote);
 
             if (i + 1 < len) {
                 sb.append(separator);
@@ -323,9 +317,7 @@ public class StringUtil {
         StringBuilder sb  = new StringBuilder(len * 16);
 
         for (int i = 0; i < len; i++) {
-            sb.append(quote);
-            sb.append(s[i][0]);
-            sb.append(quote);
+            sb.append(quote).append(s[i][0]).append(quote);
 
             if (i + 1 < len) {
                 sb.append(separator);

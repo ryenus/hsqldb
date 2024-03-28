@@ -94,7 +94,7 @@ public final class Right {
         Tokens.T_SELECT, Tokens.T_INSERT, Tokens.T_UPDATE, Tokens.T_DELETE,
         Tokens.T_REFERENCES, Tokens.T_TRIGGER
     };
-    public static final int[] tablePrivilegeTypes = {
+    public static final int[]    tablePrivilegeTypes = {
         GrantConstants.SELECT, GrantConstants.INSERT, GrantConstants.UPDATE,
         GrantConstants.DELETE, GrantConstants.REFERENCES, GrantConstants.TRIGGER
     };
@@ -120,7 +120,6 @@ public final class Right {
     }
 
     public Right getGrantableRights() {
-
         return grantableRights == null
                ? noRights
                : grantableRights;
@@ -896,19 +895,15 @@ public final class Right {
         }
 
         if (isFullReferences) {
-            sb.append(Tokens.T_REFERENCES);
-            sb.append(',');
+            sb.append(Tokens.T_REFERENCES).append(',');
         } else if (referencesColumnSet != null) {
-            sb.append(Tokens.T_REFERENCES);
-            sb.append(',');
+            sb.append(Tokens.T_REFERENCES).append(',');
         }
 
         if (isFullTrigger) {
-            sb.append(Tokens.T_TRIGGER);
-            sb.append(',');
+            sb.append(Tokens.T_TRIGGER).append(',');
         } else if (triggerColumnSet != null) {
-            sb.append(Tokens.T_TRIGGER);
-            sb.append(',');
+            sb.append(Tokens.T_TRIGGER).append(',');
         }
 
         return sb.substring(0, sb.length() - 1);
@@ -920,8 +915,7 @@ public final class Right {
             return;
         }
 
-        sb.append(' ');
-        sb.append(sql);
+        sb.append(' ').append(sql);
     }
 
     private static void appendColumnList(

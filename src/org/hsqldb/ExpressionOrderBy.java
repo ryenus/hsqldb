@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,8 +99,9 @@ public class ExpressionOrderBy extends Expression {
         dataType = nodes[LEFT].dataType;
 
         if (collation != null && !dataType.isCharacterType()) {
-            throw Error.error(ErrorCode.X_2H000,
-                              collation.getName().statementName);
+            throw Error.error(
+                ErrorCode.X_2H000,
+                collation.getName().statementName);
         }
     }
 
@@ -117,8 +118,8 @@ public class ExpressionOrderBy extends Expression {
         }
 
         if (collation != null) {
-            sb.append(' ').append(
-                collation.getName().getSchemaQualifiedStatementName());
+            sb.append(' ')
+              .append(collation.getName().getSchemaQualifiedStatementName());
         }
 
         if (isDescending) {

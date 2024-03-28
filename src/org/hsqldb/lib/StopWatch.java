@@ -55,11 +55,13 @@ public class StopWatch {
      */
     private long startTime;
     private long lastStart;
+
     /**
      * The accumulated running time of this object since
      * it was last zeroed.
      */
     private long total;
+
     /** Flags if this object is started or stopped. */
     boolean running = false;
 
@@ -74,7 +76,6 @@ public class StopWatch {
      * @param start boolean
      */
     public StopWatch(boolean start) {
-
         if (start) {
             start();
         }
@@ -142,7 +143,6 @@ public class StopWatch {
 
     /** Zeros accumulated running time and restarts this object. */
     public void zero() {
-
         total = 0;
 
         start();

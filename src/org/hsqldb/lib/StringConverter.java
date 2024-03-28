@@ -399,7 +399,7 @@ public class StringConverter {
                     b.write(c);
                 }
             } else if ((c >= 0x0020) && (c <= 0x007f)) {
-                b.writeNoCheck(c);    // this is 99%
+                b.writeNoCheck(c);        // this is 99%
 
                 if (c == '\'' && doubleSingleQuotes) {
                     b.writeNoCheck(c);
@@ -429,6 +429,7 @@ public class StringConverter {
 // this legacy bug resulted from forward reading the input when a backslash
 // was present and manifested itself when a backslash was followed
 // immediately by a character outside the 0x20-7f range in a database field.
+
     /**
      * Hsqldb specific decoding used only for log files. This method converts
      * the 7 bit escaped ASCII strings in a log file back into Java Unicode
@@ -481,7 +482,6 @@ public class StringConverter {
             int offset,
             int length)
             throws IOException {
-
         char[] buf = new char[length];
 
         return readUTF(bytearr, offset, length, buf);
@@ -668,6 +668,7 @@ public class StringConverter {
     }
 
 // fredt@users 20020130 - patch 497872 by Nitin Chauhan - use byte[] of exact size
+
     /**
      * Returns the quoted version of the string using the quotechar argument.
      * doublequote argument indicates whether each instance of quotechar inside

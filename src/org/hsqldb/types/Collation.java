@@ -32,6 +32,7 @@
 package org.hsqldb.types;
 
 import java.text.Collator;
+
 import java.util.Locale;
 
 import org.hsqldb.HsqlException;
@@ -58,11 +59,16 @@ import org.hsqldb.rights.Grantee;
  */
 public class Collation implements SchemaObject {
 
-    public static String        defaultCollationName = "SQL_TEXT";
-    static String defaultIgnoreCaseCollationName     = "SQL_TEXT_UCC";
-    public static final HashMap<String, String> nameToJavaName       = new HashMap<>(101);
-    public static final HashMap<String, String> dbNameToJavaName     = new HashMap<>(101);
-    public static final HashMap<String, Collation> dbNameToCollation = new HashMap<>(11);
+    public static String defaultCollationName = "SQL_TEXT";
+    static String defaultIgnoreCaseCollationName = "SQL_TEXT_UCC";
+    public static final HashMap<String, String> nameToJavaName = new HashMap<>(
+        101);
+    public static final HashMap<String, String> dbNameToJavaName =
+        new HashMap<>(
+            101);
+    public static final HashMap<String, Collation> dbNameToCollation =
+        new HashMap<>(
+            11);
 
     static {
         nameToJavaName.put("Afrikaans", "af-ZA");
@@ -166,8 +172,8 @@ public class Collation implements SchemaObject {
 
         while (it.hasNext()) {
             String javaName = it.next();
-            String dbName = javaName.replace('-',
-                                             '_').toUpperCase(Locale.ENGLISH);
+            String dbName = javaName.replace('-', '_')
+                                    .toUpperCase(Locale.ENGLISH);
 
             dbNameToJavaName.put(dbName, javaName);
         }
@@ -181,8 +187,9 @@ public class Collation implements SchemaObject {
         defaultIgnoreCaseCollation.charset = Charset.SQL_TEXT;
 
         dbNameToCollation.put(defaultCollationName, defaultCollation);
-        dbNameToCollation.put(defaultIgnoreCaseCollationName,
-                              defaultIgnoreCaseCollation);
+        dbNameToCollation.put(
+            defaultIgnoreCaseCollationName,
+            defaultIgnoreCaseCollation);
     }
 
     final HsqlName   name;
@@ -199,18 +206,26 @@ public class Collation implements SchemaObject {
 
     private Collation(boolean simple) {
 
-        String nameString = simple ? defaultCollationName
-                                   : defaultIgnoreCaseCollationName;
+        String nameString = simple
+                            ? defaultCollationName
+                            : defaultIgnoreCaseCollationName;
 
-        locale = Locale.ENGLISH;
-        name = HsqlNameManager.newInfoSchemaObjectName(nameString, false,
-                SchemaObject.COLLATION);
+        locale          = Locale.ENGLISH;
+        name = HsqlNameManager.newInfoSchemaObjectName(
+            nameString,
+            false,
+            SchemaObject.COLLATION);
         isUnicodeSimple = simple;
         isFinal         = true;
     }
 
-    private Collation(String name, String language, String country,
-                      int strength, int decomposition, boolean ucc) {
+    private Collation(
+            String name,
+            String language,
+            String country,
+            int strength,
+            int decomposition,
+            boolean ucc) {
 
         locale   = new Locale(language, country);
         collator = Collator.getInstance(locale);
@@ -223,17 +238,22 @@ public class Collation implements SchemaObject {
             collator.setDecomposition(decomposition);
         }
 
-        strength        = collator.getStrength();
-        isUnicodeSimple = false;
-        this.name = HsqlNameManager.newInfoSchemaObjectName(name, true,
-                SchemaObject.COLLATION);
+        strength           = collator.getStrength();
+        isUnicodeSimple    = false;
+        this.name = HsqlNameManager.newInfoSchemaObjectName(
+            name,
+            true,
+            SchemaObject.COLLATION);
         charset            = Charset.SQL_TEXT;
         isUpperCaseCompare = ucc;
         isFinal            = true;
     }
 
-    public Collation(HsqlName name, Collation source, Charset charset,
-                     Boolean padSpace) {
+    public Collation(
+            HsqlName name,
+            Collation source,
+            Charset charset,
+            Boolean padSpace) {
 
         this.name            = name;
         this.locale          = source.locale;
@@ -358,11 +378,17 @@ public class Collation implements SchemaObject {
         parts = StringUtil.split(javaName, "-");
 
         String language = parts[0];
-        String country  = parts.length == 2 ? parts[1]
-                                            : "";
+        String country  = parts.length == 2
+                          ? parts[1]
+                          : "";
 
-        return new Collation(name, language, country, strength, decomposition,
-                             ucc);
+        return new Collation(
+            name,
+            language,
+            country,
+            strength,
+            decomposition,
+            ucc);
     }
 
     public void setPadding(boolean padSpace) {
@@ -443,9 +469,11 @@ public class Collation implements SchemaObject {
             }
         }
 
-        return (i == 0) ? 0
-                        : (i < 0 ? -1
-                                 : 1);
+        return (i == 0)
+               ? 0
+               : (i < 0
+                  ? -1
+                  : 1);
     }
 
     public String toUpperCase(String s) {
@@ -501,10 +529,12 @@ public class Collation implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
-        sb.append(Tokens.T_CREATE).append(' ');
-        sb.append(Tokens.T_COLLATION).append(' ');
+        sb.append(Tokens.T_CREATE)
+          .append(' ')
+          .append(Tokens.T_COLLATION)
+          .append(' ');
 
         if (SqlInvariants.INFORMATION_SCHEMA.equals(name.schema.name)) {
             sb.append(name.getStatementName());
@@ -514,16 +544,17 @@ public class Collation implements SchemaObject {
 
         sb.append(' ').append(Tokens.T_FOR).append(' ');
 
-        if (SqlInvariants.INFORMATION_SCHEMA.equals(
-                charset.name.schema.name)) {
+        if (SqlInvariants.INFORMATION_SCHEMA.equals(charset.name.schema.name)) {
             sb.append(charset.name.getStatementName());
         } else {
             sb.append(charset.name.getSchemaQualifiedStatementName());
         }
 
-        sb.append(' ').append(Tokens.T_FROM).append(' ');
-        sb.append(sourceName.statementName);
-        sb.append(' ');
+        sb.append(' ')
+          .append(Tokens.T_FROM)
+          .append(' ')
+          .append(sourceName.statementName)
+          .append(' ');
 
         if (padSpace) {
             sb.append(Tokens.T_PAD).append(' ').append(Tokens.T_SPACE);
@@ -540,7 +571,7 @@ public class Collation implements SchemaObject {
 
     public String getCollateSQL() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_COLLATE).append(' ');
 

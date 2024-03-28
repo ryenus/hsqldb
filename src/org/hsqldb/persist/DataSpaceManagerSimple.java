@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,9 +61,12 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         } else {
             int capacity = cache.database.logger.propMaxFreeBlocks;
 
-            defaultSpaceManager = new TableSpaceManagerBlocks(this,
-                    tableIdDefault, fileBlockSize, capacity,
-                    cache.getDataFileScale());
+            defaultSpaceManager = new TableSpaceManagerBlocks(
+                this,
+                tableIdDefault,
+                fileBlockSize,
+                capacity,
+                cache.getDataFileScale());
 
             if (!isReadOnly) {
                 initialiseSpaces();
@@ -101,8 +104,8 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
         long filePosition = cache.getFileFreePos();
 
-        cache.enlargeFileSpace(filePosition
-                               + (long) blockCount * fileBlockSize);
+        cache.enlargeFileSpace(
+            filePosition + (long) blockCount * fileBlockSize);
 
         return filePosition;
     }
@@ -111,8 +114,11 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public void freeTableSpace(int spaceId) {}
 
-    public void freeTableSpace(int spaceId, LongLookup spaceList, long offset,
-                               long limit) {
+    public void freeTableSpace(
+            int spaceId,
+            LongLookup spaceList,
+            long offset,
+            long limit) {
 
         totalFragmentSize += spaceList.getTotalValues()
                              * cache.getDataFileScale();
@@ -149,13 +155,14 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
     public void initialiseSpaces() {
 
         long filePosition = cache.getFileFreePos();
-        long totalBlocks = (filePosition + fileBlockSize) / fileBlockSize;
+        long totalBlocks  = (filePosition + fileBlockSize) / fileBlockSize;
+        long lastFreePosition = cache.enlargeFileSpace(
+            totalBlocks * fileBlockSize);
 
-        long lastFreePosition = cache.enlargeFileSpace(totalBlocks
-            * fileBlockSize);
-
-        defaultSpaceManager.initialiseFileBlock(lookup, lastFreePosition,
-                cache.getFileFreePos());
+        defaultSpaceManager.initialiseFileBlock(
+            lookup,
+            lastFreePosition,
+            cache.getFileFreePos());
 
         if (lookup != null) {
             totalFragmentSize -= lookup.getTotalValues()

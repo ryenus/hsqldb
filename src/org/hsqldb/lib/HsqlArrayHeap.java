@@ -50,6 +50,7 @@ public class HsqlArrayHeap<E> implements HsqlHeap<E> {
     protected Object[]      heap;
 
 // ------------------------------ constructors ---------------------------------
+
     /**
      * Creates a new HsqlArrayHeap with the given initial capacity, using the
      * specified ObjectComparator to maintain the heap invariant.
@@ -285,11 +286,11 @@ public class HsqlArrayHeap<E> implements HsqlHeap<E> {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(super.toString());
-        sb.append(" : size=");
-        sb.append(count);
-        sb.append(' ');
-        sb.append('[');
+        sb.append(super.toString())
+          .append(" : size=")
+          .append(count)
+          .append(' ')
+          .append('[');
 
         for (int i = 0; i < count; i++) {
             sb.append(heap[i]);

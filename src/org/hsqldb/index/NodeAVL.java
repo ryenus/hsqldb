@@ -104,7 +104,7 @@ public class NodeAVL implements CachedObject {
 
     static final int NO_POS = RowAVLDisk.NO_POS;
     public int       iBalance;
-    public NodeAVL   nNext;    // node of next index (nNext==null || nNext.iId=iId+1)
+    public NodeAVL nNext;    // node of next index (nNext==null || nNext.iId=iId+1)
 
     //
     protected NodeAVL   nLeft;
@@ -130,7 +130,6 @@ public class NodeAVL implements CachedObject {
     }
 
     NodeAVL setLeft(PersistentStore persistentStore, NodeAVL n) {
-
         nLeft = n;
 
         return this;
@@ -153,7 +152,6 @@ public class NodeAVL implements CachedObject {
     }
 
     NodeAVL setRight(PersistentStore persistentStore, NodeAVL n) {
-
         nRight = n;
 
         return this;
@@ -168,14 +166,12 @@ public class NodeAVL implements CachedObject {
     }
 
     NodeAVL setParent(PersistentStore persistentStore, NodeAVL n) {
-
         nParent = n;
 
         return this;
     }
 
     public NodeAVL setBalance(PersistentStore store, int b) {
-
         iBalance = b;
 
         return this;
@@ -191,8 +187,9 @@ public class NodeAVL implements CachedObject {
     }
 
     public NodeAVL child(PersistentStore store, boolean isleft) {
-        return isleft ? getLeft(store)
-                      : getRight(store);
+        return isleft
+               ? getLeft(store)
+               : getRight(store);
     }
 
     public NodeAVL set(PersistentStore store, boolean isLeft, NodeAVL n) {

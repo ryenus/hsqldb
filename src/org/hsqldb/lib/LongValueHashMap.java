@@ -59,16 +59,16 @@ public class LongValueHashMap<K> extends BaseHashMap {
             int initialCapacity)
             throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.objectKeyOrValue,
-              BaseHashMap.longKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.objectKeyOrValue,
+            BaseHashMap.longKeyOrValue,
+            false);
     }
 
     public LongValueHashMap(
             int initialCapacity,
             ObjectComparator<K> comparator) {
-
         this(initialCapacity);
 
         this.comparator = comparator;
@@ -229,7 +229,6 @@ public class LongValueHashMap<K> extends BaseHashMap {
         }
     }
 
-
     private class EntrySetIterator extends BaseHashIterator {
 
         EntrySetIterator() {
@@ -244,7 +243,6 @@ public class LongValueHashMap<K> extends BaseHashMap {
             return new MapEntry<>(key, value);
         }
     }
-
 
     private class KeySet extends AbstractReadOnlyCollection<K>
             implements Set<K> {
@@ -261,7 +259,6 @@ public class LongValueHashMap<K> extends BaseHashMap {
             return size() == 0;
         }
     }
-
 
     private class Values extends AbstractReadOnlyCollection<Long> {
 

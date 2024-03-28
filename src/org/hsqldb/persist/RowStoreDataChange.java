@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,8 +58,10 @@ public class RowStoreDataChange extends RowStoreAVLHybrid {
         super.changeToDiskTable(session);
     }
 
-    public CachedObject getNewCachedObject(Session session, Object object,
-                                           boolean tx) {
+    public CachedObject getNewCachedObject(
+            Session session,
+            Object object,
+            boolean tx) {
 
         Row row = new RowDiskDataChange(table, (Object[]) object, this, null);
 

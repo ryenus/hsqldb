@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,11 @@ import org.hsqldb.scriptio.ScriptReaderText;
 
 public class ScriptLoader {
 
-    public static Result loadScriptData(Session session, String pathName,
-                                        int mode, boolean isVersioning) {
+    public static Result loadScriptData(
+            Session session,
+            String pathName,
+            int mode,
+            boolean isVersioning) {
 
         ScriptReaderText scr = null;
 
@@ -49,7 +52,8 @@ public class ScriptLoader {
 
             if (mode == RowInsertInterface.modes.continueOnError) {
                 errorLogger = new RowInsertSimple.InsertErrorHandler(
-                    session.getDatabase(), pathName);
+                    session.getDatabase(),
+                    pathName);
             } else {
                 errorLogger = new RowInsertSimple.DefaultErrorHandler();
             }

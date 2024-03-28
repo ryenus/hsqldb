@@ -478,8 +478,10 @@ public class LockFile {
 
             try {
                 use = "true".equalsIgnoreCase(
-                    System.getProperty(USE_NIO_FILELOCK_PROPERTY, use ? "true"
-                                                                      : "false"));
+                    System.getProperty(USE_NIO_FILELOCK_PROPERTY,
+                                       use
+                                       ? "true"
+                                       : "false"));
             } catch (Exception e) {}
 
             boolean avail = false;
@@ -557,7 +559,6 @@ public class LockFile {
             }
         }
         */
-
         return null;
     }
 
@@ -601,8 +602,10 @@ public class LockFile {
      *         method does not permit all necessary parent directories to be
      *         created
      */
-    public static LockFile newLockFile(final String path)
-    throws FileCanonicalizationException, FileSecurityException {
+    public static LockFile newLockFile(
+            final String path)
+            throws FileCanonicalizationException,
+                   FileSecurityException {
 
         LockFile lockFile = newNIOLockFile();
 
@@ -630,16 +633,19 @@ public class LockFile {
      *      condition upon the file with the given path, appended with the
      *      extension '.lck'
      */
-    public static LockFile newLockFileLock(final String path)
-    throws HsqlException {
+    public static LockFile newLockFileLock(
+            final String path)
+            throws HsqlException {
 
         LockFile lockFile = null;
 
         try {
             lockFile = LockFile.newLockFile(path + ".lck");
         } catch (LockFile.BaseException e) {
-            throw Error.error(e, ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
-                              e.getMessage());
+            throw Error.error(
+                e,
+                ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
+                e.getMessage());
         }
 
         boolean locked = false;
@@ -647,8 +653,10 @@ public class LockFile {
         try {
             locked = lockFile.tryLock();
         } catch (LockFile.BaseException e) {
-            throw Error.error(e, ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
-                              e.getMessage());
+            throw Error.error(
+                e,
+                ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
+                e.getMessage());
         }
 
         // Paranoia mode: In theory, this case can't happen, given the way
@@ -656,8 +664,9 @@ public class LockFile {
         // contracts, an exception will always be thrown instead by the code
         // above.
         if (!locked) {
-            throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
-                              lockFile.toString());
+            throw Error.error(
+                ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
+                lockFile.toString());
         }
 
         return lockFile;
@@ -787,13 +796,15 @@ public class LockFile {
      * @throws WrongMagicException if it is determined that the file's
      *      content does not start with {@link #MAGIC}.
      */
-    private void checkHeartbeat(boolean withCreateNewFile)
-    throws LockFile.FileSecurityException,
-           LockFile.LockHeldExternallyException,
-           LockFile.UnexpectedEndOfFileException,
-           LockFile.UnexpectedFileIOException,
-           LockFile.UnexpectedFileNotFoundException,
-           LockFile.WrongLengthException, LockFile.WrongMagicException {
+    private void checkHeartbeat(
+            boolean withCreateNewFile)
+            throws LockFile.FileSecurityException,
+                   LockFile.LockHeldExternallyException,
+                   LockFile.UnexpectedEndOfFileException,
+                   LockFile.UnexpectedFileIOException,
+                   LockFile.UnexpectedFileNotFoundException,
+                   LockFile.WrongLengthException,
+                   LockFile.WrongMagicException {
 
         long now;
         long lastHeartbeat;
@@ -868,8 +879,11 @@ public class LockFile {
         // in the past and it is possible that timing jitters make it uncertain
         // whether the lock really is still held.
         if (Math.abs(now - lastHeartbeat) <= (HEARTBEAT_INTERVAL_PADDED)) {
-            throw new LockHeldExternallyException(this, "checkHeartbeat", now,
-                                                  lastHeartbeat);
+            throw new LockHeldExternallyException(
+                this,
+                "checkHeartbeat",
+                now,
+                lastHeartbeat);
         }
     }
 
@@ -1021,9 +1035,10 @@ public class LockFile {
      *         method does not permit all necessary parent directories to be
      *         created
      */
-    private void setPath(String path)
-    throws LockFile.FileCanonicalizationException,
-           LockFile.FileSecurityException {
+    private void setPath(
+            String path)
+            throws LockFile.FileCanonicalizationException,
+                   LockFile.FileSecurityException {
 
         // Should at least be absolutized for reporting purposes, just in case
         // a security or canonicalization exception gets thrown.
@@ -1061,8 +1076,8 @@ public class LockFile {
      *         method denies write access to the file
      */
     private void openRAF()
-    throws LockFile.UnexpectedFileNotFoundException,
-           LockFile.FileSecurityException {
+            throws LockFile.UnexpectedFileNotFoundException,
+                   LockFile.FileSecurityException {
 
         try {
             raf = new RandomAccessFile(file, "rw");
@@ -1090,10 +1105,12 @@ public class LockFile {
      * @throws WrongMagicException if a value other than {@code MAGIC} is read
      *         from the {@code DataInputStream}
      */
-    private void checkMagic(final DataInputStream dis)
-    throws LockFile.FileSecurityException,
-           LockFile.UnexpectedEndOfFileException,
-           LockFile.UnexpectedFileIOException, LockFile.WrongMagicException {
+    private void checkMagic(
+            final DataInputStream dis)
+            throws LockFile.FileSecurityException,
+                   LockFile.UnexpectedEndOfFileException,
+                   LockFile.UnexpectedFileIOException,
+                   LockFile.WrongMagicException {
 
         boolean      success = true;
         final byte[] magic   = new byte[MAGIC.length];
@@ -1145,10 +1162,11 @@ public class LockFile {
      *         the {@link #MAGIC} value
      */
     private long readHeartbeat()
-    throws LockFile.FileSecurityException,
-           LockFile.UnexpectedFileNotFoundException,
-           LockFile.UnexpectedEndOfFileException,
-           LockFile.UnexpectedFileIOException, LockFile.WrongMagicException {
+            throws LockFile.FileSecurityException,
+                   LockFile.UnexpectedFileNotFoundException,
+                   LockFile.UnexpectedEndOfFileException,
+                   LockFile.UnexpectedFileIOException,
+                   LockFile.WrongMagicException {
 
         FileInputStream fis = null;
         DataInputStream dis = null;
@@ -1167,8 +1185,10 @@ public class LockFile {
         } catch (SecurityException ex) {
             throw new FileSecurityException(this, "readHeartbeat", ex);
         } catch (FileNotFoundException ex) {
-            throw new UnexpectedFileNotFoundException(this, "readHeartbeat",
-                    ex);
+            throw new UnexpectedFileNotFoundException(
+                this,
+                "readHeartbeat",
+                ex);
         } catch (EOFException ex) {
             throw new UnexpectedEndOfFileException(this, "readHeartbeat", ex);
         } catch (IOException ex) {
@@ -1193,8 +1213,11 @@ public class LockFile {
         if (timerTask == null || HsqlTimer.isCancelled(timerTask)) {
             Runnable runner = new HeartbeatRunner();
 
-            timerTask = timer.schedulePeriodicallyAfter(0, HEARTBEAT_INTERVAL,
-                    runner, true);
+            timerTask = timer.schedulePeriodicallyAfter(
+                0,
+                HEARTBEAT_INTERVAL,
+                runner,
+                true);
         }
     }
 
@@ -1233,9 +1256,9 @@ public class LockFile {
      *      attempting to write the {@code MAGIC} value to the target file.
      */
     private void writeMagic()
-    throws LockFile.FileSecurityException,
-           LockFile.UnexpectedEndOfFileException,
-           LockFile.UnexpectedFileIOException {
+            throws LockFile.FileSecurityException,
+                   LockFile.UnexpectedEndOfFileException,
+                   LockFile.UnexpectedFileIOException {
 
         try {
             raf.seek(0);
@@ -1271,9 +1294,9 @@ public class LockFile {
      *      value cannot be written due to an underlying I/O error
      */
     private void writeHeartbeat()
-    throws LockFile.FileSecurityException,
-           LockFile.UnexpectedEndOfFileException,
-           LockFile.UnexpectedFileIOException {
+            throws LockFile.FileSecurityException,
+                   LockFile.UnexpectedEndOfFileException,
+                   LockFile.UnexpectedFileIOException {
 
         try {
             raf.seek(MAGIC.length);
@@ -1318,8 +1341,9 @@ public class LockFile {
         } else if (obj instanceof LockFile) {
             LockFile other = (LockFile) obj;
 
-            return (this.file == null) ? other.file == null
-                                       : this.file.equals(other.file);
+            return (this.file == null)
+                   ? other.file == null
+                   : this.file.equals(other.file);
         }
 
         return false;
@@ -1350,8 +1374,9 @@ public class LockFile {
      * @see #equals(java.lang.Object)
      */
     public final int hashCode() {
-        return file == null ? 0
-                            : file.hashCode();
+        return file == null
+               ? 0
+               : file.hashCode();
     }
 
     /**
@@ -1455,11 +1480,18 @@ public class LockFile {
      */
     public String toString() {
 
-        return new StringBuilder(super.toString()).append("[file =").append(
-            cpath).append(", exists=").append(file.exists()).append(
-            ", locked=").append(isLocked()).append(", valid=").append(
-            isValid()).append(", ").append(toStringImpl()).append(
-            "]").toString();
+        return new StringBuilder(super.toString()).append("[file =")
+                .append(cpath)
+                .append(", exists=")
+                .append(file.exists())
+                .append(", locked=")
+                .append(isLocked())
+                .append(", valid=")
+                .append(isValid())
+                .append(", ")
+                .append(toStringImpl())
+                .append("]")
+                .toString();
     }
 
     /**
@@ -1502,7 +1534,8 @@ public class LockFile {
         try {
             retries = Integer.getInteger(
                 HsqlDatabaseProperties.system_lockfile_poll_retries_property,
-                retries).intValue();
+                retries)
+                             .intValue();
         } catch (Exception e) {}
 
         if (retries < 1) {
@@ -1539,8 +1572,8 @@ public class LockFile {
         long interval = 10 + (HEARTBEAT_INTERVAL_PADDED / retries);
 
         try {
-            interval = Long.getLong(POLL_INTERVAL_PROPERTY,
-                                    interval).longValue();
+            interval = Long.getLong(POLL_INTERVAL_PROPERTY, interval)
+                           .longValue();
         } catch (Exception e) {}
 
         if (interval <= 0) {
@@ -1582,12 +1615,13 @@ public class LockFile {
      *      expected {@code MAGIC} value
      */
     private void pollHeartbeat()
-    throws LockFile.FileSecurityException,
-           LockFile.LockHeldExternallyException,
-           LockFile.UnexpectedFileNotFoundException,
-           LockFile.UnexpectedEndOfFileException,
-           LockFile.UnexpectedFileIOException, LockFile.WrongLengthException,
-           LockFile.WrongMagicException {
+            throws LockFile.FileSecurityException,
+                   LockFile.LockHeldExternallyException,
+                   LockFile.UnexpectedFileNotFoundException,
+                   LockFile.UnexpectedEndOfFileException,
+                   LockFile.UnexpectedFileIOException,
+                   LockFile.WrongLengthException,
+                   LockFile.WrongMagicException {
 
         boolean                success  = false;
         int                    retries  = getPollHeartbeatRetries();
@@ -1599,7 +1633,6 @@ public class LockFile {
                 checkHeartbeat(true);    // withCreateNewFile == true
 
                 success = true;
-
                 break;
             } catch (LockFile.BaseException ex) {
                 reason = ex;
@@ -1621,19 +1654,19 @@ public class LockFile {
          */
         if (!success) {
             if (reason instanceof FileSecurityException) {
-                throw (FileSecurityException) reason;
+                throw(FileSecurityException) reason;
             } else if (reason instanceof LockHeldExternallyException) {
-                throw (LockHeldExternallyException) reason;
+                throw(LockHeldExternallyException) reason;
             } else if (reason instanceof UnexpectedFileNotFoundException) {
-                throw (UnexpectedFileNotFoundException) reason;
+                throw(UnexpectedFileNotFoundException) reason;
             } else if (reason instanceof UnexpectedEndOfFileException) {
-                throw (UnexpectedEndOfFileException) reason;
+                throw(UnexpectedEndOfFileException) reason;
             } else if (reason instanceof UnexpectedFileIOException) {
-                throw (UnexpectedFileIOException) reason;
+                throw(UnexpectedFileIOException) reason;
             } else if (reason instanceof WrongLengthException) {
-                throw (WrongLengthException) reason;
+                throw(WrongLengthException) reason;
             } else if (reason instanceof WrongMagicException) {
-                throw (WrongMagicException) reason;
+                throw(WrongMagicException) reason;
             }
         }
     }
@@ -1669,12 +1702,13 @@ public class LockFile {
      *      any reason
      */
     public final boolean tryLock()
-    throws LockFile.FileSecurityException,
-           LockFile.LockHeldExternallyException,
-           LockFile.UnexpectedFileNotFoundException,
-           LockFile.UnexpectedEndOfFileException,
-           LockFile.UnexpectedFileIOException, LockFile.WrongLengthException,
-           LockFile.WrongMagicException {
+            throws LockFile.FileSecurityException,
+                   LockFile.LockHeldExternallyException,
+                   LockFile.UnexpectedFileNotFoundException,
+                   LockFile.UnexpectedEndOfFileException,
+                   LockFile.UnexpectedFileIOException,
+                   LockFile.WrongLengthException,
+                   LockFile.WrongMagicException {
 
         if (this.locked) {
             return true;
@@ -1816,7 +1850,8 @@ public class LockFile {
      *      process of releasing the lock condition
      */
     public final boolean tryRelease()
-    throws LockFile.FileSecurityException, LockFile.UnexpectedFileIOException {
+            throws LockFile.FileSecurityException,
+                   LockFile.UnexpectedFileIOException {
 
         boolean released = !locked;
 
@@ -1867,8 +1902,10 @@ public class LockFile {
                 // deleted above (if it it deleted successfully, that is)
                 // released = !file.exists();
             } catch (SecurityException ex) {
-                securityReason = new FileSecurityException(this, "tryRelease",
-                        ex);
+                securityReason = new FileSecurityException(
+                    this,
+                    "tryRelease",
+                    ex);
             }
         } finally {
 
@@ -1979,7 +2016,7 @@ public class LockFile {
      * filesystem queries.
      */
     public static final class FileCanonicalizationException
-    extends BaseException {
+            extends BaseException {
 
         private final IOException reason;
 
@@ -1991,10 +2028,10 @@ public class LockFile {
          *        was originally thrown (may be passed up several levels)
          * @param reason the exception thrown during canonicalization
          */
-        public FileCanonicalizationException(final LockFile lockFile,
-                                             final String inMethod,
-                                             final IOException reason) {
-
+        public FileCanonicalizationException(
+                final LockFile lockFile,
+                final String inMethod,
+                final IOException reason) {
             super(lockFile, inMethod);
 
             this.reason = reason;
@@ -2048,10 +2085,10 @@ public class LockFile {
          *        was originally thrown (may be passed up several levels)
          * @param reason the underlying Java security exception
          */
-        public FileSecurityException(final LockFile lockFile,
-                                     final String inMethod,
-                                     final SecurityException reason) {
-
+        public FileSecurityException(
+                final LockFile lockFile,
+                final String inMethod,
+                final SecurityException reason) {
             super(lockFile, inMethod);
 
             this.reason = reason;
@@ -2087,7 +2124,7 @@ public class LockFile {
      *
      */
     public static final class LockHeldExternallyException
-    extends BaseException {
+            extends BaseException {
 
         private final long read;
         private final long heartbeat;
@@ -2103,10 +2140,11 @@ public class LockFile {
          * @param heartbeat the heartbeat timestamp value, in milliseconds
          *      since 1970-01-01, that was read from the lock file.
          */
-        public LockHeldExternallyException(final LockFile lockFile,
-                                           final String inMethod,
-                                           final long read,
-                                           final long heartbeat) {
+        public LockHeldExternallyException(
+                final LockFile lockFile,
+                final String inMethod,
+                final long read,
+                final long heartbeat) {
 
             super(lockFile, inMethod);
 
@@ -2144,9 +2182,9 @@ public class LockFile {
         public String getMessage() {    // override
 
             return super.getMessage() + " read: "
-                   + HsqlDateTime.getTimestampString(this.read)
-                   + " heartbeat - read: " + (this.heartbeat - this.read)
-                   + " ms.";
+                   + HsqlDateTime.getTimestampString(
+                       this.read) + " heartbeat - read: "
+                                  + (this.heartbeat - this.read) + " ms.";
         }
     }
 
@@ -2155,7 +2193,7 @@ public class LockFile {
      * unexpected {@code EOFException}.
      */
     public static final class UnexpectedEndOfFileException
-    extends BaseException {
+            extends BaseException {
 
         private final EOFException reason;
 
@@ -2167,10 +2205,10 @@ public class LockFile {
          *        was originally thrown (may be passed up several levels)
          * @param reason the underlying exception
          */
-        public UnexpectedEndOfFileException(final LockFile lockFile,
-                                            final String inMethod,
-                                            final EOFException reason) {
-
+        public UnexpectedEndOfFileException(
+                final LockFile lockFile,
+                final String inMethod,
+                final EOFException reason) {
             super(lockFile, inMethod);
 
             this.reason = reason;
@@ -2212,10 +2250,10 @@ public class LockFile {
          *        was originally thrown (may be passed up several levels)
          * @param reason the underlying exception
          */
-        public UnexpectedFileIOException(final LockFile lockFile,
-                                         final String inMethod,
-                                         final IOException reason) {
-
+        public UnexpectedFileIOException(
+                final LockFile lockFile,
+                final String inMethod,
+                final IOException reason) {
             super(lockFile, inMethod);
 
             this.reason = reason;
@@ -2246,7 +2284,7 @@ public class LockFile {
      * unexpected {@code FileNotFoundException}.
      */
     public static final class UnexpectedFileNotFoundException
-    extends BaseException {
+            extends BaseException {
 
         private final FileNotFoundException reason;
 
@@ -2259,9 +2297,9 @@ public class LockFile {
          * @param reason the underlying exception
          */
         public UnexpectedFileNotFoundException(
-                final LockFile lockFile, final String inMethod,
+                final LockFile lockFile,
+                final String inMethod,
                 final FileNotFoundException reason) {
-
             super(lockFile, inMethod);
 
             this.reason = reason;
@@ -2303,9 +2341,10 @@ public class LockFile {
          *        was originally thrown (may be passed up several levels)
          * @param length the actual length reported by the file system
          */
-        public WrongLengthException(final LockFile lockFile,
-                                    final String inMethod, final long length) {
-
+        public WrongLengthException(
+                final LockFile lockFile,
+                final String inMethod,
+                final long length) {
             super(lockFile, inMethod);
 
             this.length = length;
@@ -2347,9 +2386,10 @@ public class LockFile {
          *        was originally thrown (may be passed up several levels)
          * @param magic the actual magic value read from the file
          */
-        public WrongMagicException(final LockFile lockFile,
-                                   final String inMethod, final byte[] magic) {
-
+        public WrongMagicException(
+                final LockFile lockFile,
+                final String inMethod,
+                final byte[] magic) {
             super(lockFile, inMethod);
 
             this.magic = magic;
@@ -2365,10 +2405,10 @@ public class LockFile {
 
             String message = super.getMessage() + " magic: ";
 
-            message = message + ((magic == null) ? "null"
-                                                 : "'"
-                                                   + StringConverter.byteArrayToHexString(magic)
-                                                   + "'");
+            message = message + ((magic == null)
+                                 ? "null"
+                                 : "'" + StringConverter.byteArrayToHexString(
+                                     magic) + "'");
 
             return message;
         }
@@ -2380,8 +2420,9 @@ public class LockFile {
          * @return a copy of the actual {@code MAGIC} value read from the file
          */
         public byte[] getMagic() {
-            return (magic == null) ? null
-                                   : this.magic.clone();
+            return (magic == null)
+                   ? null
+                   : this.magic.clone();
         }
     }
 }

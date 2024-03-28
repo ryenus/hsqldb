@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,8 @@ import org.hsqldb.error.ErrorCode;
  */
 public class IntervalSecondData {
 
-    public static final IntervalSecondData oneDay = newIntervalDay(1,
+    public static final IntervalSecondData oneDay = newIntervalDay(
+        1,
         Type.SQL_INTERVAL_DAY);
 
     //
@@ -59,22 +60,26 @@ public class IntervalSecondData {
         return new IntervalSecondData((long) value, 0);
     }
 
-    public static IntervalSecondData newIntervalDay(long days,
+    public static IntervalSecondData newIntervalDay(
+            long days,
             IntervalType type) {
         return new IntervalSecondData(days * 24 * 60 * 60, 0, type);
     }
 
-    public static IntervalSecondData newIntervalHour(long hours,
+    public static IntervalSecondData newIntervalHour(
+            long hours,
             IntervalType type) {
         return new IntervalSecondData(hours * 60 * 60, 0, type);
     }
 
-    public static IntervalSecondData newIntervalMinute(long minutes,
+    public static IntervalSecondData newIntervalMinute(
+            long minutes,
             IntervalType type) {
         return new IntervalSecondData(minutes * 60, 0, type);
     }
 
-    public static IntervalSecondData newIntervalSeconds(long seconds,
+    public static IntervalSecondData newIntervalSeconds(
+            long seconds,
             IntervalType type) {
         return new IntervalSecondData(seconds, 0, type);
     }
@@ -97,8 +102,11 @@ public class IntervalSecondData {
     /**
      * normalise is a marker, values are always normalised
      */
-    public IntervalSecondData(long seconds, long nanos, IntervalType type,
-                              boolean normalise) {
+    public IntervalSecondData(
+            long seconds,
+            long nanos,
+            IntervalType type,
+            boolean normalise) {
 
         if (nanos >= DTIType.limitNanoseconds) {
             long carry = nanos / DTIType.limitNanoseconds;
@@ -179,7 +187,7 @@ public class IntervalSecondData {
     }
 
     public String toString() {
-        return Type.SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION
-            .convertToString(this);
+        return Type.SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION.convertToString(
+            this);
     }
 }

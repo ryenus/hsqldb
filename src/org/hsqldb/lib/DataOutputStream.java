@@ -118,7 +118,6 @@ public class DataOutputStream extends java.io.BufferedOutputStream
     }
 
     public long write(Reader reader, long length) throws IOException {
-
         InputStream inputStream = new ReaderInputStream(reader);
 
         return write(inputStream, length * 2) / 2;
@@ -203,8 +202,8 @@ public class DataOutputStream extends java.io.BufferedOutputStream
         //
         writeChar(bytecount);
 
-        HsqlByteArrayOutputStream bao =
-            new HsqlByteArrayOutputStream(bytecount);
+        HsqlByteArrayOutputStream bao = new HsqlByteArrayOutputStream(
+            bytecount);
 
         StringConverter.stringToUTFBytes(str, bao);
         this.write(bao.getBuffer(), 0, bao.size());

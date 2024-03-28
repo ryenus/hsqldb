@@ -47,7 +47,7 @@ import org.hsqldb.persist.PersistentStore;
 public class RowAction extends RowActionBase {
 
     public static final RowAction[] emptyArray = new RowAction[]{};
-    
+
     //
     final TableBase       table;
     final PersistentStore store;
@@ -55,25 +55,42 @@ public class RowAction extends RowActionBase {
     final long            rowId;
     RowAction             updatedAction;
 
-    public static RowAction addInsertAction(Session session, TableBase table,
-            PersistentStore store, Row row) {
+    public static RowAction addInsertAction(
+            Session session,
+            TableBase table,
+            PersistentStore store,
+            Row row) {
 
-        RowAction action = new RowAction(session, table, store, ACTION_INSERT,
-                                         row, null);
+        RowAction action = new RowAction(
+            session,
+            table,
+            store,
+            ACTION_INSERT,
+            row,
+            null);
 
         row.rowAction = action;
 
         return action;
     }
 
-    public static RowAction addDeleteAction(Session session, TableBase table,
-            PersistentStore store, Row row, int[] colMap) {
+    public static RowAction addDeleteAction(
+            Session session,
+            TableBase table,
+            PersistentStore store,
+            Row row,
+            int[] colMap) {
 
         RowAction action = row.rowAction;
 
         if (action == null) {
-            action = new RowAction(session, table, store, ACTION_DELETE, row,
-                                   colMap);
+            action = new RowAction(
+                session,
+                table,
+                store,
+                ACTION_DELETE,
+                row,
+                colMap);
             row.rowAction = action;
 
             return action;
@@ -82,14 +99,18 @@ public class RowAction extends RowActionBase {
         return action.addDeleteAction(session, colMap);
     }
 
-    public static boolean addRefAction(Session session, Row row,
-                                       int[] colMap) {
+    public static boolean addRefAction(Session session, Row row, int[] colMap) {
 
         RowAction action = row.rowAction;
 
         if (action == null) {
-            action = new RowAction(session, row.getTable(), null, ACTION_REF,
-                                   row, colMap);
+            action = new RowAction(
+                session,
+                row.getTable(),
+                null,
+                ACTION_REF,
+                row,
+                colMap);
             row.rowAction = action;
 
             return true;
@@ -98,8 +119,13 @@ public class RowAction extends RowActionBase {
         return action.addRefAction(session, colMap);
     }
 
-    public RowAction(Session session, TableBase table, PersistentStore store,
-                     byte type, Row row, int[] colMap) {
+    public RowAction(
+            Session session,
+            TableBase table,
+            PersistentStore store,
+            byte type,
+            Row row,
+            int[] colMap) {
 
         this.session         = session;
         this.type            = type;
@@ -131,7 +157,6 @@ public class RowAction extends RowActionBase {
                     }
 
                     action = action.next;
-
                     continue;
                 }
 
@@ -140,12 +165,14 @@ public class RowAction extends RowActionBase {
                     case ACTION_INSERT : {
                         if (action.commitSCN == 0
                                 && session != action.session) {
-                            throw Error.runtimeError(ErrorCode.U_S0500,
-                                                     "RowAction");
+                            throw Error.runtimeError(
+                                ErrorCode.U_S0500,
+                                "RowAction");
                         }
 
                         break;
                     }
+
                     case ACTION_DELETE_FINAL :
                     case ACTION_DELETE : {
                         if (session != action.session) {
@@ -162,12 +189,13 @@ public class RowAction extends RowActionBase {
 
                         break;
                     }
+
                     case ACTION_REF : {
                         if (session != action.session
                                 && action.commitSCN == 0) {
                             if (colMap == null
-                                    || ArrayUtil.haveCommonElement(
-                                        colMap, action.changeColumnMap)) {
+                                    || ArrayUtil.haveCommonElement(colMap,
+                                            action.changeColumnMap)) {
                                 if (!session.actionSet.isEmpty()) {
                                     session.actionSet.clear();
                                 }
@@ -189,8 +217,7 @@ public class RowAction extends RowActionBase {
                 action = action.next;
             }
 
-            RowActionBase newAction = new RowActionBase(session,
-                ACTION_DELETE);
+            RowActionBase newAction = new RowActionBase(session, ACTION_DELETE);
 
             newAction.changeColumnMap = colMap;
             action.next               = newAction;
@@ -227,8 +254,8 @@ public class RowAction extends RowActionBase {
             } else {
                 if (action.type == ACTION_DELETE && action.commitSCN == 0) {
                     if (action.changeColumnMap == null
-                            || ArrayUtil.haveCommonElement(
-                                colMap, action.changeColumnMap)) {
+                            || ArrayUtil.haveCommonElement(colMap,
+                                    action.changeColumnMap)) {
                         if (!session.actionSet.isEmpty()) {
                             session.actionSet.clear();
                         }
@@ -256,7 +283,6 @@ public class RowAction extends RowActionBase {
     }
 
     synchronized void setNoOpAsAction(Session session, byte type) {
-
         this.session = session;
         this.type    = type;
         actionSCN    = session.actionSCN;
@@ -401,14 +427,13 @@ public class RowAction extends RowActionBase {
         long          commitTimestamp = 0;
         final boolean readCommitted = session.isolationLevel
                                       == SessionInterface.TX_READ_COMMITTED;
-        boolean hasDelete = false;
+        boolean       hasDelete       = false;
 
         action = this;
 
         if (readCommitted) {
             do {
-                if (action.session == session
-                        && action.type == ACTION_DELETE) {
+                if (action.session == session && action.type == ACTION_DELETE) {
 
                     // for READ_COMMITTED, use action timestamp for later conflicts
                     if (action.commitSCN == 0) {
@@ -430,7 +455,6 @@ public class RowAction extends RowActionBase {
             } else {
                 if (action.rolledback || action.type != ACTION_DELETE) {
                     action = action.next;
-
                     continue;
                 }
 
@@ -460,19 +484,20 @@ public class RowAction extends RowActionBase {
      * when READ COMMITTED, false result always means repeat action and adds
      * to set parameter the sessions to wait on (may be no wait)
      */
-    synchronized boolean complete(Session session, OrderedHashSet<Session> set) {
+    synchronized boolean complete(
+            Session session,
+            OrderedHashSet<Session> set) {
 
         RowActionBase action;
         boolean readCommitted = session.isolationLevel
                                 == SessionInterface.TX_READ_COMMITTED;
-        boolean result = true;
+        boolean       result = true;
 
         action = this;
 
         do {
             if (action.rolledback || action.type == ACTION_NONE) {
                 action = action.next;
-
                 continue;
             }
 
@@ -631,8 +656,7 @@ public class RowAction extends RowActionBase {
             return;
         }
 
-        if (commitType == ACTION_DELETE
-                || commitType == ACTION_INSERT_DELETE) {
+        if (commitType == ACTION_DELETE || commitType == ACTION_INSERT_DELETE) {
             setAsDeleteFinal(timestamp);
 
             return;
@@ -686,8 +710,7 @@ public class RowAction extends RowActionBase {
         mergeExpiredRefActions();
     }
 
-    public synchronized boolean canRead(Session session, int mode,
-                                        int[] cols) {
+    public synchronized boolean canRead(Session session, int mode, int[] cols) {
 
         long threshold;
         int  actionType = ACTION_NONE;
@@ -701,7 +724,7 @@ public class RowAction extends RowActionBase {
         }
 
         RowAction     baseAction = this;
-        RowActionBase action = this;
+        RowActionBase action     = this;
 
         if (session == null) {
             threshold = Long.MAX_VALUE;
@@ -727,7 +750,6 @@ public class RowAction extends RowActionBase {
         do {
             if (action.type == ACTION_REF) {
                 action = action.next;
-
                 continue;
             }
 
@@ -737,7 +759,6 @@ public class RowAction extends RowActionBase {
                 }
 
                 action = action.next;
-
                 continue;
             }
 
@@ -749,7 +770,6 @@ public class RowAction extends RowActionBase {
                 }
 
                 action = action.next;
-
                 continue;
             } else if (action.commitSCN == 0) {
                 if (action.type == ACTION_NONE) {
@@ -774,14 +794,14 @@ public class RowAction extends RowActionBase {
                     } else if (mode == TransactionManager.ACTION_REF) {
                         if (changeColumnMap == null) {
                             actionType = ACTION_DELETE;
-                        } else if (ArrayUtil.haveCommonElement(cols, changeColumnMap)) {
+                        } else if (ArrayUtil.haveCommonElement(cols,
+                                changeColumnMap)) {
                             actionType = ACTION_DELETE;
                         }
                     }
                 }
 
                 action = action.next;
-
                 continue;
             } else if (action.commitSCN < threshold) {
                 if (action.type == ACTION_DELETE) {
@@ -849,9 +869,13 @@ public class RowAction extends RowActionBase {
                 sb.append(this.rowId).append(' ');
             }
 
-            sb.append(action.session.getId()).append(' ');
-            sb.append(action.type).append(' ').append(action.actionSCN);
-            sb.append(' ').append(action.commitSCN);
+            sb.append(action.session.getId())
+              .append(' ')
+              .append(action.type)
+              .append(' ')
+              .append(action.actionSCN)
+              .append(' ')
+              .append(action.commitSCN);
 
             if (action.commitSCN != 0) {
                 if (action.rolledback) {

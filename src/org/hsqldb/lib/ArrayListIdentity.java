@@ -42,7 +42,6 @@ package org.hsqldb.lib;
 public class ArrayListIdentity<E> extends HsqlArrayList<E> {
 
     public ArrayListIdentity() {
-
         super();
 
         comparator = ObjectComparator.identityComparator;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,8 +68,10 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         table = new Object[blockSize][];
     }
 
-    public RowSetNavigatorClient(RowSetNavigator source, int offset,
-                                 int blockSize) {
+    public RowSetNavigatorClient(
+            RowSetNavigator source,
+            int offset,
+            int blockSize) {
 
         this.size          = source.size;
         this.baseBlockSize = blockSize;
@@ -128,8 +130,12 @@ public class RowSetNavigatorClient extends RowSetNavigator {
      */
     public void removeCurrent() {
 
-        System.arraycopy(table, currentPos + 1, table, currentPos,
-                         size - currentPos - 1);
+        System.arraycopy(
+            table,
+            currentPos + 1,
+            table,
+            currentPos,
+            size - currentPos - 1);
 
         table[size - 1] = null;
 
@@ -214,8 +220,12 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         for (int i = 0; i < size; i++) {
             Object[] data = table[i];
 
-            out.writeData(meta.getColumnCount(), meta.columnTypes, data, null,
-                          null);
+            out.writeData(
+                meta.getColumnCount(),
+                meta.columnTypes,
+                data,
+                null,
+                null);
         }
     }
 
@@ -251,8 +261,12 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         for (int i = 0; i < limit; i++) {
             Object[] data = table[i];
 
-            out.writeData(meta.getColumnCount(), meta.columnTypes, data, null,
-                          null);
+            out.writeData(
+                meta.getColumnCount(),
+                meta.columnTypes,
+                data,
+                null,
+                null);
         }
     }
 
@@ -262,7 +276,9 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     void getBlock(int offset) {
 
         try {
-            RowSetNavigatorClient source = session.getRows(id, offset,
+            RowSetNavigatorClient source = session.getRows(
+                id,
+                offset,
                 baseBlockSize);
 
             table         = source.table;
@@ -273,8 +289,9 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     private void ensureCapacity() {
 
         if (size == table.length) {
-            int        newSize  = size == 0 ? 4
-                                            : size * 2;
+            int        newSize  = size == 0
+                                  ? 4
+                                  : size * 2;
             Object[][] newTable = new Object[newSize][];
 
             System.arraycopy(table, 0, newTable, 0, size);

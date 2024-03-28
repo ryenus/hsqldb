@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,14 +78,15 @@ public class BlobDataID implements BlobData {
     public void free() {}
 
     public InputStream getBinaryStream(SessionInterface session) {
-
         long length = length(session);
 
         return new BlobInputStream(session, this, 0, length);
     }
 
-    public InputStream getBinaryStream(SessionInterface session, long pos,
-                                       long length) {
+    public InputStream getBinaryStream(
+            SessionInterface session,
+            long pos,
+            long length) {
         return new BlobInputStream(session, this, pos, length);
     }
 
@@ -171,11 +172,15 @@ public class BlobDataID implements BlobData {
         return false;
     }
 
-    public long position(SessionInterface session, BlobData pattern,
-                         long start) {
+    public long position(
+            SessionInterface session,
+            BlobData pattern,
+            long start) {
 
-        ResultLob resultOut = ResultLob.newLobGetCharPatternPositionRequest(id,
-            pattern.getId(), start);
+        ResultLob resultOut = ResultLob.newLobGetCharPatternPositionRequest(
+            id,
+            pattern.getId(),
+            start);
         Result resultIn = session.execute(resultOut);
 
         if (resultIn.isError()) {
@@ -185,11 +190,12 @@ public class BlobDataID implements BlobData {
         return ((ResultLob) resultIn).getOffset();
     }
 
-    public long position(SessionInterface session, byte[] pattern,
-                         long start) {
+    public long position(SessionInterface session, byte[] pattern, long start) {
 
-        ResultLob resultOut = ResultLob.newLobGetBytePatternPositionRequest(id,
-            pattern, start);
+        ResultLob resultOut = ResultLob.newLobGetBytePatternPositionRequest(
+            id,
+            pattern,
+            start);
         Result resultIn = session.execute(resultOut);
 
         if (resultIn.isError()) {
@@ -212,8 +218,12 @@ public class BlobDataID implements BlobData {
         return ((ResultLob) resultIn).getBlockLength();
     }
 
-    public void setBytes(SessionInterface session, long pos, byte[] bytes,
-                         int offset, int len) {
+    public void setBytes(
+            SessionInterface session,
+            long pos,
+            byte[] bytes,
+            int offset,
+            int len) {
 
         if (offset != 0 || len != bytes.length) {
             if (!BinaryData.isInLimits(bytes.length, offset, len)) {
@@ -241,8 +251,12 @@ public class BlobDataID implements BlobData {
         setBytes(session, pos, bytes, 0, bytes.length);
     }
 
-    public void setBytes(SessionInterface session, long pos, BlobData b,
-                         long offset, long length) {
+    public void setBytes(
+            SessionInterface session,
+            long pos,
+            BlobData b,
+            long offset,
+            long length) {
 
         if (length > Integer.MAX_VALUE) {
             throw new IndexOutOfBoundsException();
@@ -253,8 +267,10 @@ public class BlobDataID implements BlobData {
         setBytes(session, pos, bytes, 0, bytes.length);
     }
 
-    public void setBinaryStream(SessionInterface session, long pos,
-                                InputStream in) {
+    public void setBinaryStream(
+            SessionInterface session,
+            long pos,
+            InputStream in) {
 
         //
     }

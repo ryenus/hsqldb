@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import java.text.SimpleDateFormat;
+
 import java.util.Calendar;
 
 import org.hsqldb.jdbc.JDBCConnection;
@@ -53,10 +54,10 @@ import org.hsqldb.types.ClobDataID;
  */
 public interface SessionInterface {
 
-    int INFO_ID      = 0;                // used
-    int INFO_INTEGER = 1;                // used
-    int INFO_BOOLEAN = 2;                // used
-    int INFO_VARCHAR = 3;                // used
+    int INFO_ID      = 0;    // used
+    int INFO_INTEGER = 1;    // used
+    int INFO_BOOLEAN = 2;    // used
+    int INFO_VARCHAR = 3;    // used
     int INFO_LIMIT   = 4;
 
     //

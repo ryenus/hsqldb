@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,10 @@ package org.hsqldb.scriptio;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import java.util.zip.GZIPOutputStream;
 
 import org.hsqldb.Database;
@@ -47,6 +51,8 @@ import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.rowio.RowOutputTextLog;
+
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
  * Handles all scripting and logging operations. A script consists of two blocks:<p>
@@ -66,26 +72,26 @@ import org.hsqldb.rowio.RowOutputTextLog;
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.3
  * @since 1.7.2
  */
 public class ScriptWriterText extends ScriptWriterBase {
 
-    static byte[] BYTES_COMMIT       = "COMMIT".getBytes(JavaSystem.CS_ISO_8859_1);
-    static byte[] BYTES_INSERT_INTO  = "INSERT INTO ".getBytes(JavaSystem.CS_ISO_8859_1);
-    static byte[] BYTES_VALUES       = " VALUES(".getBytes(JavaSystem.CS_ISO_8859_1);
-    static byte[] BYTES_TERM         = ")".getBytes(JavaSystem.CS_ISO_8859_1);
-    static byte[] BYTES_DELETE_FROM  = "DELETE FROM ".getBytes(JavaSystem.CS_ISO_8859_1);
-    static byte[] BYTES_WHERE        = " WHERE ".getBytes(JavaSystem.CS_ISO_8859_1);
-    static byte[] BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes(JavaSystem.CS_ISO_8859_1);
-    static byte[] BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes(JavaSystem.CS_ISO_8859_1);
-    static byte[] BYTES_C_ID_INIT    = "/*C".getBytes(JavaSystem.CS_ISO_8859_1);
-    static byte[] BYTES_C_ID_TERM    = "*/".getBytes(JavaSystem.CS_ISO_8859_1);
-    static byte[] BYTES_SCHEMA       = "SET SCHEMA ".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_COMMIT       = "COMMIT".getBytes(ISO_8859_1);
+    static byte[] BYTES_INSERT_INTO  = "INSERT INTO ".getBytes(ISO_8859_1);
+    static byte[] BYTES_VALUES       = " VALUES(".getBytes(ISO_8859_1);
+    static byte[] BYTES_TERM         = ")".getBytes(ISO_8859_1);
+    static byte[] BYTES_DELETE_FROM  = "DELETE FROM ".getBytes(ISO_8859_1);
+    static byte[] BYTES_WHERE        = " WHERE ".getBytes(ISO_8859_1);
+    static byte[] BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes(ISO_8859_1);
+    static byte[] BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes(ISO_8859_1);
+    static byte[] BYTES_C_ID_INIT    = "/*C".getBytes(ISO_8859_1);
+    static byte[] BYTES_C_ID_TERM    = "*/".getBytes(ISO_8859_1);
+    static byte[] BYTES_SCHEMA       = "SET SCHEMA ".getBytes(ISO_8859_1);
 
     /* @todo - perhaps move this global into a lib utility class */
-    static byte[] BYTES_LINE_SEP = System.getProperty("line.separator",
-        "\n").getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_LINE_SEP = System.getProperty("line.separator", "\n")
+            .getBytes(ISO_8859_1);
 
     static {
         if (BYTES_LINE_SEP[0] != 0x0A && BYTES_LINE_SEP[0] != 0x0D) {
@@ -95,20 +101,28 @@ public class ScriptWriterText extends ScriptWriterBase {
 
     RowOutputInterface rowOut;
 
-    public ScriptWriterText(Database db, OutputStream outputStream,
-                            FileAccess.FileSync descriptor,
-                            boolean includeCachedData) {
+    public ScriptWriterText(
+            Database db,
+            OutputStream outputStream,
+            FileAccess.FileSync descriptor,
+            boolean includeCachedData) {
         super(db, outputStream, descriptor, includeCachedData);
     }
 
-    public ScriptWriterText(Database db, String file,
-                            boolean includeCachedData, boolean newFile,
-                            boolean isUserScript) {
+    public ScriptWriterText(
+            Database db,
+            String file,
+            boolean includeCachedData,
+            boolean newFile,
+            boolean isUserScript) {
         super(db, file, includeCachedData, newFile, isUserScript);
     }
 
-    public ScriptWriterText(Database db, String file,
-                            boolean includeCachedData, boolean compressed) {
+    public ScriptWriterText(
+            Database db,
+            String file,
+            boolean includeCachedData,
+            boolean compressed) {
 
         super(db, file, includeCachedData, true, false);
 
@@ -118,10 +132,11 @@ public class ScriptWriterText extends ScriptWriterBase {
             try {
                 fileStreamOut = new GZIPOutputStream(fileStreamOut);
             } catch (IOException e) {
-                throw Error.error(e, ErrorCode.FILE_IO_ERROR,
-                                  ErrorCode.M_Message_Pair, new String[] {
-                    e.toString(), outFile
-                });
+                throw Error.error(
+                    e,
+                    ErrorCode.FILE_IO_ERROR,
+                    ErrorCode.M_Message_Pair,
+                    new String[]{ e.toString(), outFile });
             }
         }
     }
@@ -160,7 +175,6 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     private void writeSchemaStatement(HsqlName schema) {
-
         rowOut.writeBytes(BYTES_SCHEMA);
         rowOut.writeString(schema.statementName);
         rowOut.writeBytes(BYTES_LINE_SEP);
@@ -225,14 +239,15 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     public void writeInsertStatement(Session session, Row row, Table table) {
-
         schemaToLog = table.getName().schema;
 
         writeRow(session, row, table);
     }
 
-    public void writeDeleteStatement(Session session, Table table,
-                                     Object[] data) {
+    public void writeDeleteStatement(
+            Session session,
+            Table table,
+            Object[] data) {
 
         schemaToLog = table.getName().schema;
 
@@ -242,8 +257,12 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.writeBytes(BYTES_DELETE_FROM);
         rowOut.writeString(table.getName().statementName);
         rowOut.writeBytes(BYTES_WHERE);
-        rowOut.writeData(table.getColumnCount(), table.getColumnTypes(), data,
-                         table.columnList, table.getPrimaryKey());
+        rowOut.writeData(
+            table.getColumnCount(),
+            table.getColumnTypes(),
+            data,
+            table.columnList,
+            table.getPrimaryKey());
         rowOut.writeBytes(BYTES_LINE_SEP);
         writeRowOutToFile();
     }

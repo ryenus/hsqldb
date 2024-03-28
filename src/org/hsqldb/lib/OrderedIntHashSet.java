@@ -49,7 +49,6 @@ public class OrderedIntHashSet extends IntHashSet {
     public OrderedIntHashSet(
             int initialCapacity)
             throws IllegalArgumentException {
-
         super(initialCapacity);
 
         isList = true;
@@ -119,7 +118,6 @@ public class OrderedIntHashSet extends IntHashSet {
     }
 
     public int get(int index) {
-
         checkRange(index);
 
         return intKeyTable[index];
@@ -157,7 +155,6 @@ public class OrderedIntHashSet extends IntHashSet {
     }
 
     private void checkRange(int i) {
-
         if (i < 0 || i >= size()) {
             throw new IndexOutOfBoundsException();
         }

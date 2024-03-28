@@ -69,17 +69,15 @@ import org.hsqldb.types.Type;
 public class Table extends TableBase implements SchemaObject {
 
     public static final Table[] emptyArray = new Table[]{};
-
-    // main properties
-    protected HsqlName tableName;
-    protected long     changeTimestamp;
+    protected HsqlName          tableName;
+    protected long              changeTimestamp;
 
     //
-    public OrderedHashMap<String, ColumnSchema> columnList;              // columns in table
-    int                   identityColumn;          // -1 means no such column
-    NumberSequence        identitySequence;        // next value of identity column
+    public OrderedHashMap<String, ColumnSchema> columnList;
 
-// -----------------------------------------------------------------------
+    //    
+    int                     identityColumn;        // -1 means no such column
+    NumberSequence          identitySequence;      // next value of identity column
     Constraint[]            constraintList;        // constraint for the table
     Constraint[]            fkConstraints;         //
     Constraint[]            fkMainConstraints;
@@ -94,7 +92,7 @@ public class Table extends TableBase implements SchemaObject {
     private boolean         hasUpdatedValues;      // shortcut for above
     boolean[]               colRefFK;              // foreign key columns
     boolean[]               colMainFK;             // columns referenced by foreign key
-    int                     referentialActions;    // has set null, set default or cascade
+    int referentialActions;                        // has set null, set default or cascade
     int                     cascadingDeletes;      // has on delete cascade
     boolean                 isDropped;             // has been dropped
     private boolean         hasDomainColumns;      // shortcut
@@ -147,6 +145,7 @@ public class Table extends TableBase implements SchemaObject {
                 } else {
                     type = MEMORY_TABLE;
                 }
+
                 break;
 
             case MEMORY_TABLE :
@@ -295,8 +294,8 @@ public class Table extends TableBase implements SchemaObject {
         OrderedHashSet<HsqlName> set = getReferences();
 
         for (int i = 0; i < colTypes.length; i++) {
-            ColumnSchema column = getColumn(i);
-            OrderedHashSet<HsqlName> refs = column.getReferences();
+            ColumnSchema             column = getColumn(i);
+            OrderedHashSet<HsqlName> refs   = column.getReferences();
 
             if (refs != null && !refs.isEmpty()) {
                 set.addAll(refs);
@@ -311,8 +310,8 @@ public class Table extends TableBase implements SchemaObject {
         OrderedHashSet<HsqlName> set = new OrderedHashSet<>();
 
         for (int i = 0; i < colTypes.length; i++) {
-            ColumnSchema column = getColumn(i);
-            OrderedHashSet<HsqlName> refs = column.getReferences();
+            ColumnSchema             column = getColumn(i);
+            OrderedHashSet<HsqlName> refs   = column.getReferences();
 
             if (refs != null && !refs.isEmpty()) {
                 set.add(column.getName());
@@ -364,8 +363,10 @@ public class Table extends TableBase implements SchemaObject {
         sb.append(Tokens.T_CREATE).append(' ');
 
         if (isTemp()) {
-            sb.append(Tokens.T_GLOBAL).append(' ');
-            sb.append(Tokens.T_TEMPORARY).append(' ');
+            sb.append(Tokens.T_GLOBAL)
+              .append(' ')
+              .append(Tokens.T_TEMPORARY)
+              .append(' ');
         } else if (isText()) {
             sb.append(Tokens.T_TEXT).append(' ');
         } else if (isCached()) {
@@ -374,9 +375,10 @@ public class Table extends TableBase implements SchemaObject {
             sb.append(Tokens.T_MEMORY).append(' ');
         }
 
-        sb.append(Tokens.T_TABLE).append(' ');
-        sb.append(getName().getSchemaQualifiedStatementName());
-        sb.append('(');
+        sb.append(Tokens.T_TABLE)
+          .append(' ')
+          .append(getName().getSchemaQualifiedStatementName())
+          .append('(');
 
         int[]      pk      = getPrimaryKey();
         Constraint pkConst = getPrimaryConstraint();
@@ -390,9 +392,7 @@ public class Table extends TableBase implements SchemaObject {
                 sb.append(',');
             }
 
-            sb.append(colname);
-            sb.append(' ');
-            sb.append(type.getTypeDefinition());
+            sb.append(colname).append(' ').append(type.getTypeDefinition());
 
             if (!type.isDistinctType() && !type.isDomainType()) {
                 if (type.isCharacterType()) {
@@ -407,85 +407,118 @@ public class Table extends TableBase implements SchemaObject {
             String defaultString = column.getDefaultSQL();
 
             if (defaultString != null) {
-                sb.append(' ').append(Tokens.T_DEFAULT).append(' ');
-                sb.append(defaultString);
+                sb.append(' ')
+                  .append(Tokens.T_DEFAULT)
+                  .append(' ')
+                  .append(defaultString);
             }
 
             if (column.isAutoUpdate()) {
-                sb.append(' ').append(Tokens.T_ON).append(' ');
-                sb.append(Tokens.T_UPDATE).append(' ');
-                sb.append(column.getUpdateExpression().getSQL());
+                sb.append(' ')
+                  .append(Tokens.T_ON)
+                  .append(' ')
+                  .append(Tokens.T_UPDATE)
+                  .append(' ')
+                  .append(column.getUpdateExpression().getSQL());
             }
 
             if (column.isIdentity()) {
-                sb.append(' ').append(
-                    column.getIdentitySequence().getSQLColumnDefinition());
+                sb.append(' ')
+                  .append(
+                      column.getIdentitySequence().getSQLColumnDefinition());
             }
 
             if (column.isGenerated()) {
-                sb.append(' ').append(Tokens.T_GENERATED).append(' ');
-                sb.append(Tokens.T_ALWAYS).append(' ').append(
-                    Tokens.T_AS).append(Tokens.T_OPENBRACKET);
-                sb.append(column.getGeneratingExpression().getSQL());
-                sb.append(Tokens.T_CLOSEBRACKET);
+                sb.append(' ')
+                  .append(Tokens.T_GENERATED)
+                  .append(' ')
+                  .append(Tokens.T_ALWAYS)
+                  .append(' ')
+                  .append(Tokens.T_AS)
+                  .append(Tokens.T_OPENBRACKET)
+                  .append(column.getGeneratingExpression().getSQL())
+                  .append(Tokens.T_CLOSEBRACKET);
             }
 
             if (column.getSystemPeriodType()
                     == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START) {
-                sb.append(' ').append(Tokens.T_GENERATED).append(' ');
-                sb.append(Tokens.T_ALWAYS).append(' ');
-                sb.append(Tokens.T_AS).append(' ');
-                sb.append(Tokens.T_ROW).append(' ').append(Tokens.T_START);
+                sb.append(' ')
+                  .append(Tokens.T_GENERATED)
+                  .append(' ')
+                  .append(Tokens.T_ALWAYS)
+                  .append(' ')
+                  .append(Tokens.T_AS)
+                  .append(' ')
+                  .append(Tokens.T_ROW)
+                  .append(' ')
+                  .append(Tokens.T_START);
             } else if (column.getSystemPeriodType()
                        == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END) {
-                sb.append(' ').append(Tokens.T_GENERATED).append(' ');
-                sb.append(Tokens.T_ALWAYS).append(' ');
-                sb.append(Tokens.T_AS).append(' ');
-                sb.append(Tokens.T_ROW).append(' ').append(Tokens.T_END);
+                sb.append(' ')
+                  .append(Tokens.T_GENERATED)
+                  .append(' ')
+                  .append(Tokens.T_ALWAYS)
+                  .append(' ')
+                  .append(Tokens.T_AS)
+                  .append(' ')
+                  .append(Tokens.T_ROW)
+                  .append(' ')
+                  .append(Tokens.T_END);
             }
 
             if (!column.isNullable()) {
                 Constraint c = getNotNullConstraintForColumn(j);
 
                 if (c != null && !c.getName().isReservedName()) {
-                    sb.append(' ').append(Tokens.T_CONSTRAINT).append(
-                        ' ').append(c.getName().statementName);
+                    sb.append(' ')
+                      .append(Tokens.T_CONSTRAINT)
+                      .append(' ')
+                      .append(c.getName().statementName);
                 }
 
-                sb.append(' ').append(Tokens.T_NOT).append(' ').append(
-                    Tokens.T_NULL);
+                sb.append(' ')
+                  .append(Tokens.T_NOT)
+                  .append(' ')
+                  .append(Tokens.T_NULL);
             }
 
-            if (pk.length == 1 && j == pk[0]
+            if (pk.length == 1
+                    && j == pk[0]
                     && pkConst.getName().isReservedName()) {
-                sb.append(' ').append(Tokens.T_PRIMARY).append(' ').append(
-                    Tokens.T_KEY);
+                sb.append(' ')
+                  .append(Tokens.T_PRIMARY)
+                  .append(' ')
+                  .append(Tokens.T_KEY);
             }
         }
 
         if (systemPeriod != null) {
-            sb.append(',');
-            sb.append(Tokens.T_PERIOD).append(' ');
-            sb.append(Tokens.T_FOR).append(' ').append(Tokens.T_SYSTEM_TIME);
-            sb.append('(');
-            sb.append(systemPeriod.getStartColumn().getName().statementName);
-            sb.append(',');
-            sb.append(systemPeriod.getEndColumn().getName().statementName);
-            sb.append(')');
+            sb.append(',')
+              .append(Tokens.T_PERIOD)
+              .append(' ')
+              .append(Tokens.T_FOR)
+              .append(' ')
+              .append(Tokens.T_SYSTEM_TIME)
+              .append('(')
+              .append(systemPeriod.getStartColumn().getName().statementName)
+              .append(',')
+              .append(systemPeriod.getEndColumn().getName().statementName)
+              .append(')');
         }
 
         if (applicationPeriod != null) {
-            sb.append(',');
-            sb.append(Tokens.T_PERIOD).append(' ');
-            sb.append(Tokens.T_FOR).append(' ');
-            sb.append(applicationPeriod.getName().statementName);
-            sb.append('(');
-            sb.append(
-                applicationPeriod.getStartColumn().getName().statementName);
-            sb.append(',');
-            sb.append(
-                applicationPeriod.getEndColumn().getName().statementName);
-            sb.append(')');
+            sb.append(',')
+              .append(Tokens.T_PERIOD)
+              .append(' ')
+              .append(Tokens.T_FOR)
+              .append(' ')
+              .append(applicationPeriod.getName().statementName)
+              .append('(')
+              .append(
+                  applicationPeriod.getStartColumn().getName().statementName)
+              .append(',')
+              .append(applicationPeriod.getEndColumn().getName().statementName)
+              .append(')');
         }
 
         Constraint[] constraintList = getConstraints();
@@ -506,14 +539,23 @@ public class Table extends TableBase implements SchemaObject {
         sb.append(')');
 
         if (onCommitPreserve()) {
-            sb.append(' ').append(Tokens.T_ON).append(' ');
-            sb.append(Tokens.T_COMMIT).append(' ').append(Tokens.T_PRESERVE);
-            sb.append(' ').append(Tokens.T_ROWS);
+            sb.append(' ')
+              .append(Tokens.T_ON)
+              .append(' ')
+              .append(Tokens.T_COMMIT)
+              .append(' ')
+              .append(Tokens.T_PRESERVE)
+              .append(' ')
+              .append(Tokens.T_ROWS);
         }
 
         if (isSystemVersioned) {
-            sb.append(' ').append(Tokens.T_WITH).append(' ');
-            sb.append(Tokens.T_SYSTEM).append(' ').append(Tokens.T_VERSIONING);
+            sb.append(' ')
+              .append(Tokens.T_WITH)
+              .append(' ')
+              .append(Tokens.T_SYSTEM)
+              .append(' ')
+              .append(Tokens.T_VERSIONING);
         }
 
         return sb.toString();
@@ -536,16 +578,19 @@ public class Table extends TableBase implements SchemaObject {
         tableName = name;
     }
 
-    HsqlArrayList<String> getSQL(OrderedHashSet<HsqlName> resolved, OrderedHashSet<SchemaObject> unresolved) {
+    HsqlArrayList<String> getSQL(
+            OrderedHashSet<HsqlName> resolved,
+            OrderedHashSet<SchemaObject> unresolved) {
 
         for (int i = 0; i < constraintList.length; i++) {
             Constraint c = constraintList[i];
 
             if (c.isForward) {
                 unresolved.add(c);
-            } else if (c.getConstraintType() == SchemaObject.ConstraintTypes
-                    .UNIQUE || c.getConstraintType() == SchemaObject
-                    .ConstraintTypes.PRIMARY_KEY) {
+            } else if (c.getConstraintType()
+                       == SchemaObject.ConstraintTypes.UNIQUE
+                       || c.getConstraintType()
+                          == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                 resolved.add(c.getName());
             }
         }
@@ -554,7 +599,9 @@ public class Table extends TableBase implements SchemaObject {
 
         list.add(getSQL());
 
-        if (!isTemp && !isText && identitySequence != null
+        if (!isTemp
+                && !isText
+                && identitySequence != null
                 && identitySequence.getName() == null) {
             list.add(NumberSequence.getRestartSQL(this));
         }
@@ -574,11 +621,15 @@ public class Table extends TableBase implements SchemaObject {
         if (isReadOnly) {
             StringBuilder sb = new StringBuilder(64);
 
-            sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(
-                ' ');
-            sb.append(getName().getSchemaQualifiedStatementName());
-            sb.append(' ').append(Tokens.T_READ).append(' ');
-            sb.append(Tokens.T_ONLY);
+            sb.append(Tokens.T_SET)
+              .append(' ')
+              .append(Tokens.T_TABLE)
+              .append(' ')
+              .append(getName().getSchemaQualifiedStatementName())
+              .append(' ')
+              .append(Tokens.T_READ)
+              .append(' ')
+              .append(Tokens.T_ONLY);
 
             return sb.toString();
         } else {
@@ -632,14 +683,22 @@ public class Table extends TableBase implements SchemaObject {
             return null;
         }
 
-        String colList = getColumnListSQL(index.getColumns(),
-                                          index.getColumnCount());
+        String colList = getColumnListSQL(
+            index.getColumns(),
+            index.getColumnCount());
         StringBuilder sb = new StringBuilder(64);
 
-        sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
-        sb.append(getName().getSchemaQualifiedStatementName());
-        sb.append(' ').append(Tokens.T_CLUSTERED).append(' ');
-        sb.append(Tokens.T_ON).append(' ').append(colList);
+        sb.append(Tokens.T_SET)
+          .append(' ')
+          .append(Tokens.T_TABLE)
+          .append(' ')
+          .append(getName().getSchemaQualifiedStatementName())
+          .append(' ')
+          .append(Tokens.T_CLUSTERED)
+          .append(' ')
+          .append(Tokens.T_ON)
+          .append(' ')
+          .append(colList);
 
         return sb.toString();
     }
@@ -652,9 +711,15 @@ public class Table extends TableBase implements SchemaObject {
 
         StringBuilder sb = new StringBuilder(64);
 
-        sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
-        sb.append(getName().getSchemaQualifiedStatementName());
-        sb.append(' ').append(Tokens.T_SPACE).append(' ').append(tableSpace);
+        sb.append(Tokens.T_SET)
+          .append(' ')
+          .append(Tokens.T_TABLE)
+          .append(' ')
+          .append(getName().getSchemaQualifiedStatementName())
+          .append(' ')
+          .append(Tokens.T_SPACE)
+          .append(' ')
+          .append(tableSpace);
 
         return sb.toString();
     }
@@ -676,15 +741,21 @@ public class Table extends TableBase implements SchemaObject {
 
         StringBuilder sb = new StringBuilder(128);
 
-        sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
-        sb.append(getName().getSchemaQualifiedStatementName()).append(' ');
-        sb.append(Tokens.T_INDEX).append(' ');
-        sb.append('\'');
-        sb.append(StringUtil.getList(roots, " ", ""));
-        sb.append(' ');
-        sb.append(StringUtil.getList(new long[indexList.length], " ", ""));
-        sb.append(' ').append(store.elementCount());
-        sb.append('\'');
+        sb.append(Tokens.T_SET)
+          .append(' ')
+          .append(Tokens.T_TABLE)
+          .append(' ')
+          .append(getName().getSchemaQualifiedStatementName())
+          .append(' ')
+          .append(Tokens.T_INDEX)
+          .append(' ')
+          .append('\'')
+          .append(StringUtil.getList(roots, " ", ""))
+          .append(' ')
+          .append(StringUtil.getList(new long[indexList.length], " ", ""))
+          .append(' ')
+          .append(store.elementCount())
+          .append('\'');
 
         return sb.toString();
     }
@@ -723,9 +794,7 @@ public class Table extends TableBase implements SchemaObject {
                 sb.append(',');
             }
 
-            sb.append(colname);
-            sb.append(' ');
-            sb.append(type.getTypeDefinition());
+            sb.append(colname).append(' ').append(type.getTypeDefinition());
         }
 
         sb.append(')');
@@ -764,8 +833,12 @@ public class Table extends TableBase implements SchemaObject {
      *
      * @return comparison result, -1,0,+1
      */
-    public static int compareRows(Session session, Object[] a, Object[] b,
-                                  int[] cols, Type[] coltypes) {
+    public static int compareRows(
+            Session session,
+            Object[] a,
+            Object[] b,
+            int[] cols,
+            Type[] coltypes) {
 
         int fieldcount = cols.length;
 
@@ -881,7 +954,6 @@ public class Table extends TableBase implements SchemaObject {
      * Used by INSERT, DELETE, UPDATE operations
      */
     public void checkDataReadOnly() {
-
         if (isDataReadOnly()) {
             throw Error.error(ErrorCode.DATA_IS_READONLY);
         }
@@ -917,13 +989,15 @@ public class Table extends TableBase implements SchemaObject {
     public void addConstraint(Constraint c) {
 
         int index = c.getConstraintType()
-                    == SchemaObject.ConstraintTypes.PRIMARY_KEY ? 0
-                                                                : constraintList
-                                                                    .length;
+                    == SchemaObject.ConstraintTypes.PRIMARY_KEY
+                    ? 0
+                    : constraintList.length;
 
-        constraintList =
-            (Constraint[]) ArrayUtil.toAdjustedArray(constraintList, c, index,
-                1);
+        constraintList = (Constraint[]) ArrayUtil.toAdjustedArray(
+            constraintList,
+            c,
+            index,
+            1);
 
         updateConstraintLists();
     }
@@ -958,14 +1032,17 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        fkConstraints     = fkCount == 0 ? Constraint.emptyArray
-                                         : new Constraint[fkCount];
+        fkConstraints     = fkCount == 0
+                            ? Constraint.emptyArray
+                            : new Constraint[fkCount];
         fkCount           = 0;
-        fkMainConstraints = mainCount == 0 ? Constraint.emptyArray
-                                           : new Constraint[mainCount];
+        fkMainConstraints = mainCount == 0
+                            ? Constraint.emptyArray
+                            : new Constraint[mainCount];
         mainCount         = 0;
-        checkConstraints  = checkCount == 0 ? Constraint.emptyArray
-                                            : new Constraint[checkCount];
+        checkConstraints  = checkCount == 0
+                            ? Constraint.emptyArray
+                            : new Constraint[checkCount];
         checkCount        = 0;
         colRefFK          = new boolean[columnCount];
         colMainFK         = new boolean[columnCount];
@@ -977,7 +1054,8 @@ public class Table extends TableBase implements SchemaObject {
                     fkConstraints[fkCount] = constraintList[i];
 
                     ArrayUtil.intIndexesToBooleanArray(
-                        constraintList[i].getRefColumns(), colRefFK);
+                        constraintList[i].getRefColumns(),
+                        colRefFK);
 
                     fkCount++;
                     break;
@@ -986,7 +1064,8 @@ public class Table extends TableBase implements SchemaObject {
                     fkMainConstraints[mainCount] = constraintList[i];
 
                     ArrayUtil.intIndexesToBooleanArray(
-                        constraintList[i].getMainColumns(), colMainFK);
+                        constraintList[i].getMainColumns(),
+                        colMainFK);
 
                     if (constraintList[i].hasCoreTriggeredAction()) {
                         referentialActions++;
@@ -1018,25 +1097,26 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0; i < constraintList.length; i++) {
             Constraint c = constraintList[i];
 
-            if (c.getConstraintType() == SchemaObject.ConstraintTypes
-                    .FOREIGN_KEY || c.getConstraintType() == SchemaObject
-                    .ConstraintTypes.MAIN) {
+            if (c.getConstraintType()
+                    == SchemaObject.ConstraintTypes.FOREIGN_KEY
+                    || c.getConstraintType()
+                       == SchemaObject.ConstraintTypes.MAIN) {
                 if (c.getMain()
                         != database.schemaManager.findUserTable(
                             c.getMain().getName().name,
                             c.getMain().getName().schema.name)) {
-                    throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "FK mismatch : "
-                                             + c.getName().name);
+                    throw Error.runtimeError(
+                        ErrorCode.U_S0500,
+                        "FK mismatch : " + c.getName().name);
                 }
 
                 if (c.getRef()
                         != database.schemaManager.findUserTable(
                             c.getRef().getName().name,
                             c.getRef().getName().schema.name)) {
-                    throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "FK mismatch : "
-                                             + c.getName().name);
+                    throw Error.runtimeError(
+                        ErrorCode.U_S0500,
+                        "FK mismatch : " + c.getName().name);
                 }
             }
         }
@@ -1060,8 +1140,9 @@ public class Table extends TableBase implements SchemaObject {
      *  Returns the primary constraint.
      */
     public Constraint getPrimaryConstraint() {
-        return hasPrimaryKey() ? constraintList[0]
-                               : null;
+        return hasPrimaryKey()
+               ? constraintList[0]
+               : null;
     }
 
     /** columnMap is null for deletes */
@@ -1078,11 +1159,10 @@ public class Table extends TableBase implements SchemaObject {
 
             if (columnMap == null) {
                 if (constraint.core.hasDeleteAction) {
-                    int[] cols =
-                        constraint.getDeleteAction()
-                        == SchemaObject.ReferentialAction.CASCADE ? null
-                                                                  : constraint
-                                                                      .getRefColumns();
+                    int[] cols = constraint.getDeleteAction()
+                                 == SchemaObject.ReferentialAction.CASCADE
+                                 ? null
+                                 : constraint.getRefColumns();
 
                     if (set.add(ref.getName())) {
                         ref.collectFKReadLocks(cols, set);
@@ -1110,11 +1190,10 @@ public class Table extends TableBase implements SchemaObject {
 
             if (columnMap == null) {
                 if (constraint.core.hasDeleteAction) {
-                    int[] cols =
-                        constraint.getDeleteAction()
-                        == SchemaObject.ReferentialAction.CASCADE ? null
-                                                                  : constraint
-                                                                      .getRefColumns();
+                    int[] cols = constraint.getDeleteAction()
+                                 == SchemaObject.ReferentialAction.CASCADE
+                                 ? null
+                                 : constraint.getRefColumns();
 
                     if (set.add(ref.getName())) {
                         ref.collectFKWriteLocks(cols, set);
@@ -1123,8 +1202,9 @@ public class Table extends TableBase implements SchemaObject {
             } else if (ArrayUtil.haveCommonElement(columnMap, mainColumns)) {
                 if (constraint.core.hasUpdateAction) {
                     if (set.add(ref.getName())) {
-                        ref.collectFKWriteLocks(constraint.getRefColumns(),
-                                                set);
+                        ref.collectFKWriteLocks(
+                            constraint.getRefColumns(),
+                            set);
                     }
                 }
             }
@@ -1163,8 +1243,10 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Returns any foreign key constraint equivalent to the column sets
      */
-    Constraint getFKConstraintForColumns(Table tableMain, int[] mainCols,
-                                         int[] refCols) {
+    Constraint getFKConstraintForColumns(
+            Table tableMain,
+            int[] mainCols,
+            int[] refCols) {
 
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
@@ -1185,10 +1267,9 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.getMainIndex() == index && (c
-                    .getConstraintType() == SchemaObject.ConstraintTypes
-                    .UNIQUE || c.getConstraintType() == SchemaObject
-                    .ConstraintTypes.PRIMARY_KEY)) {
+            if (c.getMainIndex() == index
+                    && (c.getConstraintType()
+                    == SchemaObject.ConstraintTypes.UNIQUE || c.getConstraintType() == SchemaObject.ConstraintTypes.PRIMARY_KEY)) {
                 return c;
             }
         }
@@ -1237,7 +1318,6 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     public void addColumnNoCheck(ColumnSchema column) {
-
         columnList.add(column.getName().name, column);
 
         columnCount++;
@@ -1303,15 +1383,20 @@ public class Table extends TableBase implements SchemaObject {
      * Does not work in this form for FK's as Constraint.ConstraintCore
      * is not transferred to a referencing or referenced table
      */
-    Table moveDefinition(Session session, int newType, ColumnSchema[] columns,
-                         Constraint constraint, Index index, int[] colIndex,
-                         int adjust, OrderedHashSet<HsqlName> dropConstraints,
-                         OrderedHashSet<HsqlName> dropIndexes) {
+    Table moveDefinition(
+            Session session,
+            int newType,
+            ColumnSchema[] columns,
+            Constraint constraint,
+            Index index,
+            int[] colIndex,
+            int adjust,
+            OrderedHashSet<HsqlName> dropConstraints,
+            OrderedHashSet<HsqlName> dropIndexes) {
 
         boolean newPK = constraint != null
-                && constraint.getConstraintType()
-                == ConstraintTypes.PRIMARY_KEY;
-
+                        && constraint.getConstraintType()
+                           == ConstraintTypes.PRIMARY_KEY;
         Table tn;
 
         if (isText) {
@@ -1342,7 +1427,6 @@ public class Table extends TableBase implements SchemaObject {
                 } else if (adjust == 0) {
                     if (columns.length != 0) {
                         tn.addColumn(columns[pos]);
-
                         continue;
                     }
                 } else {
@@ -1377,9 +1461,10 @@ public class Table extends TableBase implements SchemaObject {
             pkCols = ArrayUtil.toAdjustedColumnArray(pkCols, colIndex, adjust);
         } else if (newPK) {
             pkCols = constraint.getMainColumns();
-            indexName =
-                session.database.nameManager.newConstraintIndexName(tableName,
-                    constraint.getName(), session.database.sqlSysIndexNames);
+            indexName = session.database.nameManager.newConstraintIndexName(
+                tableName,
+                constraint.getName(),
+                session.database.sqlSysIndexNames);
         }
 
         tn.createPrimaryKey(indexName, pkCols, false);
@@ -1391,13 +1476,19 @@ public class Table extends TableBase implements SchemaObject {
                 continue;
             }
 
-            int[] colarr = ArrayUtil.toAdjustedColumnArray(idx.getColumns(),
-                colIndex, adjust);
-            Index newIdx = tn.createIndexStructure(idx.getName(), colarr,
-                                                   idx.getColumnDesc(), null,
-                                                   false, idx.isUnique(),
-                                                   idx.isConstraint(),
-                                                   idx.isForward());
+            int[] colarr = ArrayUtil.toAdjustedColumnArray(
+                idx.getColumns(),
+                colIndex,
+                adjust);
+            Index newIdx = tn.createIndexStructure(
+                idx.getName(),
+                colarr,
+                idx.getColumnDesc(),
+                null,
+                false,
+                idx.isUnique(),
+                idx.isConstraint(),
+                idx.isForward());
 
             newIdx.setClustered(idx.isClustered());
             tn.addIndexStructure(newIdx);
@@ -1465,11 +1556,13 @@ public class Table extends TableBase implements SchemaObject {
             Constraint c = constraintList[i];
 
             if (c.getConstraintType() == SchemaObject.ConstraintTypes.CHECK
-                    && !c.isNotNull() && c.hasColumn(colIndex)) {
+                    && !c.isNotNull()
+                    && c.hasColumn(colIndex)) {
                 HsqlName name = c.getName();
 
-                throw Error.error(ErrorCode.X_42502,
-                                  name.getSchemaQualifiedStatementName());
+                throw Error.error(
+                    ErrorCode.X_42502,
+                    name.getSchemaQualifiedStatementName());
             }
         }
     }
@@ -1484,14 +1577,14 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.hasColumn(colIndex) && (c.getConstraintType() == SchemaObject
-                    .ConstraintTypes.MAIN || c
-                    .getConstraintType() == SchemaObject.ConstraintTypes
-                    .FOREIGN_KEY)) {
+            if (c.hasColumn(colIndex)
+                    && (c.getConstraintType()
+                    == SchemaObject.ConstraintTypes.MAIN || c.getConstraintType() == SchemaObject.ConstraintTypes.FOREIGN_KEY)) {
                 HsqlName name = c.getName();
 
-                throw Error.error(ErrorCode.X_42533,
-                                  name.getSchemaQualifiedStatementName());
+                throw Error.error(
+                    ErrorCode.X_42533,
+                    name.getSchemaQualifiedStatementName());
             }
         }
     }
@@ -1613,15 +1706,16 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.getConstraintType() == SchemaObject.ConstraintTypes
-                    .FOREIGN_KEY && c
-                    .hasColumn(colIndex) && (actionType == c
-                        .getUpdateAction() || actionType == c
-                        .getDeleteAction())) {
+            if (c.getConstraintType()
+                    == SchemaObject.ConstraintTypes.FOREIGN_KEY
+                    && c.hasColumn(colIndex)
+                    && (actionType == c.getUpdateAction()
+                        || actionType == c.getDeleteAction())) {
                 HsqlName name = c.getName();
 
-                throw Error.error(ErrorCode.X_42533,
-                                  name.getSchemaQualifiedStatementName());
+                throw Error.error(
+                    ErrorCode.X_42533,
+                    name.getSchemaQualifiedStatementName());
             }
         }
     }
@@ -1651,7 +1745,6 @@ public class Table extends TableBase implements SchemaObject {
      *  Returns the index of given column name or -1 if not found.
      */
     public int findColumn(String name) {
-
         int index = columnList.getIndex(name);
 
         return index;
@@ -1751,10 +1844,10 @@ public class Table extends TableBase implements SchemaObject {
                     == SchemaObject.ConstraintTypes.UNIQUE) {
                 int[] indexCols = constraint.getMainColumns();
 
-                if (ArrayUtil.areAllIntIndexesInBooleanArray(
-                        indexCols, colNotNull) && ArrayUtil
-                            .areAllIntIndexesInBooleanArray(
-                                indexCols, usedColumns)) {
+                if (ArrayUtil.areAllIntIndexesInBooleanArray(indexCols,
+                        colNotNull)
+                        && ArrayUtil.areAllIntIndexesInBooleanArray(indexCols,
+                                usedColumns)) {
                     return indexCols;
                 }
             } else if (constraint.getConstraintType()
@@ -1786,8 +1879,10 @@ public class Table extends TableBase implements SchemaObject {
      *  Creates a single or multi-column primary key and index. sets the
      *  colTypes array. Finalises the creation of the table. (fredt@users)
      */
-    public void createPrimaryKey(HsqlName indexName, int[] columns,
-                                 boolean columnsNotNull) {
+    public void createPrimaryKey(
+            HsqlName indexName,
+            int[] columns,
+            boolean columnsNotNull) {
 
         if (columns == null) {
             columns = ValuePool.emptyIntArray;
@@ -1806,22 +1901,29 @@ public class Table extends TableBase implements SchemaObject {
         HsqlName name = indexName;
 
         if (name == null) {
-            name = database.nameManager.newAutoName("IDX", getSchemaName(),
-                    getName(), SchemaObject.INDEX);
+            name = database.nameManager.newAutoName(
+                "IDX",
+                getSchemaName(),
+                getName(),
+                SchemaObject.INDEX);
         }
 
         createPrimaryIndex(columns, primaryKeyTypes, name);
         setBestRowIdentifiers();
     }
 
-    public void createPrimaryKeyConstraint(HsqlName indexName, int[] columns,
-                                           boolean columnsNotNull) {
+    public void createPrimaryKeyConstraint(
+            HsqlName indexName,
+            int[] columns,
+            boolean columnsNotNull) {
 
         createPrimaryKey(indexName, columns, columnsNotNull);
 
-        Constraint c =
-            new Constraint(indexName, this, getPrimaryIndex(),
-                           SchemaObject.ConstraintTypes.PRIMARY_KEY);
+        Constraint c = new Constraint(
+            indexName,
+            this,
+            getPrimaryIndex(),
+            SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
         addConstraint(c);
     }
@@ -2022,8 +2124,11 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        triggerList = (TriggerDef[]) ArrayUtil.toAdjustedArray(triggerList,
-                td, index, 1);
+        triggerList = (TriggerDef[]) ArrayUtil.toAdjustedArray(
+            triggerList,
+            td,
+            index,
+            1);
 
         TriggerDef[] list = triggerLists[td.triggerType];
 
@@ -2035,7 +2140,6 @@ public class Table extends TableBase implements SchemaObject {
 
                 if (trigger.getName().name.equals(otherName.name)) {
                     index = i + 1;
-
                     break;
                 }
             }
@@ -2083,10 +2187,11 @@ public class Table extends TableBase implements SchemaObject {
             if (td.getName().name.equals(trigger.getName().name)) {
                 td.terminate();
 
-                triggerList =
-                    (TriggerDef[]) ArrayUtil.toAdjustedArray(triggerList,
-                        null, i, -1);
-
+                triggerList = (TriggerDef[]) ArrayUtil.toAdjustedArray(
+                    triggerList,
+                    null,
+                    i,
+                    -1);
                 break;
             }
         }
@@ -2103,8 +2208,10 @@ public class Table extends TableBase implements SchemaObject {
 
             if (td.getName().name.equals(trigger.getName().name)) {
                 triggerLists[index] = (TriggerDef[]) ArrayUtil.toAdjustedArray(
-                    triggerLists[index], null, j, -1);
-
+                    triggerLists[index],
+                    null,
+                    j,
+                    -1);
                 break;
             }
         }
@@ -2162,8 +2269,9 @@ public class Table extends TableBase implements SchemaObject {
         Index[] indexes = indexList;
         int     i       = getIndexIndex(indexName);
 
-        return i == -1 ? null
-                       : indexes[i];
+        return i == -1
+               ? null
+               : indexes[i];
     }
 
     /**
@@ -2223,8 +2331,9 @@ public class Table extends TableBase implements SchemaObject {
 
         int i = getConstraintIndex(constraintName);
 
-        return (i < 0) ? null
-                       : constraintList[i];
+        return (i < 0)
+               ? null
+               : constraintList[i];
     }
 
     /**
@@ -2236,9 +2345,10 @@ public class Table extends TableBase implements SchemaObject {
             Constraint c = constraintList[i];
 
             if (c.getMainIndex() == index) {
-                if (c.getConstraintType() == SchemaObject.ConstraintTypes
-                        .PRIMARY_KEY || c.getConstraintType() == SchemaObject
-                        .ConstraintTypes.UNIQUE) {
+                if (c.getConstraintType()
+                        == SchemaObject.ConstraintTypes.PRIMARY_KEY
+                        || c.getConstraintType()
+                           == SchemaObject.ConstraintTypes.UNIQUE) {
                     return c;
                 }
             }
@@ -2261,9 +2371,11 @@ public class Table extends TableBase implements SchemaObject {
 
     void removeConstraint(int index) {
 
-        constraintList =
-            (Constraint[]) ArrayUtil.toAdjustedArray(constraintList, null,
-                index, -1);
+        constraintList = (Constraint[]) ArrayUtil.toAdjustedArray(
+            constraintList,
+            null,
+            index,
+            -1);
 
         updateConstraintLists();
     }
@@ -2295,7 +2407,8 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     public boolean isWritable() {
-        return !isReadOnly && !database.databaseReadOnly
+        return !isReadOnly
+               && !database.databaseReadOnly
                && !(database.isFilesReadOnly() && (isCached || isText));
     }
 
@@ -2338,13 +2451,22 @@ public class Table extends TableBase implements SchemaObject {
     Index createIndexForColumns(Session session, int[] columns) {
 
         Index index = null;
-        HsqlName indexName = database.nameManager.newAutoName("IDX_T",
-            getSchemaName(), getName(), SchemaObject.INDEX);
+        HsqlName indexName = database.nameManager.newAutoName(
+            "IDX_T",
+            getSchemaName(),
+            getName(),
+            SchemaObject.INDEX);
 
         try {
-            index = createAndAddIndexStructure(session, indexName, columns,
-                                               null, null, false, false,
-                                               false);
+            index = createAndAddIndexStructure(
+                session,
+                indexName,
+                columns,
+                null,
+                null,
+                false,
+                false,
+                false);
         } catch (Throwable t) {
             return null;
         }
@@ -2352,8 +2474,10 @@ public class Table extends TableBase implements SchemaObject {
         return index;
     }
 
-    void fireTriggers(Session session, int trigVecIndex,
-                      RowSetNavigatorDataChange rowSet) {
+    void fireTriggers(
+            Session session,
+            int trigVecIndex,
+            RowSetNavigatorDataChange rowSet) {
 
         if (!database.isReferentialIntegrity()) {
             return;
@@ -2374,8 +2498,10 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    void fireTriggers(Session session, int trigVecIndex,
-                      RowSetNavigator rowSet) {
+    void fireTriggers(
+            Session session,
+            int trigVecIndex,
+            RowSetNavigator rowSet) {
 
         if (!database.isReferentialIntegrity()) {
             return;
@@ -2400,8 +2526,12 @@ public class Table extends TableBase implements SchemaObject {
      *  Fires all row-level triggers of the given set (trigger type)
      *
      */
-    void fireTriggers(Session session, int trigVecIndex, Object[] oldData,
-                      Object[] newData, int[] cols) {
+    void fireTriggers(
+            Session session,
+            int trigVecIndex,
+            Object[] oldData,
+            Object[] newData,
+            int[] cols) {
 
         if (!database.isReferentialIntegrity()) {
             return;
@@ -2413,9 +2543,10 @@ public class Table extends TableBase implements SchemaObject {
             TriggerDef td         = trigVec[i];
             boolean    sqlTrigger = td instanceof TriggerDefSQL;
 
-            if (cols != null && td.getUpdateColumnIndexes() != null
-                    && !ArrayUtil.haveCommonElement(
-                        td.getUpdateColumnIndexes(), cols)) {
+            if (cols != null
+                    && td.getUpdateColumnIndexes() != null
+                    && !ArrayUtil.haveCommonElement(td.getUpdateColumnIndexes(),
+                            cols)) {
                 continue;
             }
 
@@ -2427,27 +2558,30 @@ public class Table extends TableBase implements SchemaObject {
 
                     case Trigger.INSERT_AFTER_ROW :
                         if (!sqlTrigger) {
-                            newData =
-                                (Object[]) ArrayUtil.duplicateArray(newData);
+                            newData = (Object[]) ArrayUtil.duplicateArray(
+                                newData);
                         }
+
                         break;
 
                     case Trigger.UPDATE_AFTER_ROW :
                         if (!sqlTrigger) {
-                            oldData =
-                                (Object[]) ArrayUtil.duplicateArray(oldData);
-                            newData =
-                                (Object[]) ArrayUtil.duplicateArray(newData);
+                            oldData = (Object[]) ArrayUtil.duplicateArray(
+                                oldData);
+                            newData = (Object[]) ArrayUtil.duplicateArray(
+                                newData);
                         }
+
                         break;
 
                     case Trigger.UPDATE_BEFORE_ROW :
                     case Trigger.DELETE_BEFORE_ROW :
                     case Trigger.DELETE_AFTER_ROW :
                         if (!sqlTrigger) {
-                            oldData =
-                                (Object[]) ArrayUtil.duplicateArray(oldData);
+                            oldData = (Object[]) ArrayUtil.duplicateArray(
+                                oldData);
                         }
+
                         break;
                 }
 
@@ -2474,8 +2608,11 @@ public class Table extends TableBase implements SchemaObject {
                 column = getColumn(i);
 
                 for (int j = 0; j < constraints.length; j++) {
-                    constraints[j].checkCheckConstraint(session, this, column,
-                                                        data[i]);
+                    constraints[j].checkCheckConstraint(
+                        session,
+                        this,
+                        column,
+                        data[i]);
                 }
             }
 
@@ -2489,17 +2626,20 @@ public class Table extends TableBase implements SchemaObject {
                     }
                 }
 
-                constraintName = c == null ? ""
-                                           : c.getName().name;
+                constraintName = c == null
+                                 ? ""
+                                 : c.getName().name;
                 column         = getColumn(i);
 
-                String[] info = new String[] {
-                    constraintName, tableName.statementName,
-                    column.getName().statementName
-                };
+                String[] info = new String[]{ constraintName,
+                                              tableName.statementName,
+                                              column.getName().statementName };
 
-                throw Error.error(null, ErrorCode.X_23502,
-                                  ErrorCode.COLUMN_CONSTRAINT, info);
+                throw Error.error(
+                    null,
+                    ErrorCode.X_23502,
+                    ErrorCode.COLUMN_CONSTRAINT,
+                    info);
             }
         }
     }
@@ -2519,13 +2659,14 @@ public class Table extends TableBase implements SchemaObject {
         } catch (HsqlException e) {
             int code = e.getErrorCode();
 
-            if (code == -ErrorCode.X_22001 || code == -ErrorCode.X_22003
+            if (code == -ErrorCode.X_22001
+                    || code == -ErrorCode.X_22003
                     || code == -ErrorCode.X_22008) {
                 ColumnSchema column = getColumn(i);
-                String[]     info   = new String[] {
+                String[] info = new String[]{
                     "size limit: " + colTypes[i].precision,
-                    tableName.statementName, column.getName().statementName
-                };
+                    tableName.statementName,
+                    column.getName().statementName };
 
                 throw Error.error(e, code, ErrorCode.COLUMN_CONSTRAINT, info);
             }
@@ -2539,10 +2680,9 @@ public class Table extends TableBase implements SchemaObject {
         int i = bestIndexForColumn[col];
 
         if (i > -1) {
-            return indexList[i].isUnique()
-                   && indexList[i].getColumnCount() == 1 ? Index.INDEX_UNIQUE
-                                                         : Index
-                                                         .INDEX_NON_UNIQUE;
+            return indexList[i].isUnique() && indexList[i].getColumnCount() == 1
+                   ? Index.INDEX_UNIQUE
+                   : Index.INDEX_NON_UNIQUE;
         }
 
         switch (tableType) {
@@ -2580,7 +2720,8 @@ public class Table extends TableBase implements SchemaObject {
     Index getFullIndexForColumns(int[] cols) {
 
         for (int i = 0; i < indexList.length; i++) {
-            if (ArrayUtil.haveEqualArrays(indexList[i].getColumns(), cols,
+            if (ArrayUtil.haveEqualArrays(indexList[i].getColumns(),
+                                          cols,
                                           cols.length)) {
                 return indexList[i];
             }
@@ -2595,7 +2736,8 @@ public class Table extends TableBase implements SchemaObject {
     Index getIndexForAllColumns(int[] cols) {
 
         for (int i = 0; i < indexList.length; i++) {
-            if (ArrayUtil.haveEqualSets(indexList[i].getColumns(), cols,
+            if (ArrayUtil.haveEqualSets(indexList[i].getColumns(),
+                                        cols,
                                         cols.length)) {
                 return indexList[i];
             }
@@ -2610,14 +2752,20 @@ public class Table extends TableBase implements SchemaObject {
      *
      * synchronized required for shared INFORMATION_SCHEMA etc. tables
      */
-    synchronized IndexUse[] getIndexForColumns(Session session,
-            OrderedIntHashSet set, int opType, boolean ordered) {
+    synchronized IndexUse[] getIndexForColumns(
+            Session session,
+            OrderedIntHashSet set,
+            int opType,
+            boolean ordered) {
 
         if (set.isEmpty()) {
             return Index.emptyUseArray;
         }
 
-        IndexUse[] indexUse = findIndexForColumns(session, set, opType,
+        IndexUse[] indexUse = findIndexForColumns(
+            session,
+            set,
+            opType,
             ordered);
 
         if (indexUse.length == 0) {
@@ -2633,7 +2781,6 @@ public class Table extends TableBase implements SchemaObject {
                 case TableBase.SYSTEM_SUBQUERY :
                 case TableBase.VIEW_TABLE : {
                     selected = createIndexForColumns(session, set.toArray());
-
                     break;
                 }
             }
@@ -2646,8 +2793,11 @@ public class Table extends TableBase implements SchemaObject {
         return indexUse;
     }
 
-    IndexUse[] findIndexForColumns(Session session, OrderedIntHashSet set,
-                                   int opType, boolean ordered) {
+    IndexUse[] findIndexForColumns(
+            Session session,
+            OrderedIntHashSet set,
+            int opType,
+            boolean ordered) {
 
         IndexUse[] indexUse = Index.emptyUseArray;
 
@@ -2658,8 +2808,9 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, count = indexList.length; i < count; i++) {
             Index currentIndex = getIndex(i);
             int[] indexcols    = currentIndex.getColumns();
-            int matchCount = ordered ? set.getOrderedStartMatchCount(indexcols)
-                                     : set.getStartMatchCount(indexcols);
+            int   matchCount   = ordered
+                                 ? set.getOrderedStartMatchCount(indexcols)
+                                 : set.getStartMatchCount(indexcols);
 
             if (matchCount == 0) {
                 continue;
@@ -2679,12 +2830,13 @@ public class Table extends TableBase implements SchemaObject {
                     && matchCount == currentIndex.getColumnCount()) {
                 indexUse = currentIndex.asArray();
             } else {
-                IndexUse[] newList =
-                    (IndexUse[]) ArrayUtil.resizeArray(indexUse,
-                                                       indexUse.length + 1);
+                IndexUse[] newList = (IndexUse[]) ArrayUtil.resizeArray(
+                    indexUse,
+                    indexUse.length + 1);
 
-                newList[newList.length - 1] = new IndexUse(currentIndex,
-                        matchCount);
+                newList[newList.length - 1] = new IndexUse(
+                    currentIndex,
+                    matchCount);
                 indexUse = newList;
             }
         }
@@ -2714,15 +2866,16 @@ public class Table extends TableBase implements SchemaObject {
      */
     public final long[] getIndexRootsArray() {
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(this);
+        PersistentStore store = database.persistentStoreCollection.getStore(
+            this);
         long[] roots = new long[indexList.length];
 
         for (int index = 0; index < indexList.length; index++) {
             CachedObject accessor = store.getAccessor(indexList[index]);
 
-            roots[index] = accessor == null ? -1
-                                            : accessor.getPos();
+            roots[index] = accessor == null
+                           ? -1
+                           : accessor.getPos();
         }
 
         return roots;
@@ -2730,8 +2883,8 @@ public class Table extends TableBase implements SchemaObject {
 
     public void setIndexRoots(long[] roots) {
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(this);
+        PersistentStore store = database.persistentStoreCollection.getStore(
+            this);
         long cardinality = store.elementCount();
 
         store.setAccessors(0, roots, cardinality);
@@ -2768,8 +2921,8 @@ public class Table extends TableBase implements SchemaObject {
 
         cardinality = p.readBigint();
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(this);
+        PersistentStore store = database.persistentStoreCollection.getStore(
+            this);
 
         store.setAccessors(0, roots, cardinality);
     }
@@ -2795,7 +2948,8 @@ public class Table extends TableBase implements SchemaObject {
         if (hasNotNullColumns) {
             for (int i = 0; i < colDefaults.length; i++) {
                 if (data[i] == null) {
-                    if (colNotNull[i] && colDefaults[i] != null
+                    if (colNotNull[i]
+                            && colDefaults[i] != null
                             && colDefaults[i].getType() == OpTypes.VALUE) {
                         data[i] = colDefaults[i].getValue(null);
                     }
@@ -2808,8 +2962,11 @@ public class Table extends TableBase implements SchemaObject {
      *  Mid level method for inserting single rows. Performs constraint checks and
      *  fires row level triggers.
      */
-    Row insertSingleRow(Session session, PersistentStore store, Object[] data,
-                        int[] changedCols) {
+    Row insertSingleRow(
+            Session session,
+            PersistentStore store,
+            Object[] data,
+            int[] changedCols) {
 
         generateAndCheckData(session, data);
 
@@ -2829,8 +2986,10 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Method for inserting system version history row
      */
-    Row insertSystemVersionHistoryRow(Session session, PersistentStore store,
-                                      Object[] data) {
+    Row insertSystemVersionHistoryRow(
+            Session session,
+            PersistentStore store,
+            Object[] data) {
 
         TimestampData txTimestamp = session.getTransactionUTC();
 
@@ -2844,8 +3003,12 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(session, newData, true);
 
-        session.database.txManager.addInsertAction(session, this, store, row,
-                null);
+        session.database.txManager.addInsertAction(
+            session,
+            this,
+            store,
+            row,
+            null);
 
         return row;
     }
@@ -2860,12 +3023,14 @@ public class Table extends TableBase implements SchemaObject {
 
         while (nav.next()) {
             Object[] data = nav.getCurrent();
-            Object[] newData =
-                (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
+            Object[] newData = (Object[]) ArrayUtil.resizeArrayIfDifferent(
+                data,
+                columnCount);
 
             for (int i = 0; i < newData.length; i++) {
-                newData[i] = colTypes[i].convertToTypeLimits(session,
-                        newData[i]);
+                newData[i] = colTypes[i].convertToTypeLimits(
+                    session,
+                    newData[i]);
             }
 
             insertData(session, store, newData, true);
@@ -2919,8 +3084,9 @@ public class Table extends TableBase implements SchemaObject {
 
         while (nav.next()) {
             Object[] data = nav.getCurrent();
-            Object[] newData =
-                (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
+            Object[] newData = (Object[]) ArrayUtil.resizeArrayIfDifferent(
+                data,
+                columnCount);
 
             insertData(session, store, newData, true);
         }
@@ -2931,8 +3097,10 @@ public class Table extends TableBase implements SchemaObject {
      * Used by ScriptReader to unconditionally insert a row into
      * the table when the .script file is read.
      */
-    public void insertFromScript(Session session, PersistentStore store,
-                                 Object[] data) {
+    public void insertFromScript(
+            Session session,
+            PersistentStore store,
+            Object[] data) {
 
         boolean enforceUnique = true;
 
@@ -2949,9 +3117,11 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * For system operations outside transaction control
      */
-    public void insertData(Session session, PersistentStore store,
-                           Object[] data, boolean enforceUnique) {
-
+    public void insertData(
+            Session session,
+            PersistentStore store,
+            Object[] data,
+            boolean enforceUnique) {
         Row row = (Row) store.getNewCachedObject(session, data, false);
 
         store.indexRow(session, row);
@@ -2960,9 +3130,10 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Used by the system tables only
      */
-    public void insertSys(Session session, PersistentStore store,
-                          Object[] data) {
-
+    public void insertSys(
+            Session session,
+            PersistentStore store,
+            Object[] data) {
         Row row = (Row) store.getNewCachedObject(session, data, false);
 
         store.indexRow(session, row);
@@ -2979,15 +3150,14 @@ public class Table extends TableBase implements SchemaObject {
 
             if (identitySequence.getName() == null) {
                 if (id == null) {
-                    id = identitySequence.getValueObject();
+                    id                   = identitySequence.getValueObject();
                     data[identityColumn] = id;
                 } else {
                     identitySequence.userUpdate(id.longValue());
                 }
             } else {
                 if (id == null) {
-                    id = session.sessionData.getSequenceValue(
-                        identitySequence);
+                    id = session.sessionData.getSequenceValue(identitySequence);
                     data[identityColumn] = id;
                 }
             }
@@ -2998,15 +3168,17 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    public Object getColumnDefaultOrGeneratedValue(Session session,
-            ColumnSchema column, Object[] data) {
+    public Object getColumnDefaultOrGeneratedValue(
+            Session session,
+            ColumnSchema column,
+            Object[] data) {
 
         Object value = null;
 
         if (column.isGenerated()) {
             Expression e = column.getGeneratingExpression();
-            RangeIterator range =
-                session.sessionContext.getCheckIterator(getDefaultRanges()[0]);
+            RangeIterator range = session.sessionContext.getCheckIterator(
+                getDefaultRanges()[0]);
 
             range.setCurrent(data);
 
@@ -3053,8 +3225,10 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    public void setUpdatedColumns(Session session, Object[] data,
-                                  int[] colMap) {
+    public void setUpdatedColumns(
+            Session session,
+            Object[] data,
+            int[] colMap) {
 
         if (hasUpdatedValues) {
             for (int i = 0; i < colUpdated.length; i++) {
@@ -3075,7 +3249,7 @@ public class Table extends TableBase implements SchemaObject {
             Number id = (Number) data[identityColumn];
 
             if (id == null) {
-                id = identitySequence.getValueObject();
+                id                   = identitySequence.getValueObject();
                 data[identityColumn] = id;
             } else {
                 if (identitySequence.getName() == null) {
@@ -3113,8 +3287,11 @@ public class Table extends TableBase implements SchemaObject {
         if (hasPrimaryKey()) {
             Index index        = getPrimaryIndex();
             int[] colsSequence = index.getDefaultColumnMap();
-            RowIterator it = index.findFirstRow(session, store, data,
-                                                colsSequence);
+            RowIterator it = index.findFirstRow(
+                session,
+                store,
+                data,
+                colsSequence);
 
             it.next();
 
@@ -3127,9 +3304,11 @@ public class Table extends TableBase implements SchemaObject {
             while (it.next()) {
                 row = it.getCurrentRow();
 
-                if (Table.compareRows(
-                        session, row.getData(), data, defaultColumnMap,
-                        colTypes) == 0) {
+                if (Table.compareRows(session,
+                                      row.getData(),
+                                      data,
+                                      defaultColumnMap,
+                                      colTypes) == 0) {
                     break;
                 }
             }
@@ -3144,16 +3323,19 @@ public class Table extends TableBase implements SchemaObject {
                 Object[] rowdata = row.getData();
 
                 // reached end of range
-                if (bestIndex.compareRowNonUnique(
-                        session, rowdata, data, bestIndex.getColumns()) != 0) {
+                if (bestIndex.compareRowNonUnique(session,
+                                                  rowdata,
+                                                  data,
+                                                  bestIndex.getColumns()) != 0) {
                     row = null;
-
                     break;
                 }
 
-                if (Table.compareRows(
-                        session, rowdata, data, defaultColumnMap,
-                        colTypes) == 0) {
+                if (Table.compareRows(session,
+                                      rowdata,
+                                      data,
+                                      defaultColumnMap,
+                                      colTypes) == 0) {
                     break;
                 }
             }
@@ -3197,8 +3379,7 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         if (isSessionBased) {
-            return session.sessionData.persistentStoreCollection.getStore(
-                this);
+            return session.sessionData.persistentStoreCollection.getStore(this);
         }
 
         return database.persistentStoreCollection.getStore(this);

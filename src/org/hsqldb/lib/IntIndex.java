@@ -55,7 +55,6 @@ public class IntIndex {
     private int targetSearchValue;
 
     public IntIndex(int capacity, boolean fixedSize) {
-
         this.capacity  = capacity;
         this.keys      = new int[capacity];
         this.fixedSize = fixedSize;
@@ -469,9 +468,10 @@ public class IntIndex {
             indices.pop();
 
             if (end - start >= threshold) {
-                int pivot = partition(start,
-                                      end,
-                                      start + ((end - start) >>> 1));
+                int pivot = partition(
+                    start,
+                    end,
+                    start + ((end - start) >>> 1));
 
                 indices.push(start, pivot - 1);
                 indices.push(pivot + 1, end);
@@ -633,17 +633,17 @@ public class IntIndex {
 
     public synchronized void removeRange(int start, int limit) {
 
-        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT,
-                              keys,
-                              count,
-                              start,
-                              start - limit);
+        ArrayUtil.adjustArray(
+            ArrayUtil.CLASS_CODE_INT,
+            keys,
+            count,
+            start,
+            start - limit);
 
         count -= (limit - start);
     }
 
     public synchronized void removeAll() {
-
         Arrays.fill(keys, 0);
 
         count = 0;

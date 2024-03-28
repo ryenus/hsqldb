@@ -44,11 +44,12 @@ import org.hsqldb.lib.LongKeyHashMap;
  * @since 1.9.0
  */
 public class PersistentStoreCollectionDatabase
-implements PersistentStoreCollection {
+        implements PersistentStoreCollection {
 
-    private Database             database;
-    private AtomicLong           persistentStoreIdSequence = new AtomicLong();
-    private final LongKeyHashMap<PersistentStore> rowStoreMap = new LongKeyHashMap<>();
+    private Database database;
+    private AtomicLong persistentStoreIdSequence = new AtomicLong();
+    private final LongKeyHashMap<PersistentStore> rowStoreMap =
+        new LongKeyHashMap<>();
 
     public PersistentStoreCollectionDatabase(Database db) {
         this.database = db;
@@ -56,8 +57,8 @@ implements PersistentStoreCollection {
 
     synchronized public PersistentStore getStore(TableBase table) {
 
-        long persistenceId = table.getPersistenceId();
-        PersistentStore store = rowStoreMap.get(persistenceId);
+        long            persistenceId = table.getPersistenceId();
+        PersistentStore store         = rowStoreMap.get(persistenceId);
 
         if (store == null) {
             store = database.logger.newStore(null, this, table);
@@ -129,7 +130,8 @@ implements PersistentStoreCollection {
 
             if (table.getTableType() == TableBase.CACHED_TABLE) {
                 TableSpaceManager tableSpace =
-                    dataCache.spaceManager.getTableSpace(table.getSpaceID());
+                    dataCache.spaceManager.getTableSpace(
+                        table.getSpaceID());
 
                 store.setSpaceManager(tableSpace);
             }

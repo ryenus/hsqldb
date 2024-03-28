@@ -120,14 +120,16 @@ public abstract class ScriptWriterBase implements Runnable {
     static final int INSERT_WITH_SCHEMA = 1;
 
     /** the last schema for last sessionId */
-    Session                      currentSession;
-    public static final String[] LIST_SCRIPT_FORMATS = new String[] {
-        Tokens.T_TEXT, Tokens.T_BINARY, null, Tokens.T_COMPRESSED
-    };
+    Session currentSession;
+    public static final String[] LIST_SCRIPT_FORMATS = new String[]{
+        Tokens.T_TEXT,
+        Tokens.T_BINARY, null, Tokens.T_COMPRESSED };
 
-    ScriptWriterBase(Database db, OutputStream outputStream,
-                     FileAccess.FileSync descriptor,
-                     boolean includeCachedData) {
+    ScriptWriterBase(
+            Database db,
+            OutputStream outputStream,
+            FileAccess.FileSync descriptor,
+            boolean includeCachedData) {
 
         initBuffers();
 
@@ -143,8 +145,12 @@ public abstract class ScriptWriterBase implements Runnable {
         outDescriptor = descriptor;
     }
 
-    ScriptWriterBase(Database db, String file, boolean includeCachedData,
-                     boolean isNewFile, boolean isUserScript) {
+    ScriptWriterBase(
+            Database db,
+            String file,
+            boolean includeCachedData,
+            boolean isNewFile,
+            boolean isUserScript) {
 
         initBuffers();
 
@@ -157,8 +163,9 @@ public abstract class ScriptWriterBase implements Runnable {
         }
 
         if (exists && isNewFile) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
-                              file + " already exists");
+            throw Error.error(
+                ErrorCode.FILE_IO_ERROR,
+                file + " already exists");
         }
 
         this.database          = db;
@@ -217,14 +224,16 @@ public abstract class ScriptWriterBase implements Runnable {
                 outDescriptor.sync();
 
                 syncCount++;
+
 /*
                 System.out.println(
                     this.outFile + " FD.sync done at "
                     + new java.sql.Timestamp(System.currentTimeMillis()));
 */
             } catch (IOException e) {
-                database.logger.logWarningEvent("ScriptWriter synch error: ",
-                                                e);
+                database.logger.logWarningEvent(
+                    "ScriptWriter synch error: ",
+                    e);
             }
         }
     }
@@ -270,18 +279,20 @@ public abstract class ScriptWriterBase implements Runnable {
     protected void openFile() {
 
         try {
-            FileAccess   fa  = isUserScript ? FileUtil.getFileUtil()
-                                            : database.logger.getFileAccess();
+            FileAccess   fa  = isUserScript
+                               ? FileUtil.getFileUtil()
+                               : database.logger.getFileAccess();
             OutputStream fos = fa.openOutputStreamElementAppend(outFile);
 
             outDescriptor = fa.getFileSync(fos);
             fileStreamOut = fos;
             fileStreamOut = new BufferedOutputStream(fos, 1 << 14);
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_Message_Pair, new String[] {
-                e.toString(), outFile
-            });
+            throw Error.error(
+                e,
+                ErrorCode.FILE_IO_ERROR,
+                ErrorCode.M_Message_Pair,
+                new String[]{ e.toString(), outFile });
         }
     }
 
@@ -315,7 +326,8 @@ public abstract class ScriptWriterBase implements Runnable {
             }
 
             Iterator<SchemaObject> tables =
-                database.schemaManager.databaseObjectIterator(schema,
+                database.schemaManager.databaseObjectIterator(
+                    schema,
                     SchemaObject.TABLE);
 
             while (tables.hasNext()) {
@@ -356,7 +368,8 @@ public abstract class ScriptWriterBase implements Runnable {
         // start with blank schema - SET SCHEMA to log
         currentSession.loggedSchema = null;
 
-        Iterator<SchemaObject> tables = database.schemaManager.databaseObjectIterator(
+        Iterator<SchemaObject> tables =
+            database.schemaManager.databaseObjectIterator(
                 SchemaObject.TABLE);
 
         while (tables.hasNext()) {
@@ -377,8 +390,8 @@ public abstract class ScriptWriterBase implements Runnable {
         try {
             writeTableInit(t);
 
-            RowIterator it =
-                t.rowIteratorForScript(t.getRowStore(currentSession));
+            RowIterator it = t.rowIteratorForScript(
+                t.getRowStore(currentSession));
 
             while (it.next()) {
                 Row row = it.getCurrentRow();
@@ -404,8 +417,8 @@ public abstract class ScriptWriterBase implements Runnable {
         try {
             writeTableInit(t);
 
-            RowIterator it =
-                t.rowIteratorForScript(t.getRowStore(currentSession));
+            RowIterator it = t.rowIteratorForScript(
+                t.getRowStore(currentSession));
 
             while (it.next()) {
                 Row           row   = it.getCurrentRow();
@@ -454,13 +467,18 @@ public abstract class ScriptWriterBase implements Runnable {
 
     public abstract void writeOtherStatement(Session session, String s);
 
-    public abstract void writeInsertStatement(Session session, Row row,
+    public abstract void writeInsertStatement(
+            Session session,
+            Row row,
             Table table);
 
-    public abstract void writeDeleteStatement(Session session, Table table,
+    public abstract void writeDeleteStatement(
+            Session session,
+            Table table,
             Object[] data);
 
-    public abstract void writeSequenceStatement(Session session,
+    public abstract void writeSequenceStatement(
+            Session session,
             NumberSequence seq);
 
     public abstract void writeCommitStatement(Session session);
@@ -493,8 +511,12 @@ public abstract class ScriptWriterBase implements Runnable {
     public void start() {
 
         if (writeDelay > 0) {
-            timerTask = DatabaseManager.getTimer().schedulePeriodicallyAfter(0,
-                    writeDelay, this, false);
+            timerTask = DatabaseManager.getTimer()
+                                       .schedulePeriodicallyAfter(
+                                           0,
+                                           writeDelay,
+                                           this,
+                                           false);
         }
     }
 

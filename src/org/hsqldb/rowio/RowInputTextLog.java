@@ -62,18 +62,16 @@ import org.hsqldb.types.Type;
  * @version 2.7.0
  * @since 1.7.3
  */
-public class RowInputTextLog extends RowInputBase
-implements RowInputInterface {
+public class RowInputTextLog extends RowInputBase implements RowInputInterface {
 
-    Scanner  scanner;
-    String   tableName  = null;
-    String   schemaName = null;
-    int      statementType;
-    Object   value;
-    boolean  noSeparators;
+    Scanner scanner;
+    String  tableName  = null;
+    String  schemaName = null;
+    int     statementType;
+    Object  value;
+    boolean noSeparators;
 
     public RowInputTextLog() {
-
         super(new byte[0]);
 
         scanner = new Scanner();
@@ -102,9 +100,9 @@ implements RowInputInterface {
                 tableName = scanner.getString();
 
                 scanner.scanNext();
-
                 break;
             }
+
             case Tokens.DELETE : {
                 statementType = StatementLineTypes.DELETE_STATEMENT;
 
@@ -114,14 +112,14 @@ implements RowInputInterface {
                 scanner.scanNext();
 
                 tableName = scanner.getString();
-
                 break;
             }
+
             case Tokens.COMMIT : {
                 statementType = StatementLineTypes.COMMIT_STATEMENT;
-
                 break;
             }
+
             case Tokens.SET : {
                 scanner.scanNext();
 
@@ -192,7 +190,6 @@ implements RowInputInterface {
     }
 
     public String readString() {
-
         readField();
 
         return (String) value;
@@ -229,14 +226,12 @@ implements RowInputInterface {
     }
 
     protected String readChar(Type type) {
-
         readField();
 
         return (String) value;
     }
 
     protected Integer readSmallint() {
-
         readNumberField(Type.SQL_SMALLINT);
 
         return (Integer) value;
@@ -356,8 +351,9 @@ implements RowInputInterface {
             return null;
         }
 
-        return (IntervalMonthData) scanner.newInterval((String) value,
-                (IntervalType) type);
+        return (IntervalMonthData) scanner.newInterval(
+            (String) value,
+            (IntervalType) type);
     }
 
     protected IntervalSecondData readDaySecondInterval(Type type) {
@@ -368,8 +364,9 @@ implements RowInputInterface {
             return null;
         }
 
-        return (IntervalSecondData) scanner.newInterval((String) value,
-                (IntervalType) type);
+        return (IntervalSecondData) scanner.newInterval(
+            (String) value,
+            (IntervalType) type);
     }
 
     protected Boolean readBoole() {

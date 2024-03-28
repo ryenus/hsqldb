@@ -59,10 +59,11 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V> {
             int initialCapacity)
             throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.objectKeyOrValue,
-              BaseHashMap.objectKeyOrValue,
-              false);
+        super(
+            initialCapacity,
+            BaseHashMap.objectKeyOrValue,
+            BaseHashMap.objectKeyOrValue,
+            false);
 
         this.isMultiValue = true;
     }
@@ -71,7 +72,6 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V> {
             int initialCapacity,
             ObjectComparator<K> comparator)
             throws IllegalArgumentException {
-
         this(initialCapacity);
 
         this.comparator = comparator;
@@ -272,7 +272,6 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V> {
         }
     }
 
-
     private class EntrySetIterator<K, V> extends BaseHashIterator {
 
         EntrySetIterator() {
@@ -287,7 +286,6 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V> {
             return new MapEntry<K, V>(key, value);
         }
     }
-
 
     private class KeySet extends AbstractReadOnlyCollection<K>
             implements Set<K> {
@@ -304,7 +302,6 @@ public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V> {
             return size() == 0;
         }
     }
-
 
     private class Values extends AbstractReadOnlyCollection<V> {
 

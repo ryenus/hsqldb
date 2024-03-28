@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,14 +91,12 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
     }
 
     public CachedObject get(long key, boolean keep) {
-
         CachedObject object = cache.get(key, this, keep);
 
         return object;
     }
 
     public CachedObject get(CachedObject object, boolean keep) {
-
         object = cache.get(object, this, keep);
 
         return object;
@@ -145,8 +143,10 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         return object;
     }
 
-    public CachedObject getNewCachedObject(Session session, Object object,
-                                           boolean tx) {
+    public CachedObject getNewCachedObject(
+            Session session,
+            Object object,
+            boolean tx) {
 
         Row row = new RowAVLDiskData(this, table, (Object[]) object);
 
@@ -164,7 +164,6 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
     }
 
     public void removeAll() {
-
         destroyIndexes();
         elementCount.set(0);
         ArrayUtil.fillArray(accessorList, null);
@@ -186,7 +185,6 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
     }
 
     public void commitPersistence(CachedObject row) {
-
         try {
             cache.saveRow(row);
         } catch (HsqlException e1) {}
@@ -209,8 +207,11 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         }
     }
 
-    public void commitRow(Session session, Row row, int changeAction,
-                          int txModel) {
+    public void commitRow(
+            Session session,
+            Row row,
+            int changeAction,
+            int txModel) {
 
         switch (changeAction) {
 
@@ -231,6 +232,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
                     delete(session, row);
                     remove(row);
                 }
+
                 break;
 
             case RowAction.ACTION_DELETE_FINAL :
@@ -238,8 +240,11 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         }
     }
 
-    public void rollbackRow(Session session, Row row, int changeAction,
-                            int txModel) {
+    public void rollbackRow(
+            Session session,
+            Row row,
+            int changeAction,
+            int txModel) {
 
         switch (changeAction) {
 
@@ -248,6 +253,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
                     ((RowAVL) row).setNewNodes(this);
                     indexRow(session, row);
                 }
+
                 break;
 
             case RowAction.ACTION_INSERT :
@@ -255,6 +261,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
                     delete(session, row);
                     remove(row);
                 }
+
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :
@@ -266,6 +273,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
                     delete(session, row);
                     remove(row);
                 }
+
                 break;
         }
     }
@@ -276,9 +284,9 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
 
     public void setCache(DataFileCache cache) {
 
-        this.cache = (TextCache) cache;
-        this.tableSpace =
-            cache.spaceManager.getTableSpace(DataSpaceManager.tableIdDefault);
+        this.cache  = (TextCache) cache;
+        this.tableSpace = cache.spaceManager.getTableSpace(
+            DataSpaceManager.tableIdDefault);
         accessCount = cache.getAccessCount();
         rowOut      = cache.rowOut;
     }

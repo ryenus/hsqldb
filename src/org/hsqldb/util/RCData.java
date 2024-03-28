@@ -35,10 +35,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+
 import java.net.MalformedURLException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
 import java.util.Properties;
 import java.util.Set;
 import java.util.HashSet;
@@ -63,8 +66,9 @@ import java.util.regex.Pattern;
  */
 public class RCData {
 
-    public static final String DEFAULT_JDBC_DRIVER   = "org.hsqldb.jdbc.JDBCDriver";
-    private String             defaultJdbcDriverName = DEFAULT_JDBC_DRIVER;
+    public static final String DEFAULT_JDBC_DRIVER =
+        "org.hsqldb.jdbc.JDBCDriver";
+    private String defaultJdbcDriverName = DEFAULT_JDBC_DRIVER;
 
     public void setDefaultJdbcDriver(String defaultJdbcDriverName) {
         this.defaultJdbcDriverName = defaultJdbcDriverName;
@@ -84,22 +88,25 @@ public class RCData {
                            + username + ", password: " + password);
     }
      */
-
     public String toString() {
-        return "id: " + angleBracketNull(id)
-          + ", url: " + angleBracketNull(url)
-          + ", username: " + angleBracketNull(username)
-          + ", password: <" + (password == null ? "NULL" : "PRESENT") + ">"
-          + ", ti: " + angleBracketNull(ti)
-          + ", driver: " + angleBracketNull(driver)
-          + ", truststore: " + angleBracketNull(truststore)
-          + ", libpath: " + angleBracketNull(libpath);
+
+        return "id: " + angleBracketNull(
+            id) + ", url: " + angleBracketNull(
+                url) + ", username: " + angleBracketNull(
+                    username) + ", password: <" + (password == null
+                ? "NULL"
+                : "PRESENT") + ">" + ", ti: " + angleBracketNull(
+                    ti) + ", driver: " + angleBracketNull(
+                        driver) + ", truststore: " + angleBracketNull(
+                            truststore) + ", libpath: " + angleBracketNull(
+                                libpath);
     }
 
     private static String angleBracketNull(final String s) {
-        return s == null ? "<NULL>" : s;
+        return s == null
+               ? "<NULL>"
+               : s;
     }
-
 
     /**
      * Creates a RCDataObject by looking up the given key in the
@@ -112,6 +119,7 @@ public class RCData {
      * @throws Exception any exception
      */
     public RCData(File file, String dbKey) throws Exception {
+
         // This set is so we can catch duplicates.
         Set<String> idPatterns = new HashSet<>();
 
@@ -120,13 +128,13 @@ public class RCData {
         }
 
         if (!file.canRead()) {
-            throw new IOException("Please set up authentication file '" + file
-                                  + "'");
+            throw new IOException(
+                "Please set up authentication file '" + file + "'");
         }
 
         // System.err.println("Using RC file '" + file + "'");
-        StringTokenizer tokenizer = null;
-        boolean         loadingStanza   = false;
+        StringTokenizer tokenizer     = null;
+        boolean         loadingStanza = false;
         String          s;
         String[]        tokens;
         String          keyword, value;
@@ -134,85 +142,101 @@ public class RCData {
         BufferedReader  br      = new BufferedReader(new FileReader(file));
 
         try {
-        while ((s = br.readLine()) != null) {
-            ++linenum;
+            while ((s = br.readLine()) != null) {
+                ++linenum;
 
-            s = s.trim();
+                s = s.trim();
 
-            if (s.isEmpty()) {
-                continue;
-            }
-
-            if (s.charAt(0) == '#') {
-                continue;
-            }
-
-            tokenizer = new StringTokenizer(s);
-
-            if (tokenizer.countTokens() == 1) {
-                keyword = tokenizer.nextToken();
-                value   = "";
-            } else if (tokenizer.countTokens() > 1) {
-                keyword = tokenizer.nextToken();
-                value   = tokenizer.nextToken("").trim();
-            } else {
-                throw new Exception("Corrupt line " + linenum + " in '" + file
-                                    + "':  " + s);
-            }
-
-            if (keyword.equals("urlid")) {
-                tokens = value.split("\\s*,\\s*", -1);
-                for (int i = 0; i < tokens.length; i++) {
-                    if (idPatterns.contains(tokens[i]))
-                        throw new Exception("ID Pattern '" + tokens[i]
-                          + "' repeated at line " + linenum + " in '"
-                          + file + "'");
-                    idPatterns.add(tokens[i]);
-                    if (dbKey == null) {
-                        System.out.println(tokens[i]);
-                        continue;
-                    }
-                    loadingStanza =
-                      Pattern.compile(tokens[i]).matcher(dbKey).matches();
-                    if (id == null && loadingStanza) id = dbKey;
+                if (s.isEmpty()) {
+                    continue;
                 }
 
-                continue;
-            }
-            if (dbKey == null) continue;
+                if (s.charAt(0) == '#') {
+                    continue;
+                }
 
-            if (loadingStanza) {
-                if (keyword.equals("url")) {
-                    url = value;
-                } else if (keyword.equals("username")) {
-                    username = value;
-                } else if (keyword.equals("driver")) {
-                    driver = value;
-                } else if (keyword.equals("charset")) {
-                    charset = value;
-                } else if (keyword.equals("truststore")) {
-                    truststore = value;
-                } else if (keyword.equals("password")) {
-                    password = value;
-                } else if (keyword.equals("transiso")) {
-                    ti = value;
-                } else if (keyword.equals("libpath")) {
-                    libpath = value;
+                tokenizer = new StringTokenizer(s);
+
+                if (tokenizer.countTokens() == 1) {
+                    keyword = tokenizer.nextToken();
+                    value   = "";
+                } else if (tokenizer.countTokens() > 1) {
+                    keyword = tokenizer.nextToken();
+                    value   = tokenizer.nextToken("").trim();
                 } else {
-                    throw new Exception("Bad line " + linenum + " in '" + file
-                                        + "':  " + s);
+                    throw new Exception(
+                        "Corrupt line " + linenum + " in '" + file + "':  "
+                        + s);
+                }
+
+                if (keyword.equals("urlid")) {
+                    tokens = value.split("\\s*,\\s*", -1);
+
+                    for (int i = 0; i < tokens.length; i++) {
+                        if (idPatterns.contains(tokens[i])) {
+                            throw new Exception(
+                                "ID Pattern '" + tokens[i]
+                                + "' repeated at line " + linenum + " in '"
+                                + file + "'");
+                        }
+
+                        idPatterns.add(tokens[i]);
+
+                        if (dbKey == null) {
+                            System.out.println(tokens[i]);
+                            continue;
+                        }
+
+                        loadingStanza = Pattern.compile(tokens[i])
+                                               .matcher(dbKey)
+                                               .matches();
+
+                        if (id == null && loadingStanza) {
+                            id = dbKey;
+                        }
+                    }
+
+                    continue;
+                }
+
+                if (dbKey == null) {
+                    continue;
+                }
+
+                if (loadingStanza) {
+                    if (keyword.equals("url")) {
+                        url = value;
+                    } else if (keyword.equals("username")) {
+                        username = value;
+                    } else if (keyword.equals("driver")) {
+                        driver = value;
+                    } else if (keyword.equals("charset")) {
+                        charset = value;
+                    } else if (keyword.equals("truststore")) {
+                        truststore = value;
+                    } else if (keyword.equals("password")) {
+                        password = value;
+                    } else if (keyword.equals("transiso")) {
+                        ti = value;
+                    } else if (keyword.equals("libpath")) {
+                        libpath = value;
+                    } else {
+                        throw new Exception(
+                            "Bad line " + linenum + " in '" + file + "':  "
+                            + s);
+                    }
                 }
             }
-        }
         } finally {
-            try  {
+            try {
                 br.close();
             } catch (IOException ioe) {
+
                 // Can only report on so many errors at one time
             }
-            br = null;  // Encourage GC
-        }
 
+            br = null;    // Encourage GC
+        }
 
         //System.err.println(idPatterns.size() + " patterns: " + idPatterns);
         if (dbKey == null) {
@@ -224,9 +248,10 @@ public class RCData {
                 "Sorry, 'libpath' not supported yet");
         }
 
-        if (id == null)
+        if (id == null) {
             throw new IllegalArgumentException(
                 "No match for '" + dbKey + "' in file '" + file + "'");
+        }
     }
 
     /**
@@ -234,20 +259,42 @@ public class RCData {
      *
      * @see #RCData(String,String,String,String,String,String,String,String)
      */
-    public RCData(String id, String url, String username, String password,
-                  String driver, String charset,
-                  String truststore) throws Exception {
+    public RCData(
+            String id,
+            String url,
+            String username,
+            String password,
+            String driver,
+            String charset,
+            String truststore)
+            throws Exception {
         this(id, url, username, password, driver, charset, truststore, null);
     }
 
     /**
      * Wrapper for unset Transaction Isolation.
      */
-    public RCData(String id, String url, String username, String password,
-                  String driver, String charset, String truststore,
-                  String libpath) throws Exception {
-        this(id, url, username, password, driver, charset, truststore,
-                libpath, null);
+    public RCData(
+            String id,
+            String url,
+            String username,
+            String password,
+            String driver,
+            String charset,
+            String truststore,
+            String libpath)
+            throws Exception {
+
+        this(
+            id,
+            url,
+            username,
+            password,
+            driver,
+            charset,
+            truststore,
+            libpath,
+            null);
     }
 
     /**
@@ -269,9 +316,17 @@ public class RCData {
      * @param ti The transaction level
      * @throws Exception if a non-optional parameter is set to {@code NULL}
      */
-    public RCData(String id, String url, String username, String password,
-                  String driver, String charset, String truststore,
-                  String libpath, String ti) throws Exception {
+    public RCData(
+            String id,
+            String url,
+            String username,
+            String password,
+            String driver,
+            String charset,
+            String truststore,
+            String libpath,
+            String ti)
+            throws Exception {
 
         this.id         = id;
         this.url        = url;
@@ -317,7 +372,8 @@ public class RCData {
      * @throws MalformedURLException on malformed URL
      */
     public Connection getConnection()
-    throws SQLException, MalformedURLException {
+            throws SQLException,
+                   MalformedURLException {
         return getConnection(null, null);
     }
 
@@ -331,21 +387,23 @@ public class RCData {
      * @throws MalformedURLException on malformed URL
      * @throws SQLException on database access error
      */
-    public Connection getConnection(String curDriverIn, String curTrustStoreIn)
-                                    throws MalformedURLException,
-                                           SQLException {
+    public Connection getConnection(
+            String curDriverIn,
+            String curTrustStoreIn)
+            throws MalformedURLException,
+                   SQLException {
 
         // Local vars to satisfy compiler warnings
-        String curDriver = null;
-        String curTrustStore = null;
-
-        Properties sysProps = System.getProperties();
+        String     curDriver     = null;
+        String     curTrustStore = null;
+        Properties sysProps      = System.getProperties();
 
         if (curDriverIn == null) {
 
             // If explicit driver not specified
-            curDriver = ((driver == null) ? DEFAULT_JDBC_DRIVER
-                                          : driver);
+            curDriver = ((driver == null)
+                         ? DEFAULT_JDBC_DRIVER
+                         : driver);
         } else {
             curDriver = expandSysPropVars(curDriverIn);
         }
@@ -365,47 +423,55 @@ public class RCData {
         }
 
         String urlString;
+
         if (url == null) {
             throw new MalformedURLException(
-              "url string is required to establish a connection, but is null"
-              );
+                "url string is required to establish a connection, but is null");
         }
 
         try {
             urlString = expandSysPropVars(url);
         } catch (IllegalArgumentException iae) {
-            throw new MalformedURLException(iae.toString() + " for URL '"
-                                            + url + "'");
+            throw new MalformedURLException(
+                iae.toString() + " for URL '" + url + "'");
         }
 
         String userString = null;
 
-        if (username != null) try {
-            userString = expandSysPropVars(username);
-        } catch (IllegalArgumentException iae) {
-            throw new MalformedURLException(iae.toString()
-                                            + " for user name '" + username
-                                            + "'");
+        if (username != null) {
+            try {
+                userString = expandSysPropVars(username);
+            } catch (IllegalArgumentException iae) {
+                throw new MalformedURLException(
+                    iae.toString() + " for user name '" + username + "'");
+            }
         }
 
         String passwordString = null;
 
-        if (password != null) try {
-            passwordString = expandSysPropVars(password);
-        } catch (IllegalArgumentException iae) {
-            throw new MalformedURLException(iae.toString()
-                                            + " for password");
+        if (password != null) {
+            try {
+                passwordString = expandSysPropVars(password);
+            } catch (IllegalArgumentException iae) {
+                throw new MalformedURLException(
+                    iae.toString() + " for password");
+            }
         }
 
         // Every modern JDBC driver will register the driver as SP service
         // or a module service, so this should never be needed:
         //Class.forName(curDriver);
-
         Connection c = (userString == null)
-                     ? DriverManager.getConnection(urlString)
-                     : DriverManager.getConnection(urlString, userString,
-                                                   passwordString);
-        if (ti != null) RCData.setTI(c, ti);
+                       ? DriverManager.getConnection(urlString)
+                       : DriverManager.getConnection(
+                           urlString,
+                           userString,
+                           passwordString);
+
+        if (ti != null) {
+            RCData.setTI(c, ti);
+        }
+
         // Would like to verify the setting made by checking
         // c.getTransactionIsolation().  Unfortunately, the spec allows for
         // databases to substitute levels according to some rules, and it's
@@ -459,8 +525,9 @@ public class RCData {
                     "No Java system property with name '" + varName + "'");
             }
 
-            outString = outString.substring(0, varOffset) + varVal
-                        + outString.substring(varEnd + 1);
+            outString = outString.substring(
+                0,
+                varOffset) + varVal + outString.substring(varEnd + 1);
         }
 
         return outString;
@@ -469,24 +536,39 @@ public class RCData {
     /**
      * Set Transaction Isolation level on the specified JDBC Connection
      */
-    public static void setTI(Connection c, String tiString)
+    public static void setTI(
+            Connection c,
+            String tiString)
             throws SQLException {
+
         int i = -1;
-        if (tiString.equals("TRANSACTION_READ_UNCOMMITTED"))
+
+        if (tiString.equals("TRANSACTION_READ_UNCOMMITTED")) {
             i = Connection.TRANSACTION_READ_UNCOMMITTED;
-        if (tiString.equals("TRANSACTION_READ_COMMITTED"))
+        }
+
+        if (tiString.equals("TRANSACTION_READ_COMMITTED")) {
             i = Connection.TRANSACTION_READ_COMMITTED;
-        if (tiString.equals("TRANSACTION_REPEATABLE_READ"))
+        }
+
+        if (tiString.equals("TRANSACTION_REPEATABLE_READ")) {
             i = Connection.TRANSACTION_REPEATABLE_READ;
-        if (tiString.equals("TRANSACTION_SERIALIZABLE"))
+        }
+
+        if (tiString.equals("TRANSACTION_SERIALIZABLE")) {
             i = Connection.TRANSACTION_SERIALIZABLE;
-        if (tiString.equals("TRANSACTION_NONE"))
+        }
+
+        if (tiString.equals("TRANSACTION_NONE")) {
             i = Connection.TRANSACTION_NONE;
+        }
+
         if (i < 0) {
             throw new SQLException(
-                    "Trans. isol. value not supported by "
-                    + RCData.class.getName() + ": " + tiString);
+                "Trans. isol. value not supported by " + RCData.class.getName()
+                + ": " + tiString);
         }
+
         c.setTransactionIsolation(i);
     }
 
@@ -501,18 +583,25 @@ public class RCData {
      * @return The string representation
      */
     public static String tiToString(int ti) {
+
         switch (ti) {
-            case Connection.TRANSACTION_READ_UNCOMMITTED:
+
+            case Connection.TRANSACTION_READ_UNCOMMITTED :
                 return "TRANSACTION_READ_UNCOMMITTED";
-            case Connection.TRANSACTION_READ_COMMITTED:
+
+            case Connection.TRANSACTION_READ_COMMITTED :
                 return "TRANSACTION_READ_COMMITTED";
-            case Connection.TRANSACTION_REPEATABLE_READ:
+
+            case Connection.TRANSACTION_REPEATABLE_READ :
                 return "TRANSACTION_REPEATABLE_READ";
-            case Connection.TRANSACTION_SERIALIZABLE:
+
+            case Connection.TRANSACTION_SERIALIZABLE :
                 return "TRANSACTION_SERIALIZABLE";
-            case Connection.TRANSACTION_NONE:
+
+            case Connection.TRANSACTION_NONE :
                 return "TRANSACTION_NONE";
         }
+
         return "Custom Transaction Isolation numerical value: " + ti;
     }
 }

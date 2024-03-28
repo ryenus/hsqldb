@@ -83,10 +83,11 @@ public class FileArchiver {
             FileAccess storage)
             throws IOException {
 
-        FileArchiver.archive(infilename,
-                             outfilename,
-                             storage,
-                             COMPRESSION_NONE);
+        FileArchiver.archive(
+            infilename,
+            outfilename,
+            storage,
+            COMPRESSION_NONE);
     }
 
     public static void archive(
@@ -130,8 +131,8 @@ public class FileArchiver {
                     break;
 
                 default :
-                    throw new RuntimeException("FileArchiver"
-                                               + compressionType);
+                    throw new RuntimeException(
+                        "FileArchiver" + compressionType);
             }
 
             while (true) {
@@ -210,8 +211,8 @@ public class FileArchiver {
                     break;
 
                 default :
-                    throw new RuntimeException("FileArchiver: "
-                                               + compressionType);
+                    throw new RuntimeException(
+                        "FileArchiver: " + compressionType);
             }
 
             outstream = storage.openOutputStreamElement(outfilename);

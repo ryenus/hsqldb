@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ package org.hsqldb.error;
  * @since 1.9.0
  */
 public interface ErrorCode {
-
+    // J-
     // neutral placeholder strings
     int TOKEN_REQUIRED    = 1;                     // $$ required: $$
     int CONSTRAINT        = 2;                     // $$ table: $$

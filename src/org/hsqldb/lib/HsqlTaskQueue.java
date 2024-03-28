@@ -44,10 +44,12 @@ public class HsqlTaskQueue {
 
     /** The thread used to process commands */
     protected Thread taskRunnerThread;
+
     /** Special queue element to signal termination */
     protected static final Runnable SHUTDOWNTASK = new Runnable() {
         public void run() {}
     };
+
     /**
      * true if thread should shut down after processing current task.
      *
@@ -103,7 +105,6 @@ public class HsqlTaskQueue {
             }
         }
     }
-
 
     protected final TaskRunner taskRunner = new TaskRunner();
 

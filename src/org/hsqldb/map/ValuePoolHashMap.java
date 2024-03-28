@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,11 +59,16 @@ public class ValuePoolHashMap extends BaseHashMap {
 
     long hits;
 
-    public ValuePoolHashMap(int initialCapacity, int maxCapacity,
-                            int purgePolicy) throws IllegalArgumentException {
+    public ValuePoolHashMap(
+            int initialCapacity,
+            int maxCapacity,
+            int purgePolicy)
+            throws IllegalArgumentException {
 
-        super(initialCapacity, BaseHashMap.objectKeyOrValue,
-              BaseHashMap.noKeyOrValue, true);
+        super(initialCapacity,
+              BaseHashMap.objectKeyOrValue,
+              BaseHashMap.noKeyOrValue,
+              true);
 
         this.maxCapacity = maxCapacity;
         this.purgePolicy = purgePolicy;
@@ -77,8 +82,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         int     lastLookup = -1;
 
         for (; lookup >= 0;
-                lastLookup = lookup,
-                lookup = hashIndex.getNextLookup(lookup)) {
+                lastLookup = lookup, lookup = hashIndex.getNextLookup(lookup)) {
             testValue = (Integer) objectKeyTable[lookup];
 
             int keyValue = testValue.intValue();
@@ -128,13 +132,12 @@ public class ValuePoolHashMap extends BaseHashMap {
     protected Long getOrAddLong(long longKey) {
 
         Long testValue;
-        int index = hashIndex.getHashIndex((int) (longKey ^ (longKey >>> 32)));
+        int  index = hashIndex.getHashIndex((int) (longKey ^ (longKey >>> 32)));
         int  lookup     = hashIndex.hashTable[index];
         int  lastLookup = -1;
 
         for (; lookup >= 0;
-                lastLookup = lookup,
-                lookup = hashIndex.getNextLookup(lookup)) {
+                lastLookup = lookup, lookup = hashIndex.getNextLookup(lookup)) {
             testValue = (Long) objectKeyTable[lookup];
 
             long keyValue = testValue.longValue();
@@ -206,8 +209,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         int    lastLookup = -1;
 
         for (; lookup >= 0;
-                lastLookup = lookup,
-                lookup = hashIndex.getNextLookup(lookup)) {
+                lastLookup = lookup, lookup = hashIndex.getNextLookup(lookup)) {
             testValue = (String) objectKeyTable[lookup];
 
             if (key.equals(testValue)) {
@@ -261,8 +263,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         int    lastLookup = -1;
 
         for (; lookup >= 0;
-                lastLookup = lookup,
-                lookup = hashIndex.getNextLookup(lookup)) {
+                lastLookup = lookup, lookup = hashIndex.getNextLookup(lookup)) {
             testValue = (String) objectKeyTable[lookup];
 
             if (key.equals(testValue)) {
@@ -314,8 +315,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         int           lastLookup = -1;
 
         for (; lookup >= 0;
-                lastLookup = lookup,
-                lookup = hashIndex.getNextLookup(lookup)) {
+                lastLookup = lookup, lookup = hashIndex.getNextLookup(lookup)) {
             testValue = (TimestampData) objectKeyTable[lookup];
 
             if (testValue.getSeconds() == longKey) {
@@ -366,8 +366,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         int    lastLookup = -1;
 
         for (; lookup >= 0;
-                lastLookup = lookup,
-                lookup = hashIndex.getNextLookup(lookup)) {
+                lastLookup = lookup, lookup = hashIndex.getNextLookup(lookup)) {
             testValue = (Double) objectKeyTable[lookup];
 
             if (Double.doubleToLongBits(testValue.doubleValue()) == longKey) {
@@ -397,7 +396,6 @@ public class ValuePoolHashMap extends BaseHashMap {
         testValue = Double.valueOf(Double.longBitsToDouble(longKey));
         objectKeyTable[lookup] = testValue;
 
-
         int count = accessCount.incrementAndGet();
 
         if (count < 0) {
@@ -419,8 +417,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         int    lastLookup = -1;
 
         for (; lookup >= 0;
-                lastLookup = lookup,
-                lookup = hashIndex.getNextLookup(lookup)) {
+                lastLookup = lookup, lookup = hashIndex.getNextLookup(lookup)) {
             testValue = objectKeyTable[lookup];
 
             if (testValue.equals(key)) {
@@ -448,7 +445,6 @@ public class ValuePoolHashMap extends BaseHashMap {
 
         lookup                 = hashIndex.linkNode(index, lastLookup);
         objectKeyTable[lookup] = key;
-
 
         int count = accessCount.incrementAndGet();
 

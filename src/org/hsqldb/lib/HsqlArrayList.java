@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 // fredt@users - 1.8.0 - 2.5.x - enhancements
+
 /**
  * Intended as an asynchronous alternative to Vector.
  *
@@ -148,13 +149,13 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
 
 //        reporter.updateCounter++;
         if (index > elementCount) {
-            throw new IndexOutOfBoundsException("Index out of bounds: " + index
-                    + ">" + elementCount);
+            throw new IndexOutOfBoundsException(
+                "Index out of bounds: " + index + ">" + elementCount);
         }
 
         if (index < 0) {
-            throw new IndexOutOfBoundsException("Index out of bounds: " + index
-                    + " < 0");
+            throw new IndexOutOfBoundsException(
+                "Index out of bounds: " + index + " < 0");
         }
 
         if (elementCount >= elementData.length) {
@@ -162,11 +163,12 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         }
 
         if (index < elementCount) {
-            System.arraycopy(elementData,
-                             index,
-                             elementData,
-                             index + 1,
-                             elementCount - index);
+            System.arraycopy(
+                elementData,
+                index,
+                elementData,
+                index + 1,
+                elementCount - index);
         }
 
         elementData[index] = element;
@@ -205,8 +207,8 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     public E get(int index) {
 
         if (index >= elementCount) {
-            throw new IndexOutOfBoundsException("Index out of bounds: " + index
-                    + " >= " + elementCount);
+            throw new IndexOutOfBoundsException(
+                "Index out of bounds: " + index + " >= " + elementCount);
         }
 
         return (E) elementData[index];
@@ -269,18 +271,19 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     public E remove(int index) {
 
         if (index >= elementCount) {
-            throw new IndexOutOfBoundsException("Index out of bounds: " + index
-                    + " >= " + elementCount);
+            throw new IndexOutOfBoundsException(
+                "Index out of bounds: " + index + " >= " + elementCount);
         }
 
         E removedObj = (E) elementData[index];
 
         if (index < elementCount - 1) {
-            System.arraycopy(elementData,
-                             index + 1,
-                             elementData,
-                             index,
-                             elementCount - 1 - index);
+            System.arraycopy(
+                elementData,
+                index + 1,
+                elementData,
+                index,
+                elementCount - 1 - index);
         }
 
         elementCount--;
@@ -304,8 +307,8 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     public E set(int index, E element) {
 
         if (index >= elementCount) {
-            throw new IndexOutOfBoundsException("Index out of bounds: " + index
-                    + " >= " + elementCount);
+            throw new IndexOutOfBoundsException(
+                "Index out of bounds: " + index + " >= " + elementCount);
         }
 
         E replacedObj = (E) elementData[index];
@@ -343,9 +346,9 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         }
 
         @SuppressWarnings("unchecked")
-        Object[] newArray = (Object[]) Array.newInstance(elementData.getClass()
-                                                                    .getComponentType(),
-                                                         baseSize);
+        Object[] newArray = (Object[]) Array.newInstance(
+            elementData.getClass().getComponentType(),
+            baseSize);
         int count = elementData.length > newArray.length
                     ? newArray.length
                     : elementData.length;
@@ -417,9 +420,9 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
 
     public Object[] toArray() {
 
-        Object[] newArray = (Object[]) Array.newInstance(elementData.getClass()
-                                                                    .getComponentType(),
-                                                         elementCount);
+        Object[] newArray = (Object[]) Array.newInstance(
+            elementData.getClass().getComponentType(),
+            elementCount);
 
         System.arraycopy(elementData, 0, newArray, 0, elementCount);
 
@@ -444,8 +447,9 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     public <T> T[] toArray(T[] array) {
 
         if (array.length < elementCount) {
-            array = (T[]) Array.newInstance(array.getClass().getComponentType(),
-                                            elementCount);
+            array = (T[]) Array.newInstance(
+                array.getClass().getComponentType(),
+                elementCount);
         }
 
         System.arraycopy(elementData, 0, array, 0, elementCount);

@@ -50,8 +50,9 @@ public class StatementSchemaDefinition extends StatementSchema {
 
     StatementSchemaDefinition(StatementSchema[] statements) {
 
-        super(StatementTypes.CREATE_SCHEMA,
-              StatementTypes.X_SQL_SCHEMA_DEFINITION);
+        super(
+            StatementTypes.CREATE_SCHEMA,
+            StatementTypes.X_SQL_SCHEMA_DEFINITION);
 
         this.statements = statements;
     }
@@ -78,14 +79,16 @@ public class StatementSchemaDefinition extends StatementSchema {
         HsqlName schemaDefinitionName = statements[0].getSchemaName();
 
         if (this.isExplain) {
-            return Result.newSingleColumnStringResult("OPERATION",
-                    describe(session));
+            return Result.newSingleColumnStringResult(
+                "OPERATION",
+                describe(session));
         }
 
-        StatementSchema cs;
-        Result          result      = statements[0].execute(session);
-        HsqlArrayList<Constraint>   constraints = new HsqlArrayList<>();
-        StatementSchema log = new StatementSchema(null,
+        StatementSchema           cs;
+        Result                    result      = statements[0].execute(session);
+        HsqlArrayList<Constraint> constraints = new HsqlArrayList<>();
+        StatementSchema log = new StatementSchema(
+            null,
             StatementTypes.LOG_SCHEMA_STATEMENT);
 
         if (statements.length == 1 || result.isError()) {
@@ -132,10 +135,11 @@ public class StatementSchemaDefinition extends StatementSchema {
 
                         HsqlName name = ((Table) cs.arguments[0]).getName();
                         Table table =
-                            (Table) session.database.schemaManager
-                                .findSchemaObject(name);
+                            (Table) session.database.schemaManager.findSchemaObject(
+                                name);
+                        HsqlArrayList<Constraint> tableConstraints =
+                            (HsqlArrayList<Constraint>) cs.arguments[1];
 
-                        HsqlArrayList<Constraint> tableConstraints = (HsqlArrayList<Constraint>) cs.arguments[1];
                         constraints.addAll(tableConstraints);
                         tableConstraints.clear();
 
@@ -177,6 +181,7 @@ public class StatementSchemaDefinition extends StatementSchema {
                     case StatementTypes.CREATE_CAST :
                     case StatementTypes.CREATE_ORDERING :
                         throw session.parser.unsupportedFeature();
+
                     default :
                         throw Error.runtimeError(ErrorCode.U_S0500, "");
                 }
@@ -186,7 +191,6 @@ public class StatementSchemaDefinition extends StatementSchema {
                 }
             } catch (HsqlException e) {
                 result = Result.newErrorResult(e, statements[i].getSQL());
-
                 break;
             }
         }
@@ -211,10 +215,13 @@ public class StatementSchemaDefinition extends StatementSchema {
 
         if (result.isError()) {
             try {
-                session.database.schemaManager.dropSchema(session,
-                        schemaDefinitionName.name, true);
-                session.database.logger.writeOtherStatement(session,
-                        getDropSchemaStatement(schemaDefinitionName));
+                session.database.schemaManager.dropSchema(
+                    session,
+                    schemaDefinitionName.name,
+                    true);
+                session.database.logger.writeOtherStatement(
+                    session,
+                    getDropSchemaStatement(schemaDefinitionName));
             } catch (HsqlException e) {}
         }
 

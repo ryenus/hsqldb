@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,8 +56,9 @@ public final class BlobType extends BinaryType {
     }
 
     public int displaySize() {
-        return precision > Integer.MAX_VALUE ? Integer.MAX_VALUE
-                                             : (int) precision;
+        return precision > Integer.MAX_VALUE
+               ? Integer.MAX_VALUE
+               : (int) precision;
     }
 
     public int getJDBCTypeCode() {
@@ -98,9 +99,7 @@ public final class BlobType extends BinaryType {
 
         StringBuilder sb = new StringBuilder(16);
 
-        sb.append(getNameString());
-        sb.append('(');
-        sb.append(factor);
+        sb.append(getNameString()).append('(').append(factor);
 
         if (multiplier != null) {
             sb.append(multiplier);
@@ -148,8 +147,9 @@ public final class BlobType extends BinaryType {
         if (b instanceof BinaryData) {
             long lobId = ((BlobData) a).getId();
 
-            return session.database.lobManager.compare(lobId,
-                    ((BlobData) b).getBytes());
+            return session.database.lobManager.compare(
+                lobId,
+                ((BlobData) b).getBytes());
         }
 
         return session.database.lobManager.compare((BlobData) a, (BlobData) b);
@@ -160,8 +160,10 @@ public final class BlobType extends BinaryType {
         return a;
     }
 
-    public Object castToType(SessionInterface session, Object a,
-                             Type otherType) {
+    public Object castToType(
+            SessionInterface session,
+            Object a,
+            Type otherType) {
 
         if (a == null) {
             return null;
@@ -205,8 +207,10 @@ public final class BlobType extends BinaryType {
         throw Error.error(ErrorCode.X_42561);
     }
 
-    public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) {
+    public Object convertToType(
+            SessionInterface session,
+            Object a,
+            Type otherType) {
 
         BlobData b = null;
 
@@ -233,7 +237,7 @@ public final class BlobType extends BinaryType {
 
         if (otherType.typeCode == Types.SQL_VARCHAR
                 || otherType.typeCode == Types.SQL_CHAR) {
-            a = session.getScanner().convertToBinary((String) a, false);
+            a         = session.getScanner().convertToBinary((String) a, false);
             otherType = Type.SQL_VARBINARY;
         }
 

@@ -56,7 +56,7 @@ final class RAFileInJar implements RandomAccessInterface {
     long                     fileLength;
     boolean                  bufferDirty = true;
     byte[]                   buffer      = new byte[4096];
-    HsqlByteArrayInputStream ba = new HsqlByteArrayInputStream(buffer);
+    HsqlByteArrayInputStream ba          = new HsqlByteArrayInputStream(buffer);
     long                     bufferOffset;
 
     //
@@ -118,7 +118,8 @@ final class RAFileInJar implements RandomAccessInterface {
             return -1;
         }
 
-        if (bufferDirty || seekPosition < bufferOffset
+        if (bufferDirty
+                || seekPosition < bufferOffset
                 || seekPosition >= bufferOffset + buffer.length) {
             readIntoBuffer();
         }
@@ -143,7 +144,8 @@ final class RAFileInJar implements RandomAccessInterface {
 
     public int readInt() throws IOException {
 
-        if (bufferDirty || seekPosition < bufferOffset
+        if (bufferDirty
+                || seekPosition < bufferOffset
                 || seekPosition >= bufferOffset + buffer.length) {
             readIntoBuffer();
         }
@@ -160,7 +162,8 @@ final class RAFileInJar implements RandomAccessInterface {
 
     public void read(byte[] b, int offset, int length) throws IOException {
 
-        if (bufferDirty || seekPosition < bufferOffset
+        if (bufferDirty
+                || seekPosition < bufferOffset
                 || seekPosition >= bufferOffset + buffer.length) {
             readIntoBuffer();
         }
@@ -227,8 +230,7 @@ final class RAFileInJar implements RandomAccessInterface {
             fis = getClass().getResourceAsStream(fileName);
 
             if (fis == null) {
-                ClassLoader cl =
-                    Thread.currentThread().getContextClassLoader();
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
                 if (cl != null) {
                     fis = cl.getResourceAsStream(fileName);

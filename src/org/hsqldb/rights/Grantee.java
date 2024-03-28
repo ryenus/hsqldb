@@ -78,29 +78,40 @@ import org.hsqldb.types.Type;
 public class Grantee implements SchemaObject {
 
     boolean isRole;
+
     /**
      * true if this grantee has database administrator priv directly
      *  (i.e., not by membership in any role)
      */
     private boolean isAdminDirect = false;
+
     /** true if this grantee has database administrator priv by any means. */
     private boolean isAdmin = false;
+
     /** true if this grantee is PUBLIC. */
     boolean isPublic = false;
+
     /** true if this grantee is _SYSTEM. */
     boolean isSystem = false;
+
     /** Grantee name. */
     protected HsqlName granteeName;
+
     /** map with database object identifier keys and access privileges values */
     private MultiValueHashMap<HsqlName, Right> directRightsMap;
+
     /** contains rights granted direct, or via roles, except those of PUBLIC */
     HashMap<HsqlName, Right> fullRightsMap;
+
     /** These are the DIRECT roles.  Each of these may contain nested roles */
     OrderedHashSet<Grantee> roles;
+
     /** map with database object identifier keys and access privileges values */
     private MultiValueHashMap<HsqlName, Right> grantedRightsMap;
+
     /** Needed only to give access to the roles for this database */
     protected GranteeManager granteeManager;
+
     /**  */
     protected Right ownerRights;
 
@@ -145,8 +156,11 @@ public class Grantee implements SchemaObject {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(Tokens.T_CREATE).append(' ').append(Tokens.T_ROLE);
-        sb.append(' ').append(granteeName.statementName);
+        sb.append(Tokens.T_CREATE)
+          .append(' ')
+          .append(Tokens.T_ROLE)
+          .append(' ')
+          .append(granteeName.statementName);
 
         return sb.toString();
     }
@@ -482,7 +496,6 @@ public class Grantee implements SchemaObject {
      * This method removes any existing mapping from the rights map
      */
     void revokeDbObject(HsqlName name) {
-
         directRightsMap.remove(name);
         grantedRightsMap.remove(name);
         fullRightsMap.remove(name);
@@ -723,7 +736,6 @@ public class Grantee implements SchemaObject {
      * to them.
      */
     public void checkSchemaUpdateOrGrantRights(HsqlName schemaName) {
-
         if (!hasSchemaUpdateOrGrantRights(schemaName)) {
             throw Error.error(ErrorCode.X_42501, schemaName.name);
         }
@@ -796,7 +808,6 @@ public class Grantee implements SchemaObject {
      * or indirectly. Otherwise it throws.
      */
     public void checkAdmin() {
-
         if (!isAdmin()) {
             throw Error.error(ErrorCode.X_42507);
         }
@@ -1110,8 +1121,9 @@ public class Grantee implements SchemaObject {
     void revoke(Grantee role) {
 
         if (!hasRoleDirect(role)) {
-            throw Error.error(ErrorCode.X_0P503,
-                              role.getName().getNameString());
+            throw Error.error(
+                ErrorCode.X_0P503,
+                role.getName().getNameString());
         }
 
         roles.remove(role);
@@ -1142,9 +1154,13 @@ public class Grantee implements SchemaObject {
         if (!roleString.isEmpty()) {
             StringBuilder sb = new StringBuilder(128);
 
-            sb.append(Tokens.T_GRANT).append(' ').append(roleString);
-            sb.append(' ').append(Tokens.T_TO).append(' ');
-            sb.append(getName().getStatementName());
+            sb.append(Tokens.T_GRANT)
+              .append(' ')
+              .append(roleString)
+              .append(' ')
+              .append(Tokens.T_TO)
+              .append(' ')
+              .append(getName().getStatementName());
             list.add(sb.toString());
         }
 
@@ -1153,8 +1169,8 @@ public class Grantee implements SchemaObject {
 
         while (dbObjects.hasNext()) {
             HsqlName        nameObject = dbObjects.next();
-            Iterator<Right> rights     =
-                rightsMap.getValuesIterator(nameObject);
+            Iterator<Right> rights     = rightsMap.getValuesIterator(
+                nameObject);
 
             while (rights.hasNext()) {
                 Right         right = rights.next();
@@ -1170,12 +1186,16 @@ public class Grantee implements SchemaObject {
                                 nameObject.schema.name);
 
                         if (table != null) {
-                            sb.append(Tokens.T_GRANT).append(' ');
-                            sb.append(right.getTableRightsSQL(table));
-                            sb.append(' ').append(Tokens.T_ON).append(' ');
-                            sb.append(Tokens.T_TABLE).append(' ');
-                            sb.append(
-                                nameObject.getSchemaQualifiedStatementName());
+                            sb.append(Tokens.T_GRANT)
+                              .append(' ')
+                              .append(right.getTableRightsSQL(table))
+                              .append(' ')
+                              .append(Tokens.T_ON)
+                              .append(' ')
+                              .append(Tokens.T_TABLE)
+                              .append(' ')
+                              .append(
+                                  nameObject.getSchemaQualifiedStatementName());
                         }
 
                         break;
@@ -1188,12 +1208,16 @@ public class Grantee implements SchemaObject {
                                 SchemaObject.SEQUENCE);
 
                         if (sequence != null) {
-                            sb.append(Tokens.T_GRANT).append(' ');
-                            sb.append(Tokens.T_USAGE);
-                            sb.append(' ').append(Tokens.T_ON).append(' ');
-                            sb.append(Tokens.T_SEQUENCE).append(' ');
-                            sb.append(
-                                nameObject.getSchemaQualifiedStatementName());
+                            sb.append(Tokens.T_GRANT)
+                              .append(' ')
+                              .append(Tokens.T_USAGE)
+                              .append(' ')
+                              .append(Tokens.T_ON)
+                              .append(' ')
+                              .append(Tokens.T_SEQUENCE)
+                              .append(' ')
+                              .append(
+                                  nameObject.getSchemaQualifiedStatementName());
                         }
 
                         break;
@@ -1206,12 +1230,16 @@ public class Grantee implements SchemaObject {
                                 SchemaObject.DOMAIN);
 
                         if (domain != null) {
-                            sb.append(Tokens.T_GRANT).append(' ');
-                            sb.append(Tokens.T_USAGE);
-                            sb.append(' ').append(Tokens.T_ON).append(' ');
-                            sb.append(Tokens.T_DOMAIN).append(' ');
-                            sb.append(
-                                nameObject.getSchemaQualifiedStatementName());
+                            sb.append(Tokens.T_GRANT)
+                              .append(' ')
+                              .append(Tokens.T_USAGE)
+                              .append(' ')
+                              .append(Tokens.T_ON)
+                              .append(' ')
+                              .append(Tokens.T_DOMAIN)
+                              .append(' ')
+                              .append(
+                                  nameObject.getSchemaQualifiedStatementName());
                         }
 
                         break;
@@ -1224,12 +1252,16 @@ public class Grantee implements SchemaObject {
                                 SchemaObject.DOMAIN);
 
                         if (type != null) {
-                            sb.append(Tokens.T_GRANT).append(' ');
-                            sb.append(Tokens.T_USAGE);
-                            sb.append(' ').append(Tokens.T_ON).append(' ');
-                            sb.append(Tokens.T_TYPE).append(' ');
-                            sb.append(
-                                nameObject.getSchemaQualifiedStatementName());
+                            sb.append(Tokens.T_GRANT)
+                              .append(' ')
+                              .append(Tokens.T_USAGE)
+                              .append(' ')
+                              .append(Tokens.T_ON)
+                              .append(' ')
+                              .append(Tokens.T_TYPE)
+                              .append(' ')
+                              .append(
+                                  nameObject.getSchemaQualifiedStatementName());
                         }
 
                         break;
@@ -1244,10 +1276,14 @@ public class Grantee implements SchemaObject {
                                 nameObject.type);
 
                         if (routine != null) {
-                            sb.append(Tokens.T_GRANT).append(' ');
-                            sb.append(Tokens.T_EXECUTE).append(' ');
-                            sb.append(Tokens.T_ON).append(' ');
-                            sb.append(Tokens.T_SPECIFIC).append(' ');
+                            sb.append(Tokens.T_GRANT)
+                              .append(' ')
+                              .append(Tokens.T_EXECUTE)
+                              .append(' ')
+                              .append(Tokens.T_ON)
+                              .append(' ')
+                              .append(Tokens.T_SPECIFIC)
+                              .append(' ');
 
                             if (routine.getType() == SchemaObject.PROCEDURE) {
                                 sb.append(Tokens.T_PROCEDURE);
@@ -1255,9 +1291,9 @@ public class Grantee implements SchemaObject {
                                 sb.append(Tokens.T_FUNCTION);
                             }
 
-                            sb.append(' ');
-                            sb.append(
-                                nameObject.getSchemaQualifiedStatementName());
+                            sb.append(' ')
+                              .append(
+                                  nameObject.getSchemaQualifiedStatementName());
                         }
 
                         break;
@@ -1269,8 +1305,10 @@ public class Grantee implements SchemaObject {
                     continue;
                 }
 
-                sb.append(' ').append(Tokens.T_TO).append(' ');
-                sb.append(getName().getStatementName());
+                sb.append(' ')
+                  .append(Tokens.T_TO)
+                  .append(' ')
+                  .append(getName().getStatementName());
                 list.add(sb.toString());
             }
         }

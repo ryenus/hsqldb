@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,6 @@ public class RowAVLDiskLarge extends RowAVLDisk {
      * @param o row data
      */
     public RowAVLDiskLarge(TableBase t, Object[] o, PersistentStore store) {
-
         super(t, o, store);
     }
 

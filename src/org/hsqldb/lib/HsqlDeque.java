@@ -128,7 +128,6 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
     }
 
     public E get(int i) throws IndexOutOfBoundsException {
-
         int index = getInternalIndex(i);
 
         return (E) list[index];
@@ -151,11 +150,12 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
 
             endindex++;
         } else {
-            System.arraycopy(list,
-                             firstindex,
-                             list,
-                             firstindex - 1,
-                             index - firstindex);
+            System.arraycopy(
+                list,
+                firstindex,
+                list,
+                firstindex - 1,
+                index - firstindex);
 
             firstindex--;
             index--;
@@ -230,14 +230,12 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
     }
 
     public boolean offerFirst(E e) {
-
         addFirst(e);
 
         return true;
     }
 
     public boolean offerLast(E e) {
-
         addLast(e);
 
         return true;
@@ -414,11 +412,12 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
                 firstindex = 0;
             }
         } else if (target > firstindex) {
-            System.arraycopy(list,
-                             firstindex,
-                             list,
-                             firstindex + 1,
-                             target - firstindex);
+            System.arraycopy(
+                list,
+                firstindex,
+                list,
+                firstindex + 1,
+                target - firstindex);
 
             list[firstindex] = null;
 
@@ -428,11 +427,12 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
                 firstindex = 0;
             }
         } else {
-            System.arraycopy(list,
-                             target + 1,
-                             list,
-                             target,
-                             endindex - target - 1);
+            System.arraycopy(
+                list,
+                target + 1,
+                list,
+                target,
+                endindex - target - 1);
 
             endindex--;
 
@@ -475,11 +475,12 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
 
         Object[] newList = new Object[list.length * 2];
 
-        System.arraycopy(list,
-                         firstindex,
-                         newList,
-                         firstindex,
-                         list.length - firstindex);
+        System.arraycopy(
+            list,
+            firstindex,
+            newList,
+            firstindex,
+            list.length - firstindex);
 
         if (endindex <= firstindex) {
             System.arraycopy(list, 0, newList, list.length, endindex);
@@ -493,8 +494,9 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
     public <T> T[] toArray(T[] array) {
 
         if (array.length < elementCount) {
-            array = (T[]) Array.newInstance(array.getClass().getComponentType(),
-                                            elementCount);
+            array = (T[]) Array.newInstance(
+                array.getClass().getComponentType(),
+                elementCount);
         }
 
         int tempCount = list.length - firstindex;
@@ -513,7 +515,6 @@ public class HsqlDeque<E> extends BaseList<E> implements List<E> {
     }
 
     public Object[] toArray() {
-
         Object[] newArray = new Object[elementCount];
 
         return toArray(newArray);
