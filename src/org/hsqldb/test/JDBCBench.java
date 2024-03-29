@@ -28,7 +28,7 @@ class JDBCBench {
     public static int nbranches = 1;         /* number of branches in 1 tps db       */
     public static int ntellers  = 10;        /* number of tellers in  1 tps db       */
     public static int naccounts = 100000;    /* number of accounts in 1 tps db       */
-    public static int nhistory = 864000;     /* number of history recs in 1 tps db   */
+    public static int nhistory  = 864000;    /* number of history recs in 1 tps db   */
     public static final int TELLER              = 0;
     public static final int BRANCH              = 1;
     public static final int ACCOUNT             = 2;

@@ -129,12 +129,13 @@ public final class ArrayCounter {
 
         for (;;) {
             int interval = calcInterval(segments, start, currentLimit);
-            int[] counts = countSegments(array,
-                                         elements,
-                                         segments,
-                                         interval,
-                                         start,
-                                         currentLimit);
+            int[] counts = countSegments(
+                array,
+                elements,
+                segments,
+                interval,
+                start,
+                currentLimit);
 
             for (int i = 0; i < counts.length; i++) {
                 if (elementCount + counts[i] < target) {

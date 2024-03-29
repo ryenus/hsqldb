@@ -39,7 +39,7 @@ import java.io.IOException;
  * Atomic transmission packet from HyperSQL server to ODBC client.
  *
  * Sample usage
- * {@code 
+ * {@code
  *     outPacket = OdbcPacketOutputStream.newOdbcPacketOutputStream();
  *     ...
  *     // For each packet you need to transmit:

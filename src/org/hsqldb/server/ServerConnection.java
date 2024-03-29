@@ -75,8 +75,10 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
+
 import java.net.Socket;
 import java.net.SocketException;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.hsqldb.ClientConnection;
@@ -319,7 +321,6 @@ class ServerConnection implements Runnable {
         private String clientMessage = null;
 
         public ClientFailure(String ourMessage, String clientMessage) {
-
             super(ourMessage);
 
             this.clientMessage = clientMessage;
@@ -332,11 +333,15 @@ class ServerConnection implements Runnable {
 
     private CleanExit cleanExit = new CleanExit();
 
-    private void receiveResult(int resultMode) throws CleanExit, IOException {
+    private void receiveResult(int resultMode) throws CleanExit,
+            IOException {
 
         boolean terminate = false;
-        Result resultIn = Result.newResult(session, resultMode, dataInput,
-                                           rowIn);
+        Result resultIn = Result.newResult(
+            session,
+            resultMode,
+            dataInput,
+            rowIn);
 
         resultIn.readLobResults(session, dataInput);
         server.printRequest(mThread, resultIn);
@@ -347,37 +352,36 @@ class ServerConnection implements Runnable {
 
             case ResultConstants.CONNECT : {
                 resultOut = setDatabase(resultIn);
-
                 break;
             }
+
             case ResultConstants.SQLCANCEL : {
                 resultOut = cancelStatement(resultIn);
                 terminate = true;
-
                 break;
             }
+
             case ResultConstants.DISCONNECT : {
                 resultOut = Result.updateZeroResult;
                 terminate = true;
-
                 break;
             }
+
             case ResultConstants.RESETSESSION : {
                 session.resetSession();
 
                 resultOut = Result.updateZeroResult;
-
                 break;
             }
+
             case ResultConstants.EXECUTE_INVALID : {
-                resultOut =
-                    Result.newErrorResult(Error.error(ErrorCode.X_07502));
-
+                resultOut = Result.newErrorResult(
+                    Error.error(ErrorCode.X_07502));
                 break;
             }
+
             default : {
                 resultOut = session.execute(resultIn);
-
                 break;
             }
         }
@@ -393,7 +397,8 @@ class ServerConnection implements Runnable {
 
     private OdbcPacketOutputStream outPacket = null;
 
-    private void receiveOdbcPacket(char inC) throws IOException, CleanExit {
+    private void receiveOdbcPacket(char inC) throws IOException,
+            CleanExit {
 
         /*
          * The driver's notion of the transaction state, I (no) or T (yes),

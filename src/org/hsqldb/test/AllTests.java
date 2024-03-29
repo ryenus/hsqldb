@@ -44,8 +44,8 @@ public class AllTests {
         suite.addTestSuite(org.hsqldb.test.TestDatabaseMetaData.class);
         suite.addTestSuite(org.hsqldb.test.TestDateTime.class);
         suite.addTestSuite(org.hsqldb.test.TestPeriodPredicates.class);
-        suite.addTestSuite(org.hsqldb.test
-            .TestINPredicateParameterizationAndCorrelation.class);
+        suite.addTestSuite(
+            org.hsqldb.test.TestINPredicateParameterizationAndCorrelation.class);
         suite.addTestSuite(org.hsqldb.test.TestJDBCGeneratedColumns.class);
         suite.addTestSuite(
             org.hsqldb.test.TestLikePredicateOptimizations.class);
@@ -68,7 +68,7 @@ public class AllTests {
         suite.addTestSuite(org.hsqldb.test.TestSubselect.class);
         suite.addTestSuite(org.hsqldb.test.TestCascade.class);
         suite.addTestSuite(org.hsqldb.test.TestGroupByHaving.class);
-        suite.addTestSuite(org.hsqldb.test.TestSqlPersistent.class);     // Sometimes hangs on Connection.close after SHUTDOWN problem
+        suite.addTestSuite(org.hsqldb.test.TestSqlPersistent.class);  // Sometimes hangs on Connection.close after SHUTDOWN problem
         suite.addTestSuite(org.hsqldb.test.TestDataCube.class);
 
         return suite;

@@ -145,10 +145,13 @@ public class View extends TableDerived {
 
         StringBuilder sb = new StringBuilder(128);
 
-        sb.append(Tokens.T_CREATE).append(' ').append(Tokens.T_VIEW);
-        sb.append(' ');
-        sb.append(getName().getSchemaQualifiedStatementName()).append(' ');
-        sb.append('(');
+        sb.append(Tokens.T_CREATE)
+          .append(' ')
+          .append(Tokens.T_VIEW)
+          .append(' ')
+          .append(getName().getSchemaQualifiedStatementName())
+          .append(' ')
+          .append('(');
 
         int count = getColumnCount();
 
@@ -160,8 +163,11 @@ public class View extends TableDerived {
             }
         }
 
-        sb.append(')').append(' ').append(Tokens.T_AS).append(' ');
-        sb.append(getStatement());
+        sb.append(')')
+          .append(' ')
+          .append(Tokens.T_AS)
+          .append(' ')
+          .append(getStatement());
 
         return sb.toString();
     }

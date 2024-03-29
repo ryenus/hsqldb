@@ -76,6 +76,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.LineNumberReader;
+
 import java.util.ArrayList;
 
 // fredt@users 20020315 - patch 1.7.0 - minor fixes
@@ -116,13 +117,12 @@ import java.util.ArrayList;
  */
 public class CodeSwitcher {
 
-    private static final String ls = System.getProperty("line.separator",
-        "\n");
-    private ArrayList<String> vList;
-    private ArrayList<String> vSwitchOn;
-    private ArrayList<String> vSwitchOff;
-    private ArrayList<String> vSwitches;
-    private static final int  MAX_LINELENGTH = 82;
+    private static final String ls = System.getProperty("line.separator", "\n");
+    private ArrayList<String>   vList;
+    private ArrayList<String>   vSwitchOn;
+    private ArrayList<String>   vSwitchOff;
+    private ArrayList<String>   vSwitches;
+    private static final int    MAX_LINELENGTH = 82;
 
     public static void main(String[] a) {
 
@@ -159,9 +159,9 @@ public class CodeSwitcher {
                     "--basedir= setting ignored, since only used for list files");
             } else {
                 if (!baseDir.isDirectory()) {
-                    System.err.println("Skipping listfile since basedir '"
-                                       + baseDir.getAbsolutePath()
-                                       + "' is not a directory");
+                    System.err.println(
+                        "Skipping listfile since basedir '"
+                        + baseDir.getAbsolutePath() + "' is not a directory");
 
                     listFile = null;
                 }
@@ -170,34 +170,37 @@ public class CodeSwitcher {
 
         if (listFile != null) {
             try {
-                BufferedReader br =
-                    new BufferedReader(new FileReader(listFile));
-                String st, p;
-                int    hashIndex;
-                File   f;
+                BufferedReader br = new BufferedReader(
+                    new FileReader(listFile));
+                String         st, p;
+                int            hashIndex;
+                File           f;
 
                 while ((st = br.readLine()) != null) {
                     hashIndex = st.indexOf('#');
-                    p         = ((hashIndex > -1) ? st.substring(0, hashIndex)
-                                                  : st).trim();
+                    p         = ((hashIndex > -1)
+                                 ? st.substring(0, hashIndex)
+                                 : st).trim();
 
                     if (p.length() < 1) {
                         continue;
                     }
 
-                    f = (baseDir == null) ? (new File(p))
-                                          : (new File(baseDir, p));
+                    f = (baseDir == null)
+                        ? (new File(p))
+                        : (new File(baseDir, p));
 
                     if (f.isFile()) {
                         s.addDir(f);
                     } else {
-                        System.err.println("Skipping non-file '" + p.trim()
-                                           + "'");
+                        System.err.println(
+                            "Skipping non-file '" + p.trim() + "'");
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Failed to read pathlist file '"
-                                   + listFile.getAbsolutePath() + "'");
+                System.err.println(
+                    "Failed to read pathlist file '"
+                    + listFile.getAbsolutePath() + "'");
             }
         }
 
@@ -214,8 +217,9 @@ public class CodeSwitcher {
     }
 
     public int size() {
-        return (vList == null) ? 0
-                               : vList.size();
+        return (vList == null)
+               ? 0
+               : vList.size();
     }
 
     /**
@@ -333,7 +337,6 @@ public class CodeSwitcher {
                 if (working) {
                     if (line.equals("/*") || line.equals("*/")) {
                         v.remove(i--);
-
                         continue;
                     }
                 }
@@ -341,7 +344,9 @@ public class CodeSwitcher {
                 if (line.startsWith("//#")) {
                     if (line.startsWith("//#ifdef ")) {
                         if (state != 0) {
-                            printError("'#ifdef' not allowed inside '#ifdef' at line " + i);
+                            printError(
+                                "'#ifdef' not allowed inside '#ifdef' at line "
+                                + i);
 
                             return false;
                         }
@@ -366,8 +371,7 @@ public class CodeSwitcher {
                         }
                     } else if (line.startsWith("//#ifndef ")) {
                         if (state != 0) {
-                            printError(
-                                "'#ifndef' not allowed inside '#ifdef'");
+                            printError("'#ifndef' not allowed inside '#ifdef'");
 
                             return false;
                         }
@@ -450,7 +454,6 @@ public class CodeSwitcher {
             for (int i = 0; i < v.size(); i++) {
                 if (!v1.get(i).equals(v.get(i))) {
                     filechanged = true;
-
                     break;
                 }
             }
