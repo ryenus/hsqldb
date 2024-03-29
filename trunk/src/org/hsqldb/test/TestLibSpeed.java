@@ -230,8 +230,6 @@ public class TestLibSpeed {
             System.out.println("DoubleIntTable Lookup " + sw.elapsedTime());
             sw.zero();
             System.out.println("Object Cache Test " + sw.elapsedTime());
-
-            java.util.ArrayList list;
         }
     }
 

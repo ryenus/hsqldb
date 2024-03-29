@@ -65,10 +65,11 @@ public class ValuePoolHashMap extends BaseHashMap {
             int purgePolicy)
             throws IllegalArgumentException {
 
-        super(initialCapacity,
-              BaseHashMap.objectKeyOrValue,
-              BaseHashMap.noKeyOrValue,
-              true);
+        super(
+            initialCapacity,
+            BaseHashMap.objectKeyOrValue,
+            BaseHashMap.noKeyOrValue,
+            true);
 
         this.maxCapacity = maxCapacity;
         this.purgePolicy = purgePolicy;

@@ -122,8 +122,9 @@ public class WebServer extends Server {
      * Handle to resource bundle providing i18n for things like
      * HTTP error pages.
      */
-    static int webBundleHandle =
-        ResourceBundleHandler.getBundleHandle("webserver-pages", null);
+    static int webBundleHandle = ResourceBundleHandler.getBundleHandle(
+        "webserver-pages",
+        null);
 
     public WebServer() {
         super(ServerConstants.SC_PROTOCOL_HTTP);
@@ -140,8 +141,9 @@ public class WebServer extends Server {
 
         HsqlProperties argProps = null;
 
-        argProps = HsqlProperties.argArrayToProps(args,
-                ServerProperties.sc_key_prefix);
+        argProps = HsqlProperties.argArrayToProps(
+            args,
+            ServerProperties.sc_key_prefix);
 
         String[] errors = argProps.getErrorKeys();
 
@@ -163,11 +165,13 @@ public class WebServer extends Server {
         propsPath = FileUtil.getFileUtil().canonicalOrAbsolutePath(propsPath);
 
         ServerProperties fileProps = ServerConfiguration.getPropertiesFromFile(
-            ServerConstants.SC_PROTOCOL_HTTP, propsPath, propsExtension);
-        ServerProperties props =
-            fileProps == null
-            ? new ServerProperties(ServerConstants.SC_PROTOCOL_HTTP)
-            : fileProps;
+            ServerConstants.SC_PROTOCOL_HTTP,
+            propsPath,
+            propsExtension);
+        ServerProperties props = fileProps == null
+                                 ? new ServerProperties(
+                                     ServerConstants.SC_PROTOCOL_HTTP)
+                                 : fileProps;
 
         props.addProperties(argProps);
         ServerConfiguration.translateDefaultDatabaseProperty(props);
@@ -195,8 +199,8 @@ public class WebServer extends Server {
         server.print("Startup sequence initiated from main() method");
 
         if (fileProps != null) {
-            server.print("Loaded properties from [" + propsPath
-                         + ".properties]");
+            server.print(
+                "Loaded properties from [" + propsPath + ".properties]");
         } else {
             server.print("Could not load properties from file");
             server.print("Using cli/default properties only");
@@ -223,8 +227,9 @@ public class WebServer extends Server {
      * @return the command line and properties options help for this Server
      */
     public String getHelpString() {
-        return ResourceBundleHandler.getString(serverBundleHandle,
-                                               "webserver.help");
+        return ResourceBundleHandler.getString(
+            serverBundleHandle,
+            "webserver.help");
     }
 
     /**
@@ -245,8 +250,9 @@ public class WebServer extends Server {
      * @return string representation of this server's protocol
      */
     public String getProtocol() {
-        return isTls() ? "HTTPS"
-                       : "HTTP";
+        return isTls()
+               ? "HTTPS"
+               : "HTTP";
     }
 
     /**

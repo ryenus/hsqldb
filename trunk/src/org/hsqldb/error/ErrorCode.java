@@ -39,7 +39,7 @@ package org.hsqldb.error;
  * @since 1.9.0
  */
 public interface ErrorCode {
-    // J-
+    //J-
     // neutral placeholder strings
     int TOKEN_REQUIRED    = 1;                     // $$ required: $$
     int CONSTRAINT        = 2;                     // $$ table: $$
