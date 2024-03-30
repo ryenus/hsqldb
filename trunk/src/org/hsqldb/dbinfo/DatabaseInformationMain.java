@@ -53,6 +53,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.WrapperIterator;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.HsqlProperties.PropertyMeta;
@@ -258,6 +259,11 @@ class DatabaseInformationMain extends DatabaseInformation {
     /** ensures int or long value is CARDINAL_NUMBER (Long) for insertion in sys table */
     protected final Long cardinal(long value) {
         return Long.valueOf(value);
+    }
+
+    /** ensures int value is Integer for insertion in sys table */
+    protected final Integer integer32(int value) {
+        return ValuePool.getInt(value);
     }
 
     /**
@@ -759,18 +765,18 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row                  = t.getEmptyRowData();
                 row[iscope]          = scope;
                 row[icolumn_name]    = column.getName().name;
-                row[idata_type]      = type.getJDBCTypeCode();
+                row[idata_type]      = integer32(type.getJDBCTypeCode());
                 row[itype_name]      = type.getNameString();
-                row[icolumn_size]    = type.getJDBCPrecision();
+                row[icolumn_size]    = integer32(type.getJDBCPrecision());
                 row[ibuffer_length]  = null;
                 row[idecimal_digits] = type.acceptsScale()
-                                       ? type.getJDBCScale()
+                                       ? integer32(type.getJDBCScale())
                                        : null;
                 row[ipseudo_column]  = pseudo;
                 row[itable_cat]      = tableCatalog;
                 row[itable_schem]    = tableSchema;
                 row[itable_name]     = tableName;
-                row[inullable]       = column.getNullability();
+                row[inullable]       = integer32(column.getNullability());
                 row[iinKey]          = inKey;
 
                 t.insertSys(session, store, row);
@@ -961,50 +967,53 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[itable_schem]       = tableSchema;
                 row[itable_name]        = tableName;
                 row[icolumn_name]       = column.getName().name;
-                row[idata_type]         = type.getJDBCTypeCode();
+                row[idata_type]         = integer32(type.getJDBCTypeCode());
                 row[itype_name]         = type.getNameString();
-                row[icolumn_size]       = 0;
-                row[ichar_octet_length] = 0;
+                row[icolumn_size]       = ValuePool.INTEGER_0;
+                row[ichar_octet_length] = ValuePool.INTEGER_0;
 
                 if (type.isArrayType()) {
                     row[itype_name] = type.getDefinition();
                 }
 
                 if (type.isCharacterType()) {
-                    row[icolumn_size] = type.getJDBCPrecision();
+                    row[icolumn_size] = integer32(type.getJDBCPrecision());
 
                     // this is length not octet_length, for character columns
-                    row[ichar_octet_length] = type.getJDBCPrecision();
+                    row[ichar_octet_length] = integer32(
+                        type.getJDBCPrecision());
                 }
 
                 if (type.isBinaryType()) {
-                    row[icolumn_size]       = type.getJDBCPrecision();
-                    row[ichar_octet_length] = type.getJDBCPrecision();
+                    row[icolumn_size]       = integer32(
+                        type.getJDBCPrecision());
+                    row[ichar_octet_length] = integer32(
+                        type.getJDBCPrecision());
                 }
 
                 if (type.isNumberType()) {
-                    row[icolumn_size] =
-                        ((NumberType) type).getNumericPrecisionInRadix();
-                    row[inum_prec_radix] = type.getPrecisionRadix();
+                    row[icolumn_size] = integer32(
+                        ((NumberType) type).getNumericPrecisionInRadix());
+                    row[inum_prec_radix] = integer32(type.getPrecisionRadix());
 
                     if (type.isExactNumberType()) {
-                        row[idecimal_digits] = type.scale;
+                        row[idecimal_digits] = integer32(type.scale);
                     }
                 }
 
                 if (type.isDateTimeType()) {
                     int size = column.getDataType().displaySize();
 
-                    row[icolumn_size] = size;
-                    row[isql_datetime_sub] =
-                        ((DateTimeType) type).getSqlDateTimeSub();
+                    row[icolumn_size] = integer32(size);
+                    row[isql_datetime_sub] = integer32(
+                        ((DateTimeType) type).getSqlDateTimeSub());
                 }
 
-                row[inullable]         = column.getNullability();
+                row[inullable]         = integer32(column.getNullability());
                 row[iremark]           = ti.getColRemarks(i);
                 row[icolumn_def]       = column.getDefaultSQL();
-                row[isql_data_type]    = type.typeCode;
-                row[iordinal_position] = i + 1;
+                row[isql_data_type]    = integer32(type.typeCode);
+                row[iordinal_position] = integer32(i + 1);
                 row[iis_nullable]      = column.isNullable()
                                          ? "YES"
                                          : "NO";
@@ -1199,14 +1208,14 @@ class DatabaseInformationMain extends DatabaseInformation {
             columnCount    = refCols.length;
             fkName         = constraint.getRefName().name;
             pkName         = constraint.getUniqueName().name;
-            deferrability  = constraint.getDeferability();
+            deferrability  = integer32(constraint.getDeferability());
 
             //pkName = constraint.getMainIndex().getName().name;
-            deleteRule = constraint.getDeleteAction();
-            updateRule = constraint.getUpdateAction();
+            deleteRule = integer32(constraint.getDeleteAction());
+            updateRule = integer32(constraint.getUpdateAction());
 
             for (int j = 0; j < columnCount; j++) {
-                keySequence          = j + 1;
+                keySequence          = integer32(j + 1);
                 pkColumnName = pkTable.getColumn(mainCols[j]).getNameString();
                 fkColumnName = fkTable.getColumn(refCols[j]).getNameString();
                 row                  = t.getEmptyRowData();
@@ -1386,10 +1395,10 @@ class DatabaseInformationMain extends DatabaseInformation {
                                  ? Boolean.FALSE
                                  : Boolean.TRUE;
                 cardinality    = null;
-                pages          = 0L;
+                pages          = cardinal(0);
                 rowCardinality = null;
                 cols           = index.getColumns();
-                indexType      = 3;
+                indexType      = integer32(3);
 
                 for (int k = 0; k < colCount; k++) {
                     col                    = cols[k];
@@ -1401,7 +1410,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                     row[iindex_qualifier]  = indexQualifier;
                     row[iindex_name]       = indexName;
                     row[itype]             = indexType;
-                    row[iordinal_position] = k + 1;
+                    row[iordinal_position] = integer32(k + 1);
                     row[icolumn_name] = table.getColumn(cols[k]).getName().name;
                     row[iasc_or_desc]      = "A";
                     row[icardinality]      = cardinality;
@@ -1525,7 +1534,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[itable_schem] = tableSchema;
                 row[itable_name]  = tableName;
                 row[icolumn_name] = table.getColumn(cols[j]).getName().name;
-                row[ikey_seq]     = j + 1;
+                row[ikey_seq]     = integer32(j + 1);
                 row[ipk_name]     = primaryKeyName;
 
                 t.insertSys(session, store, row);
@@ -1732,46 +1741,52 @@ class DatabaseInformationMain extends DatabaseInformation {
                                          : colName.name;
 
                     row[parameter_name]         = colString;
-                    row[ordinal_position]       = j + 1;
-                    row[parameter_mode]         = column.getParameterMode();
+                    row[ordinal_position]       = integer32(j + 1);
+                    row[parameter_mode] = integer32(column.getParameterMode());
                     row[data_type]              = type.getFullNameString();
-                    row[data_type_sql_id]       = type.getJDBCTypeCode();
-                    row[numeric_precision]      = 0;
-                    row[character_octet_length] = 0;
+                    row[data_type_sql_id] = integer32(type.getJDBCTypeCode());
+                    row[numeric_precision]      = ValuePool.INTEGER_0;
+                    row[character_octet_length] = ValuePool.INTEGER_0;
 
                     if (type.isCharacterType()) {
-                        row[numeric_precision] = type.getJDBCPrecision();
+                        row[numeric_precision] = integer32(
+                            type.getJDBCPrecision());
 
                         // this is length not octet_length, for character columns
-                        row[character_octet_length] = type.getJDBCPrecision();
+                        row[character_octet_length] = integer32(
+                            type.getJDBCPrecision());
                     }
 
                     if (type.isBinaryType()) {
-                        row[numeric_precision]      = type.getJDBCPrecision();
-                        row[character_octet_length] = type.getJDBCPrecision();
+                        row[numeric_precision] = integer32(
+                            type.getJDBCPrecision());
+                        row[character_octet_length] = integer32(
+                            type.getJDBCPrecision());
                     }
 
                     if (type.isNumberType()) {
-                        row[numeric_precision] =
-                            ((NumberType) type).getNumericPrecisionInRadix();
-                        row[numeric_precision_radix] = type.getPrecisionRadix();
+                        row[numeric_precision] = integer32(
+                            ((NumberType) type).getNumericPrecisionInRadix());
+                        row[numeric_precision_radix] = integer32(
+                            type.getPrecisionRadix());
 
                         if (type.isExactNumberType()) {
-                            row[numeric_scale] = type.scale;
+                            row[numeric_scale] = integer32(type.scale);
                         }
                     }
 
                     if (type.isDateTimeType()) {
                         int size = column.getDataType().displaySize();
 
-                        row[numeric_precision] = size;
+                        row[numeric_precision] = integer32(size);
                     }
 
-                    row[sql_data_type] = column.getDataType().typeCode;
-                    row[nullable]      = column.getNullability();
-                    row[is_nullable]   = column.isNullable()
-                                         ? "YES"
-                                         : "NO";
+                    row[sql_data_type] = integer32(
+                        column.getDataType().typeCode);
+                    row[nullable]    = integer32(column.getNullability());
+                    row[is_nullable] = column.isNullable()
+                                       ? "YES"
+                                       : "NO";
 
                     t.insertSys(session, store, row);
                 }
@@ -1882,12 +1897,12 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[procedure_name]   = routine.getName().name;
             row[remarks]          = routine.getName().comment;
             row[procedure_type]   = routine.isProcedure()
-                                    ? 1
-                                    : 2;
+                                    ? ValuePool.INTEGER_1
+                                    : ValuePool.INTEGER_2;
             row[specific_name]    = routine.getSpecificName().name;
             row[function_type]    = routine.returnsTable()
-                                    ? 2
-                                    : 1;
+                                    ? ValuePool.INTEGER_2
+                                    : ValuePool.INTEGER_1;
 
             t.insertSys(session, store, row);
         }
@@ -1952,7 +1967,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             Object def = meta.propDefaultValue;
 
             row[iname]          = meta.propName;
-            row[imax_len]       = 8;
+            row[imax_len]       = integer32(8);
             row[idefault_value] = def == null
                                   ? null
                                   : def.toString();
@@ -2609,13 +2624,13 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             row             = t.getEmptyRowData();
             row[itype_name] = typeName;
-            row[idata_type] = type.getJDBCTypeCode();
+            row[idata_type] = integer32(type.getJDBCTypeCode());
 
             long maxPrecision = type.getMaxPrecision();
 
             row[iprecision] = maxPrecision > Integer.MAX_VALUE
-                              ? Integer.MAX_VALUE
-                              : (int) maxPrecision;
+                              ? ValuePool.INTEGER_MAX
+                              : integer32((int) maxPrecision);
 
             if (type.isBinaryType()
                     || type.isCharacterType()
@@ -2635,19 +2650,19 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[icreate_params] = "SCALE";
             }
 
-            row[inullable] = 1;
+            row[inullable] = ValuePool.INTEGER_1;
             row[icase_sensitive] = type.isCharacterType()
                                    && type.getCollation().isCaseSensitive()
                                    ? Boolean.TRUE
                                    : Boolean.FALSE;
 
             if (type.isLobType()) {
-                row[isearchable] = 0;
+                row[isearchable] = ValuePool.INTEGER_0;
             } else if (type.isCharacterType()
                        || (type.isBinaryType() && !type.isBitType())) {
-                row[isearchable] = 3;
+                row[isearchable] = integer32(3);
             } else {
-                row[isearchable] = 2;
+                row[isearchable] = integer32(2);
             }
 
             row[iunsigned_attribute] = Boolean.FALSE;
@@ -2659,11 +2674,11 @@ class DatabaseInformationMain extends DatabaseInformation {
                                        ? Boolean.TRUE
                                        : Boolean.FALSE;
             row[ilocal_type_name]    = null;
-            row[iminimum_scale]      = 0;
-            row[imaximum_scale]      = type.getMaxScale();
+            row[iminimum_scale]      = ValuePool.INTEGER_0;
+            row[imaximum_scale]      = integer32(type.getMaxScale());
             row[isql_data_type]      = null;
             row[isql_datetime_sub]   = null;
-            row[inum_prec_radix]     = type.getPrecisionRadix();
+            row[inum_prec_radix]     = integer32(type.getPrecisionRadix());
 
             //------------------------------------------
             if (type.isIntervalType()) {
@@ -2675,7 +2690,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         row             = t.getEmptyRowData();
         row[itype_name] = "DISTINCT";
-        row[idata_type] = Types.DISTINCT;
+        row[idata_type] = integer32(Types.DISTINCT);
 
         return t;
     }
@@ -2855,9 +2870,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             data[type_schema]  = distinct.getSchemaName().name;
             data[type_name]    = distinct.getName().name;
             data[class_name]   = type.getJDBCClassName();
-            data[data_type]    = Types.DISTINCT;
+            data[data_type]    = integer32(Types.DISTINCT);
             data[remarks]      = null;
-            data[base_type]    = type.getJDBCTypeCode();
+            data[base_type]    = integer32(type.getJDBCTypeCode());
 
             t.insertSys(session, store, data);
         }
@@ -3378,9 +3393,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[sequence_schema]            = sequence.getSchemaName().name;
             row[sequence_name]              = sequence.getName().name;
             row[data_type] = sequence.getDataType().getFullNameString();
-            row[numeric_precision]          = type.getPrecision();
-            row[numeric_precision_radix]    = radix;
-            row[numeric_scale]              = 0;
+            row[numeric_precision]          = integer32(type.getPrecision());
+            row[numeric_precision_radix]    = integer32(radix);
+            row[numeric_scale]              = ValuePool.INTEGER_0;
             row[start_value] = String.valueOf(sequence.getStartValue());
             row[minimum_value] = String.valueOf(sequence.getMinValue());
             row[maximum_value] = String.valueOf(sequence.getMaxValue());
@@ -3483,9 +3498,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[sequence_schema]            = sequence.getSchemaName().name;
             row[sequence_name]              = sequence.getName().name;
             row[data_type] = sequence.getDataType().getFullNameString();
-            row[numeric_precision]          = type.getPrecision();
-            row[numeric_precision_radix]    = radix;
-            row[numeric_scale]              = 0;
+            row[numeric_precision]          = integer32(type.getPrecision());
+            row[numeric_precision_radix]    = integer32(radix);
+            row[numeric_scale]              = ValuePool.INTEGER_0;
             row[maximum_value] = String.valueOf(sequence.getMaxValue());
             row[minimum_value] = String.valueOf(sequence.getMinValue());
             row[increment] = String.valueOf(sequence.getIncrement());
