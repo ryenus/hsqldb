@@ -275,7 +275,7 @@ class JDBCStatementBase {
             generatedResult = Result.emptyGeneratedResult;
         }
 
-        generatedResultSet = new JDBCResultSet(connection, null,
+        generatedResultSet = new JDBCResultSet(connection, this,
                                                generatedResult,
                                                generatedResult.metaData);
 
