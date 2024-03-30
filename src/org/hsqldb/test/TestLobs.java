@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -161,9 +161,10 @@ public class TestLobs extends TestBase {
             st.executeUpdate("CREATE TABLE blo (id INTEGER PRIMARY KEY, b blob( 100))");
 
             PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO blo(id, b) values(2, ?)");
+                "INSERT INTO blo(id, b) values(?, ?)");
 
-            ps.setBlob(1, new SerialBlob(baR1));
+            ps.setInt(1, 2);
+            ps.setBlob(2, new SerialBlob(baR1));
             ps.executeUpdate();
 
             rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
@@ -239,20 +240,17 @@ public class TestLobs extends TestBase {
             rs.close();
 
             // again with stream
-            ps.setBinaryStream(1, new HsqlByteArrayInputStream(baR2),
+            ps.setInt(1,3);
+            ps.setBinaryStream(2, new HsqlByteArrayInputStream(baR2),
                                baR2.length);
             ps.executeUpdate();
 
             connection.commit();
 
-            rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
+            rs = st.executeQuery("SELECT b FROM blo WHERE id = 3");
 
             if (!rs.next()) {
-                assertTrue("No row with id 2", false);
-            }
-
-            if (!rs.next()) {
-                assertTrue("No second row with id 2", false);
+                assertTrue("No row with id 3", false);
             }
 
             blob1 = rs.getBlob("b");
