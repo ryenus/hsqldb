@@ -935,6 +935,17 @@ public class ParserDDL extends ParserRoutine {
 
                         return compileAlterTableAddColumn(t);
 
+                    case Tokens.INDEX :
+                    case Tokens.KEY :
+                        if (!database.sqlSyntaxMys) {
+                            throw unexpectedToken();
+                        }
+
+                        read();
+                        checkIsSimpleName();
+
+                        return compileAlterTableAddIndex(t);
+
                     default :
                         if (cname != null) {
                             throw unexpectedToken();
@@ -1508,6 +1519,38 @@ public class ParserDDL extends ParserRoutine {
             args,
             null,
             writeLockNames);
+    }
+
+    StatementSchema compileAlterTableAddIndex(Table table) {
+
+        HsqlName indexHsqlName = readNewDependentSchemaObjectName(
+            table.getName(),
+            SchemaObject.INDEX);
+
+        if (database.sqlSyntaxMys) {
+            if (readIfThis(Tokens.USING)) {
+                if (!readIfThis("HASH")) {
+                    readThis("BTREE");
+                }
+            }
+
+            if (readIfThis(Tokens.COMMENT)) {
+                indexHsqlName.comment = readQuotedString();
+            }
+        }
+
+        int[]    cols = readColumnList(table, true);
+        String   sql  = getLastPart();
+        Object[] args = new Object[] {
+            table, cols, indexHsqlName, Boolean.FALSE, null, Boolean.FALSE
+        };
+
+        return new StatementSchema(
+            sql,
+            StatementTypes.CREATE_INDEX,
+            args,
+            null,
+            new HsqlName[]{ database.getCatalogName(), table.getName() });
     }
 
     StatementSchema compileCreateIndex(boolean unique) {

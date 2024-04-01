@@ -31,6 +31,11 @@
 
 package org.hsqldb.lib;
 
+/**
+ * Used for collections such as KeySet or Values.
+ * Disallows operations that modify the collection.
+ * @author  Fred Toussi (fredt@users dot sourceforge.net)
+ */
 abstract class AbstractReadOnlyCollection<V> implements Collection<V> {
 
     public final boolean contains(Object o) {
