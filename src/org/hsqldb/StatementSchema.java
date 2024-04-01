@@ -768,6 +768,27 @@ public class StatementSchema extends Statement {
                             table.setColumnTypeVars(columnIndex);
                             break;
                         }
+
+                        case StatementTypes.ALTER_COLUMN_PROPERTIES : {
+                            ColumnSchema column = (ColumnSchema) arguments[2];
+                            int columnIndex =
+                                ((Integer) arguments[3]).intValue();
+                            Statement[]  statements =
+                                (Statement[]) arguments[4];
+
+                            for (int i = 0; i < statements.length; i++) {
+                                if (statements[i] != null) {
+                                    Result result = statements[i].execute(
+                                        session);
+
+                                    if (result.isError()) {
+                                        return result;
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
                     }
 
                     break;

@@ -756,6 +756,7 @@ public class Tokens {
     public static final String T_MEMORY               = "MEMORY";
     public static final String T_MILLIS               = "MILLIS";
     static final String        T_MINUS_EXCEPT         = "MINUS";
+    static final String        T_MODIFY               = "MODIFY";
     public static final String T_MSS                  = "MSS";
     public static final String T_MVCC                 = "MVCC";
     public static final String T_MVLOCKS              = "MVLOCKS";
@@ -2679,6 +2680,7 @@ public class Tokens {
         commandSet.put(T_LOG10, LOG10);
         commandSet.put(T_LPAD, LPAD);
         commandSet.put(T_LTRIM, LTRIM);
+        commandSet.put(T_MODIFY, MODIFY);
         commandSet.put(T_MONTH_NAME, MONTH_NAME);
         commandSet.put(T_MONTHNAME, MONTHNAME);
         commandSet.put(T_MONTHS_BETWEEN, MONTHS_BETWEEN);

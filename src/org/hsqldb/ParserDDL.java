@@ -997,6 +997,31 @@ public class ParserDDL extends ParserRoutine {
                 }
             }
 
+            case Tokens.MODIFY : {
+                if (!database.sqlSyntaxOra) {
+                    throw unexpectedToken();
+                }
+
+                read();
+
+                boolean      bracket     = readIfThis(Tokens.OPENBRACKET);
+                int          columnIndex = t.getColumnIndex(token.tokenString);
+                ColumnSchema column      = t.getColumn(columnIndex);
+
+                read();
+
+                Statement alterStatement = compileModifyColumn(
+                    t,
+                    column,
+                    columnIndex);
+
+                if (bracket) {
+                    readThis(Tokens.CLOSEBRACKET);
+                }
+
+                return alterStatement;
+            }
+
             case Tokens.ALTER : {
                 read();
 
@@ -2473,6 +2498,130 @@ public class ParserDDL extends ParserRoutine {
         } else {
             return compileAlterColumnDataTypeIdentity(table, column);
         }
+    }
+
+    Statement compileModifyColumn(
+            Table table,
+            ColumnSchema column,
+            int columnIndex) {
+
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
+        int       position         = getPosition();
+        Statement statementNull    = null;
+        Statement statementDropGen = null;
+        Statement statementDef     = null;
+        Statement statementGen     = null;
+        Statement statementType    = null;
+
+        try {
+            statementType          = compileAlterColumnDataType(table, column);
+            statementType.isLogged = false;
+        } catch (HsqlException e) {
+            rewind(position);
+        }
+
+        switch (token.tokenType) {
+
+            case Tokens.DROP : {
+                read();
+
+                if (token.tokenType == Tokens.GENERATED
+                        || token.tokenType == Tokens.IDENTITY) {
+                    read();
+
+                    String sql = getLastPart();
+                    Object[] args = new Object[]{
+                        StatementTypes.ALTER_COLUMN_DROP_GENERATED,
+                        table, column,
+                        Integer.valueOf(
+                            columnIndex) };
+
+                    statementDropGen = new StatementSchema(
+                        sql,
+                        StatementTypes.ALTER_TABLE,
+                        args,
+                        null,
+                        writeLockNames);
+                    statementDropGen.isLogged = false;
+                } else {
+                    throw unexpectedToken();
+                }
+
+                break;
+            }
+
+            case Tokens.DEFAULT : {
+                read();
+
+                statementDef = compileAlterColumnDefault(
+                    table,
+                    column,
+                    columnIndex);
+                statementDef.isLogged = false;
+                break;
+            }
+
+            case Tokens.GENERATED : {
+                statementGen = compileAlterColumnAddSequence(
+                    table,
+                    column,
+                    columnIndex);
+                statementGen.isLogged = false;
+                break;
+            }
+
+            default :
+                break;
+        }
+
+        switch (token.tokenType) {
+
+            case Tokens.NOT : {
+
+                //ALTER TABLE .. ALTER COLUMN .. SET NOT NULL
+                read();
+                readThis(Tokens.NULL);
+
+                statementNull = compileAlterColumnSetNullability(
+                    table,
+                    column,
+                    false);
+                statementNull.isLogged = false;
+                break;
+            }
+
+            case Tokens.NULL : {
+                read();
+
+                statementNull = compileAlterColumnSetNullability(
+                    table,
+                    column,
+                    true);
+                statementNull.isLogged = false;
+                break;
+            }
+
+            default :
+        }
+
+        Statement[] statements = new Statement[]{ statementType,
+                statementDropGen, statementGen, statementDef, statementNull };
+        String sql = getLastPart();
+        Object[] args = new Object[]{ StatementTypes.ALTER_COLUMN_PROPERTIES,
+                                      table, column,
+                                      Integer.valueOf(
+                                          columnIndex), statements };
+
+        statementDef = new StatementSchema(
+            sql,
+            StatementTypes.ALTER_TABLE,
+            args,
+            null,
+            writeLockNames);
+
+        return statementDef;
     }
 
     /**
