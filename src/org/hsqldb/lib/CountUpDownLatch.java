@@ -198,7 +198,7 @@ public class CountUpDownLatch {
      * <p>
      * If the current {@code count} is zero, no action occurs and false is
      * returned immediately; otherwise, {@code count} is decremented by the
-     * lesser of {@code amount} and current {@code count} (i.e. if
+     * lesser of {@code amount} and current {@code count} i.e. if
      * {@code amount} is greater than current {@code count}, then new
      * {@code count} is zero, else new {@code count} is current {@code count}
      * minus {@code amount}.

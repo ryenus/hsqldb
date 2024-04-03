@@ -32,14 +32,18 @@
 package org.hsqldb.jdbc;
 
 import java.io.Serializable;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Wrapper;
+
 import java.util.Properties;
+
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
+
 import javax.sql.DataSource;
 
 /**
@@ -97,10 +101,9 @@ import javax.sql.DataSource;
  * @version 2.7.3
  * @since JDK 1.4, HSQLDB 1.7.2
  */
-
 @SuppressWarnings("serial")
-public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
-        Serializable, Referenceable, Wrapper {
+public class JDBCDataSource extends JDBCCommonDataSource
+        implements DataSource, Serializable, Referenceable, Wrapper {
 
     /**
      * Retrieves a new connection using the properties that have already been
@@ -141,8 +144,10 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      * @return  a connection to the data source
      * @throws SQLException if a database access error occurs
      */
-    public Connection getConnection(String username,
-                                    String password) throws SQLException {
+    public Connection getConnection(
+            String username,
+            String password)
+            throws SQLException {
 
         if (username == null) {
             throw JDBCUtil.invalidArgument("user");
@@ -161,8 +166,10 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
         return getConnection(url, props);
     }
 
-    private Connection getConnection(String url,
-                                     Properties props) throws SQLException {
+    private Connection getConnection(
+            String url,
+            Properties props)
+            throws SQLException {
 
         if (!url.startsWith("jdbc:hsqldb:")) {
             url = "jdbc:hsqldb:" + url;
@@ -192,7 +199,7 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      * @since JDK 1.6, HSQLDB 2.0
      */
     @SuppressWarnings("unchecked")
-    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
         if (isWrapperFor(iface)) {
             return (T) this;
@@ -217,7 +224,8 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      * @since JDK 1.6, HSQLDB 2.0
      */
     public boolean isWrapperFor(
-            java.lang.Class<?> iface) throws java.sql.SQLException {
+            java.lang.Class<?> iface)
+            throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
@@ -236,13 +244,12 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
         ref.add(new StringRefAddr("database", getDatabase()));
         ref.add(new StringRefAddr("user", getUser()));
         ref.add(new StringRefAddr("password", password));
-        ref.add(new StringRefAddr("loginTimeout",
-                                  Integer.toString(loginTimeout)));
+        ref.add(
+            new StringRefAddr("loginTimeout", Integer.toString(loginTimeout)));
 
         return ref;
     }
 
     // ------------------------ custom public methods ------------------------
-    public JDBCDataSource() {
-    }
+    public JDBCDataSource() {}
 }

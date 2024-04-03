@@ -699,7 +699,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
          * Scheduling policy flag. <p>
          *
          * When true, scheduling is fixed rate (as opposed to fixed delay),
-         * and schedule updates are calculated relative to when the task was
+         * and schedule updates are calculated relative to when the task
          * was last run rather than a fixed delay starting from the current
          * wall-clock time provided by System.currentTimeMillis().  <p>
          *
@@ -904,7 +904,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         /**
          * Retrieves the head of this queue, without removing it. <p>
          *
-         * This method has the side-effect of removing tasks from the
+         * This method has the side effect of removing tasks from the
          * head of this queue until a non-cancelled task is encountered
          * or this queue is empty. <p>
          *

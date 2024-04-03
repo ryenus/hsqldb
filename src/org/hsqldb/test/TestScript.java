@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,7 +90,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfCreate.txt";
 //    String path = "TestSelfConstraints.txt";
 //    String path = "TestSelfDomainTypes.txt";
-//      String path = "TestSelfErrorChecks.txt";
+//    String path = "TestSelfErrorChecks.txt";
 //    String path = "TestSelfFunction.txt";
 //    String path = "TestSelfGrantees.txt";
 //    String path = "TestSelfGroupBy.txt";
@@ -127,7 +127,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfTriggers2.txt";
 //    String path = "TestSelfUnions.txt";
 //    String path = "TestSelfUserFunction.txt";
-//      String path = "TestSelfVerify.txt";
+//    String path = "TestSelfVerify.txt";
 //    String path = "TestSelfViews.txt";
 //    String path = "TestSelfViewGrants.txt";
 //    String path = "TestSelfSeqRightsA.txt";

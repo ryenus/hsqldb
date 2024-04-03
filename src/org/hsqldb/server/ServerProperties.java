@@ -108,7 +108,8 @@ public class ServerProperties extends HsqlProperties {
 
     //
     static final HashMap<String, PropertyMeta> serverMeta = new HashMap<>();
-    static final OrderedHashSet<String> prefixes = new OrderedHashSet<>();
+    static final OrderedHashSet<String>        prefixes =
+        new OrderedHashSet<>();
 
     //
     final int         protocol;

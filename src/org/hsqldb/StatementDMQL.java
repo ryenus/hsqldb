@@ -557,8 +557,8 @@ public abstract class StatementDMQL extends Statement {
         try {
             return describeImpl(session);
         } catch (Throwable e) {
-            e.printStackTrace();
 
+            // e.printStackTrace();
             return e.toString();
         }
     }

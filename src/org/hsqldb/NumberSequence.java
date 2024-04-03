@@ -379,10 +379,6 @@ public final class NumberSequence implements SchemaObject {
                 break;
 
             case Types.SQL_BIGINT :
-                max = Long.MAX_VALUE;
-                min = Long.MIN_VALUE;
-                break;
-
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
                 max = Long.MAX_VALUE;
@@ -506,10 +502,6 @@ public final class NumberSequence implements SchemaObject {
                 break;
 
             case Types.SQL_BIGINT :
-                max = Long.MAX_VALUE;
-                min = Long.MIN_VALUE;
-                break;
-
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
                 max = Long.MAX_VALUE;
@@ -548,10 +540,6 @@ public final class NumberSequence implements SchemaObject {
                 break;
 
             case Types.SQL_BIGINT :
-                max = Long.MAX_VALUE;
-                min = Long.MIN_VALUE;
-                break;
-
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
                 max = Long.MAX_VALUE;

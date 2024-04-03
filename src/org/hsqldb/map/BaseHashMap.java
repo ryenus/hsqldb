@@ -832,8 +832,6 @@ public class BaseHashMap {
                         hashIndex.unlinkNode(index, lastLookup, lookup);
 
                         return returnValue;
-                    } else {
-                        continue;
                     }
                 } else {
                     objectKeyTable[lookup]   = null;

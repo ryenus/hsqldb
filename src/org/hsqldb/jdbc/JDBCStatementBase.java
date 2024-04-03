@@ -202,9 +202,9 @@ class JDBCStatementBase {
 
         checkClosed();
 
-        return (resultIn == null || resultIn.isData()) ? -1
-                                                       : resultIn
-                                                       .getUpdateCount();
+        return (resultIn == null || resultIn.isData())
+               ? -1
+               : resultIn.getUpdateCount();
     }
 
     ResultSet getResultSet() throws SQLException {
@@ -213,7 +213,7 @@ class JDBCStatementBase {
 
         ResultSet result = currentResultSet;
 
-        if(!connection.isCloseResultSet) {
+        if (!connection.isCloseResultSet) {
             currentResultSet = null;
         }
 
@@ -248,7 +248,7 @@ class JDBCStatementBase {
         resultIn = resultIn.getChainedResult();
 
         if (currentResultSet != null) {
-            if( current != KEEP_CURRENT_RESULT) {
+            if (current != KEEP_CURRENT_RESULT) {
                 currentResultSet.close();
             }
         }
@@ -256,8 +256,11 @@ class JDBCStatementBase {
         currentResultSet = null;
 
         if (resultIn != null) {
-            currentResultSet = new JDBCResultSet(connection, this, resultIn,
-                                                 resultIn.metaData);
+            currentResultSet = new JDBCResultSet(
+                connection,
+                this,
+                resultIn,
+                resultIn.metaData);
 
             return true;
         }
@@ -266,7 +269,9 @@ class JDBCStatementBase {
     }
 
     ResultSet getGeneratedResultSet() throws SQLException {
+
         checkClosed();
+
         if (generatedResultSet != null) {
             generatedResultSet.close();
         }
@@ -275,9 +280,11 @@ class JDBCStatementBase {
             generatedResult = Result.emptyGeneratedResult;
         }
 
-        generatedResultSet = new JDBCResultSet(connection, this,
-                                               generatedResult,
-                                               generatedResult.metaData);
+        generatedResultSet = new JDBCResultSet(
+            connection,
+            this,
+            generatedResult,
+            generatedResult.metaData);
 
         return generatedResultSet;
     }
@@ -343,7 +350,6 @@ class JDBCStatementBase {
      * @since JDK 1.7, HSQLDB 2.0.1
      */
     public boolean isCloseOnCompletion() throws SQLException {
-
         checkClosed();
 
         return false;

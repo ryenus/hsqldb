@@ -32,7 +32,9 @@
 package org.hsqldb.jdbc.pool;
 
 import java.io.Serializable;
+
 import java.sql.SQLException;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,9 +44,11 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
+
 import javax.sql.CommonDataSource;
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
+
 import javax.transaction.xa.Xid;
 
 import org.hsqldb.error.Error;
@@ -71,7 +75,7 @@ import org.hsqldb.jdbc.JDBCUtil;
  * @see org.hsqldb.jdbc.pool.JDBCXAConnection
  */
 public class JDBCXADataSource extends JDBCCommonDataSource
-implements XADataSource, Serializable, Referenceable, CommonDataSource {
+        implements XADataSource, Serializable, Referenceable, CommonDataSource {
 
     /**
      * Get new XAConnection connection, to be managed by a connection manager.
@@ -81,14 +85,16 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
     public XAConnection getXAConnection() throws SQLException {
 
         // Comment out before public release:
+
 /*
         System.err.print("Executing " + getClass().getName()
                          + ".getXAConnection()...");
 */
 
         // Use JDBCDriver directly so there is no need to register with DriverManager
-        JDBCConnection connection =
-            (JDBCConnection) JDBCDriver.getConnection(url, connectionProps);
+        JDBCConnection connection = (JDBCConnection) JDBCDriver.getConnection(
+            url,
+            connectionProps);
         JDBCXAConnection xaConnection = new JDBCXAConnection(this, connection);
 
         return xaConnection;
@@ -106,8 +112,10 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
      *                  for this JDBCXADataSource.
      * @throws SQLException on error
      */
-    public XAConnection getXAConnection(String user,
-                                        String password) throws SQLException {
+    public XAConnection getXAConnection(
+            String user,
+            String password)
+            throws SQLException {
 
         if (user == null || password == null) {
             throw JDBCUtil.nullArgument();
@@ -135,14 +143,15 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
         ref.add(new StringRefAddr("database", getDatabase()));
         ref.add(new StringRefAddr("user", getUser()));
         ref.add(new StringRefAddr("password", password));
-        ref.add(new StringRefAddr("loginTimeout",
-                                  Integer.toString(loginTimeout)));
+        ref.add(
+            new StringRefAddr("loginTimeout", Integer.toString(loginTimeout)));
 
         return ref;
     }
 
     // ------------------------ internal implementation ------------------------
-    private HashMap<Xid, JDBCXAResource> resources = new HashMap<Xid, JDBCXAResource>();
+    private HashMap<Xid, JDBCXAResource> resources = new HashMap<Xid,
+        JDBCXAResource>();
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public void addResource(Xid xid, JDBCXAResource xaResource) {
@@ -186,8 +195,8 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
 
         try {
             Iterator<Xid> it = resources.keySet().iterator();
-            Xid      curXid;
-            HashSet<Xid> preparedSet = new HashSet<Xid>();
+            Xid           curXid;
+            HashSet<Xid>  preparedSet = new HashSet<Xid>();
 
             while (it.hasNext()) {
                 curXid = it.next();

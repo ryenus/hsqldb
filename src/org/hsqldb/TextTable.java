@@ -327,7 +327,7 @@ public class TextTable extends Table {
      */
     public void checkDataReadOnly() {
 
-        if (dataSource.length() == 0) {
+        if (dataSource.isEmpty()) {
             String name = getName().getSchemaQualifiedStatementName();
 
             throw Error.error(ErrorCode.TEXT_TABLE_UNKNOWN_DATA_SOURCE, name);
@@ -344,9 +344,9 @@ public class TextTable extends Table {
                || store.getCache().isDataReadOnly();
     }
 
-    public void setDataReadOnly(boolean value) {
+    public void setDataReadOnly(boolean readonly) {
 
-        if (!value) {
+        if (!readonly) {
             if (isReversed) {
                 throw Error.error(ErrorCode.DATA_IS_READONLY);
             }
@@ -357,11 +357,11 @@ public class TextTable extends Table {
 
             if (isConnected()) {
                 store.getCache().close();
-                store.getCache().open(value);
+                store.getCache().open(readonly);
             }
         }
 
-        isReadOnly = value;
+        isReadOnly = readonly;
     }
 
     /**
@@ -387,7 +387,7 @@ public class TextTable extends Table {
             return null;
         }
 
-        StringBuilder sb = new StringBuilder(128);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_SET)
           .append(' ')
@@ -416,7 +416,7 @@ public class TextTable extends Table {
             return null;
         }
 
-        StringBuilder sb = new StringBuilder(128);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_SET)
           .append(' ')

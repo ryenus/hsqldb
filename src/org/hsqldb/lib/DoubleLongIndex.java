@@ -41,7 +41,7 @@ import java.util.NoSuchElementException;
  * The table is sorted on key column.<p>
  *
  * findXXX() methods return the array index into the list
- * pair containing a matching key or value, or  or -1 if not found.<p>
+ * pair containing a matching key or value, or -1 if not found.<p>
  *
  * Based on org.hsqldb.lib.DoubleIntIndex
  *

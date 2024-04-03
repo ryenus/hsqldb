@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -74,9 +75,12 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
     private Hashtable    settings;
     private Choice       types, recent;
 
-    public static Connection createConnection(String driver, String url,
-            String user, String password) throws Exception {
-
+    public static Connection createConnection(
+            String driver,
+            String url,
+            String user,
+            String password)
+            throws Exception {
         Class.forName(driver);
 
         return DriverManager.getConnection(url, user, password);
@@ -138,23 +142,25 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
             recent.add(((ConnectionSetting) en.nextElement()).getName());
         }
 
-        recent.addItemListener(new ItemListener() {
+        recent.addItemListener(
+            new ItemListener() {
 
-            public void itemStateChanged(ItemEvent e) {
+                public void itemStateChanged(ItemEvent e) {
 
-                String s = (String) e.getItem();
-                ConnectionSetting setting =
-                    (ConnectionSetting) settings.get(s);
+                    String s = (String) e.getItem();
+                    ConnectionSetting setting =
+                        (ConnectionSetting) settings.get(
+                            s);
 
-                if (setting != null) {
-                    mName.setText(setting.getName());
-                    mDriver.setText(setting.getDriver());
-                    mURL.setText(setting.getUrl());
-                    mUser.setText(setting.getUser());
-                    mPassword.setText(setting.getPassword());
+                    if (setting != null) {
+                        mName.setText(setting.getName());
+                        mDriver.setText(setting.getDriver());
+                        mURL.setText(setting.getUrl());
+                        mUser.setText(setting.getUser());
+                        mPassword.setText(setting.getPassword());
+                    }
                 }
-            }
-        });
+            });
         pText.add(recent);
 
         Button b;
@@ -162,19 +168,20 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
         b = new Button("Clr");
 
         b.setActionCommand("Clear");
-        b.addActionListener(new ActionListener() {
+        b.addActionListener(
+            new ActionListener() {
 
-            public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent e) {
 
-                ConnectionDialogCommon.deleteRecentConnectionSettings();
+                    ConnectionDialogCommon.deleteRecentConnectionSettings();
 
-                settings = new Hashtable();
+                    settings = new Hashtable();
 
-                recent.removeAll();
-                recent.add(ConnectionDialogCommon.emptySettingName);
-                mName.setText(null);
-            }
-        });
+                    recent.removeAll();
+                    recent.add(ConnectionDialogCommon.emptySettingName);
+                    mName.setText(null);
+                }
+            });
         pClearButton.add(b);
         pLabel.add(createLabel("Setting Name:"));
 
@@ -245,8 +252,9 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
 
         // (ulrivo): full size on screen with less than 640 width
         if (d.width >= 640) {
-            setLocation((d.width - size.width) / 2,
-                        (d.height - size.height) / 2);
+            setLocation(
+                (d.width - size.width) / 2,
+                (d.height - size.height) / 2);
         } else {
             setLocation(0, 0);
             setSize(d);
@@ -299,21 +307,24 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
                     throw new Exception("please specify db path");
                 }
 
-                mConnection = createConnection(mDriver.getText(),
-                                               mURL.getText(),
-                                               mUser.getText(),
-                                               mPassword.getText());
+                mConnection = createConnection(
+                    mDriver.getText(),
+                    mURL.getText(),
+                    mUser.getText(),
+                    mPassword.getText());
 
                 if (mName.getText() != null
-                        && mName.getText().trim().length() != 0) {
-                    ConnectionSetting newSetting =
-                        new ConnectionSetting(mName.getText(),
-                                              mDriver.getText(),
-                                              mURL.getText(), mUser.getText(),
-                                              mPassword.getText());
+                        && mName.getText().trim().length() > 0) {
+                    ConnectionSetting newSetting = new ConnectionSetting(
+                        mName.getText(),
+                        mDriver.getText(),
+                        mURL.getText(),
+                        mUser.getText(),
+                        mPassword.getText());
 
                     ConnectionDialogCommon.addToRecentConnectionSettings(
-                        settings, newSetting);
+                        settings,
+                        newSetting);
                 }
 
                 dispose();

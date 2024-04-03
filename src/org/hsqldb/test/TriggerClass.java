@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,18 +40,27 @@ public class TriggerClass implements Trigger {
     public static int   callCount;
     public static int[] callCounts = new int[12];
 
-    public void fire(int type, String trigName, String tabName,
-                     Object[] oldRow, Object[] newRow) {
+    public void fire(
+            int type,
+            String trigName,
+            String tabName,
+            Object[] oldRow,
+            Object[] newRow) {
         callCounts[type]++;
         callCount++;
     }
 
-    public static java.sql.Array authenticateFalse(String database, String user, String password) {
+    public static java.sql.Array authenticateFalse(
+            String database,
+            String user,
+            String password) {
         throw new RuntimeException("bad user");
     }
 
     public static java.sql.Array authenticate(
-        String database, String user, String password) {
-         return new JDBCArrayBasic(new String[] { "DBA" }, Type.SQL_VARCHAR);
-   }
+            String database,
+            String user,
+            String password) {
+        return new JDBCArrayBasic(new String[]{ "DBA" }, Type.SQL_VARCHAR);
+    }
 }

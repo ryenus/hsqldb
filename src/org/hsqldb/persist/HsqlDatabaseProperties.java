@@ -59,8 +59,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_reconfig_logging =
         "hsqldb.reconfig_logging";
     private static final HashSet<String> accessibleJavaMethodNames =
-            new HashSet<>();
-    public static String methodClassNames;
+        new HashSet<>();
+    public static String   methodClassNames;
     private static boolean allowFullPath;
 
     static {
@@ -150,10 +150,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     private static final String MODIFIED_NO_NEW       = "no-new-files";
 
     // allowed property metadata
-    private static final HashMap<String, PropertyMeta> dbMeta =
-        new HashMap<>(128);
-    private static final HashMap<String, PropertyMeta> textMeta =
-        new HashMap<>(16);
+    private static final HashMap<String, PropertyMeta> dbMeta = new HashMap<>(
+        128);
+    private static final HashMap<String, PropertyMeta> textMeta = new HashMap<>(
+        16);
     private static final HashSet<String> excludedMeta = new HashSet<>();
     private static final HashMap<String, PropertyMeta> urlUserConnMeta =
         new HashMap<>();
@@ -213,15 +213,15 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String url_crypt_lobs     = "crypt_lobs";
 
     //
-    public static final String hsqldb_tx       = "hsqldb.tx";
-    public static final String hsqldb_tx_level = "hsqldb.tx_level";
+    public static final String hsqldb_tx              = "hsqldb.tx";
+    public static final String hsqldb_tx_level        = "hsqldb.tx_level";
     public static final String hsqldb_tx_conflict_rollback =
         "hsqldb.tx_conflict_rollback";
     public static final String hsqldb_tx_interrupt_rollback =
         "hsqldb.tx_interrupt_rollback";
-    public static final String hsqldb_applog = "hsqldb.applog";
-    public static final String hsqldb_extlog = "hsqldb.extlog";
-    public static final String hsqldb_sqllog = "hsqldb.sqllog";
+    public static final String hsqldb_applog          = "hsqldb.applog";
+    public static final String hsqldb_extlog          = "hsqldb.extlog";
+    public static final String hsqldb_sqllog          = "hsqldb.sqllog";
     public static final String hsqldb_lob_file_scale = "hsqldb.lob_file_scale";
     public static final String hsqldb_lob_file_compressed =
         "hsqldb.lob_compressed";
@@ -244,14 +244,14 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_temp_directory = "hsqldb.temp_directory";
     public static final String hsqldb_result_max_memory_rows =
         "hsqldb.result_max_memory_rows";
-    public static final String hsqldb_write_delay = "hsqldb.write_delay";
+    public static final String hsqldb_write_delay     = "hsqldb.write_delay";
     public static final String hsqldb_write_delay_millis =
         "hsqldb.write_delay_millis";
     public static final String hsqldb_full_log_replay =
         "hsqldb.full_log_replay";
-    public static final String hsqldb_large_data  = "hsqldb.large_data";
-    public static final String hsqldb_files_space = "hsqldb.files_space";
-    public static final String hsqldb_digest      = "hsqldb.digest";
+    public static final String hsqldb_large_data      = "hsqldb.large_data";
+    public static final String hsqldb_files_space     = "hsqldb.files_space";
+    public static final String hsqldb_digest          = "hsqldb.digest";
 
     //
     public static final String jdbc_translate_tti_types =
@@ -263,7 +263,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_compare_in_locale = "sql.compare_in_locale";
     public static final String sql_enforce_size      = "sql.enforce_size";
     public static final String sql_enforce_strict_size =
-        "sql.enforce_strict_size";  // synonym for sql_enforce_size
+        "sql.enforce_strict_size";    // synonym for sql_enforce_size
     public static final String sql_enforce_refs      = "sql.enforce_refs";
     public static final String sql_enforce_names     = "sql.enforce_names";
     public static final String sql_regular_names     = "sql.regular_names";
@@ -294,7 +294,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_lowercase_ident   = "sql.lowercase_ident";
 
     //
-    public static final String textdb_cache_scale = "textdb.cache_scale";
+    public static final String textdb_cache_scale  = "textdb.cache_scale";
     public static final String textdb_cache_size_scale =
         "textdb.cache_size_scale";
     public static final String textdb_cache_rows   = "textdb.cache_rows";

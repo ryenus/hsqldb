@@ -1489,72 +1489,104 @@ public class Logger implements EventLogInterface {
         HashMap<String, String> map   = new HashMap<>();
         String                  value = null;
 
-        map.put(HsqlDatabaseProperties.sql_avg_scale,
-                String.valueOf(database.sqlAvgScale));
-        map.put(HsqlDatabaseProperties.sql_char_literal,
-                String.valueOf(database.sqlCharLiteral));
-        map.put(HsqlDatabaseProperties.sql_concat_nulls,
-                String.valueOf(database.sqlConcatNulls));
-        map.put(HsqlDatabaseProperties.sql_convert_trunc,
-                String.valueOf(database.sqlConvertTruncate));
-        map.put(HsqlDatabaseProperties.sql_default_collation,
-                String.valueOf(database.collation.getName().name));
-        map.put(HsqlDatabaseProperties.sql_trunc_trailing,
-                String.valueOf(database.sqlTruncateTrailing));
-        map.put(HsqlDatabaseProperties.sql_double_nan,
-                String.valueOf(database.sqlDoubleNaN));
-        map.put(HsqlDatabaseProperties.sql_enforce_names,
-                String.valueOf(database.sqlEnforceNames));
-        map.put(HsqlDatabaseProperties.sql_enforce_refs,
-                String.valueOf(database.sqlEnforceRefs));
-        map.put(HsqlDatabaseProperties.sql_enforce_size,
-                String.valueOf(database.sqlEnforceSize));
-        map.put(HsqlDatabaseProperties.sql_enforce_tdcd,
-                String.valueOf(database.sqlEnforceTDCD));
-        map.put(HsqlDatabaseProperties.sql_enforce_tdcu,
-                String.valueOf(database.sqlEnforceTDCU));
-        map.put(HsqlDatabaseProperties.sql_enforce_types,
-                String.valueOf(database.sqlEnforceTypes));
-        map.put(HsqlDatabaseProperties.sql_ignore_case,
-                String.valueOf(database.sqlIgnoreCase));
-        map.put(HsqlDatabaseProperties.sql_live_object,
-                String.valueOf(database.sqlLiveObject));
-        map.put(HsqlDatabaseProperties.sql_longvar_is_lob,
-                String.valueOf(database.sqlLongvarIsLob));
-        map.put(HsqlDatabaseProperties.sql_lowercase_ident,
-                String.valueOf(database.sqlLowerCaseIdentifier));
-        map.put(HsqlDatabaseProperties.sql_max_recursive,
-                String.valueOf(database.sqlMaxRecursive));
-        map.put(HsqlDatabaseProperties.sql_nulls_first,
-                String.valueOf(database.sqlNullsFirst));
-        map.put(HsqlDatabaseProperties.sql_nulls_order,
-                String.valueOf(database.sqlNullsOrder));
-        map.put(HsqlDatabaseProperties.sql_pad_space,
-                String.valueOf(database.collation.isPadSpace()));
-        map.put(HsqlDatabaseProperties.sql_ref_integrity,
-                String.valueOf(database.isReferentialIntegrity()));
-        map.put(HsqlDatabaseProperties.sql_regular_names,
-                String.valueOf(database.sqlRegularNames));
-        map.put(HsqlDatabaseProperties.sql_restrict_exec,
-                String.valueOf(database.sqlRestrictExec));
-        map.put(HsqlDatabaseProperties.sql_syntax_db2,
-                String.valueOf(database.sqlSyntaxDb2));
-        map.put(HsqlDatabaseProperties.sql_syntax_mss,
-                String.valueOf(database.sqlSyntaxMss));
-        map.put(HsqlDatabaseProperties.sql_syntax_mys,
-                String.valueOf(database.sqlSyntaxMys));
-        map.put(HsqlDatabaseProperties.sql_syntax_ora,
-                String.valueOf(database.sqlSyntaxOra));
-        map.put(HsqlDatabaseProperties.sql_syntax_pgs,
-                String.valueOf(database.sqlSyntaxPgs));
-        map.put(HsqlDatabaseProperties.sql_sys_index_names,
-                String.valueOf(database.sqlSysIndexNames));
-        map.put(HsqlDatabaseProperties.sql_unique_nulls,
-                String.valueOf(database.sqlUniqueNulls));
+        map.put(
+            HsqlDatabaseProperties.sql_avg_scale,
+            String.valueOf(database.sqlAvgScale));
+        map.put(
+            HsqlDatabaseProperties.sql_char_literal,
+            String.valueOf(database.sqlCharLiteral));
+        map.put(
+            HsqlDatabaseProperties.sql_concat_nulls,
+            String.valueOf(database.sqlConcatNulls));
+        map.put(
+            HsqlDatabaseProperties.sql_convert_trunc,
+            String.valueOf(database.sqlConvertTruncate));
+        map.put(
+            HsqlDatabaseProperties.sql_default_collation,
+            String.valueOf(database.collation.getName().name));
+        map.put(
+            HsqlDatabaseProperties.sql_trunc_trailing,
+            String.valueOf(database.sqlTruncateTrailing));
+        map.put(
+            HsqlDatabaseProperties.sql_double_nan,
+            String.valueOf(database.sqlDoubleNaN));
+        map.put(
+            HsqlDatabaseProperties.sql_enforce_names,
+            String.valueOf(database.sqlEnforceNames));
+        map.put(
+            HsqlDatabaseProperties.sql_enforce_refs,
+            String.valueOf(database.sqlEnforceRefs));
+        map.put(
+            HsqlDatabaseProperties.sql_enforce_size,
+            String.valueOf(database.sqlEnforceSize));
+        map.put(
+            HsqlDatabaseProperties.sql_enforce_tdcd,
+            String.valueOf(database.sqlEnforceTDCD));
+        map.put(
+            HsqlDatabaseProperties.sql_enforce_tdcu,
+            String.valueOf(database.sqlEnforceTDCU));
+        map.put(
+            HsqlDatabaseProperties.sql_enforce_types,
+            String.valueOf(database.sqlEnforceTypes));
+        map.put(
+            HsqlDatabaseProperties.sql_ignore_case,
+            String.valueOf(database.sqlIgnoreCase));
+        map.put(
+            HsqlDatabaseProperties.sql_live_object,
+            String.valueOf(database.sqlLiveObject));
+        map.put(
+            HsqlDatabaseProperties.sql_longvar_is_lob,
+            String.valueOf(database.sqlLongvarIsLob));
+        map.put(
+            HsqlDatabaseProperties.sql_lowercase_ident,
+            String.valueOf(database.sqlLowerCaseIdentifier));
+        map.put(
+            HsqlDatabaseProperties.sql_max_recursive,
+            String.valueOf(database.sqlMaxRecursive));
+        map.put(
+            HsqlDatabaseProperties.sql_nulls_first,
+            String.valueOf(database.sqlNullsFirst));
+        map.put(
+            HsqlDatabaseProperties.sql_nulls_order,
+            String.valueOf(database.sqlNullsOrder));
+        map.put(
+            HsqlDatabaseProperties.sql_pad_space,
+            String.valueOf(database.collation.isPadSpace()));
+        map.put(
+            HsqlDatabaseProperties.sql_ref_integrity,
+            String.valueOf(database.isReferentialIntegrity()));
+        map.put(
+            HsqlDatabaseProperties.sql_regular_names,
+            String.valueOf(database.sqlRegularNames));
+        map.put(
+            HsqlDatabaseProperties.sql_restrict_exec,
+            String.valueOf(database.sqlRestrictExec));
+        map.put(
+            HsqlDatabaseProperties.sql_syntax_db2,
+            String.valueOf(database.sqlSyntaxDb2));
+        map.put(
+            HsqlDatabaseProperties.sql_syntax_mss,
+            String.valueOf(database.sqlSyntaxMss));
+        map.put(
+            HsqlDatabaseProperties.sql_syntax_mys,
+            String.valueOf(database.sqlSyntaxMys));
+        map.put(
+            HsqlDatabaseProperties.sql_syntax_ora,
+            String.valueOf(database.sqlSyntaxOra));
+        map.put(
+            HsqlDatabaseProperties.sql_syntax_pgs,
+            String.valueOf(database.sqlSyntaxPgs));
+        map.put(
+            HsqlDatabaseProperties.sql_sys_index_names,
+            String.valueOf(database.sqlSysIndexNames));
+        map.put(
+            HsqlDatabaseProperties.sql_unique_nulls,
+            String.valueOf(database.sqlUniqueNulls));
 
         //
-        map.put(HsqlDatabaseProperties.jdbc_translate_tti_types,
-                String.valueOf(database.sqlTranslateTTI));
+        map.put(
+            HsqlDatabaseProperties.jdbc_translate_tti_types,
+            String.valueOf(database.sqlTranslateTTI));
 
         switch (database.txManager.getTransactionControl()) {
 
@@ -1585,33 +1617,43 @@ public class Logger implements EventLogInterface {
         }
 
         map.put(HsqlDatabaseProperties.hsqldb_tx_level, value);
-        map.put(HsqlDatabaseProperties.hsqldb_reconfig_logging,
-                System.getProperty(
-                    HsqlDatabaseProperties.hsqldb_reconfig_logging));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_reconfig_logging,
+            System.getProperty(HsqlDatabaseProperties.hsqldb_reconfig_logging));
 
         if (HsqlDatabaseProperties.methodClassNames != null) {
-            map.put(HsqlDatabaseProperties.hsqldb_method_class_names,
-                    HsqlDatabaseProperties.methodClassNames);
+            map.put(
+                HsqlDatabaseProperties.hsqldb_method_class_names,
+                HsqlDatabaseProperties.methodClassNames);
         }
 
-        map.put(HsqlDatabaseProperties.hsqldb_applog,
-                String.valueOf(appLog.getLevel()));
-        map.put(HsqlDatabaseProperties.hsqldb_extlog,
-                String.valueOf(propExternalEventLogLevel));
-        map.put(HsqlDatabaseProperties.hsqldb_sqllog,
-                String.valueOf(sqlLog.getLevel()));
-        map.put(HsqlDatabaseProperties.hsqldb_lob_file_scale,
-                String.valueOf(propLobBlockSize / 1024));
-        map.put(HsqlDatabaseProperties.hsqldb_lob_file_compressed,
-                String.valueOf(propCompressLobs));
-        map.put(HsqlDatabaseProperties.hsqldb_cache_file_scale,
-                String.valueOf(propDataFileScale));
-        map.put(HsqlDatabaseProperties.hsqldb_cache_free_count,
-                String.valueOf(propMaxFreeBlocks));
-        map.put(HsqlDatabaseProperties.hsqldb_cache_rows,
-                String.valueOf(propCacheMaxRows));
-        map.put(HsqlDatabaseProperties.hsqldb_cache_size,
-                String.valueOf(propCacheMaxSize / 1024));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_applog,
+            String.valueOf(appLog.getLevel()));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_extlog,
+            String.valueOf(propExternalEventLogLevel));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_sqllog,
+            String.valueOf(sqlLog.getLevel()));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_lob_file_scale,
+            String.valueOf(propLobBlockSize / 1024));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_lob_file_compressed,
+            String.valueOf(propCompressLobs));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_cache_file_scale,
+            String.valueOf(propDataFileScale));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_cache_free_count,
+            String.valueOf(propMaxFreeBlocks));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_cache_rows,
+            String.valueOf(propCacheMaxRows));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_cache_size,
+            String.valueOf(propCacheMaxSize / 1024));
 
         {
             String prop;
@@ -1630,54 +1672,73 @@ public class Logger implements EventLogInterface {
             map.put(HsqlDatabaseProperties.hsqldb_default_table_type, prop);
         }
 
-        map.put(HsqlDatabaseProperties.hsqldb_defrag_limit,
-                String.valueOf(propDataFileDefragLimit));
-        map.put(HsqlDatabaseProperties.hsqldb_files_space,
-                String.valueOf(propDataFileSpace));
-        map.put(HsqlDatabaseProperties.hsqldb_files_readonly,
-                database.databaseProperties.isPropertyTrue(
-                    HsqlDatabaseProperties.hsqldb_files_readonly)
-                ? "true"
-                : "false");
-        map.put(HsqlDatabaseProperties.hsqldb_large_data,
-                String.valueOf(propLargeData));
-        map.put(HsqlDatabaseProperties.hsqldb_lock_file,
-                database.databaseProperties.isPropertyTrue(
-                    HsqlDatabaseProperties.hsqldb_lock_file)
-                ? "true"
-                : "false");
-        map.put(HsqlDatabaseProperties.hsqldb_log_data,
-                String.valueOf(propLogData));
-        map.put(HsqlDatabaseProperties.hsqldb_log_size,
-                String.valueOf(propLogSize));
-        map.put(HsqlDatabaseProperties.hsqldb_nio_data_file,
-                String.valueOf(propNioDataFile));
-        map.put(HsqlDatabaseProperties.hsqldb_nio_max_size,
-                String.valueOf(propNioMaxSize / (1024 * 1024)));
-        map.put(HsqlDatabaseProperties.hsqldb_script_format,
-                ScriptWriterBase.LIST_SCRIPT_FORMATS[propScriptFormat].toLowerCase());
-        map.put(HsqlDatabaseProperties.hsqldb_temp_directory,
-                tempDirectoryPath);
-        map.put(HsqlDatabaseProperties.hsqldb_tx_conflict_rollback,
-                String.valueOf(database.txConflictRollback));
-        map.put(HsqlDatabaseProperties.hsqldb_tx_interrupt_rollback,
-                String.valueOf(database.txInterruptRollback));
-        map.put(HsqlDatabaseProperties.hsqldb_result_max_memory_rows,
-                String.valueOf(database.getResultMaxMemoryRows()));
-        map.put(HsqlDatabaseProperties.hsqldb_readonly,
-                database.isReadOnly()
-                ? "true"
-                : "false");
-        map.put(HsqlDatabaseProperties.hsqldb_files_readonly,
-                database.isFilesReadOnly()
-                ? "true"
-                : "false");
-        map.put(HsqlDatabaseProperties.hsqldb_write_delay,
-                String.valueOf(propWriteDelay != 0));
-        map.put(HsqlDatabaseProperties.hsqldb_write_delay_millis,
-                String.valueOf(propWriteDelay));
-        map.put(HsqlDatabaseProperties.hsqldb_digest,
-                database.granteeManager.getDigestAlgo());
+        map.put(
+            HsqlDatabaseProperties.hsqldb_defrag_limit,
+            String.valueOf(propDataFileDefragLimit));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_files_space,
+            String.valueOf(propDataFileSpace));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_files_readonly,
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_files_readonly)
+            ? "true"
+            : "false");
+        map.put(
+            HsqlDatabaseProperties.hsqldb_large_data,
+            String.valueOf(propLargeData));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_lock_file,
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_lock_file)
+            ? "true"
+            : "false");
+        map.put(
+            HsqlDatabaseProperties.hsqldb_log_data,
+            String.valueOf(propLogData));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_log_size,
+            String.valueOf(propLogSize));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_nio_data_file,
+            String.valueOf(propNioDataFile));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_nio_max_size,
+            String.valueOf(propNioMaxSize / (1024 * 1024)));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_script_format,
+            ScriptWriterBase.LIST_SCRIPT_FORMATS[propScriptFormat].toLowerCase());
+        map.put(
+            HsqlDatabaseProperties.hsqldb_temp_directory,
+            tempDirectoryPath);
+        map.put(
+            HsqlDatabaseProperties.hsqldb_tx_conflict_rollback,
+            String.valueOf(database.txConflictRollback));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_tx_interrupt_rollback,
+            String.valueOf(database.txInterruptRollback));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_result_max_memory_rows,
+            String.valueOf(database.getResultMaxMemoryRows()));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_readonly,
+            database.isReadOnly()
+            ? "true"
+            : "false");
+        map.put(
+            HsqlDatabaseProperties.hsqldb_files_readonly,
+            database.isFilesReadOnly()
+            ? "true"
+            : "false");
+        map.put(
+            HsqlDatabaseProperties.hsqldb_write_delay,
+            String.valueOf(propWriteDelay != 0));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_write_delay_millis,
+            String.valueOf(propWriteDelay));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_digest,
+            database.granteeManager.getDigestAlgo());
 
         return map;
     }
@@ -1773,9 +1834,7 @@ public class Logger implements EventLogInterface {
             sb.append(' ').append(Tokens.T_ROLLBACK).append(' ');
             sb.append(Tokens.T_ON).append(' ');
             sb.append(Tokens.T_INTERRUPT).append(' ');
-            sb.append(database.txInterruptRollback
-                      ? Tokens.T_TRUE
-                      : Tokens.T_FALSE);
+            sb.append(Tokens.T_TRUE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -2028,9 +2087,7 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_DB2).append(' ');
-            sb.append(database.sqlSyntaxDb2
-                      ? Tokens.T_TRUE
-                      : Tokens.T_FALSE);
+            sb.append(Tokens.T_TRUE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -2039,9 +2096,7 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_MSS).append(' ');
-            sb.append(database.sqlSyntaxMss
-                      ? Tokens.T_TRUE
-                      : Tokens.T_FALSE);
+            sb.append(Tokens.T_TRUE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -2050,9 +2105,7 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_MYS).append(' ');
-            sb.append(database.sqlSyntaxMys
-                      ? Tokens.T_TRUE
-                      : Tokens.T_FALSE);
+            sb.append(Tokens.T_TRUE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -2061,9 +2114,7 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_ORA).append(' ');
-            sb.append(database.sqlSyntaxOra
-                      ? Tokens.T_TRUE
-                      : Tokens.T_FALSE);
+            sb.append(Tokens.T_TRUE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -2072,9 +2123,7 @@ public class Logger implements EventLogInterface {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_SYNTAX).append(' ');
             sb.append(Tokens.T_PGS).append(' ');
-            sb.append(database.sqlSyntaxPgs
-                      ? Tokens.T_TRUE
-                      : Tokens.T_FALSE);
+            sb.append(Tokens.T_TRUE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -2145,9 +2194,7 @@ public class Logger implements EventLogInterface {
         if (propCompressLobs) {
             sb.append("SET FILES ").append(Tokens.T_LOB).append(' ');
             sb.append(Tokens.T_COMPRESSED).append(' ');
-            sb.append(propCompressLobs
-                      ? Tokens.T_TRUE
-                      : Tokens.T_FALSE);
+            sb.append(Tokens.T_TRUE);
             list.add(sb.toString());
             sb.setLength(0);
         }
@@ -2238,7 +2285,7 @@ public class Logger implements EventLogInterface {
         String scriptName = null;
         String dbPath     = database.getPath();
 
-        /* If want to add db Id also, will need to pass either Database
+        /* If we want to add db Id also, will need to pass either Database
          * instead of dbPath, or pass dbPath + Id from StatementCommand.
          */
         String  instanceName = new File(dbPath).getName();

@@ -201,7 +201,7 @@ class TransferDb extends DataAccessPoint {
             int iMaxRows)
             throws DataAccessPointException {
 
-        if ((statement == null) || statement.equals("") || (r == null)) {
+        if (statement == null || statement.isEmpty() || r == null) {
             return;
         }
 
@@ -517,7 +517,7 @@ class TransferDb extends DataAccessPoint {
                     importedkeys = true;
 
                     if (!ImportedKeys.getString(12).equals(ConstraintName)) {
-                        if (!ConstraintName.equals("")) {
+                        if (!ConstraintName.isEmpty()) {
                             alterCreate += Dest.helper.formatIdentifier(
                                 columnName.substring(
                                     0, columnName.length()
@@ -675,7 +675,7 @@ class TransferDb extends DataAccessPoint {
                     }
 
                     if (!tmpIndexName.equals(IndiceName)) {
-                        if (!IndiceName.equals("")) {
+                        if (!IndiceName.isEmpty()) {
                             CreateIndex = CreateIndex.substring(
                                 0,
                                 CreateIndex.length() - 1) + ");";
@@ -757,7 +757,7 @@ class TransferDb extends DataAccessPoint {
         } catch (SQLException eSchema) {
 
             // fredt - second try with null schema
-            if (TTable.Stmts.sSchema.equals("")) {
+            if (TTable.Stmts.sSchema.isEmpty()) {
                 try {
                     col = meta.getColumns(
                         TTable.Stmts.sDatabaseToConvert,

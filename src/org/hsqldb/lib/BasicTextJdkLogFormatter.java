@@ -73,16 +73,16 @@ public class BasicTextJdkLogFormatter extends Formatter {
         StringBuilder sb = new StringBuilder();
 
         if (withTime) {
-            sb.append(sdf.format(new Date(record.getMillis())) + "  ");
+            sb.append(sdf.format(new Date(record.getMillis()))).append("  ");
         }
 
-        sb.append(record.getLevel() + "  " + formatMessage(record));
+        sb.append(record.getLevel()).append("  ").append(formatMessage(record));
 
         if (record.getThrown() != null) {
             StringWriter sw = new StringWriter();
 
             record.getThrown().printStackTrace(new PrintWriter(sw));
-            sb.append(LS + sw);
+            sb.append(LS).append(sw);
         }
 
         // This uses platform-specific line-separator, the same as SimpleLogger does.

@@ -643,30 +643,24 @@ public final class NumberType extends Type {
             }
         }
 
+        int  otherDecimalPrecision = ((NumberType) other).getDecimalPrecision();
         int  newScale;
         long newDigits;
 
         switch (operation) {
 
             case OpTypes.ADD :
-                newScale = scale > other.scale
-                           ? scale
-                           : other.scale;
-                newDigits = getDecimalPrecision() - scale
-                            > ((NumberType) other).getDecimalPrecision()
-                              - other.scale
-                            ? getDecimalPrecision() - scale
-                            : ((NumberType) other).getDecimalPrecision()
-                              - other.scale;
+                newScale = Math.max(scale, other.scale);
+                newDigits = Math.max(
+                    getDecimalPrecision() - scale,
+                    otherDecimalPrecision - other.scale);
 
                 newDigits++;
                 break;
 
             case OpTypes.DIVIDE :
                 newDigits = getDecimalPrecision() - scale + other.scale;
-                newScale  = scale > other.scale
-                            ? scale
-                            : other.scale;
+                newScale  = Math.max(scale, other.scale);
 
                 if (session.database.sqlAvgScale > newScale) {
                     newScale = session.database.sqlAvgScale;
@@ -676,8 +670,7 @@ public final class NumberType extends Type {
 
             case OpTypes.MULTIPLY :
                 newDigits = getDecimalPrecision() - scale
-                            + ((NumberType) other).getDecimalPrecision()
-                            - other.scale;
+                            + (otherDecimalPrecision - other.scale);
                 newScale = scale + other.scale;
                 break;
 

@@ -822,7 +822,6 @@ public class QueryExpression implements RangeGroup {
     /* @todo regular review */
     public String describe(Session session, int blanks) {
 
-        StringBuilder sb;
         String        temp;
         StringBuilder b = new StringBuilder(blanks);
 
@@ -830,7 +829,7 @@ public class QueryExpression implements RangeGroup {
             b.append(' ');
         }
 
-        sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         switch (unionType) {
 

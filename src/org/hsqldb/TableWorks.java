@@ -1527,8 +1527,6 @@ public class TableWorks {
         switch (newType) {
 
             case TableBase.CACHED_TABLE :
-                break;
-
             case TableBase.MEMORY_TABLE :
                 break;
 

@@ -51,7 +51,7 @@ public class RowOutputTextQuoted extends RowOutputText {
     protected String checkConvertString(String s, String sep) {
 
         if (textFileSettings.isAllQuoted
-                || s.length() == 0
+                || s.isEmpty()
                 || s.indexOf(textFileSettings.quoteChar) != -1
                 || (sep.length() > 0 && s.contains(sep))
                 || hasUnprintable(s)) {

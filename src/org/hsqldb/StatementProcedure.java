@@ -145,26 +145,7 @@ public class StatementProcedure extends StatementDMQL {
 
     Result getProcedureResult(Session session) {
 
-        Object[] data = ValuePool.emptyObjectArray;
-        int      argLength;
-
-        if (procedure.isPSM()) {
-            argLength = arguments.length;
-
-            if (procedure.getMaxDynamicResults() > 0) {
-                argLength++;
-            }
-        } else {
-            argLength = procedure.javaMethod.getParameterTypes().length;
-
-            if (procedure.javaMethodWithConnection) {
-                argLength--;
-            }
-        }
-
-        if (argLength > 0) {
-            data = new Object[argLength];
-        }
+        Object[] data = getArgsArray();
 
         for (int i = 0; i < arguments.length; i++) {
             Expression e = arguments[i];
@@ -248,6 +229,32 @@ public class StatementProcedure extends StatementDMQL {
         return result;
     }
 
+    private Object[] getArgsArray() {
+
+        Object[] data = ValuePool.emptyObjectArray;
+        int      argLength;
+
+        if (procedure.isPSM()) {
+            argLength = arguments.length;
+
+            if (procedure.getMaxDynamicResults() > 0) {
+                argLength++;
+            }
+        } else {
+            argLength = procedure.javaMethod.getParameterTypes().length;
+
+            if (procedure.javaMethodWithConnection) {
+                argLength--;
+            }
+        }
+
+        if (argLength > 0) {
+            data = new Object[argLength];
+        }
+
+        return data;
+    }
+
     Result executePSMProcedure(Session session) {
 
         int variableCount = procedure.getVariableCount();
@@ -319,14 +326,14 @@ public class StatementProcedure extends StatementDMQL {
         OrderedHashSet<TableDerived> subQueries = null;
 
         if (expression != null) {
-            subQueries = expression.collectAllSubqueries(subQueries);
+            subQueries = expression.collectAllSubqueries(null);
         }
 
         for (int i = 0; i < arguments.length; i++) {
             subQueries = arguments[i].collectAllSubqueries(subQueries);
         }
 
-        if (subQueries == null || subQueries.size() == 0) {
+        if (subQueries == null || subQueries.isEmpty()) {
             return TableDerived.emptyArray;
         }
 

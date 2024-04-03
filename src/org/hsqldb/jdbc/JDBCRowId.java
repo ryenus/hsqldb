@@ -35,8 +35,10 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 
 import java.io.IOException;
+
 import java.sql.RowId;
 import java.sql.SQLException;
+
 import java.util.Arrays;
 
 /**
@@ -99,6 +101,7 @@ public final class JDBCRowId implements RowId {
         if (id == null) {
             throw JDBCUtil.nullArgument("id");
         }
+
         this.id = id;
     }
 
@@ -130,8 +133,9 @@ public final class JDBCRowId implements RowId {
         try {
             this.id = StringConverter.hexStringToByteArray(hex);
         } catch (IOException e) {
-            throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                    "hex: " + e);
+            throw JDBCUtil.sqlException(
+                ErrorCode.JDBC_INVALID_ARGUMENT,
+                "hex: " + e);
 
             // .illegalHexadecimalCharacterSequenceArgumentException("hex", e);
         }

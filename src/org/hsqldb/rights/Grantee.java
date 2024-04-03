@@ -154,7 +154,7 @@ public class Grantee implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_CREATE)
           .append(' ')
@@ -1152,7 +1152,7 @@ public class Grantee implements SchemaObject {
         String                roleString = roleMapToString(roles);
 
         if (!roleString.isEmpty()) {
-            StringBuilder sb = new StringBuilder(128);
+            StringBuilder sb = new StringBuilder(64);
 
             sb.append(Tokens.T_GRANT)
               .append(' ')

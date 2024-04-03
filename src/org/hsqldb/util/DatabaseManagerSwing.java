@@ -1406,7 +1406,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
      */
     protected void executeCurrentSQL() {
 
-        if (txtCommand.getText().length() < 1) {
+        if (txtCommand.getText().isEmpty()) {
             CommonSwing.errorMessage("No SQL to execute");
 
             return;
@@ -1676,7 +1676,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         lTime = System.nanoTime() - lTime;
 
-        while (!all.equals("")) {
+        while (!all.isEmpty()) {
             int    i = all.indexOf(';');
             String sql;
 
@@ -2346,8 +2346,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     schemas.add(schema);
                     tables.add(result.getString(3));
                     remarks.add(result.getString(5));
-
-                    continue;
                 }
             }
 
@@ -2405,14 +2403,14 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     tableNode = makeNode(displayedName, rootNode);
                     col       = dMeta.getColumns(null, schema, name, null);
 
-                    if ((schema != null) && !schema.trim().equals("")) {
+                    if ((schema != null) && !schema.trim().isEmpty()) {
                         makeNode(schema, tableNode);
                     }
 
                     // sqlbob@users Added remarks.
                     String remark = remarks.get(i);
 
-                    if ((remark != null) && !remark.trim().equals("")) {
+                    if ((remark != null) && !remark.trim().isEmpty()) {
                         makeNode(remark, tableNode);
                     }
 
@@ -2611,7 +2609,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             public void actionPerformed(ActionEvent actionevent) {
 
                 if (sqlScriptBuffer == null
-                        && txtCommand.getText().length() < 1) {
+                        && txtCommand.getText().isEmpty()) {
                     CommonSwing.errorMessage("No SQL to clear");
 
                     return;

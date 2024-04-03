@@ -182,7 +182,7 @@ public class CodeSwitcher {
                                  ? st.substring(0, hashIndex)
                                  : st).trim();
 
-                    if (p.length() < 1) {
+                    if (p.isEmpty()) {
                         continue;
                     }
 
@@ -211,7 +211,7 @@ public class CodeSwitcher {
 
         s.process();
 
-        if (s.vSwitchOff.size() == 0 && s.vSwitchOn.size() == 0) {
+        if (s.vSwitchOff.isEmpty() && s.vSwitchOn.isEmpty()) {
             s.printSwitches();
         }
     }
@@ -405,7 +405,7 @@ public class CodeSwitcher {
 
                         if (!working) {}
                         else if (switchoff) {
-                            if (v.get(i - 1).equals("")) {
+                            if (v.get(i - 1).isEmpty()) {
                                 v.add(i - 1, "*/");
 
                                 i++;
@@ -429,7 +429,7 @@ public class CodeSwitcher {
                         state = 0;
 
                         if (working && switchoff) {
-                            if (v.get(i - 1).equals("")) {
+                            if (v.get(i - 1).isEmpty()) {
                                 v.add(i - 1, "*/");
 
                                 i++;

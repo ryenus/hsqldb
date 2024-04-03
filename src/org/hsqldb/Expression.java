@@ -206,11 +206,11 @@ public class Expression implements Cloneable {
                 return ddl;
         }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
-        ddl = sb.append('(').append(ddl).append(')').toString();
+        sb.append('(').append(ddl).append(')');
 
-        return ddl.toString();
+        return sb.toString();
     }
 
     /**
@@ -1153,8 +1153,6 @@ public class Expression implements Cloneable {
         switch (opType) {
 
             case OpTypes.VALUE :
-                break;
-
             case OpTypes.VALUELIST :
                 break;
 
@@ -1914,10 +1912,8 @@ public class Expression implements Cloneable {
 
     boolean hasNonDeterministicFunction() {
 
-        OrderedHashSet<Expression> list = null;
-
-        list = collectAllExpressions(
-            list,
+        OrderedHashSet<Expression> list = collectAllExpressions(
+            null,
             OpTypes.functionExpressionSet,
             OpTypes.emptyExpressionSet);
 
@@ -2068,10 +2064,8 @@ public class Expression implements Cloneable {
      */
     public void checkValidCheckConstraint() {
 
-        OrderedHashSet<Expression> set = null;
-
-        set = collectAllExpressions(
-            set,
+        OrderedHashSet<Expression> set = collectAllExpressions(
+            null,
             OpTypes.subqueryAggregateExpressionSet,
             OpTypes.emptyExpressionSet);
 
@@ -2094,19 +2088,16 @@ public class Expression implements Cloneable {
             null);
 
         if (list != null && list.size() > 0) {
-            Expression e = list.get(0);
+            Expression e          = list.get(0);
+            String     columnName = e.getColumnName();
 
-            e.getColumnName();
-
-            throw Error.error(ErrorCode.X_42501, e.getColumnName());
+            throw Error.error(ErrorCode.X_42501, columnName);
         }
 
         List<TableDerived> subqueries = collectAllSubqueries(null);
 
         if (subqueries != null) {
             if (subqueries.size() > 0) {
-                if (subqueries.size() > 1) {}
-
                 TableDerived subquery = subqueries.get(0);
 
                 if (subquery.isCorrelated()) {

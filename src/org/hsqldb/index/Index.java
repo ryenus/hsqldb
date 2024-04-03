@@ -111,7 +111,7 @@ public interface Index extends SchemaObject {
     boolean[] getColumnDesc();
 
     /**
-     * Returns the array containing 0, 1, .. column indexes
+     * Returns the array containing 0, 1, ... column indexes
      *
      * @return int[]
      */

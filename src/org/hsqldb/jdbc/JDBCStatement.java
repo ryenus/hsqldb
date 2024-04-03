@@ -102,11 +102,12 @@ import org.hsqldb.result.ResultProperties;
  * @see JDBCConnection#createStatement
  * @see JDBCResultSet
  */
-public class JDBCStatement extends JDBCStatementBase implements Statement,
-        java.sql.Wrapper {
+public class JDBCStatement extends JDBCStatementBase
+        implements Statement, java.sql.Wrapper {
 
+    public final static int RETURN_PRIMARY_KEYS =
+        ResultConstants.RETURN_PRIMARY_KEYS;
 
-    public final static int RETURN_PRIMARY_KEYS = ResultConstants.RETURN_PRIMARY_KEYS;
     /**
      * Executes the given SQL statement, which returns a single
      * {@code ResultSet} object.
@@ -139,11 +140,14 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * method has been exceeded and has at least attempted to cancel
      * the currently running {@code Statement}
      */
-    public synchronized ResultSet executeQuery(
-            String sql) throws SQLException {
+    public synchronized ResultSet executeQuery(String sql) throws SQLException {
 
-        fetchResult(sql, StatementTypes.RETURN_RESULT,
-                    JDBCStatementBase.NO_GENERATED_KEYS, null, null);
+        fetchResult(
+            sql,
+            StatementTypes.RETURN_RESULT,
+            JDBCStatementBase.NO_GENERATED_KEYS,
+            null,
+            null);
 
         return getResultSet();
     }
@@ -173,8 +177,12 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      */
     public synchronized int executeUpdate(String sql) throws SQLException {
 
-        fetchResult(sql, StatementTypes.RETURN_COUNT,
-                    JDBCStatementBase.NO_GENERATED_KEYS, null, null);
+        fetchResult(
+            sql,
+            StatementTypes.RETURN_COUNT,
+            JDBCStatementBase.NO_GENERATED_KEYS,
+            null,
+            null);
 
         return resultIn.getUpdateCount();
     }
@@ -201,6 +209,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
         if (isClosed) {
             return;
         }
+
         closeResultData();
 
         batchResultOut = null;
@@ -238,7 +247,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @see #setMaxFieldSize
      */
     public synchronized int getMaxFieldSize() throws SQLException {
-
         checkClosed();
 
         return 0;
@@ -305,7 +313,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @see #setMaxRows
      */
     public synchronized int getMaxRows() throws SQLException {
-
         checkClosed();
 
         return maxRows;
@@ -331,6 +338,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
         if (max < 0) {
             throw JDBCUtil.outOfRangeArgument();
         }
+
         maxRows = max;
     }
 
@@ -357,7 +365,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * this method is called on a closed {@code Statement}
      */
     public void setEscapeProcessing(boolean enable) throws SQLException {
-
         checkClosed();
 
         isEscapeProcessing = enable;
@@ -385,7 +392,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @see #setQueryTimeout
      */
     public synchronized int getQueryTimeout() throws SQLException {
-
         checkClosed();
 
         return queryTimeout;
@@ -436,6 +442,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
         if (seconds > Short.MAX_VALUE) {
             seconds = Short.MAX_VALUE;
         }
+
         queryTimeout = seconds;
     }
 
@@ -460,10 +467,12 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * this method
      */
     public void cancel() throws SQLException {
+
         checkClosed();
-        String sql = resultOut.getMainString();
-        int randomId = connection.sessionProxy.getRandomId();
-        Result request = Result.newCancelRequest(randomId, -1, sql);
+
+        String sql      = resultOut.getMainString();
+        int    randomId = connection.sessionProxy.getRandomId();
+        Result request  = Result.newCancelRequest(randomId, -1, sql);
 
         try {
             Result response = connection.sessionProxy.cancel(request);
@@ -502,7 +511,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * this method is called on a closed {@code Statement}
      */
     public synchronized SQLWarning getWarnings() throws SQLException {
-
         checkClosed();
 
         return rootWarning;
@@ -528,7 +536,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * this method is called on a closed {@code Statement}
      */
     public synchronized void clearWarnings() throws SQLException {
-
         checkClosed();
 
         rootWarning = null;
@@ -608,8 +615,12 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      */
     public synchronized boolean execute(String sql) throws SQLException {
 
-        fetchResult(sql, StatementTypes.RETURN_ANY,
-                    JDBCStatementBase.NO_GENERATED_KEYS, null, null);
+        fetchResult(
+            sql,
+            StatementTypes.RETURN_ANY,
+            JDBCStatementBase.NO_GENERATED_KEYS,
+            null,
+            null);
 
         return currentResultSet != null;
     }
@@ -704,7 +715,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @see #getFetchDirection
      */
     public synchronized void setFetchDirection(
-            int direction) throws SQLException {
+            int direction)
+            throws SQLException {
 
         checkClosed();
         checkClosed();
@@ -715,8 +727,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
             case ResultSet.FETCH_REVERSE :
             case ResultSet.FETCH_UNKNOWN :
                 fetchDirection = direction;
-
                 break;
+
             default :
                 throw JDBCUtil.invalidArgument();
         }
@@ -746,7 +758,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @see #setFetchDirection
      */
     public int getFetchDirection() throws SQLException {
-
         checkClosed();
 
         return this.fetchDirection;
@@ -782,6 +793,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
         if (rows < 0) {
             throw JDBCUtil.outOfRangeArgument();
         }
+
         fetchSize = rows;
     }
 
@@ -809,7 +821,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @see #setFetchSize
      */
     public synchronized int getFetchSize() throws SQLException {
-
         checkClosed();
 
         return fetchSize;
@@ -835,7 +846,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since JDK 1.2
      */
     public synchronized int getResultSetConcurrency() throws SQLException {
-
         checkClosed();
 
         return ResultProperties.getJDBCConcurrency(rsProperties);
@@ -862,7 +872,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since JDK 1.2
      */
     public synchronized int getResultSetType() throws SQLException {
-
         checkClosed();
 
         return ResultProperties.getJDBCScrollability(rsProperties);
@@ -906,7 +915,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
         if (batchResultOut == null) {
             batchResultOut = Result.newBatchedExecuteRequest();
         }
-        batchResultOut.getNavigator().add(new Object[] { sql });
+
+        batchResultOut.getNavigator().add(new Object[]{ sql });
     }
 
     /**
@@ -1028,6 +1038,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
 
             throw JDBCUtil.sqlException(e);
         }
+
         batchResultOut.getNavigator().clear();
 
         if (resultIn.isError()) {
@@ -1047,9 +1058,11 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
             if (errorResult == null) {
                 throw new BatchUpdateException(updateCounts);
             } else {
-                throw new BatchUpdateException(errorResult.getMainString(),
-                        errorResult.getSubString(),
-                        errorResult.getErrorCode(), updateCounts);
+                throw new BatchUpdateException(
+                    errorResult.getMainString(),
+                    errorResult.getSubString(),
+                    errorResult.getErrorCode(),
+                    updateCounts);
             }
         }
 
@@ -1066,7 +1079,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since JDK 1.2
      */
     public synchronized Connection getConnection() throws SQLException {
-
         checkClosed();
 
         return connection;
@@ -1120,7 +1132,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @see #execute
      */
     public synchronized boolean getMoreResults(
-            int current) throws SQLException {
+            int current)
+            throws SQLException {
         return super.getMoreResults(current);
     }
 
@@ -1219,16 +1232,23 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * the currently running {@code Statement}
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-    public synchronized int executeUpdate(String sql,
-            int autoGeneratedKeys) throws SQLException {
+    public synchronized int executeUpdate(
+            String sql,
+            int autoGeneratedKeys)
+            throws SQLException {
 
         if (autoGeneratedKeys != Statement.RETURN_GENERATED_KEYS
                 && autoGeneratedKeys != Statement.NO_GENERATED_KEYS
                 && autoGeneratedKeys != JDBCStatement.RETURN_PRIMARY_KEYS) {
             throw JDBCUtil.invalidArgument("autoGeneratedKeys");
         }
-        fetchResult(sql, StatementTypes.RETURN_COUNT, autoGeneratedKeys, null,
-                    null);
+
+        fetchResult(
+            sql,
+            StatementTypes.RETURN_COUNT,
+            autoGeneratedKeys,
+            null,
+            null);
 
         if (resultIn.isError()) {
             throw JDBCUtil.sqlException(resultIn);
@@ -1282,15 +1302,21 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * the currently running {@code Statement}
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-    public synchronized int executeUpdate(String sql,
-            int[] columnIndexes) throws SQLException {
+    public synchronized int executeUpdate(
+            String sql,
+            int[] columnIndexes)
+            throws SQLException {
 
         if (columnIndexes == null || columnIndexes.length == 0) {
             throw JDBCUtil.invalidArgument("columnIndexes");
         }
-        fetchResult(sql, StatementTypes.RETURN_COUNT,
-                    ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES,
-                    columnIndexes, null);
+
+        fetchResult(
+            sql,
+            StatementTypes.RETURN_COUNT,
+            ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES,
+            columnIndexes,
+            null);
 
         return resultIn.getUpdateCount();
     }
@@ -1339,15 +1365,21 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * the currently running {@code Statement}
      * @since JDK 1.4, HSQLDB 1.7
      */
-    public synchronized int executeUpdate(String sql,
-            String[] columnNames) throws SQLException {
+    public synchronized int executeUpdate(
+            String sql,
+            String[] columnNames)
+            throws SQLException {
 
         if (columnNames == null || columnNames.length == 0) {
             throw JDBCUtil.invalidArgument("columnIndexes");
         }
-        fetchResult(sql, StatementTypes.RETURN_COUNT,
-                    ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES, null,
-                    columnNames);
+
+        fetchResult(
+            sql,
+            StatementTypes.RETURN_COUNT,
+            ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES,
+            null,
+            columnNames);
 
         return resultIn.getUpdateCount();
     }
@@ -1416,15 +1448,22 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since JDK 1.4, HSQLDB 1.7
      */
     public synchronized boolean execute(
-            String sql, int autoGeneratedKeys) throws SQLException {
+            String sql,
+            int autoGeneratedKeys)
+            throws SQLException {
 
         if (autoGeneratedKeys != Statement.RETURN_GENERATED_KEYS
                 && autoGeneratedKeys != Statement.NO_GENERATED_KEYS
                 && autoGeneratedKeys != JDBCStatement.RETURN_PRIMARY_KEYS) {
             throw JDBCUtil.invalidArgument("autoGeneratedKeys");
         }
-        fetchResult(sql, StatementTypes.RETURN_ANY, autoGeneratedKeys, null,
-                    null);
+
+        fetchResult(
+            sql,
+            StatementTypes.RETURN_ANY,
+            autoGeneratedKeys,
+            null,
+            null);
 
         return resultIn.isData();
     }
@@ -1486,14 +1525,20 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since JDK 1.4, HSQLDB 1.7
      */
     public synchronized boolean execute(
-            String sql, int[] columnIndexes) throws SQLException {
+            String sql,
+            int[] columnIndexes)
+            throws SQLException {
 
         if (columnIndexes == null || columnIndexes.length == 0) {
             throw JDBCUtil.invalidArgument("columnIndexes");
         }
-        fetchResult(sql, StatementTypes.RETURN_ANY,
-                    ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES,
-                    columnIndexes, null);
+
+        fetchResult(
+            sql,
+            StatementTypes.RETURN_ANY,
+            ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES,
+            columnIndexes,
+            null);
 
         return resultIn.isData();
     }
@@ -1556,14 +1601,20 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since JDK 1.4, HSQLDB 1.7
      */
     public synchronized boolean execute(
-            String sql, String[] columnNames) throws SQLException {
+            String sql,
+            String[] columnNames)
+            throws SQLException {
 
         if (columnNames == null || columnNames.length == 0) {
             throw JDBCUtil.invalidArgument("columnIndexes");
         }
-        fetchResult(sql, StatementTypes.RETURN_ANY,
-                    ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES, null,
-                    columnNames);
+
+        fetchResult(
+            sql,
+            StatementTypes.RETURN_ANY,
+            ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES,
+            null,
+            columnNames);
 
         return resultIn.isData();
     }
@@ -1616,10 +1667,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * {@code Statement}
      * @since JDK 1.6, HSQLDB 2.0
      */
-
-    public synchronized void setPoolable(
-            boolean poolable) throws SQLException {
-
+    public synchronized void setPoolable(boolean poolable) throws SQLException {
         checkClosed();
 
         this.poolable = poolable;
@@ -1636,7 +1684,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @see #setPoolable(boolean) setPoolable(boolean)
      */
     public synchronized boolean isPoolable() throws SQLException {
-
         checkClosed();
 
         return this.poolable;
@@ -1662,7 +1709,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since JDK 1.6, HSQLDB 2.0
      */
     @SuppressWarnings("unchecked")
-    public <T>T unwrap(Class<T> iface) throws java.sql.SQLException {
+    public <T> T unwrap(Class<T> iface) throws java.sql.SQLException {
 
         if (isWrapperFor(iface)) {
             return (T) this;
@@ -1687,7 +1734,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since JDK 1.6, HSQLDB 2.0
      */
     public boolean isWrapperFor(
-            java.lang.Class<?> iface) throws java.sql.SQLException {
+            java.lang.Class<?> iface)
+            throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
@@ -1735,8 +1783,10 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      */
     public void setLargeMaxRows(long max) throws SQLException {
 
-        int maxRows = max > Integer.MAX_VALUE ? Integer.MAX_VALUE :
-                                                (int) max;
+        int maxRows = max > Integer.MAX_VALUE
+                      ? Integer.MAX_VALUE
+                      : (int) max;
+
         setMaxRows(maxRows);
     }
 
@@ -1819,11 +1869,11 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since 1.8
      */
     public long[] executeLargeBatch() throws SQLException {
-        int[] updateCounts = executeBatch();
 
-        long[] longCounts = new long[updateCounts.length];
+        int[]  updateCounts = executeBatch();
+        long[] longCounts   = new long[updateCounts.length];
 
-        for(int i = 0; i < updateCounts.length; i++) {
+        for (int i = 0; i < updateCounts.length; i++) {
             longCounts[i] = updateCounts[i];
         }
 
@@ -1908,7 +1958,9 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * the currently running {@code Statement}
      * @since 1.8
      */
-    public long executeLargeUpdate(String sql, int autoGeneratedKeys)
+    public long executeLargeUpdate(
+            String sql,
+            int autoGeneratedKeys)
             throws SQLException {
         return executeUpdate(sql, autoGeneratedKeys);
     }
@@ -1953,7 +2005,10 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * the currently running {@code Statement}
      * @since 1.8
      */
-    public long executeLargeUpdate(String sql, int[] columnIndexes) throws SQLException {
+    public long executeLargeUpdate(
+            String sql,
+            int[] columnIndexes)
+            throws SQLException {
         return executeUpdate(sql, columnIndexes);
     }
 
@@ -1996,20 +2051,23 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * the currently running {@code Statement}
      * @since 1.8
      */
-    public long executeLargeUpdate(String sql, String[] columnNames)
+    public long executeLargeUpdate(
+            String sql,
+            String[] columnNames)
             throws SQLException {
         return executeUpdate(sql, columnNames);
     }
 
     //--------------------------JDBC 4.3 -----------------------------
 
-	/*
-	 * @todo
-	 * The default methods for literals added to java.sql.Statement are fine.
-	 *
-	 * The enquoteIdentifier and isSimpleIdentifier methods may be too restrictive
-	 * with non-ASCII characters. 
-	 */
+    /*
+     * @todo
+     * The default methods for literals added to java.sql.Statement are fine.
+     *
+     * The enquoteIdentifier and isSimpleIdentifier methods may be too restrictive
+     * with non-ASCII characters.
+     */
+
     // -------------------- Internal Implementation ----------------------------
 
     /**
@@ -2036,9 +2094,13 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @param generatedNames String[]
      * @throws SQLException when a database access error occurs
      */
-    private void fetchResult(String sql, int statementRetType,
-                             int generatedKeys, int[] generatedIndexes,
-                             String[] generatedNames) throws SQLException {
+    private void fetchResult(
+            String sql,
+            int statementRetType,
+            int generatedKeys,
+            int[] generatedIndexes,
+            String[] generatedNames)
+            throws SQLException {
 
         checkClosed();
         closeResultData();
@@ -2046,9 +2108,17 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
         if (isEscapeProcessing) {
             sql = connection.nativeSQL(sql);
         }
-        resultOut.setPrepareOrExecuteProperties(sql, maxRows, fetchSize,
-                statementRetType, queryTimeout, rsProperties, generatedKeys,
-                generatedIndexes, generatedNames);
+
+        resultOut.setPrepareOrExecuteProperties(
+            sql,
+            maxRows,
+            fetchSize,
+            statementRetType,
+            queryTimeout,
+            rsProperties,
+            generatedKeys,
+            generatedIndexes,
+            generatedNames);
 
         try {
             resultIn = connection.sessionProxy.execute(resultOut);
@@ -2063,8 +2133,11 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
         }
 
         if (resultIn.isData()) {
-            currentResultSet = new JDBCResultSet(connection, this, resultIn,
-                    resultIn.metaData);
+            currentResultSet = new JDBCResultSet(
+                connection,
+                this,
+                resultIn,
+                resultIn.metaData);
         } else if (resultIn.getStatementType()
                    == StatementTypes.RETURN_RESULT) {
             getMoreResults();
@@ -2074,5 +2147,4 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
     public int getResultSetScrollability() {
         return ResultProperties.getJDBCScrollability(rsProperties);
     }
-
 }

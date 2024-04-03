@@ -807,7 +807,7 @@ public final class Right {
             }
         }
 
-        return result;
+        return true;
     }
 
     public Expression getFilterExpression(int action) {

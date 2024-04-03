@@ -948,7 +948,6 @@ public class Tokens {
     static final String        T_POSITION_ARRAY   = "POSITION_ARRAY";
     static final String        T_RADIANS          = "RADIANS";
     static final String        T_RAND             = "RAND";
-    static final String        T_RATIO_TO_REPORT  = "RATIO_TO_REPORT";
     static final String        T_RAWTOHEX         = "RAWTOHEX";
     static final String        T_REGEXP_COUNT     = "REGEXP_COUNT";
     static final String        T_REGEXP_INSTR     = "REGEXP_INSTR";
@@ -1014,6 +1013,12 @@ public class Tokens {
     static final String T_SESSION_ID               = "SESSION_ID";
     static final String T_LOB_ID                   = "LOB_ID";
     static final String T_SEQUENCE_ARRAY           = "SEQUENCE_ARRAY";
+
+    //
+    static final String T_GROUP_ID    = "GROUP_ID";
+    static final String T_GROUPING_ID = "GROUPING_ID";
+    static final String T_STDDEV      = "STDDEV";
+    static final String T_VARIANCE    = "VARIANCE";
 
     //
     //SQL 200n Standard reserved keywords - full set
@@ -1974,6 +1979,12 @@ public class Tokens {
     public static final int X_MALFORMED_UNICODE_ESCAPE = 1026;
 
     //
+    static final int GROUP_ID        = 1101;
+    static final int GROUPING_ID     = 1102;
+    static final int STDDEV          = 1105;
+    static final int VARIANCE        = 1106;
+
+    //
     public static final int X_UNKNOWN_TOKEN = -1;
     private static final IntValueHashMap<String> reservedKeys =
         new IntValueHashMap<>(351);
@@ -2789,6 +2800,12 @@ public class Tokens {
         commandSet.put(T_QUESTION, QUESTION);
         commandSet.put(T_RIGHTBRACKET, RIGHTBRACKET);
         commandSet.put(T_SEMICOLON, SEMICOLON);
+
+        //
+        commandSet.put(T_GROUP_ID, GROUP_ID);
+        commandSet.put(T_GROUPING_ID, GROUPING_ID);
+        commandSet.put(T_STDDEV, STDDEV);
+        commandSet.put(T_VARIANCE, VARIANCE);
     }
 
     static int get(String token) {

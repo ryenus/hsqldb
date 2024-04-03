@@ -215,7 +215,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     public String getSQLAlter() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_ALTER)
           .append(' ')
@@ -1440,11 +1440,12 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             offset = 0;
         }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
-        sb.append("CLASSPATH:");
-        sb.append(method.getDeclaringClass().getName()).append('.');
-        sb.append(method.getName());
+        sb.append("CLASSPATH:")
+          .append(method.getDeclaringClass().getName())
+          .append('.')
+          .append(method.getName());
 
         name = sb.toString();
 

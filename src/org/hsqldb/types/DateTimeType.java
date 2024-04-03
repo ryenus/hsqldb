@@ -2990,6 +2990,8 @@ public final class DateTimeType extends DTIType {
                 if (s.endsWith("Z")) {
                     s = s.substring(0, s.length() - 1);
                 }
+
+            // fall through
             case "java.time.LocalDateTime" :
                 return s.replace('T', ' ');
         }

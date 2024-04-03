@@ -33,6 +33,7 @@ package org.hsqldb.jdbc;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
 import java.sql.ParameterMetaData;
 import java.sql.SQLException;
 
@@ -56,8 +57,8 @@ import org.hsqldb.types.Type;
  * @version 2.7.3
  * @since JDK 1.4, HSQLDB 1.7.2
  */
-public class JDBCParameterMetaData implements ParameterMetaData,
-        java.sql.Wrapper {
+public class JDBCParameterMetaData
+        implements ParameterMetaData, java.sql.Wrapper {
 
     /**
      * Retrieves the number of parameters in the {@code PreparedStatement}
@@ -84,7 +85,6 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public int isNullable(int param) throws SQLException {
-
         checkRange(param);
 
         return ParameterMetaData.parameterNullableUnknown;
@@ -230,7 +230,6 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public int getParameterMode(int param) throws SQLException {
-
         checkRange(param);
 
         return rmd.paramModes[--param];
@@ -257,7 +256,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      * @since JDK 1.6, HSQLDB 2.0
      */
     @SuppressWarnings("unchecked")
-    public <T>T unwrap(Class<T> iface) throws java.sql.SQLException {
+    public <T> T unwrap(Class<T> iface) throws java.sql.SQLException {
 
         if (isWrapperFor(iface)) {
             return (T) this;
@@ -281,8 +280,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public boolean isWrapperFor(
-            Class<?> iface) throws java.sql.SQLException {
+    public boolean isWrapperFor(Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
@@ -300,9 +298,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      *
      * @param metaData A ResultMetaData object describing the statement parameters
      */
-    JDBCParameterMetaData(JDBCConnection conn,
-                          ResultMetaData metaData) {
-
+    JDBCParameterMetaData(JDBCConnection conn, ResultMetaData metaData) {
         rmd              = metaData;
         parameterCount   = rmd.getColumnCount();
         translateTTIType = conn.isTranslateTTIType;
@@ -379,6 +375,7 @@ public class JDBCParameterMetaData implements ParameterMetaData,
 
             return sb.toString();
         }
+
         methods = getClass().getDeclaredMethods();
 
         sb.append('[');
@@ -386,11 +383,11 @@ public class JDBCParameterMetaData implements ParameterMetaData,
         int len = methods.length;
 
         for (int i = 0; i < count; i++) {
-            sb.append('\n');
-            sb.append("    parameter_");
-            sb.append(i + 1);
-            sb.append('=');
-            sb.append('[');
+            sb.append('\n')
+              .append("    parameter_")
+              .append(i + 1)
+              .append('=')
+              .append('[');
 
             for (int j = 0; j < len; j++) {
                 method = methods[j];
@@ -402,25 +399,26 @@ public class JDBCParameterMetaData implements ParameterMetaData,
                 if (method.getParameterTypes().length != 1) {
                     continue;
                 }
-                sb.append(method.getName());
-                sb.append('=');
-                sb.append(method.invoke(this,
-                                        new Object[] { Integer.valueOf(i + 1) }));
+
+                sb.append(method.getName())
+                  .append('=')
+                  .append(
+                      method.invoke(this,
+                                    new Object[]{ Integer.valueOf(i + 1) }));
 
                 if (j + 1 < len) {
-                    sb.append(',');
-                    sb.append(' ');
+                    sb.append(',').append(' ');
                 }
             }
+
             sb.append(']');
 
             if (i + 1 < count) {
-                sb.append(',');
-                sb.append(' ');
+                sb.append(',').append(' ');
             }
         }
-        sb.append('\n');
-        sb.append(']');
+
+        sb.append('\n').append(']');
 
         return sb.toString();
     }

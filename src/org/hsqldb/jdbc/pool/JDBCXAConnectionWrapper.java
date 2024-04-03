@@ -72,7 +72,7 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * Interceptor method, because this method is prohibited within
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
-     * 
+     *
      * @param autoCommit mode
      * @throws SQLException on error
      */
@@ -85,7 +85,7 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * Interceptor method, because this method is prohibited within
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
-     * 
+     *
      * @throws SQLException on error
      */
     public void commit() throws SQLException {
@@ -97,7 +97,7 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * Interceptor method, because this method is prohibited within
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
-     * 
+     *
      * @throws SQLException on error
      */
     public void rollback() throws SQLException {
@@ -109,7 +109,7 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * Interceptor method, because this method is prohibited within
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
-     * 
+     *
      * @throws SQLException on error
      */
     public void rollback(Savepoint savepoint) throws SQLException {
@@ -121,11 +121,10 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * Interceptor method, because this method is prohibited within
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
-     * 
+     *
      * @throws SQLException on error
      */
     public Savepoint setSavepoint() throws SQLException {
-
         validateNotWithinTransaction();
 
         return super.setSavepoint();
@@ -137,7 +136,6 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * See section 1.2.4 of the JDBC 3.0 spec.
      */
     public Savepoint setSavepoint(String name) throws SQLException {
-
         validateNotWithinTransaction();
 
         return super.setSavepoint(name);
@@ -161,10 +159,12 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
     //---------------------- NON-INTERFACE METHODS -----------------------------
     private JDBCXAResource xaResource;
 
-    public JDBCXAConnectionWrapper(JDBCXAResource xaResource,
-                                   JDBCXAConnection xaConnection,
-                                   JDBCConnection databaseConnection)
-                                   throws SQLException {
+    public JDBCXAConnectionWrapper(
+            JDBCXAResource xaResource,
+            JDBCXAConnection xaConnection,
+            JDBCConnection databaseConnection)
+            throws SQLException {
+
         // todo: Review JDBCXADataSource and this class.
         //       Under current implementation, because we do not pass a
         //       JDBCXAConnection instance to the constructor to pick

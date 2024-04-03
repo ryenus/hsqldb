@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -156,7 +156,7 @@ class TestBench {
             }
         }
 
-        if (DriverName.length() == 0 || DBUrl.length() == 0) {
+        if (DriverName.isEmpty() || DBUrl.isEmpty()) {
             System.out.println(
                 "usage: java TestBench -driver [driver_class_name] -url [url_to_db] -user [username] -password [password] [-v] [-init] [-tpc n] [-clients n]");
             System.out.println();

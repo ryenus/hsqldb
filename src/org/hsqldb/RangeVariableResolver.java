@@ -649,7 +649,7 @@ public class RangeVariableResolver {
             HsqlArrayList<Expression> starts,
             HsqlArrayList<Expression> joins) {
 
-        if (starts.size() == 0) {
+        if (starts.isEmpty()) {
             return;
         }
 
@@ -1396,7 +1396,6 @@ public class RangeVariableResolver {
                     firstRowExpressions[offset] = e;
 
                     exprList.set(j, null);
-                    continue;
                 }
             }
         }

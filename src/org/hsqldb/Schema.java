@@ -151,7 +151,7 @@ public final class Schema implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuilder sb = new StringBuilder(128);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_CREATE)
           .append(' ')
@@ -168,7 +168,7 @@ public final class Schema implements SchemaObject {
 
     String getSetSchemaSQL() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_SET)
           .append(' ')
@@ -508,7 +508,6 @@ public final class Schema implements SchemaObject {
 
         SchemaObjectSet set;
         HsqlName        objectName;
-        Table           table;
 
         switch (type) {
 
@@ -526,20 +525,30 @@ public final class Schema implements SchemaObject {
                     return null;
                 }
 
-                if (objectName.parent.type == SchemaObject.TABLE) {
-                    table = tableList.get(objectName.parent.name);
+                switch (objectName.parent.type) {
 
-                    if (table == null) {
-                        return null;
+                    case SchemaObject.TABLE : {
+                        Table table = tableList.get(objectName.parent.name);
+
+                        if (table == null) {
+                            return null;
+                        }
+
+                        return table.getConstraint(name);
                     }
 
-                    return table.getConstraint(name);
-                } else if (objectName.parent.type == SchemaObject.DOMAIN) {
-                    Type domain = (Type) typeLookup.getObject(
-                        objectName.parent.name);
+                    case SchemaObject.DOMAIN : {
+                        Type domain = (Type) typeLookup.getObject(
+                            objectName.parent.name);
 
-                    return domain.userTypeModifier.getConstraint(
-                        objectName.name);
+                        return domain.userTypeModifier.getConstraint(
+                            objectName.name);
+                    }
+
+                    default :
+                        throw Error.runtimeError(
+                            ErrorCode.U_S0500,
+                            "SchemaManager");
                 }
             case SchemaObject.EXCEPTION :
                 return conditionLookup.getObject(name);
@@ -547,7 +556,7 @@ public final class Schema implements SchemaObject {
             case SchemaObject.FUNCTION :
                 return functionLookup.getObject(name);
 
-            case SchemaObject.INDEX :
+            case SchemaObject.INDEX : {
                 set        = indexLookup;
                 objectName = set.getName(name);
 
@@ -555,9 +564,10 @@ public final class Schema implements SchemaObject {
                     return null;
                 }
 
-                table = tableList.get(objectName.parent.name);
+                Table table = tableList.get(objectName.parent.name);
 
                 return table.getIndex(name);
+            }
 
             case SchemaObject.MODULE :
                 return moduleLookup.getObject(name);
@@ -588,7 +598,7 @@ public final class Schema implements SchemaObject {
             case SchemaObject.VIEW :
                 return tableLookup.getObject(name);
 
-            case SchemaObject.TRIGGER :
+            case SchemaObject.TRIGGER : {
                 set        = triggerLookup;
                 objectName = set.getName(name);
 
@@ -596,9 +606,10 @@ public final class Schema implements SchemaObject {
                     return null;
                 }
 
-                table = tableList.get(objectName.parent.name);
+                Table table = tableList.get(objectName.parent.name);
 
                 return table.getTrigger(name);
+            }
 
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :

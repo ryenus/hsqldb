@@ -81,7 +81,7 @@ class TransferHelper {
             return id;
         }
 
-        if (id.equals("")) {
+        if (id.isEmpty()) {
             return id;
         }
 
@@ -218,8 +218,7 @@ class TransferHelper {
             ResultSetMetaData meta,
             String columnType,
             ResultSet columnDesc,
-            int columnIndex)
-            throws SQLException {
+            int columnIndex) {
         return columnType;
     }
 }

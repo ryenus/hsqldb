@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
@@ -576,7 +577,7 @@ public class TestLobs extends TestBase {
                 InputStream fis =
                     getClass().getResourceAsStream(resourceFileName);
 
-                reader = new InputStreamReader(fis, "ISO-8859-1");
+                reader = new InputStreamReader(fis, StandardCharsets.ISO_8859_1);
             } catch (Exception e) {}
 
             ps.setString(1, "test-id-1");
@@ -590,7 +591,7 @@ public class TestLobs extends TestBase {
                     getClass().getResourceAsStream(resourceFileName);
 
                 fis    = getClass().getResourceAsStream(resourceFileName);
-                reader = new InputStreamReader(fis, "ISO-8859-1");
+                reader = new InputStreamReader(fis, StandardCharsets.ISO_8859_1);
 
                 for (int i = 0; i < 100; i++) {
                     reader.read();
@@ -617,7 +618,7 @@ public class TestLobs extends TestBase {
                     getClass().getResourceAsStream(resourceFileName);
 
                 fis    = getClass().getResourceAsStream(resourceFileName);
-                reader = new InputStreamReader(fis, "ISO-8859-1");
+                reader = new InputStreamReader(fis, StandardCharsets.ISO_8859_1);
 
                 for (int i = 0; i < 100; i++) {
                     reader.read();

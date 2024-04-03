@@ -33,10 +33,12 @@ package org.hsqldb.map;
 
 import java.math.BigDecimal;
 
+import java.util.Arrays;
+
 /**
   * Supports pooling of Integer, Long, Double, BigDecimal, String and Date
   * Java Objects. Leads to reduction in memory use when an Object is used more
-  * then twice in the database.
+  * than twice in the database.
   *
   * getXXX methods are used for retrieval of values. If a value is not in
   * the pool, it is added to the pool and returned. When the pool gets
@@ -76,9 +78,7 @@ public final class ValuePool {
     static {
         char[] c = new char[SPACE_STRING_SIZE];
 
-        for (int i = 0; i < SPACE_STRING_SIZE; i++) {
-            c[i] = ' ';
-        }
+        Arrays.fill(c, ' ');
 
         spaceString = new String(c);
 
@@ -188,7 +188,7 @@ public final class ValuePool {
     public static BigDecimal getBigDecimal(BigDecimal val) {
 
         if (val == null) {
-            return val;
+            return null;
         }
 
         synchronized (bigdecimalPool) {

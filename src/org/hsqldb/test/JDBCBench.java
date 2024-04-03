@@ -143,7 +143,7 @@ class JDBCBench {
             }
         }
 
-        if (DriverName.length() == 0 || DBUrl.length() == 0) {
+        if (DriverName.isEmpty() || DBUrl.isEmpty()) {
             System.out.println(
                 "usage: java JDBCBench -driver [driver_class_name] -url [url_to_db] -user [username] -password [password] [-v] [-init] [-tpc n] [-clients n]");
             System.out.println();

@@ -620,7 +620,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
     /**
      * Retrieves a character sequence describing this server's current state,
-     * including the message of the last exception, if there is one and it
+     * including the message of the last exception, if there is one, and it
      * is still in context.
      *
      * @return this server's state represented as a character sequence.
@@ -2076,7 +2076,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         }
 
         // At this point, we have a valid server socket and
-        // a valid hosted database set, so its OK to start
+        // a valid hosted database set, so it's OK to start
         // listening for connections.
         setState(ServerConstants.SERVER_STATE_ONLINE);
         print(sw.elapsedTimeToMessage("Startup sequence completed"));
@@ -2303,7 +2303,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     /**
      * Prints message for the specified key, without any special
      * formatting. The message content comes from the server
-     * resource bundle and thus may localized according to the default
+     * resource bundle and thus may  be localized according to the default
      * JVM locale.<p>
      *
      * Uses System.out directly instead of Trace.printSystemOut() so it

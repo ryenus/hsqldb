@@ -33,8 +33,11 @@ package org.hsqldb.jdbc;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
+
 import java.sql.SQLException;
+
 import java.util.Properties;
+
 import java.sql.SQLFeatureNotSupportedException;
 
 import javax.sql.CommonDataSource;
@@ -62,7 +65,7 @@ import javax.sql.CommonDataSource;
  * @since JDK 1.2, HSQLDB 2.0
  */
 public abstract class JDBCCommonDataSource
-implements CommonDataSource, Serializable {
+        implements CommonDataSource, Serializable {
 
     /**
      * <p>Retrieves the log writer for this {@code DataSource}
@@ -130,8 +133,9 @@ implements CommonDataSource, Serializable {
 
         loginTimeout = seconds;
 
-        connectionProps.setProperty("loginTimeout",
-                                    Integer.toString(loginTimeout));
+        connectionProps.setProperty(
+            "loginTimeout",
+            Integer.toString(loginTimeout));
     }
 
     /**
@@ -278,7 +282,6 @@ implements CommonDataSource, Serializable {
      * @param password the password
      */
     public void setPassword(String password) {
-
         this.password = password;
 
         connectionProps.setProperty("password", password);
@@ -290,7 +293,6 @@ implements CommonDataSource, Serializable {
      * @param user the user id
      */
     public void setUser(String user) {
-
         this.user = user;
 
         connectionProps.setProperty("user", user);
@@ -306,8 +308,9 @@ implements CommonDataSource, Serializable {
      */
     public void setProperties(Properties props) {
 
-        connectionProps = (props == null) ? new Properties()
-                                          : (Properties) props.clone();
+        connectionProps = (props == null)
+                          ? new Properties()
+                          : (Properties) props.clone();
 
         if (user != null) {
             connectionProps.setProperty("user", user);
@@ -318,8 +321,9 @@ implements CommonDataSource, Serializable {
         }
 
         if (loginTimeout != 0) {
-            connectionProps.setProperty("loginTimeout",
-                                        Integer.toString(loginTimeout));
+            connectionProps.setProperty(
+                "loginTimeout",
+                Integer.toString(loginTimeout));
         }
     }
 
@@ -337,9 +341,8 @@ implements CommonDataSource, Serializable {
      * @since JDK 1.7, HSQLDB 2.0.1
      */
     public java.util.logging.Logger getParentLogger()
-    throws java.sql.SQLFeatureNotSupportedException {
-        throw (java.sql
-            .SQLFeatureNotSupportedException) JDBCUtil.notSupported();
+            throws java.sql.SQLFeatureNotSupportedException {
+        throw(java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
 
     // ------------------------ internal implementation ------------------------

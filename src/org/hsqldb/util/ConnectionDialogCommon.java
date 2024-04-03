@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -58,64 +59,47 @@ final class ConnectionDialogCommon {
 
     private static String[][]       connTypes;
     private static final String[][] sJDBCTypes = {
-        {
-            "HSQL Database Engine In-Memory", "org.hsqldb.jdbc.JDBCDriver",
-            "jdbc:hsqldb:mem:."
-        }, {
-            "HSQL Database Engine Standalone", "org.hsqldb.jdbc.JDBCDriver",
-            "jdbc:hsqldb:file:\u00ABdatabase/path?\u00BB"
-        }, {
-            "HSQL Database Engine Server", "org.hsqldb.jdbc.JDBCDriver",
-            "jdbc:hsqldb:hsql://localhost/"
-        }, {
-            "HSQL Database Engine WebServer", "org.hsqldb.jdbc.JDBCDriver",
-            "jdbc:hsqldb:http://\u00ABhostname/?\u00BB"
-        }, {
-            "JDBC-ODBC Bridge from Sun", "sun.jdbc.odbc.JdbcOdbcDriver",
-            "jdbc:odbc:\u00ABdatabase?\u00BB"
-        }, {
-            "Cloudscape RMI", "RmiJdbc.RJDriver",
-            "jdbc:rmi://\u00ABhost?\u00BB:1099/jdbc:cloudscape:"
-            + "\u00ABdatabase?\u00BB;create=true"
-        }, {
-            "IBM DB2", "COM.ibm.db2.jdbc.app.DB2Driver",
-            "jdbc:db2:\u00ABdatabase?\u00BB"
-        }, {
-            "IBM DB2 (thin)", "COM.ibm.db2.jdbc.net.DB2Driver",
-            "jdbc:db2://\u00ABhost?\u00BB:6789/\u00ABdatabase?\u00BB"
-        }, {
-            "Informix", "com.informix.jdbc.IfxDriver",
-            "jdbc:informix-sqli://\u00ABhost?\u00BB:1533/\u00ABdatabase?\u00BB:"
-            + "INFORMIXSERVER=\u00ABserver?\u00BB"
-        }, {
-            "InstantDb", "jdbc.idbDriver", "jdbc:idb:\u00ABdatabase?\u00BB.prp"
-        }, {
-            "MySQL Connector/J", "com.mysql.jdbc.Driver",
-            "jdbc:mysql://\u00ABhost?\u00BB/\u00ABdatabase?\u00BB"
-        }, {
-            "MM.MySQL", "org.gjt.mm.mysql.Driver",
-            "jdbc:mysql://\u00ABhost?\u00BB/\u00ABdatabase?\u00BB"
-        }, {
-            "Oracle", "oracle.jdbc.driver.OracleDriver",
-            "jdbc:oracle:oci8:@\u00ABdatabase?\u00BB"
-        }, {
-            "Oracle (thin)", "oracle.jdbc.driver.OracleDriver",
-            "jdbc:oracle:thin:@\u00ABhost?\u00BB:1521:\u00ABdatabase?\u00BB"
-        }, {
-            "PointBase", "com.pointbase.jdbc.jdbcUniversalDriver",
-            "jdbc:pointbase://\u00ABhost?\u00BB/\u00ABdatabase?\u00BB"
-        }, {
-            "PostgreSQL", "org.postgresql.Driver",
-            "jdbc:postgresql://\u00ABhost?\u00BB/\u00ABdatabase?\u00BB"
-        }, {
-            "PostgreSQL v6.5", "postgresql.Driver",
-            "jdbc:postgresql://\u00ABhost?\u00BB/\u00ABdatabase?\u00BB"
-        }
+        { "HSQL Database Engine In-Memory", "org.hsqldb.jdbc.JDBCDriver",
+          "jdbc:hsqldb:mem:." },
+        { "HSQL Database Engine Standalone", "org.hsqldb.jdbc.JDBCDriver",
+          "jdbc:hsqldb:file:\u00ABdatabase/path?\u00BB" },
+        { "HSQL Database Engine Server", "org.hsqldb.jdbc.JDBCDriver",
+          "jdbc:hsqldb:hsql://localhost/" },
+        { "HSQL Database Engine WebServer", "org.hsqldb.jdbc.JDBCDriver",
+          "jdbc:hsqldb:http://\u00ABhostname/?\u00BB" },
+        { "JDBC-ODBC Bridge from Sun", "sun.jdbc.odbc.JdbcOdbcDriver",
+          "jdbc:odbc:\u00ABdatabase?\u00BB" },
+        { "Cloudscape RMI", "RmiJdbc.RJDriver",
+          "jdbc:rmi://\u00ABhost?\u00BB:1099/jdbc:cloudscape:"
+          + "\u00ABdatabase?\u00BB;create=true" },
+        { "IBM DB2", "COM.ibm.db2.jdbc.app.DB2Driver",
+          "jdbc:db2:\u00ABdatabase?\u00BB" },
+        { "IBM DB2 (thin)", "COM.ibm.db2.jdbc.net.DB2Driver",
+          "jdbc:db2://\u00ABhost?\u00BB:6789/\u00ABdatabase?\u00BB" },
+        { "Informix", "com.informix.jdbc.IfxDriver",
+          "jdbc:informix-sqli://\u00ABhost?\u00BB:1533/\u00ABdatabase?\u00BB:"
+          + "INFORMIXSERVER=\u00ABserver?\u00BB" },
+        { "InstantDb", "jdbc.idbDriver", "jdbc:idb:\u00ABdatabase?\u00BB.prp" },
+        { "MySQL Connector/J", "com.mysql.jdbc.Driver",
+          "jdbc:mysql://\u00ABhost?\u00BB/\u00ABdatabase?\u00BB" },
+        { "MM.MySQL", "org.gjt.mm.mysql.Driver",
+          "jdbc:mysql://\u00ABhost?\u00BB/\u00ABdatabase?\u00BB" },
+        { "Oracle", "oracle.jdbc.driver.OracleDriver",
+          "jdbc:oracle:oci8:@\u00ABdatabase?\u00BB" },
+        { "Oracle (thin)", "oracle.jdbc.driver.OracleDriver",
+          "jdbc:oracle:thin:@\u00ABhost?\u00BB:1521:\u00ABdatabase?\u00BB" },
+        { "PointBase", "com.pointbase.jdbc.jdbcUniversalDriver",
+          "jdbc:pointbase://\u00ABhost?\u00BB/\u00ABdatabase?\u00BB" },
+        { "PostgreSQL", "org.postgresql.Driver",
+          "jdbc:postgresql://\u00ABhost?\u00BB/\u00ABdatabase?\u00BB" },
+        { "PostgreSQL v6.5", "postgresql.Driver",
+          "jdbc:postgresql://\u00ABhost?\u00BB/\u00ABdatabase?\u00BB" }
     };
 
     static String[][] getTypes() {
 
         return sJDBCTypes;
+
 /*
 
         if (connTypes == null) {
@@ -160,7 +144,7 @@ final class ConnectionDialogCommon {
     private static File         recentSettings = null;
 
     static synchronized Hashtable loadRecentConnectionSettings()
-    throws IOException {
+            throws IOException {
 
         Hashtable list = new Hashtable();
 
@@ -198,6 +182,7 @@ final class ConnectionDialogCommon {
                     (ConnectionSetting) objStream.readObject();
 
                 if (!emptySettingName.equals(setting.getName())) {
+
 /*
                     if (setting.getName().contains("reject"))
                         continue;
@@ -209,11 +194,13 @@ final class ConnectionDialogCommon {
 
             // reached end of file -- this is not clean but it works
         } catch (ClassNotFoundException cnfe) {
-            throw new IOException("Unrecognized class type "
-                                  + cnfe.getMessage(), cnfe);
+            throw new IOException(
+                "Unrecognized class type " + cnfe.getMessage(),
+                cnfe);
         } catch (ClassCastException cce) {
-            throw new IOException("Unrecognized class type "
-                                  + cce.getMessage(), cce);
+            throw new IOException(
+                "Unrecognized class type " + cce.getMessage(),
+                cce);
         } catch (Throwable t) {}
         finally {
             if (objStream != null) {
@@ -233,7 +220,8 @@ final class ConnectionDialogCommon {
     /**
      * Adds the new settings name if it does not nexist, or overwrites the old one.
      */
-    static void addToRecentConnectionSettings(Hashtable settings,
+    static void addToRecentConnectionSettings(
+            Hashtable settings,
             ConnectionSetting newSetting) {
         settings.put(newSetting.getName(), newSetting);
         ConnectionDialogCommon.storeRecentConnectionSettings(settings);
@@ -264,12 +252,12 @@ final class ConnectionDialogCommon {
                 }
             }
 
-            if (settings == null || settings.size() == 0) {
+            if (settings == null || settings.isEmpty()) {
                 return;
             }
 
             // setup a stream to a physical file on the filesystem
-            FileOutputStream   out = new FileOutputStream(recentSettings);
+            FileOutputStream   out       = new FileOutputStream(recentSettings);
             ObjectOutputStream objStream = new ObjectOutputStream(out);
             Enumeration        en        = settings.elements();
 
@@ -316,7 +304,6 @@ final class ConnectionDialogCommon {
     private static String homedir = null;
 
     public static void setHomeDir() {
-
         if (homedir == null) {
             homedir = System.getProperty("user.home");
         }

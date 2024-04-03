@@ -101,72 +101,63 @@ public final class ArrayUtil {
                 byte[] array = (byte[]) data;
 
                 Arrays.fill(array, from, to, (byte) 0);
-
-                return;
+                break;
             }
 
             case ArrayUtil.CLASS_CODE_CHAR : {
                 char[] array = (char[]) data;
 
                 Arrays.fill(array, from, to, (char) 0);
-
-                return;
+                break;
             }
 
             case ArrayUtil.CLASS_CODE_SHORT : {
                 short[] array = (short[]) data;
 
                 Arrays.fill(array, from, to, (short) 0);
-
-                return;
+                break;
             }
 
             case ArrayUtil.CLASS_CODE_INT : {
                 int[] array = (int[]) data;
 
                 Arrays.fill(array, from, to, 0);
-
-                return;
+                break;
             }
 
             case ArrayUtil.CLASS_CODE_LONG : {
                 long[] array = (long[]) data;
 
                 Arrays.fill(array, from, to, 0L);
-
-                return;
+                break;
             }
 
             case ArrayUtil.CLASS_CODE_FLOAT : {
                 float[] array = (float[]) data;
 
                 Arrays.fill(array, from, to, 0);
-
-                return;
+                break;
             }
 
             case ArrayUtil.CLASS_CODE_DOUBLE : {
                 double[] array = (double[]) data;
 
                 Arrays.fill(array, from, to, 0);
-
-                return;
+                break;
             }
 
             case ArrayUtil.CLASS_CODE_BOOLEAN : {
                 boolean[] array = (boolean[]) data;
 
                 Arrays.fill(array, from, to, false);
-
-                return;
+                break;
             }
 
             default : {
                 Object[] array = (Object[]) data;
 
                 Arrays.fill(array, from, to, null);
-
-                return;
+                break;
             }
         }
     }

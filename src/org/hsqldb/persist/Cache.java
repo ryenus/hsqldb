@@ -342,7 +342,7 @@ public class Cache extends BaseHashMap {
 
         objectIterator.reset();
 
-        for (; objectIterator.hasNext(); ) {
+        while (objectIterator.hasNext()) {
             CachedObject row = (CachedObject) objectIterator.next();
 
             synchronized (row) {
@@ -385,7 +385,7 @@ public class Cache extends BaseHashMap {
 
         objectIterator.reset();
 
-        for (; objectIterator.hasNext(); ) {
+        while (objectIterator.hasNext()) {
             CachedObject row = (CachedObject) objectIterator.next();
 
             synchronized (row) {
@@ -421,7 +421,7 @@ public class Cache extends BaseHashMap {
 
         objectIterator.reset();
 
-        for (; objectIterator.hasNext(); ) {
+        while (objectIterator.hasNext()) {
             if (savecount == rowTable.length) {
                 saveRows(savecount);
 
@@ -443,20 +443,22 @@ public class Cache extends BaseHashMap {
     void logSaveRowsEvent(int saveCount, long storageSize, long startTime) {
 
         long          time = saveAllTimer.elapsedTime();
-        StringBuilder sb   = new StringBuilder();
+        StringBuilder sb   = new StringBuilder(128);
 
-        sb.append("cache save rows total [count,time] ");
-        sb.append(saveRowCount + saveCount);
-        sb.append(',').append(time).append(' ');
-        sb.append("operation [count,time,size]").append(saveCount).append(',');
-        sb.append(time - startTime).append(',');
-        sb.append(storageSize).append(' ');
-
-//
-        sb.append("tx-ts ");
-        sb.append(dataFileCache.database.txManager.getSystemChangeNumber());
-
-//
+        sb.append("cache save rows total [count,time] ")
+          .append(saveRowCount + saveCount)
+          .append(',')
+          .append(time)
+          .append(' ')
+          .append("operation [count,time,size]")
+          .append(saveCount)
+          .append(',')
+          .append(time - startTime)
+          .append(',')
+          .append(storageSize)
+          .append(' ')
+          .append("tx-ts ")
+          .append(dataFileCache.database.txManager.getSystemChangeNumber());
         dataFileCache.logDetailEvent(sb.toString());
     }
 

@@ -156,7 +156,7 @@ public class StringUtil {
     }
 
     /**
-     * Returns a string with non alphanumeric chars converted to the
+     * Returns a string with non-alphanumeric chars converted to the
      * substitute character. A digit first character is also converted.
      * By sqlbob@users
      * @param source string to convert

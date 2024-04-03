@@ -32,17 +32,21 @@
 package org.hsqldb.jdbc;
 
 import java.io.PrintWriter;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Wrapper;
+
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
+
 import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
 import javax.sql.DataSource;
@@ -77,8 +81,8 @@ import org.hsqldb.jdbc.pool.JDBCPooledDataSource;
  * @since HSQLDB 2.2.9
  */
 @SuppressWarnings("serial")
-public class JDBCPool implements DataSource,
-                   Referenceable, ConnectionEventListener,
+public class JDBCPool
+        implements DataSource, Referenceable, ConnectionEventListener,
                    StatementEventListener, Wrapper {
 
     /**
@@ -92,7 +96,7 @@ public class JDBCPool implements DataSource,
 
         int retries = 300;
 
-        if (source.loginTimeout != 0){
+        if (source.loginTimeout != 0) {
             retries = source.loginTimeout * 10;
         }
 
@@ -102,19 +106,22 @@ public class JDBCPool implements DataSource,
 
         for (int count = 0; count < retries; count++) {
             for (int i = 0; i < states.length(); i++) {
-                if (states.compareAndSet(i, RefState.available,
-                                        RefState.allocated)) {
+                if (states.compareAndSet(i,
+                                         RefState.available,
+                                         RefState.allocated)) {
                     return connections[i].getConnection();
                 }
 
-                if (states.compareAndSet(i, RefState.empty,
-                                        RefState.allocated)) {
+                if (states.compareAndSet(i,
+                                         RefState.empty,
+                                         RefState.allocated)) {
                     try {
                         JDBCPooledConnection connection =
                             (JDBCPooledConnection) source.getPooledConnection();
 
                         connection.addConnectionEventListener(this);
                         connection.addStatementEventListener(this);
+
                         connections[i] = connection;
 
                         return connections[i].getConnection();
@@ -147,7 +154,9 @@ public class JDBCPool implements DataSource,
      * @return  a connection to the data source
      * @throws SQLException if a database access error occurs
      */
-    public Connection getConnection(String username, String password)
+    public Connection getConnection(
+            String username,
+            String password)
             throws SQLException {
 
         String user = getUser();
@@ -156,7 +165,7 @@ public class JDBCPool implements DataSource,
             throw JDBCUtil.nullArgument();
         }
 
-        if ( user == null) {
+        if (user == null) {
             setUser(username);
             setPassword(password);
         } else if (!user.equals(username)) {
@@ -187,7 +196,8 @@ public class JDBCPool implements DataSource,
      * @since JDK 1.6, HSQLDB 2.0
      */
     @SuppressWarnings("unchecked")
-    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+
         if (isWrapperFor(iface)) {
             return (T) this;
         }
@@ -210,7 +220,8 @@ public class JDBCPool implements DataSource,
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public boolean isWrapperFor(java.lang.Class<?> iface)
+    public boolean isWrapperFor(
+            java.lang.Class<?> iface)
             throws java.sql.SQLException {
         return ((iface != null) && iface.isAssignableFrom(this.getClass()));
     }
@@ -223,39 +234,46 @@ public class JDBCPool implements DataSource,
      *          while retrieving the reference.
      */
     public Reference getReference() throws NamingException {
+
         String    cname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
         Reference ref   = new Reference(getClass().getName(), cname, null);
 
         ref.add(new StringRefAddr("database", source.getDatabase()));
         ref.add(new StringRefAddr("user", source.getUser()));
         ref.add(new StringRefAddr("password", source.password));
-        ref.add(new StringRefAddr("loginTimeout",
-                                  Integer.toString(source.loginTimeout)));
-        ref.add(new StringRefAddr("poolSize", Integer.toString(connections.length)));
+        ref.add(
+            new StringRefAddr("loginTimeout",
+                              Integer.toString(source.loginTimeout)));
+        ref.add(
+            new StringRefAddr("poolSize",
+                              Integer.toString(connections.length)));
 
         return ref;
     }
 
     // ------------------------ event listener ------------------------
     public void connectionClosed(ConnectionEvent event) {
+
         PooledConnection connection = (PooledConnection) event.getSource();
 
         for (int i = 0; i < connections.length; i++) {
             if (connections[i] == connection) {
                 states.set(i, RefState.available);
-
                 break;
             }
         }
     }
 
     public void connectionErrorOccurred(ConnectionEvent event) {
+
         PooledConnection connection = (PooledConnection) event.getSource();
 
         for (int i = 0; i < connections.length; i++) {
             if (connections[i] == connection) {
                 states.set(i, RefState.allocated);
+
                 connections[i] = null;
+
                 states.set(i, RefState.empty);
                 break;
             }
@@ -266,8 +284,8 @@ public class JDBCPool implements DataSource,
 
     public void statementErrorOccurred(StatementEvent event) {}
 
-
     // ------------------------ event listener ------------------------
+
     /**
      * <p>Retrieves the log writer for this {@code DataSource}
      * object.
@@ -498,8 +516,8 @@ public class JDBCPool implements DataSource,
      * @since JDK 1.7, HSQLDB 2.2.9
      */
     public java.util.logging.Logger getParentLogger()
-    throws java.sql.SQLFeatureNotSupportedException {
-        throw (java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
+            throws java.sql.SQLFeatureNotSupportedException {
+        throw(java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
 
     // ------------------------ custom public methods ------------------------
@@ -519,9 +537,10 @@ public class JDBCPool implements DataSource,
      * @param size int maximum size of the pool
      */
     public JDBCPool(int size) {
-        source = new JDBCPooledDataSource();
+        source      = new JDBCPooledDataSource();
         connections = new JDBCPooledConnection[size];
-        states = new AtomicIntegerArray(size);    }
+        states      = new AtomicIntegerArray(size);
+    }
 
     /**
      * Closes the pool immediately. Waits the given number of seconds before
@@ -532,9 +551,10 @@ public class JDBCPool implements DataSource,
      */
     public void close(int wait) throws SQLException {
 
-        if (wait <0 || wait > 60) {
+        if (wait < 0 || wait > 60) {
             throw JDBCUtil.outOfRangeArgument();
         }
+
         if (closed) {
             return;
         }
@@ -553,16 +573,17 @@ public class JDBCPool implements DataSource,
 
         Arrays.fill(connections, null);
     }
+
     // ------------------------ internal ------------------------
     interface RefState {
+
         int empty     = 0;
         int available = 1;
         int allocated = 2;
     }
 
-
-    AtomicIntegerArray       states;
-    JDBCPooledConnection[]   connections;
-    JDBCPooledDataSource     source;
-    volatile boolean         closed;
+    AtomicIntegerArray     states;
+    JDBCPooledConnection[] connections;
+    JDBCPooledDataSource   source;
+    volatile boolean       closed;
 }

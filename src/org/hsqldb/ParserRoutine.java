@@ -1316,7 +1316,7 @@ public class ParserRoutine extends ParserTable {
             list.add(e);
         }
 
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             throw unexpectedToken();
         }
 

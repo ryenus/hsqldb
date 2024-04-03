@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -77,7 +78,6 @@ public class JDBCClobClient implements Clob {
         return new InputStream() {
 
             private Reader reader = clob.getCharacterStream(session);
-
             public int read() throws IOException {
 
                 int c = reader.read();
@@ -96,7 +96,6 @@ public class JDBCClobClient implements Clob {
 
                 return c;
             }
-
             public int read(byte[] b, int off, int len) throws IOException {
 
                 if (b == null) {
@@ -133,11 +132,11 @@ public class JDBCClobClient implements Clob {
                     bytesRead++;
                 }
 
-                return bytesRead == 0 ? -1 : bytesRead;
+                return bytesRead == 0
+                       ? -1
+                       : bytesRead;
             }
-
             public void close() throws IOException {
-
                 try {
                     reader.close();
                 } catch (Exception ex) {}
@@ -156,7 +155,6 @@ public class JDBCClobClient implements Clob {
      *   {@code CLOB} value
      */
     public synchronized Reader getCharacterStream() throws SQLException {
-
         checkClosed();
 
         return new ClobInputStream(session, clob, 0, length());
@@ -174,8 +172,10 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   {@code CLOB} value
      */
-    public synchronized String getSubString(long pos,
-            int length) throws SQLException {
+    public synchronized String getSubString(
+            long pos,
+            int length)
+            throws SQLException {
 
         checkClosed();
 
@@ -222,8 +222,10 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   {@code CLOB} value
      */
-    public synchronized long position(String searchstr,
-                                      long start) throws SQLException {
+    public synchronized long position(
+            String searchstr,
+            long start)
+            throws SQLException {
 
         checkClosed();
 
@@ -251,8 +253,10 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   {@code CLOB} value
      */
-    public synchronized long position(Clob searchstr,
-                                      long start) throws SQLException {
+    public synchronized long position(
+            Clob searchstr,
+            long start)
+            throws SQLException {
 
         checkClosed();
 
@@ -274,8 +278,9 @@ public class JDBCClobClient implements Clob {
             throw JDBCUtil.outOfRangeArgument();
         }
 
-        return position(searchstr.getSubString(1, (int) searchstr.length()),
-                        start);
+        return position(
+            searchstr.getSubString(1, (int) searchstr.length()),
+            start);
     }
 
     /**
@@ -292,17 +297,16 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   {@code CLOB} value
      */
-    public synchronized OutputStream setAsciiStream(final long pos)
-    throws SQLException {
+    public synchronized OutputStream setAsciiStream(
+            final long pos)
+            throws SQLException {
 
         return new OutputStream() {
 
             Writer writer = setCharacterStream(pos);
-
             public void write(int b) throws IOException {
                 writer.write(b & 0xff);
             }
-
             public void write(byte[] b, int off, int len) throws IOException {
 
                 if (b == null) {
@@ -325,7 +329,6 @@ public class JDBCClobClient implements Clob {
 
                 writer.write(charArray, 0, len);
             }
-
             public void close() throws IOException {
                 writer.close();
             }
@@ -343,8 +346,9 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   {@code CLOB} value
      */
-    public synchronized Writer setCharacterStream(final long pos)
-    throws SQLException {
+    public synchronized Writer setCharacterStream(
+            final long pos)
+            throws SQLException {
 
         checkClosed();
 
@@ -362,28 +366,26 @@ public class JDBCClobClient implements Clob {
 
             private long    m_clobPosition = pos - 1;
             private boolean m_closed;
-
-            public void write(char[] cbuf, int off,
-                              int len) throws IOException {
+            public void write(
+                    char[] cbuf,
+                    int off,
+                    int len)
+                    throws IOException {
 
                 checkClosed();
                 clob.setChars(session, m_clobPosition, cbuf, off, len);
 
                 m_clobPosition += len;
             }
-
             public void flush() throws IOException {
 
                 // no-op
             }
-
             @Override
             public void close() throws IOException {
                 m_closed = true;
             }
-
             private void checkClosed() throws IOException {
-
                 if (m_closed || JDBCClobClient.this.isClosed()) {
                     throw new IOException("The stream is closed");
                 }
@@ -405,8 +407,10 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   {@code CLOB} value
      */
-    public synchronized int setString(long pos,
-                                      String str) throws SQLException {
+    public synchronized int setString(
+            long pos,
+            String str)
+            throws SQLException {
         return setString(pos, str, 0, str.length());
     }
 
@@ -426,8 +430,12 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   {@code CLOB} value
      */
-    public synchronized int setString(long pos, String str, int offset,
-                                      int len) throws SQLException {
+    public synchronized int setString(
+            long pos,
+            String str,
+            int offset,
+            int len)
+            throws SQLException {
 
         checkClosed();
 
@@ -500,7 +508,6 @@ public class JDBCClobClient implements Clob {
      * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized void free() throws SQLException {
-
         isClosed = true;
         clob     = null;
         session  = null;
@@ -522,8 +529,10 @@ public class JDBCClobClient implements Clob {
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized Reader getCharacterStream(long pos,
-            long length) throws SQLException {
+    public synchronized Reader getCharacterStream(
+            long pos,
+            long length)
+            throws SQLException {
 
         checkClosed();
 
@@ -566,7 +575,6 @@ public class JDBCClobClient implements Clob {
     }
 
     public synchronized void setWritable(JDBCResultSet result, int index) {
-
         isWritable = true;
         resultSet  = result;
         colIndex   = index;
@@ -596,14 +604,16 @@ public class JDBCClobClient implements Clob {
     }
 
     private void checkClosed() throws SQLException {
-
         if (isClosed) {
             throw JDBCUtil.sqlException(ErrorCode.X_0F502);
         }
     }
 
     static boolean isInLimits(long fullLength, long pos, long len) {
-        return fullLength >= 0 && pos >= 0 && len >= 0
+
+        return fullLength >= 0
+               && pos >= 0
+               && len >= 0
                && pos <= fullLength - len;
     }
 }

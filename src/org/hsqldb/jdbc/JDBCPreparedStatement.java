@@ -37,7 +37,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringWriter;
+
 import java.math.BigDecimal;
+
 import java.sql.Array;
 import java.sql.BatchUpdateException;
 import java.sql.Blob;
@@ -61,6 +63,7 @@ import java.sql.SQLWarning;
 import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -224,7 +227,7 @@ import org.hsqldb.types.Types;
  * @see JDBCResultSet
  */
 public class JDBCPreparedStatement extends JDBCStatementBase
-implements PreparedStatement {
+        implements PreparedStatement {
 
     /**
      * Executes the SQL query in this {@code PreparedStatement} object
@@ -304,8 +307,10 @@ implements PreparedStatement {
      * or  {@code STRUCT} data type and the JDBC driver does not support
      * this data type
      */
-    public synchronized void setNull(int parameterIndex,
-                                     int sqlType) throws SQLException {
+    public synchronized void setNull(
+            int parameterIndex,
+            int sqlType)
+            throws SQLException {
         setParameter(parameterIndex, null);
     }
 
@@ -331,11 +336,14 @@ implements PreparedStatement {
      * if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setBoolean(int parameterIndex,
-                                        boolean x) throws SQLException {
+    public synchronized void setBoolean(
+            int parameterIndex,
+            boolean x)
+            throws SQLException {
 
-        Boolean b = x ? Boolean.TRUE
-                      : Boolean.FALSE;
+        Boolean b = x
+                    ? Boolean.TRUE
+                    : Boolean.FALSE;
 
         setParameter(parameterIndex, b);
     }
@@ -351,8 +359,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setByte(int parameterIndex,
-                                     byte x) throws SQLException {
+    public synchronized void setByte(
+            int parameterIndex,
+            byte x)
+            throws SQLException {
         setIntParameter(parameterIndex, x);
     }
 
@@ -367,8 +377,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setShort(int parameterIndex,
-                                      short x) throws SQLException {
+    public synchronized void setShort(
+            int parameterIndex,
+            short x)
+            throws SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
@@ -388,8 +400,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setInt(int parameterIndex,
-                                    int x) throws SQLException {
+    public synchronized void setInt(
+            int parameterIndex,
+            int x)
+            throws SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
@@ -409,8 +423,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setLong(int parameterIndex,
-                                     long x) throws SQLException {
+    public synchronized void setLong(
+            int parameterIndex,
+            long x)
+            throws SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
@@ -441,8 +457,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setFloat(int parameterIndex,
-                                      float x) throws SQLException {
+    public synchronized void setFloat(
+            int parameterIndex,
+            float x)
+            throws SQLException {
         setDouble(parameterIndex, x);
     }
 
@@ -468,9 +486,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setDouble(int parameterIndex,
-                                       double x) throws SQLException {
-
+    public synchronized void setDouble(
+            int parameterIndex,
+            double x)
+            throws SQLException {
         Double d = Double.valueOf(x);
 
         setParameter(parameterIndex, d);
@@ -487,8 +506,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setBigDecimal(int parameterIndex,
-                                           BigDecimal x) throws SQLException {
+    public synchronized void setBigDecimal(
+            int parameterIndex,
+            BigDecimal x)
+            throws SQLException {
         setParameter(parameterIndex, x);
     }
 
@@ -516,8 +537,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setString(int parameterIndex,
-                                       String x) throws SQLException {
+    public synchronized void setString(
+            int parameterIndex,
+            String x)
+            throws SQLException {
         setParameter(parameterIndex, x);
     }
 
@@ -543,8 +566,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setBytes(int parameterIndex,
-                                      byte[] x) throws SQLException {
+    public synchronized void setBytes(
+            int parameterIndex,
+            byte[] x)
+            throws SQLException {
         setParameter(parameterIndex, x);
     }
 
@@ -569,8 +594,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setDate(int parameterIndex,
-                                     Date x) throws SQLException {
+    public synchronized void setDate(
+            int parameterIndex,
+            Date x)
+            throws SQLException {
         setDate(parameterIndex, x, null);
     }
 
@@ -593,8 +620,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setTime(int parameterIndex,
-                                     Time x) throws SQLException {
+    public synchronized void setTime(
+            int parameterIndex,
+            Time x)
+            throws SQLException {
         setTime(parameterIndex, x, null);
     }
 
@@ -622,8 +651,10 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setTimestamp(int parameterIndex,
-                                          Timestamp x) throws SQLException {
+    public synchronized void setTimestamp(
+            int parameterIndex,
+            Timestamp x)
+            throws SQLException {
         setTimestamp(parameterIndex, x, null);
     }
 
@@ -663,8 +694,11 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setAsciiStream(int parameterIndex,
-            java.io.InputStream x, int length) throws SQLException {
+    public synchronized void setAsciiStream(
+            int parameterIndex,
+            java.io.InputStream x,
+            int length)
+            throws SQLException {
         setAsciiStream(parameterIndex, x, (long) length);
     }
 
@@ -709,8 +743,11 @@ implements PreparedStatement {
 
 //#ifdef DEPRECATEDJDBC
     @Deprecated
-    public synchronized void setUnicodeStream(int parameterIndex,
-            java.io.InputStream x, int length) throws SQLException {
+    public synchronized void setUnicodeStream(
+            int parameterIndex,
+            java.io.InputStream x,
+            int length)
+            throws SQLException {
 
         checkSetParameterIndex(parameterIndex);
 
@@ -735,8 +772,10 @@ implements PreparedStatement {
                 writer.write(buff, 0, charsRead);
             }
         } catch (IOException ex) {
-            throw JDBCUtil.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
-                                        ex.toString(), ex);
+            throw JDBCUtil.sqlException(
+                ErrorCode.SERVER_TRANSFER_CORRUPTED,
+                ex.toString(),
+                ex);
         }
 
         setParameter(parameterIndex, writer.toString());
@@ -771,8 +810,11 @@ implements PreparedStatement {
      * marker in the SQL statement; if a database access error occurs or
      * this method is called on a closed {@code PreparedStatement}
      */
-    public synchronized void setBinaryStream(int parameterIndex,
-            java.io.InputStream x, int length) throws SQLException {
+    public synchronized void setBinaryStream(
+            int parameterIndex,
+            java.io.InputStream x,
+            int length)
+            throws SQLException {
         setBinaryStream(parameterIndex, x, (long) length);
     }
 
@@ -828,8 +870,11 @@ implements PreparedStatement {
      * the JDBC driver does not support the specified targetSqlType
      * @see java.sql.Types
      */
-    public synchronized void setObject(int parameterIndex, Object x,
-                                       int targetSqlType) throws SQLException {
+    public synchronized void setObject(
+            int parameterIndex,
+            Object x,
+            int targetSqlType)
+            throws SQLException {
         setObject(parameterIndex, x);
     }
 
@@ -878,8 +923,10 @@ implements PreparedStatement {
      *  this method is called on a closed {@code PreparedStatement}
      * or the type of the given object is ambiguous
      */
-    public synchronized void setObject(int parameterIndex,
-                                       Object x) throws SQLException {
+    public synchronized void setObject(
+            int parameterIndex,
+            Object x)
+            throws SQLException {
         setParameter(parameterIndex, x);
     }
 
@@ -923,7 +970,6 @@ implements PreparedStatement {
      *
      */
     public synchronized boolean execute() throws SQLException {
-
         fetchResult();
 
         return statementRetType == StatementTypes.RETURN_RESULT;
@@ -1008,8 +1054,11 @@ implements PreparedStatement {
      * this method is called on a closed {@code PreparedStatement}
      * @since JDK 1.2
      */
-    public synchronized void setCharacterStream(int parameterIndex,
-            java.io.Reader reader, int length) throws SQLException {
+    public synchronized void setCharacterStream(
+            int parameterIndex,
+            java.io.Reader reader,
+            int length)
+            throws SQLException {
         setCharacterStream(parameterIndex, reader, (long) length);
     }
 
@@ -1074,8 +1123,10 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.2
      */
-    public synchronized void setBlob(int parameterIndex,
-                                     Blob x) throws SQLException {
+    public synchronized void setBlob(
+            int parameterIndex,
+            Blob x)
+            throws SQLException {
 
         checkSetParameterIndex(parameterIndex);
 
@@ -1101,8 +1152,10 @@ implements PreparedStatement {
     /**
      * Converts a blob to binary data for non-blob binary parameters.
      */
-    private void setBlobForBinaryParameter(int parameterIndex,
-                                           Blob x) throws SQLException {
+    private void setBlobForBinaryParameter(
+            int parameterIndex,
+            Blob x)
+            throws SQLException {
 
         if (x instanceof JDBCBlob) {
             setParameter(parameterIndex, ((JDBCBlob) x).data());
@@ -1124,14 +1177,17 @@ implements PreparedStatement {
 
         try {
             java.io.InputStream in = x.getBinaryStream();
-            HsqlByteArrayOutputStream out = new HsqlByteArrayOutputStream(in,
+            HsqlByteArrayOutputStream out = new HsqlByteArrayOutputStream(
+                in,
                 (int) length);
 
             setParameter(parameterIndex, out.toByteArray());
             out.close();
         } catch (Throwable e) {
-            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
-                                        e.toString(), e);
+            throw JDBCUtil.sqlException(
+                ErrorCode.JDBC_INPUTSTREAM_ERROR,
+                e.toString(),
+                e);
         }
     }
 
@@ -1168,8 +1224,10 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.2
      */
-    public synchronized void setClob(int parameterIndex,
-                                     Clob x) throws SQLException {
+    public synchronized void setClob(
+            int parameterIndex,
+            Clob x)
+            throws SQLException {
 
         checkSetParameterIndex(parameterIndex);
 
@@ -1193,8 +1251,10 @@ implements PreparedStatement {
         }
     }
 
-    private void setClobForStringParameter(int parameterIndex,
-                                           Clob x) throws SQLException {
+    private void setClobForStringParameter(
+            int parameterIndex,
+            Clob x)
+            throws SQLException {
 
         if (x instanceof JDBCClob) {
             setParameter(parameterIndex, ((JDBCClob) x).getData());
@@ -1220,8 +1280,10 @@ implements PreparedStatement {
 
             setParameter(parameterIndex, writer.toString());
         } catch (Throwable e) {
-            throw JDBCUtil.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
-                                        e.toString(), e);
+            throw JDBCUtil.sqlException(
+                ErrorCode.SERVER_TRANSFER_CORRUPTED,
+                e.toString(),
+                e);
         }
     }
 
@@ -1247,8 +1309,10 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.2
      */
-    public synchronized void setArray(int parameterIndex,
-                                      Array x) throws SQLException {
+    public synchronized void setArray(
+            int parameterIndex,
+            Array x)
+            throws SQLException {
 
         checkParameterIndex(parameterIndex);
 
@@ -1350,14 +1414,16 @@ implements PreparedStatement {
                 for (int i = 0; i < resultMetaData.colIndexes.length; i++) {
                     if (resultMetaData.colIndexes[i] < 0) {
                         isInsertable = false;
-
                         break;
                     }
                 }
             }
 
-            resultSetMetaData = new JDBCResultSetMetaData(resultMetaData,
-                    isUpdatable, isInsertable, connection);
+            resultSetMetaData = new JDBCResultSetMetaData(
+                resultMetaData,
+                isUpdatable,
+                isInsertable,
+                connection);
         }
 
         return resultSetMetaData;
@@ -1382,8 +1448,11 @@ implements PreparedStatement {
      * this method is called on a closed {@code PreparedStatement}
      * @since JDK 1.2
      */
-    public synchronized void setDate(int parameterIndex, java.sql.Date x,
-                                     Calendar cal) throws SQLException {
+    public synchronized void setDate(
+            int parameterIndex,
+            java.sql.Date x,
+            Calendar cal)
+            throws SQLException {
 
         checkSetParameterIndex(parameterIndex);
 
@@ -1396,7 +1465,7 @@ implements PreparedStatement {
             return;
         }
 
-        Type outType = parameterTypes[index];
+        Type   outType = parameterTypes[index];
         Object value;
 
         switch (outType.typeCode) {
@@ -1404,11 +1473,14 @@ implements PreparedStatement {
             case Types.SQL_DATE :
             case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
+                value = ((DateTimeType) outType).convertJavaToSQL(
+                    session,
+                    x,
+                    cal);
                 break;
 
-            case Types.SQL_CHAR:
-            case Types.SQL_VARCHAR:
+            case Types.SQL_CHAR :
+            case Types.SQL_VARCHAR :
                 value = Type.SQL_DATE.convertJavaToSQL(session, x);
                 value = outType.castToType(session, value, Type.SQL_DATE);
                 break;
@@ -1418,7 +1490,7 @@ implements PreparedStatement {
         }
 
         parameterValues[index] = value;
-        parameterSet[index] = true;
+        parameterSet[index]    = true;
     }
 
     /**
@@ -1451,8 +1523,11 @@ implements PreparedStatement {
      * this method is called on a closed {@code PreparedStatement}
      * @since JDK 1.2
      */
-    public synchronized void setTime(int parameterIndex, java.sql.Time x,
-                                     Calendar cal) throws SQLException {
+    public synchronized void setTime(
+            int parameterIndex,
+            java.sql.Time x,
+            Calendar cal)
+            throws SQLException {
 
         checkSetParameterIndex(parameterIndex);
 
@@ -1465,31 +1540,38 @@ implements PreparedStatement {
             return;
         }
 
-        Type outType = parameterTypes[index];
+        Type   outType = parameterTypes[index];
         Object value;
 
         switch (outType.typeCode) {
 
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE :
-            case Types.SQL_TIMESTAMP:
+            case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
+                value = ((DateTimeType) outType).convertJavaToSQL(
+                    session,
+                    x,
+                    cal);
                 break;
 
-            case Types.SQL_CHAR:
-            case Types.SQL_VARCHAR:
-                value = Type.SQL_TIME_WITH_TIME_ZONE_MAX.convertJavaToSQL(session, x);
-                value = outType.castToType(session, value, Type.SQL_TIME_WITH_TIME_ZONE_MAX);
+            case Types.SQL_CHAR :
+            case Types.SQL_VARCHAR :
+                value = Type.SQL_TIME_WITH_TIME_ZONE_MAX.convertJavaToSQL(
+                    session,
+                    x);
+                value = outType.castToType(
+                    session,
+                    value,
+                    Type.SQL_TIME_WITH_TIME_ZONE_MAX);
                 break;
 
             default :
                 throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
-
         parameterValues[index] = value;
-        parameterSet[index] = true;
+        parameterSet[index]    = true;
     }
 
     /**
@@ -1527,8 +1609,11 @@ implements PreparedStatement {
      * this method is called on a closed {@code PreparedStatement}
      * @since JDK 1.2
      */
-    public synchronized void setTimestamp(int parameterIndex, java.sql.Timestamp x,
-                                          Calendar cal) throws SQLException {
+    public synchronized void setTimestamp(
+            int parameterIndex,
+            java.sql.Timestamp x,
+            Calendar cal)
+            throws SQLException {
 
         checkSetParameterIndex(parameterIndex);
 
@@ -1541,22 +1626,31 @@ implements PreparedStatement {
             return;
         }
 
-        Type outType = parameterTypes[index];
+        Type   outType = parameterTypes[index];
         Object value;
 
         switch (outType.typeCode) {
+
             case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_DATE :
-                value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
+                value = ((DateTimeType) outType).convertJavaToSQL(
+                    session,
+                    x,
+                    cal);
                 break;
 
-            case Types.SQL_CHAR:
-            case Types.SQL_VARCHAR:
-                value = Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX.convertJavaToSQL(session, x);
-                value = outType.castToType(session, value, Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
+            case Types.SQL_CHAR :
+            case Types.SQL_VARCHAR :
+                value = Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX.convertJavaToSQL(
+                    session,
+                    x);
+                value = outType.castToType(
+                    session,
+                    value,
+                    Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
                 break;
 
             default :
@@ -1564,7 +1658,7 @@ implements PreparedStatement {
         }
 
         parameterValues[index] = value;
-        parameterSet[index] = true;
+        parameterSet[index]    = true;
     }
 
     /**
@@ -1612,8 +1706,11 @@ implements PreparedStatement {
      * this data type or if the JDBC driver does not support this method
      * @since JDK 1.2
      */
-    public synchronized void setNull(int parameterIndex, int sqlType,
-                                     String typeName) throws SQLException {
+    public synchronized void setNull(
+            int parameterIndex,
+            int sqlType,
+            String typeName)
+            throws SQLException {
         setParameter(parameterIndex, null);
     }
 
@@ -1734,10 +1831,11 @@ implements PreparedStatement {
             if (errorResult == null) {
                 throw new BatchUpdateException(updateCounts);
             } else {
-                throw new BatchUpdateException(errorResult.getMainString(),
-                                               errorResult.getSubString(),
-                                               errorResult.getErrorCode(),
-                                               updateCounts);
+                throw new BatchUpdateException(
+                    errorResult.getMainString(),
+                    errorResult.getSubString(),
+                    errorResult.getErrorCode(),
+                    updateCounts);
             }
         }
 
@@ -1782,8 +1880,7 @@ implements PreparedStatement {
      * @throws SQLException always
      * @return nothing
      */
-    public synchronized ResultSet executeQuery(String sql)
-    throws SQLException {
+    public synchronized ResultSet executeQuery(String sql) throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
@@ -1932,8 +2029,7 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.4, HSQL 1.7.0
      */
-    public void setURL(int parameterIndex,
-                       java.net.URL x) throws SQLException {
+    public void setURL(int parameterIndex, java.net.URL x) throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
@@ -1958,7 +2054,7 @@ implements PreparedStatement {
      * @since JDK 1.4, HSQL 1.7.0
      */
     public synchronized ParameterMetaData getParameterMetaData()
-    throws SQLException {
+            throws SQLException {
 
         checkClosed();
 
@@ -1973,33 +2069,45 @@ implements PreparedStatement {
      * Statement methods that must be overridden in this class and throw
      * an exception.
      */
-    public int executeUpdate(String sql,
-                             int autoGeneratedKeys) throws SQLException {
+    public int executeUpdate(
+            String sql,
+            int autoGeneratedKeys)
+            throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
-    public boolean execute(String sql,
-                           int autoGeneratedKeys) throws SQLException {
+    public boolean execute(
+            String sql,
+            int autoGeneratedKeys)
+            throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
-    public int executeUpdate(String sql,
-                             int[] columnIndexes) throws SQLException {
+    public int executeUpdate(
+            String sql,
+            int[] columnIndexes)
+            throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
-    public boolean execute(String sql,
-                           int[] columnIndexes) throws SQLException {
+    public boolean execute(
+            String sql,
+            int[] columnIndexes)
+            throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
-    public int executeUpdate(String sql,
-                             String[] columnNames) throws SQLException {
+    public int executeUpdate(
+            String sql,
+            String[] columnNames)
+            throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
-    public boolean execute(String sql,
-                           String[] columnNames) throws SQLException {
+    public boolean execute(
+            String sql,
+            String[] columnNames)
+            throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
@@ -2045,8 +2153,9 @@ implements PreparedStatement {
      * @since JDK 1.4, HSQLDB 1.7
      * @see #execute
      */
-    public synchronized boolean getMoreResults(int current)
-    throws SQLException {
+    public synchronized boolean getMoreResults(
+            int current)
+            throws SQLException {
         return super.getMoreResults(current);
     }
 
@@ -2163,8 +2272,10 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized void setNString(int parameterIndex,
-                                        String value) throws SQLException {
+    public synchronized void setNString(
+            int parameterIndex,
+            String value)
+            throws SQLException {
         setString(parameterIndex, value);
     }
 
@@ -2184,8 +2295,11 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized void setNCharacterStream(int parameterIndex,
-            Reader value, long length) throws SQLException {
+    public synchronized void setNCharacterStream(
+            int parameterIndex,
+            Reader value,
+            long length)
+            throws SQLException {
         setCharacterStream(parameterIndex, value, length);
     }
 
@@ -2202,8 +2316,10 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized void setNClob(int parameterIndex,
-                                      NClob value) throws SQLException {
+    public synchronized void setNClob(
+            int parameterIndex,
+            NClob value)
+            throws SQLException {
         setClob(parameterIndex, value);
     }
 
@@ -2228,8 +2344,11 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized void setClob(int parameterIndex, Reader reader,
-                                     long length) throws SQLException {
+    public synchronized void setClob(
+            int parameterIndex,
+            Reader reader,
+            long length)
+            throws SQLException {
         setCharacterStream(parameterIndex, reader, length);
     }
 
@@ -2270,9 +2389,11 @@ implements PreparedStatement {
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized void setBlob(int parameterIndex,
-                                     InputStream inputStream,
-                                     long length) throws SQLException {
+    public synchronized void setBlob(
+            int parameterIndex,
+            InputStream inputStream,
+            long length)
+            throws SQLException {
         setBinaryStream(parameterIndex, inputStream, length);
     }
 
@@ -2298,8 +2419,11 @@ implements PreparedStatement {
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized void setNClob(int parameterIndex, Reader reader,
-                                      long length) throws SQLException {
+    public synchronized void setNClob(
+            int parameterIndex,
+            Reader reader,
+            long length)
+            throws SQLException {
         setClob(parameterIndex, reader, length);
     }
 
@@ -2319,8 +2443,10 @@ implements PreparedStatement {
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public void setSQLXML(int parameterIndex,
-                          SQLXML xmlObject) throws SQLException {
+    public void setSQLXML(
+            int parameterIndex,
+            SQLXML xmlObject)
+            throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
@@ -2371,9 +2497,12 @@ implements PreparedStatement {
      * @see java.sql.Types
      *
      */
-    public synchronized void setObject(int parameterIndex, Object x,
-                                       int targetSqlType,
-                                       int scaleOrLength) throws SQLException {
+    public synchronized void setObject(
+            int parameterIndex,
+            Object x,
+            int targetSqlType,
+            int scaleOrLength)
+            throws SQLException {
 
         if (x instanceof InputStream) {
             setBinaryStream(parameterIndex, (InputStream) x, scaleOrLength);
@@ -2423,19 +2552,26 @@ implements PreparedStatement {
      * this method is called on a closed {@code PreparedStatement}
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized void setAsciiStream(int parameterIndex,
-            java.io.InputStream x, long length) throws SQLException {
+    public synchronized void setAsciiStream(
+            int parameterIndex,
+            java.io.InputStream x,
+            long length)
+            throws SQLException {
 
         if (length < 0) {
-            throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                        "length: " + length);
+            throw JDBCUtil.sqlException(
+                ErrorCode.JDBC_INVALID_ARGUMENT,
+                "length: " + length);
         }
 
         setAscStream(parameterIndex, x, length);
     }
 
-    void setAscStream(int parameterIndex, java.io.InputStream x,
-                      long length) throws SQLException {
+    void setAscStream(
+            int parameterIndex,
+            java.io.InputStream x,
+            long length)
+            throws SQLException {
 
         if (length > Integer.MAX_VALUE) {
             throw JDBCUtil.sqlException(ErrorCode.X_22001);
@@ -2454,8 +2590,10 @@ implements PreparedStatement {
 
             setParameter(parameterIndex, s);
         } catch (IOException e) {
-            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
-                                        null, e);
+            throw JDBCUtil.sqlException(
+                ErrorCode.JDBC_INPUTSTREAM_ERROR,
+                null,
+                e);
         }
     }
 
@@ -2489,29 +2627,35 @@ implements PreparedStatement {
      * this method is called on a closed {@code PreparedStatement}
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized void setBinaryStream(int parameterIndex,
-            java.io.InputStream x, long length) throws SQLException {
+    public synchronized void setBinaryStream(
+            int parameterIndex,
+            java.io.InputStream x,
+            long length)
+            throws SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
 
         if (length < 0) {
-            throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                        "length: " + length);
+            throw JDBCUtil.sqlException(
+                ErrorCode.JDBC_INVALID_ARGUMENT,
+                "length: " + length);
         }
 
         if (length > parameterTypes[parameterIndex - 1].precision) {
-            throw JDBCUtil.sqlException(ErrorCode.X_22001,
-                                        "length: " + length);
+            throw JDBCUtil.sqlException(ErrorCode.X_22001, "length: " + length);
         }
 
         // ignore length as client/server cannot handle incorrect data length entered by user
         setBinStream(parameterIndex, x, -1);
     }
 
-    private void setBinStream(int parameterIndex, java.io.InputStream x,
-                              long length) throws SQLException {
+    private void setBinStream(
+            int parameterIndex,
+            java.io.InputStream x,
+            long length)
+            throws SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
@@ -2540,8 +2684,10 @@ implements PreparedStatement {
 
             setParameter(parameterIndex, output.toByteArray());
         } catch (Throwable e) {
-            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
-                                        e.toString(), e);
+            throw JDBCUtil.sqlException(
+                ErrorCode.JDBC_INPUTSTREAM_ERROR,
+                e.toString(),
+                e);
         }
     }
 
@@ -2575,29 +2721,35 @@ implements PreparedStatement {
      * this method is called on a closed {@code PreparedStatement}
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized void setCharacterStream(int parameterIndex,
-            java.io.Reader reader, long length) throws SQLException {
+    public synchronized void setCharacterStream(
+            int parameterIndex,
+            java.io.Reader reader,
+            long length)
+            throws SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
 
         if (length < 0) {
-            throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                        "length: " + length);
+            throw JDBCUtil.sqlException(
+                ErrorCode.JDBC_INVALID_ARGUMENT,
+                "length: " + length);
         }
 
         if (length > parameterTypes[parameterIndex - 1].precision) {
-            throw JDBCUtil.sqlException(ErrorCode.X_22001,
-                                        "length: " + length);
+            throw JDBCUtil.sqlException(ErrorCode.X_22001, "length: " + length);
         }
 
         // ignore length as client/server cannot handle incorrect data length entered by user
         setCharStream(parameterIndex, reader, -1);
     }
 
-    private void setCharStream(int parameterIndex, java.io.Reader reader,
-                               long length) throws SQLException {
+    private void setCharStream(
+            int parameterIndex,
+            java.io.Reader reader,
+            long length)
+            throws SQLException {
 
         checkSetParameterIndex(parameterIndex);
 
@@ -2624,8 +2776,10 @@ implements PreparedStatement {
 
             setParameter(parameterIndex, writer.toString());
         } catch (Throwable e) {
-            throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
-                                        e.toString(), e);
+            throw JDBCUtil.sqlException(
+                ErrorCode.JDBC_INPUTSTREAM_ERROR,
+                e.toString(),
+                e);
         }
     }
 
@@ -2664,8 +2818,10 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since 1.6
      */
-    public synchronized void setAsciiStream(int parameterIndex,
-            java.io.InputStream x) throws SQLException {
+    public synchronized void setAsciiStream(
+            int parameterIndex,
+            java.io.InputStream x)
+            throws SQLException {
         setAscStream(parameterIndex, x, -1);
     }
 
@@ -2706,8 +2862,10 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since 1.6
      */
-    public synchronized void setBinaryStream(int parameterIndex,
-            java.io.InputStream x) throws SQLException {
+    public synchronized void setBinaryStream(
+            int parameterIndex,
+            java.io.InputStream x)
+            throws SQLException {
         setBinStream(parameterIndex, x, -1);
     }
 
@@ -2750,8 +2908,10 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since 1.6
      */
-    public synchronized void setCharacterStream(int parameterIndex,
-            java.io.Reader reader) throws SQLException {
+    public synchronized void setCharacterStream(
+            int parameterIndex,
+            java.io.Reader reader)
+            throws SQLException {
         setCharStream(parameterIndex, reader, -1);
     }
 
@@ -2779,8 +2939,10 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since 1.6
      */
-    public synchronized void setNCharacterStream(int parameterIndex,
-            Reader value) throws SQLException {
+    public synchronized void setNCharacterStream(
+            int parameterIndex,
+            Reader value)
+            throws SQLException {
         setCharStream(parameterIndex, value, -1);
     }
 
@@ -2808,8 +2970,10 @@ implements PreparedStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since 1.6
      */
-    public synchronized void setClob(int parameterIndex,
-                                     Reader reader) throws SQLException {
+    public synchronized void setClob(
+            int parameterIndex,
+            Reader reader)
+            throws SQLException {
         setCharStream(parameterIndex, reader, -1);
     }
 
@@ -2840,9 +3004,10 @@ implements PreparedStatement {
      *
      * @since 1.6
      */
-    public synchronized void setBlob(int parameterIndex,
-                                     InputStream inputStream)
-                                     throws SQLException {
+    public synchronized void setBlob(
+            int parameterIndex,
+            InputStream inputStream)
+            throws SQLException {
         setBinStream(parameterIndex, inputStream, -1);
     }
 
@@ -2871,8 +3036,10 @@ implements PreparedStatement {
      *
      * @since 1.6
      */
-    public synchronized void setNClob(int parameterIndex,
-                                      Reader reader) throws SQLException {
+    public synchronized void setNClob(
+            int parameterIndex,
+            Reader reader)
+            throws SQLException {
         setCharStream(parameterIndex, reader, -1);
     }
 
@@ -3312,8 +3479,9 @@ implements PreparedStatement {
      * @since JDK 1.2
      * @see #getFetchDirection
      */
-    public synchronized void setFetchDirection(int direction)
-    throws SQLException {
+    public synchronized void setFetchDirection(
+            int direction)
+            throws SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
@@ -3563,8 +3731,7 @@ implements PreparedStatement {
      * {@code Statement}
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized void setPoolable(boolean poolable)
-    throws SQLException {
+    public synchronized void setPoolable(boolean poolable) throws SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
@@ -3612,7 +3779,7 @@ implements PreparedStatement {
      * @since JDK 1.6, HSQLDB 2.0
      */
     @SuppressWarnings("unchecked")
-    public <T>T unwrap(Class<T> iface) throws java.sql.SQLException {
+    public <T> T unwrap(Class<T> iface) throws java.sql.SQLException {
 
         if (isWrapperFor(iface)) {
             return (T) this;
@@ -3637,7 +3804,8 @@ implements PreparedStatement {
      * @since JDK 1.6, HSQLDB 2.0
      */
     public boolean isWrapperFor(
-            java.lang.Class<?> iface) throws java.sql.SQLException {
+            java.lang.Class<?> iface)
+            throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
@@ -3685,8 +3853,10 @@ implements PreparedStatement {
      */
     public synchronized void setLargeMaxRows(long max) throws SQLException {
 
-        int maxRows = max > Integer.MAX_VALUE ? Integer.MAX_VALUE :
-                                                (int) max;
+        int maxRows = max > Integer.MAX_VALUE
+                      ? Integer.MAX_VALUE
+                      : (int) max;
+
         setMaxRows(maxRows);
     }
 
@@ -3769,11 +3939,11 @@ implements PreparedStatement {
      * @since 1.8
      */
     public synchronized long[] executeLargeBatch() throws SQLException {
-        int[] updateCounts = executeBatch();
 
-        long[] longCounts = new long[updateCounts.length];
+        int[]  updateCounts = executeBatch();
+        long[] longCounts   = new long[updateCounts.length];
 
-        for(int i = 0; i < updateCounts.length; i++) {
+        for (int i = 0; i < updateCounts.length; i++) {
             longCounts[i] = updateCounts[i];
         }
 
@@ -3831,9 +4001,14 @@ implements PreparedStatement {
      * @see SQLType
      * @since 1.8
      */
-    public synchronized void setObject(int parameterIndex, Object x, SQLType targetSqlType,
-                           int scaleOrLength) throws SQLException {
+    public synchronized void setObject(
+            int parameterIndex,
+            Object x,
+            SQLType targetSqlType,
+            int scaleOrLength)
+            throws SQLException {
         int typeNo = targetSqlType.getVendorTypeNumber().intValue();
+
         setObject(parameterIndex, x, typeNo, scaleOrLength);
     }
 
@@ -3858,9 +4033,13 @@ implements PreparedStatement {
      * @see SQLType
      * @since 1.8
      */
-    public synchronized void setObject(int parameterIndex, Object x, SQLType targetSqlType)
+    public synchronized void setObject(
+            int parameterIndex,
+            Object x,
+            SQLType targetSqlType)
             throws SQLException {
         int typeNo = targetSqlType.getVendorTypeNumber().intValue();
+
         setObject(parameterIndex, x, typeNo);
     }
 
@@ -3910,11 +4089,17 @@ implements PreparedStatement {
      * @throws HsqlException if the statement is not accepted by the database
      * @throws SQLException if preprocessing by driver fails
      */
-    JDBCPreparedStatement(JDBCConnection c, String sql, int resultSetType,
-                          int resultSetConcurrency, int resultSetHoldability,
-                          int generatedKeys, int[] generatedIndexes,
-                          String[] generatedNames)
-                          throws HsqlException, SQLException {
+    JDBCPreparedStatement(
+            JDBCConnection c,
+            String sql,
+            int resultSetType,
+            int resultSetConcurrency,
+            int resultSetHoldability,
+            int generatedKeys,
+            int[] generatedIndexes,
+            String[] generatedNames)
+            throws HsqlException,
+                   SQLException {
 
         isResult              = false;
         connection            = c;
@@ -3923,11 +4108,21 @@ implements PreparedStatement {
         sql                   = c.nativeSQL(sql);
         resultOut             = Result.newPrepareStatementRequest();
 
-        int props = ResultProperties.getValueForJDBC(resultSetType,
-            resultSetConcurrency, resultSetHoldability);
+        int props = ResultProperties.getValueForJDBC(
+            resultSetType,
+            resultSetConcurrency,
+            resultSetHoldability);
 
-        resultOut.setPrepareOrExecuteProperties(sql, 0, 0, 0, queryTimeout,
-                props, generatedKeys, generatedIndexes, generatedNames);
+        resultOut.setPrepareOrExecuteProperties(
+            sql,
+            0,
+            0,
+            0,
+            queryTimeout,
+            props,
+            generatedKeys,
+            generatedIndexes,
+            generatedNames);
 
         Result in = session.execute(resultOut);
 
@@ -3973,14 +4168,14 @@ implements PreparedStatement {
         for (int i = 0; i < paramCount; i++) {
             if (parameterTypes[i].isLobType()) {
                 hasLOBs = true;
-
                 break;
             }
         }
 
         //
-        resultOut = Result.newPreparedExecuteRequest(parameterTypes,
-                statementID);
+        resultOut = Result.newPreparedExecuteRequest(
+            parameterTypes,
+            statementID);
 
         resultOut.setStatement(in.getStatement());
 
@@ -4017,8 +4212,9 @@ implements PreparedStatement {
         }
 
         //
-        resultOut = Result.newUpdateResultRequest(parameterTypes,
-                result.getResultId());
+        resultOut = Result.newUpdateResultRequest(
+            parameterTypes,
+            result.getResultId());
     }
 
     /**
@@ -4060,8 +4256,9 @@ implements PreparedStatement {
      * @param parameterIndex The parameter index to check
      * @throws SQLException if the specified parameter index is invalid
      */
-    protected void checkSetParameterIndex(int parameterIndex)
-    throws SQLException {
+    protected void checkSetParameterIndex(
+            int parameterIndex)
+            throws SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
@@ -4089,8 +4286,9 @@ implements PreparedStatement {
      * @param parameterIndex The parameter index to check
      * @throws SQLException if the specified parameter index is invalid
      */
-    protected void checkGetParameterIndex(int parameterIndex)
-    throws SQLException {
+    protected void checkGetParameterIndex(
+            int parameterIndex)
+            throws SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
@@ -4174,13 +4372,11 @@ implements PreparedStatement {
                 try {
                     if (connection.isStoreLiveObject) {
                         o = new JavaObjectDataInternal(o);
-
                         break;
                     }
 
                     if (o instanceof Serializable) {
                         o = new JavaObjectData((Serializable) o);
-
                         break;
                     }
                 } catch (HsqlException e) {
@@ -4188,36 +4384,32 @@ implements PreparedStatement {
                 }
 
                 throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
                 try {
                     if (o instanceof Boolean) {
                         o = outType.convertToDefaultType(session, o);
-
                         break;
                     }
 
                     if (o instanceof Integer) {
                         o = outType.convertToDefaultType(session, o);
-
                         break;
                     }
 
                     if (o instanceof byte[]) {
                         o = outType.convertToDefaultType(session, o);
-
                         break;
                     }
 
                     if (o instanceof String) {
                         o = outType.convertToDefaultType(session, o);
-
                         break;
                     }
 
                     if (o instanceof BitSet) {
                         o = outType.convertToDefaultType(session, o);
-
                         break;
                     }
                 } catch (HsqlException e) {
@@ -4225,25 +4417,23 @@ implements PreparedStatement {
                 }
 
                 throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.SQL_GUID :
                 if (o instanceof byte[]) {
                     o = new BinaryData((byte[]) o, !connection.isNetConn);
-
                     break;
                 }
 
                 if (o instanceof UUID) {
                     o = BinaryUUIDType.getBinary((UUID) o);
-
                     break;
                 }
 
                 try {
                     if (o instanceof String) {
                         o = outType.convertToDefaultType(session, o);
-
                         break;
                     }
                 } catch (HsqlException e) {
@@ -4251,6 +4441,7 @@ implements PreparedStatement {
                 }
 
                 throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_ARRAY :
                 if (o instanceof Array) {
                     setArray(parameterIndex, (Array) o);
@@ -4272,11 +4463,11 @@ implements PreparedStatement {
                     }
 
                     o = data;
-
                     break;
                 }
 
                 throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_BLOB :
                 setBlobParameter(parameterIndex, o);
 
@@ -4294,19 +4485,17 @@ implements PreparedStatement {
             case Types.SQL_TIMESTAMP : {
                 try {
                     if (o instanceof String) {
-                        o = outType.convertToType(session, o,
-                                                  Type.SQL_VARCHAR);
-
+                        o = outType.convertToType(session, o, Type.SQL_VARCHAR);
                         break;
                     }
 
                     o = outType.convertJavaToSQL(session, o);
-
                     break;
                 } catch (HsqlException e) {
                     throw JDBCUtil.sqlException(e);
                 }
             }
+
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER :
@@ -4318,19 +4507,17 @@ implements PreparedStatement {
             case Types.SQL_DECIMAL :
                 try {
                     if (o instanceof String) {
-                        o = outType.convertToType(session, o,
-                                                  Type.SQL_VARCHAR);
-
+                        o = outType.convertToType(session, o, Type.SQL_VARCHAR);
                         break;
                     } else if (o instanceof Boolean) {
                         boolean value = ((Boolean) o).booleanValue();
 
-                        o = value ? Integer.valueOf(1)
-                                  : Integer.valueOf(0);
+                        o = value
+                            ? Integer.valueOf(1)
+                            : Integer.valueOf(0);
                     }
 
                     o = outType.convertToDefaultType(session, o);
-
                     break;
                 } catch (HsqlException e) {
                     throw JDBCUtil.sqlException(e);
@@ -4342,12 +4529,12 @@ implements PreparedStatement {
 
                 try {
                     o = outType.convertToDefaultType(session, o);
-
                     break;
                 } catch (HsqlException e) {
                     throw JDBCUtil.sqlException(e);
                 }
             }
+
             case Types.SQL_CHAR : {
                 if (o instanceof String) {
                     break;
@@ -4356,12 +4543,11 @@ implements PreparedStatement {
                 if (outType.precision == 1) {
                     if (o instanceof Character) {
                         o = String.valueOf(((Character) o).charValue());
-
                         break;
                     } else if (o instanceof Boolean) {
-                        o = ((Boolean) o).booleanValue() ? "1"
-                                                         : "0";
-
+                        o = ((Boolean) o).booleanValue()
+                            ? "1"
+                            : "0";
                         break;
                     }
                 }
@@ -4374,6 +4560,7 @@ implements PreparedStatement {
 
                 break;
             }
+
             default :
                 try {
                     if (outType.isIntervalType()) {
@@ -4382,7 +4569,6 @@ implements PreparedStatement {
                     }
 
                     o = outType.convertToDefaultType(session, o);
-
                     break;
                 } catch (HsqlException e) {
                     throw JDBCUtil.sqlException(e);
@@ -4397,14 +4583,17 @@ implements PreparedStatement {
         setClobParameter(i, o, 0);
     }
 
-    void setClobParameter(int i, Object o,
-                          long streamLength) throws SQLException {
+    void setClobParameter(
+            int i,
+            Object o,
+            long streamLength)
+            throws SQLException {
 
         if (o instanceof JDBCClobClient) {
             JDBCClobClient clob = (JDBCClobClient) o;
 
-            if (!clob.session.getDatabaseUniqueName().equals(
-                    session.getDatabaseUniqueName())) {
+            if (!clob.session.getDatabaseUniqueName()
+                             .equals(session.getDatabaseUniqueName())) {
                 streamLength = clob.length();
 
                 Reader is = clob.getCharacterStream();
@@ -4428,10 +4617,11 @@ implements PreparedStatement {
         } else if (o instanceof ClobInputStream) {
             ClobInputStream is = (ClobInputStream) o;
 
-            if (is.session.getDatabaseUniqueName().equals(
-                    session.getDatabaseUniqueName())) {
-                throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                            "invalid Reader");
+            if (is.session.getDatabaseUniqueName()
+                          .equals(session.getDatabaseUniqueName())) {
+                throw JDBCUtil.sqlException(
+                    ErrorCode.JDBC_INVALID_ARGUMENT,
+                    "invalid Reader");
             }
 
             parameterValues[i - 1] = o;
@@ -4467,14 +4657,17 @@ implements PreparedStatement {
         setBlobParameter(i, o, 0);
     }
 
-    void setBlobParameter(int i, Object o,
-                          long streamLength) throws SQLException {
+    void setBlobParameter(
+            int i,
+            Object o,
+            long streamLength)
+            throws SQLException {
 
         if (o instanceof JDBCBlobClient) {
             JDBCBlobClient blob = (JDBCBlobClient) o;
 
-            if (!blob.session.getDatabaseUniqueName().equals(
-                    session.getDatabaseUniqueName())) {
+            if (!blob.session.getDatabaseUniqueName()
+                             .equals(session.getDatabaseUniqueName())) {
                 streamLength = blob.length();
 
                 InputStream is = blob.getBinaryStream();
@@ -4499,10 +4692,11 @@ implements PreparedStatement {
         } else if (o instanceof BlobInputStream) {
             BlobInputStream is = (BlobInputStream) o;
 
-            if (is.session.getDatabaseUniqueName().equals(
-                    session.getDatabaseUniqueName())) {
-                throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                            "invalid Reader");
+            if (is.session.getDatabaseUniqueName()
+                          .equals(session.getDatabaseUniqueName())) {
+                throw JDBCUtil.sqlException(
+                    ErrorCode.JDBC_INVALID_ARGUMENT,
+                    "invalid Reader");
             }
 
             // in the same database ? see if it blocks in
@@ -4551,21 +4745,22 @@ implements PreparedStatement {
 
                 parameterValues[index] = o;
                 parameterSet[index]    = true;
-
                 break;
             }
+
             case Types.SQL_BIGINT : {
                 Object o = Long.valueOf(value);
 
                 parameterValues[index] = o;
                 parameterSet[index]    = true;
-
                 break;
             }
+
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.OTHER :
                 throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             default :
                 setParameter(parameterIndex, Integer.valueOf(value));
         }
@@ -4599,12 +4794,14 @@ implements PreparedStatement {
             case Types.SQL_VARBINARY :
             case Types.OTHER :
                 throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             default :
                 setParameter(parameterIndex, Long.valueOf(value));
         }
     }
 
-    private void performPreExecute() throws SQLException, HsqlException {
+    private void performPreExecute() throws SQLException,
+            HsqlException {
 
         if (!hasLOBs) {
             return;
@@ -4633,24 +4830,29 @@ implements PreparedStatement {
                     id   = blob.getId();
 
                     InputStream stream = ((Blob) value).getBinaryStream();
-                    ResultLob resultLob =
-                        ResultLob.newLobCreateBlobRequest(session.getId(), id,
-                                                          stream, length);
+                    ResultLob resultLob = ResultLob.newLobCreateBlobRequest(
+                        session.getId(),
+                        id,
+                        stream,
+                        length);
 
                     session.allocateResultLob(resultLob);
                     resultOut.addLobResult(resultLob);
                 } else if (value instanceof InputStream) {
                     long length       = streamLengths[i];
-                    long createLength = length > 0 ? length
-                                                   : 0;
+                    long createLength = length > 0
+                                        ? length
+                                        : 0;
 
                     blob = session.createBlob(createLength);
                     id   = blob.getId();
 
                     InputStream stream = (InputStream) value;
-                    ResultLob resultLob =
-                        ResultLob.newLobCreateBlobRequest(session.getId(), id,
-                                                          stream, length);
+                    ResultLob resultLob = ResultLob.newLobCreateBlobRequest(
+                        session.getId(),
+                        id,
+                        stream,
+                        length);
 
                     session.allocateResultLob(resultLob);
                     resultOut.addLobResult(resultLob);
@@ -4675,24 +4877,29 @@ implements PreparedStatement {
                     clob = session.createClob(length);
                     id   = clob.getId();
 
-                    ResultLob resultLob =
-                        ResultLob.newLobCreateClobRequest(session.getId(), id,
-                                                          reader, length);
+                    ResultLob resultLob = ResultLob.newLobCreateClobRequest(
+                        session.getId(),
+                        id,
+                        reader,
+                        length);
 
                     session.allocateResultLob(resultLob);
                     resultOut.addLobResult(resultLob);
                 } else if (value instanceof Reader) {
                     long length       = streamLengths[i];
-                    long createLength = length > 0 ? length
-                                                   : 0;
+                    long createLength = length > 0
+                                        ? length
+                                        : 0;
 
                     clob = session.createClob(createLength);
                     id   = clob.getId();
 
                     Reader reader = (Reader) value;
-                    ResultLob resultLob =
-                        ResultLob.newLobCreateClobRequest(session.getId(), id,
-                                                          reader, length);
+                    ResultLob resultLob = ResultLob.newLobCreateClobRequest(
+                        session.getId(),
+                        id,
+                        reader,
+                        length);
 
                     session.allocateResultLob(resultLob);
                     resultOut.addLobResult(resultLob);
@@ -4727,9 +4934,12 @@ implements PreparedStatement {
         if (isResult) {
             resultOut.setPreparedResultUpdateProperties(parameterValues);
         } else {
-            resultOut.setPreparedExecuteProperties(parameterValues, maxRows,
-                                                   fetchSize, rsProperties,
-                                                   queryTimeout);
+            resultOut.setPreparedExecuteProperties(
+                parameterValues,
+                maxRows,
+                fetchSize,
+                rsProperties,
+                queryTimeout);
         }
 
         try {
@@ -4747,8 +4957,11 @@ implements PreparedStatement {
         }
 
         if (resultIn.isData()) {
-            currentResultSet = new JDBCResultSet(connection, this, resultIn,
-                                                 resultIn.metaData);
+            currentResultSet = new JDBCResultSet(
+                connection,
+                this,
+                resultIn,
+                resultIn.metaData);
         } else if (statementRetType == StatementTypes.RETURN_RESULT) {
             getMoreResults();
         }

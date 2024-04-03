@@ -34,6 +34,7 @@ package org.hsqldb.jdbc;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -229,8 +230,10 @@ public class JDBCBlob implements Blob {
      *         does not support this method
      * @since JDK 1.2, HSQLDB 1.7.2
      */
-    public long position(final byte[] pattern,
-                         final long start) throws SQLException {
+    public long position(
+            final byte[] pattern,
+            final long start)
+            throws SQLException {
 
         final byte[] data = getData();
         final int    dlen = data.length;
@@ -249,11 +252,15 @@ public class JDBCBlob implements Blob {
             return -1L;
         }
 
-        final int result = KMPSearchAlgorithm.search(data, pattern,
-            KMPSearchAlgorithm.computeTable(pattern), startIndex);
+        final int result = KMPSearchAlgorithm.search(
+            data,
+            pattern,
+            KMPSearchAlgorithm.computeTable(pattern),
+            startIndex);
 
-        return (result == -1) ? -1
-                              : result + 1;
+        return (result == -1)
+               ? -1
+               : result + 1;
     }
 
     /**
@@ -302,11 +309,15 @@ public class JDBCBlob implements Blob {
             bytePattern = pattern.getBytes(1L, iplen);
         }
 
-        final int result = KMPSearchAlgorithm.search(data, bytePattern,
-            KMPSearchAlgorithm.computeTable(bytePattern), startIndex);
+        final int result = KMPSearchAlgorithm.search(
+            data,
+            bytePattern,
+            KMPSearchAlgorithm.computeTable(bytePattern),
+            startIndex);
 
-        return (result == -1) ? -1
-                              : result + 1;
+        return (result == -1)
+               ? -1
+               : result + 1;
     }
 
     // -------------------------- JDBC 3.0 -----------------------------------
@@ -373,8 +384,14 @@ public class JDBCBlob implements Blob {
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public int setBytes(long pos, byte[] bytes) throws SQLException {
-        return setBytes(pos, bytes, 0, bytes == null ? 0
-                                                     : bytes.length);
+
+        return setBytes(
+            pos,
+            bytes,
+            0,
+            bytes == null
+            ? 0
+            : bytes.length);
     }
 
     /**
@@ -450,8 +467,12 @@ public class JDBCBlob implements Blob {
      * @see #getBytes
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-    public int setBytes(long pos, byte[] bytes, int offset,
-                        int len) throws SQLException {
+    public int setBytes(
+            long pos,
+            byte[] bytes,
+            int offset,
+            int len)
+            throws SQLException {
 
         checkReadonly();
 
@@ -572,7 +593,6 @@ public class JDBCBlob implements Blob {
         return new java.io.ByteArrayOutputStream() {
 
             private boolean closed;
-
             public synchronized void close() throws java.io.IOException {
 
                 if (closed) {
@@ -695,8 +715,10 @@ public class JDBCBlob implements Blob {
      *         does not support this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public InputStream getBinaryStream(long pos,
-                                       long length) throws SQLException {
+    public InputStream getBinaryStream(
+            long pos,
+            long length)
+            throws SQLException {
 
         final byte[] data = getData();
         final int    dlen = data.length;
@@ -760,15 +782,12 @@ public class JDBCBlob implements Blob {
     }
 
     protected void checkReadonly() throws SQLException {
-
         if (!m_createdByConnection) {
-            throw JDBCUtil.sqlException(ErrorCode.X_25006,
-                                        "Blob is read-only");
+            throw JDBCUtil.sqlException(ErrorCode.X_25006, "Blob is read-only");
         }
     }
 
     protected synchronized void checkClosed() throws SQLException {
-
         if (m_closed) {
             throw JDBCUtil.sqlException(ErrorCode.X_07501);
         }
@@ -780,7 +799,6 @@ public class JDBCBlob implements Blob {
 
     //@SuppressWarnings("ReturnOfCollectionOrArrayField")
     private synchronized byte[] getData() throws SQLException {
-
         checkClosed();
 
         return m_data;
@@ -788,7 +806,6 @@ public class JDBCBlob implements Blob {
 
     //@SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
     private synchronized void setData(byte[] data) throws SQLException {
-
         checkClosed();
 
         m_data = data;

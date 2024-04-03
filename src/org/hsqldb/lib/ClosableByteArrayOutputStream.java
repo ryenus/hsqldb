@@ -310,7 +310,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * this output stream to an input stream. <p>
      *
      * To ensure the future integrity of the resulting input stream, {@link
-     * #free() free} is invoked upon this output stream as a side-effect.
+     * #free() free} is invoked upon this output stream as a side effect.
      *
      * @return an input stream representing this output stream's accumulated
      *      data

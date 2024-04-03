@@ -244,7 +244,7 @@ class FindFile {
             // Fill the second parameter: Name
             prep.setString(2, name);
 
-            // Its a file: add it to the table
+            // It's a file: add it to the table
             prep.execute();
         } else if (f.isDirectory()) {
             if (!path.endsWith(File.separator)) {

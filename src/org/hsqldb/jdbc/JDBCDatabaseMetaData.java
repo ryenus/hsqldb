@@ -57,7 +57,6 @@ import org.hsqldb.types.Type;
 // campbell-burnet@users 20051207 - update to JDK 1.6 JDBC 4.0 methods and docs
 //              - 20060709
 // fredt@users    20080805 - full review and update to doc and method return values
-
 // Revision 1.20  2006/07/12 12:06:54  boucherb
 // patch 1.9.0
 // - java.sql.Wrapper implementation section title added
@@ -212,29 +211,28 @@ import org.hsqldb.types.Type;
  * @since JDK 1.1 HSQLDB 1.9.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  */
-public class JDBCDatabaseMetaData implements DatabaseMetaData,
-        java.sql.Wrapper {
+public class JDBCDatabaseMetaData
+        implements DatabaseMetaData, java.sql.Wrapper {
 
-    private static final String[] openGroupNumericFunctions = {
-            "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "BITAND", "BITOR", "BITXOR",
-            "CEILING", "COS", "COT", "DEGREES", "EXP", "FLOOR", "LOG", "LOG10",
-            "MOD", "PI", "POWER", "RADIANS", "RAND", "ROUND", "ROUNDMAGIC", "SIGN",
-            "SIN", "SQRT", "TAN", "TRUNCATE"
+    private static final String[] openGroupNumericFunctions  = {
+        "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "BITAND", "BITOR", "BITXOR",
+        "CEILING", "COS", "COT", "DEGREES", "EXP", "FLOOR", "LOG", "LOG10",
+        "MOD", "PI", "POWER", "RADIANS", "RAND", "ROUND", "ROUNDMAGIC", "SIGN",
+        "SIN", "SQRT", "TAN", "TRUNCATE"
     };
-    private static final String[] openGroupStringFunctions = {
-            "ASCII", "CHAR", "CONCAT", "DIFFERENCE", "HEXTORAW", "INSERT", "LCASE",
-            "LEFT", "LENGTH", "LOCATE", "LTRIM", "RAWTOHEX", "REPEAT", "REPLACE",
-            "RIGHT", "RTRIM", "SOUNDEX", "SPACE", "SUBSTR", "UCASE",
+    private static final String[] openGroupStringFunctions   = {
+        "ASCII", "CHAR", "CONCAT", "DIFFERENCE", "HEXTORAW", "INSERT", "LCASE",
+        "LEFT", "LENGTH", "LOCATE", "LTRIM", "RAWTOHEX", "REPEAT", "REPLACE",
+        "RIGHT", "RTRIM", "SOUNDEX", "SPACE", "SUBSTR", "UCASE",
     };
     private static final String[] openGroupDateTimeFunctions = {
-            "CURDATE", "CURTIME", "DATEDIFF", "DAYNAME", "DAYOFMONTH", "DAYOFWEEK",
-            "DAYOFYEAR", "HOUR", "MINUTE", "MONTH", "MONTHNAME", "NOW", "QUARTER",
-            "SECOND", "SECONDS_SINCE_MIDNIGHT", "TIMESTAMPADD", "TIMESTAMPDIFF",
-            "TO_CHAR", "WEEK", "YEAR"
+        "CURDATE", "CURTIME", "DATEDIFF", "DAYNAME", "DAYOFMONTH", "DAYOFWEEK",
+        "DAYOFYEAR", "HOUR", "MINUTE", "MONTH", "MONTHNAME", "NOW", "QUARTER",
+        "SECOND", "SECONDS_SINCE_MIDNIGHT", "TIMESTAMPADD", "TIMESTAMPDIFF",
+        "TO_CHAR", "WEEK", "YEAR"
     };
-    private static final String[] openGroupSystemFunctions = {
-            "DATABASE", "IFNULL", "USER"
-    };
+    private static final String[] openGroupSystemFunctions = { "DATABASE",
+            "IFNULL", "USER" };
 
     //----------------------------------------------------------------------
     // First, a variety of minor information about the target database.
@@ -366,6 +364,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
     public boolean nullsAreSortedHigh() throws SQLException {
         setCurrentProperties();
+
         return !nullsFirst && !nullsOrder;
     }
 
@@ -395,6 +394,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
     public boolean nullsAreSortedLow() throws SQLException {
         setCurrentProperties();
+
         return nullsFirst && !nullsOrder;
     }
 
@@ -419,6 +419,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
     public boolean nullsAreSortedAtStart() throws SQLException {
         setCurrentProperties();
+
         return nullsFirst && nullsOrder;
     }
 
@@ -443,6 +444,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
     public boolean nullsAreSortedAtEnd() throws SQLException {
         setCurrentProperties();
+
         return !nullsFirst && nullsOrder;
     }
 
@@ -1008,19 +1010,20 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @throws SQLException if a database access error occurs
      * @see java.sql.Types
      */
-    public boolean supportsConvert(int fromType,
-                                   int toType) throws SQLException {
+    public boolean supportsConvert(
+            int fromType,
+            int toType)
+            throws SQLException {
 
-        Type from =
-            Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(fromType));
+        Type from = Type.getDefaultTypeWithSize(
+            Type.getHSQLDBTypeCode(fromType));
         Type to = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(toType));
 
         if (from == null || to == null) {
             return false;
         }
 
-        if (fromType == java.sql.Types.NULL
-                && toType == java.sql.Types.ARRAY) {
+        if (fromType == java.sql.Types.NULL && toType == java.sql.Types.ARRAY) {
             return true;
         }
 
@@ -1064,7 +1067,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @return {@code true} if so; {@code false} otherwise
      * @throws SQLException if a database access error occurs
      */
-    public boolean supportsDifferentTableCorrelationNames() throws SQLException {
+    public boolean supportsDifferentTableCorrelationNames()
+            throws SQLException {
         return false;
     }
 
@@ -1755,7 +1759,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @return {@code true} if so; {@code false} otherwise
      * @throws SQLException if a database access error occurs
      */
-    public boolean supportsCatalogsInPrivilegeDefinitions() throws SQLException {
+    public boolean supportsCatalogsInPrivilegeDefinitions()
+            throws SQLException {
 
         // false for OOo client server compatibility
         // otherwise catalog name is used by OOo in column references
@@ -2615,7 +2620,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @see JDBCConnection
      */
     public boolean supportsTransactionIsolationLevel(
-            int level) throws SQLException {
+            int level)
+            throws SQLException {
 
         return level == Connection.TRANSACTION_READ_UNCOMMITTED
                || level == Connection.TRANSACTION_READ_COMMITTED
@@ -2641,7 +2647,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @return {@code true} if so; {@code false} otherwise
      * @throws SQLException if a database access error occurs
      */
-    public boolean supportsDataDefinitionAndDataManipulationTransactions() throws SQLException {
+    public boolean supportsDataDefinitionAndDataManipulationTransactions()
+            throws SQLException {
         return false;
     }
 
@@ -2663,7 +2670,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @return {@code true} if so; {@code false} otherwise
      * @throws SQLException if a database access error occurs
      */
-    public boolean supportsDataManipulationTransactionsOnly() throws SQLException {
+    public boolean supportsDataManipulationTransactionsOnly()
+            throws SQLException {
         return true;
     }
 
@@ -2777,29 +2785,35 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @see #getSearchStringEscape
      */
     public ResultSet getProcedures(
-            String catalog, String schemaPattern,
-            String procedureNamePattern) throws SQLException {
+            String catalog,
+            String schemaPattern,
+            String procedureNamePattern)
+            throws SQLException {
 
-        String baseSelect = "select " +
-            "procedure_cat, procedure_schem, procedure_name, " +
-            "col_4, col_5, col_6, remarks, procedure_type, specific_name " +
-            "from information_schema.system_procedures " +
-            "where procedure_type = 1 ";
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("select procedure_cat, procedure_schem, procedure_name, ")
+          .append(
+              "col_4, col_5, col_6, remarks, procedure_type, specific_name ")
+          .append("from information_schema.system_procedures ")
+          .append("where procedure_type = 1 ");
 
         if (wantsIsNull(procedureNamePattern)) {
-            return execute(baseSelect + "and 1=0");
+            sb.append("and 1=0");
+
+            return execute(sb.toString());
         }
+
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuilder select = new StringBuilder(baseSelect);
-            select.append(and("PROCEDURE_CAT",
-                "=", catalog)).append(and("PROCEDURE_SCHEM", "LIKE",
-                    schemaPattern)).append(and("PROCEDURE_NAME", "LIKE",
-                        procedureNamePattern));
+        sb.append(and("PROCEDURE_CAT", "=", catalog))
+          .append(and("PROCEDURE_SCHEM", "LIKE", schemaPattern))
+          .append(and("PROCEDURE_NAME", "LIKE", procedureNamePattern))
+          .append(
+              " ORDER BY PROCEDURE_CAT, PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME");
 
-        select.append(" ORDER BY PROCEDURE_CAT, PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME");
-        return execute(select.toString());
+        return execute(sb.toString());
     }
 
     /*
@@ -2820,6 +2834,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * {@code ResultSet} object returned by the method
      * {@code getProcedures}.
      */
+
 //    int procedureNoResult             = 1;
 
     /*
@@ -2829,6 +2844,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * {@code ResultSet} object returned by the method
      * {@code getProcedures}.
      */
+
 //    int procedureReturnsResult        = 2;
 
     /**
@@ -2950,25 +2966,31 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @throws SQLException if a database access error occurs
      * @see #getSearchStringEscape
      */
-    public ResultSet getProcedureColumns(String catalog, String schemaPattern,
+    public ResultSet getProcedureColumns(
+            String catalog,
+            String schemaPattern,
             String procedureNamePattern,
-            String columnNamePattern) throws SQLException {
+            String columnNamePattern)
+            throws SQLException {
 
         if (wantsIsNull(procedureNamePattern)
                 || wantsIsNull(columnNamePattern)) {
             return executeSelect("SYSTEM_PROCEDURECOLUMNS", "0=1");
         }
+
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuilder select = toQueryPrefix("SYSTEM_PROCEDURECOLUMNS").append(
-            and("PROCEDURE_CAT", "=", catalog)).append(
-            and("PROCEDURE_SCHEM", "LIKE", schemaPattern)).append(
-            and("PROCEDURE_NAME", "LIKE", procedureNamePattern)).append(
-            and("COLUMN_NAME", "LIKE", columnNamePattern));
+        StringBuilder sb = toQueryPrefix("SYSTEM_PROCEDURECOLUMNS");
 
-        select.append(" ORDER BY PROCEDURE_CAT, PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME");
-        return execute(select.toString());
+        sb.append(and("PROCEDURE_CAT", "=", catalog))
+          .append(and("PROCEDURE_SCHEM", "LIKE", schemaPattern))
+          .append(and("PROCEDURE_NAME", "LIKE", procedureNamePattern))
+          .append(and("COLUMN_NAME", "LIKE", columnNamePattern))
+          .append(
+              " ORDER BY PROCEDURE_CAT, PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME");
+
+        return execute(sb.toString());
     }
 
     /**
@@ -3039,22 +3061,26 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @throws SQLException if a database access error occurs
      * @see #getSearchStringEscape
      */
-    public ResultSet getTables(String catalog, String schemaPattern,
-                               String tableNamePattern,
-                               String[] types) throws SQLException {
+    public ResultSet getTables(
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern,
+            String[] types)
+            throws SQLException {
 
         if (wantsIsNull(tableNamePattern)
                 || (types != null && types.length == 0)) {
             return executeSelect("SYSTEM_TABLES", "0=1");
         }
+
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuilder select =
-            toQueryPrefix("SYSTEM_TABLES").append(and("TABLE_CAT", "=",
-                catalog)).append(and("TABLE_SCHEM", "LIKE",
-                                     schemaPattern)).append(and("TABLE_NAME",
-                                         "LIKE", tableNamePattern));
+        StringBuilder sb = toQueryPrefix("SYSTEM_TABLES");
+
+        sb.append(and("TABLE_CAT", "=", catalog))
+          .append(and("TABLE_SCHEM", "LIKE", schemaPattern))
+          .append(and("TABLE_NAME", "LIKE", tableNamePattern));
 
         if (types == null) {
 
@@ -3063,6 +3089,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
             // JDBC4 clarification:
             // fredt - we shouldn't impose this test as it breaks compatibility with tools
+
 /*
             String[] allowedTypes = new String[] {
                 "GLOBAL TEMPORARY", "SYSTEM TABLE", "TABLE", "VIEW"
@@ -3093,12 +3120,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
             // end JDBC4 clarification
             //
-            select.append(" AND TABLE_TYPE IN (").append(
-                StringUtil.getList(types, ",", "'")).append(')');
+            sb.append(" AND TABLE_TYPE IN (")
+              .append(StringUtil.getList(types, ",", "'"))
+              .append(')');
         }
 
-        select.append(" ORDER BY TABLE_TYPE, TABLE_CAT, TABLE_SCHEM, TABLE_NAME");
-        return execute(select.toString());
+        sb.append(" ORDER BY TABLE_TYPE, TABLE_CAT, TABLE_SCHEM, TABLE_NAME");
+
+        return execute(sb.toString());
     }
 
     /**
@@ -3306,24 +3335,29 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @throws SQLException if a database access error occurs
      * @see #getSearchStringEscape
      */
-    public ResultSet getColumns(String catalog, String schemaPattern,
-                                String tableNamePattern,
-                                String columnNamePattern) throws SQLException {
+    public ResultSet getColumns(
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern,
+            String columnNamePattern)
+            throws SQLException {
 
         if (wantsIsNull(tableNamePattern) || wantsIsNull(columnNamePattern)) {
             return executeSelect("SYSTEM_COLUMNS", "0=1");
         }
+
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuilder select = toQueryPrefix("SYSTEM_COLUMNS").append(
-            and("TABLE_CAT", "=", catalog)).append(
-            and("TABLE_SCHEM", "LIKE", schemaPattern)).append(
-            and("TABLE_NAME", "LIKE", tableNamePattern)).append(
-            and("COLUMN_NAME", "LIKE", columnNamePattern));
+        StringBuilder sb = toQueryPrefix("SYSTEM_COLUMNS");
 
-        select.append(" ORDER BY TABLE_SCHEM, TABLE_NAME, ORDINAL_POSITION");
-        return execute(select.toString());
+        sb.append(and("TABLE_CAT", "=", catalog))
+          .append(and("TABLE_SCHEM", "LIKE", schemaPattern))
+          .append(and("TABLE_NAME", "LIKE", tableNamePattern))
+          .append(and("COLUMN_NAME", "LIKE", columnNamePattern))
+          .append(" ORDER BY TABLE_SCHEM, TABLE_NAME, ORDINAL_POSITION");
+
+        return execute(sb.toString());
     }
 
     /**
@@ -3379,12 +3413,17 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @throws SQLException if a database access error occurs
      * @see #getSearchStringEscape
      */
-    public ResultSet getColumnPrivileges(String catalog, String schema,
-            String table, String columnNamePattern) throws SQLException {
+    public ResultSet getColumnPrivileges(
+            String catalog,
+            String schema,
+            String table,
+            String columnNamePattern)
+            throws SQLException {
 
         if (table == null) {
             throw JDBCUtil.nullArgument("table");
         }
+
 /*
         if (wantsIsNull(columnNamePattern)) {
             return executeSelect("SYSTEM_COLUMNPRIVILEGES", "0=1");
@@ -3393,17 +3432,19 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        String sql =
-            "SELECT TABLE_CATALOG TABLE_CAT, TABLE_SCHEMA TABLE_SCHEM,"
-            + "TABLE_NAME, COLUMN_NAME, GRANTOR, GRANTEE, PRIVILEGE_TYPE PRIVILEGE, IS_GRANTABLE "
-            + "FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TRUE "
-            + and("TABLE_CATALOG", "=", catalog)
-            + and("TABLE_SCHEMA", "=", schema) + and("TABLE_NAME", "=", table)
-            + and("COLUMN_NAME", "LIKE", columnNamePattern)
-            + " ORDER BY COLUMN_NAME, PRIVILEGE"
-        ;
+        StringBuilder sb = new StringBuilder();
 
-        return execute(sql);
+        sb.append("SELECT TABLE_CATALOG TABLE_CAT, TABLE_SCHEMA TABLE_SCHEM,")
+          .append(
+              "TABLE_NAME, COLUMN_NAME, GRANTOR, GRANTEE, PRIVILEGE_TYPE PRIVILEGE, IS_GRANTABLE ")
+          .append("FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TRUE ")
+          .append(and("TABLE_CATALOG", "=", catalog))
+          .append(and("TABLE_SCHEMA", "=", schema))
+          .append(and("TABLE_NAME", "=", table))
+          .append(and("COLUMN_NAME", "LIKE", columnNamePattern))
+          .append(" ORDER BY COLUMN_NAME, PRIVILEGE");
+
+        return execute(sb.toString());
     }
 
     /**
@@ -3462,28 +3503,31 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @see #getSearchStringEscape
      */
     public ResultSet getTablePrivileges(
-            String catalog, String schemaPattern,
-            String tableNamePattern) throws SQLException {
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern)
+            throws SQLException {
 
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        String sql =
-            "SELECT TABLE_CATALOG TABLE_CAT, TABLE_SCHEMA TABLE_SCHEM,"
-            + "TABLE_NAME, GRANTOR, GRANTEE, PRIVILEGE_TYPE PRIVILEGE, IS_GRANTABLE "
-            + "FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES WHERE TRUE "
-            + and("TABLE_CATALOG", "=", catalog)
-            + and("TABLE_SCHEMA", "LIKE", schemaPattern)
-            + and("TABLE_NAME", "LIKE", tableNamePattern)
-            + " ORDER BY TABLE_SCHEM, TABLE_NAME, PRIVILEGE";
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("SELECT TABLE_CATALOG TABLE_CAT, TABLE_SCHEMA TABLE_SCHEM,")
+          .append(
+              "TABLE_NAME, GRANTOR, GRANTEE, PRIVILEGE_TYPE PRIVILEGE, IS_GRANTABLE ")
+          .append("FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES WHERE TRUE ")
+          .append(and("TABLE_CATALOG", "=", catalog))
+          .append(and("TABLE_SCHEMA", "LIKE", schemaPattern))
+          .append(and("TABLE_NAME", "LIKE", tableNamePattern))
+          .append(" ORDER BY TABLE_SCHEM, TABLE_NAME, PRIVILEGE");
 
 /*
         if (wantsIsNull(tableNamePattern)) {
             return executeSelect("SYSTEM_TABLEPRIVILEGES", "0=1");
         }
 */
-
-        return execute(sql);
+        return execute(sb.toString());
     }
 
     /**
@@ -3557,8 +3601,13 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @return {@code ResultSet} - each row is a column description
      * @throws SQLException if a database access error occurs
      */
-    public ResultSet getBestRowIdentifier(String catalog, String schema,
-            String table, int scope, boolean nullable) throws SQLException {
+    public ResultSet getBestRowIdentifier(
+            String catalog,
+            String schema,
+            String table,
+            int scope,
+            boolean nullable)
+            throws SQLException {
 
         if (table == null) {
             throw JDBCUtil.nullArgument("table");
@@ -3570,40 +3619,37 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
             case bestRowTemporary :
                 scopeIn = BRI_TEMPORARY_SCOPE_IN_LIST;
-
                 break;
+
             case bestRowTransaction :
                 scopeIn = BRI_TRANSACTION_SCOPE_IN_LIST;
-
                 break;
+
             case bestRowSession :
                 scopeIn = BRI_SESSION_SCOPE_IN_LIST;
-
                 break;
+
             default :
                 throw JDBCUtil.invalidArgument("scope");
         }
+
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        Integer Nullable = (nullable) ? null
-                                      : INT_COLUMNS_NO_NULLS;
-        StringBuilder select =
-                toQueryPrefix("SYSTEM_BESTROWIDENTIFIER").append(and("TABLE_CAT",
-                        "=", catalog)).append(and("TABLE_SCHEM", "=",
-                        schema)).append(and("TABLE_NAME", "=",
-                        table)).append(and("NULLABLE", "=",
-                        Nullable)).append(" AND SCOPE IN ").append(
-                        scopeIn);
+        Integer       Nullable = (nullable)
+                                 ? null
+                                 : INT_COLUMNS_NO_NULLS;
+        StringBuilder sb       = toQueryPrefix("SYSTEM_BESTROWIDENTIFIER");
 
-        // By default, query already returns rows in contract order.
-        // However, the way things are set up, there should never be
-        // a result where there is > 1 distinct scope value:  most requests
-        // will want only one table and the system table producer (for
-        // now) guarantees that a maximum of one BRI scope column set is
-        // produced for each table
-        select.append(" ORDER BY SCOPE");
-        return execute(select.toString());
+        sb.append(and("TABLE_CAT", "=", catalog))
+          .append(and("TABLE_SCHEM", "=", schema))
+          .append(and("TABLE_NAME", "=", table))
+          .append(and("NULLABLE", "=", Nullable))
+          .append(" AND SCOPE IN ")
+          .append(scopeIn)
+          .append(" ORDER BY SCOPE");
+
+        return execute(sb.toString());
     }
 
     /**
@@ -3664,22 +3710,27 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *         column description
      * @throws SQLException if a database access error occurs
      */
-    public ResultSet getVersionColumns(String catalog, String schema,
-                                       String table) throws SQLException {
+    public ResultSet getVersionColumns(
+            String catalog,
+            String schema,
+            String table)
+            throws SQLException {
 
         if (table == null) {
             throw JDBCUtil.nullArgument("table");
         }
+
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuilder select =
-            toQueryPrefix("SYSTEM_VERSIONCOLUMNS").append(and("TABLE_CAT",
-                "=", catalog)).append(and("TABLE_SCHEM", "=",
-                    schema)).append(and("TABLE_NAME", "=", table));
+        StringBuilder sb = toQueryPrefix("SYSTEM_VERSIONCOLUMNS");
+
+        sb.append(and("TABLE_CAT", "=", catalog))
+          .append(and("TABLE_SCHEM", "=", schema))
+          .append(and("TABLE_NAME", "=", table));
 
         // result does not need to be ordered
-        return execute(select.toString());
+        return execute(sb.toString());
     }
 
     /**
@@ -3728,24 +3779,27 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @see #supportsMixedCaseQuotedIdentifiers
      * @see #storesUpperCaseIdentifiers
      */
-    public ResultSet getPrimaryKeys(String catalog, String schema,
-                                    String table) throws SQLException {
+    public ResultSet getPrimaryKeys(
+            String catalog,
+            String schema,
+            String table)
+            throws SQLException {
 
         if (table == null) {
             throw JDBCUtil.nullArgument("table");
         }
+
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuilder select =
-            toQueryPrefix("SYSTEM_PRIMARYKEYS").append(and("TABLE_CAT", "=",
-                catalog)).append(and("TABLE_SCHEM", "=",
-                                     schema)).append(and("TABLE_NAME", "=",
-                                         table));
+        StringBuilder sb = toQueryPrefix("SYSTEM_PRIMARYKEYS");
 
-        select.append(" ORDER BY COLUMN_NAME");
+        sb.append(and("TABLE_CAT", "=", catalog))
+          .append(and("TABLE_SCHEM", "=", schema))
+          .append(and("TABLE_NAME", "=", table))
+          .append(" ORDER BY COLUMN_NAME");
 
-        return execute(select.toString());
+        return execute(sb.toString());
     }
 
     /**
@@ -3840,22 +3894,28 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @see #supportsMixedCaseQuotedIdentifiers
      * @see #storesUpperCaseIdentifiers
      */
-    public ResultSet getImportedKeys(String catalog, String schema,
-                                     String table) throws SQLException {
+    public ResultSet getImportedKeys(
+            String catalog,
+            String schema,
+            String table)
+            throws SQLException {
 
         if (table == null) {
             throw JDBCUtil.nullArgument("table");
         }
+
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuilder select = toQueryPrefix("SYSTEM_CROSSREFERENCE").append(
-            and("FKTABLE_CAT", "=", catalog)).append(
-            and("FKTABLE_SCHEM", "=", schema)).append(
-            and("FKTABLE_NAME", "=", table)).append(
-            " ORDER BY PKTABLE_CAT, PKTABLE_SCHEM, PKTABLE_NAME, KEY_SEQ");
+        StringBuilder sb = toQueryPrefix("SYSTEM_CROSSREFERENCE");
 
-        return execute(select.toString());
+        sb.append(and("FKTABLE_CAT", "=", catalog))
+          .append(and("FKTABLE_SCHEM", "=", schema))
+          .append(and("FKTABLE_NAME", "=", table))
+          .append(
+              " ORDER BY PKTABLE_CAT, PKTABLE_SCHEM, PKTABLE_NAME, KEY_SEQ");
+
+        return execute(sb.toString());
     }
 
     /**
@@ -3951,22 +4011,28 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @see #supportsMixedCaseQuotedIdentifiers
      * @see #storesUpperCaseIdentifiers
      */
-    public ResultSet getExportedKeys(String catalog, String schema,
-                                     String table) throws SQLException {
+    public ResultSet getExportedKeys(
+            String catalog,
+            String schema,
+            String table)
+            throws SQLException {
 
         if (table == null) {
             throw JDBCUtil.nullArgument("table");
         }
+
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuilder select =
-            toQueryPrefix("SYSTEM_CROSSREFERENCE").append(and("PKTABLE_CAT",
-                "=", catalog)).append(and("PKTABLE_SCHEM", "=",
-                    schema)).append(and("PKTABLE_NAME", "=", table));
+        StringBuilder sb = toQueryPrefix("SYSTEM_CROSSREFERENCE");
 
-        select.append(" ORDER BY FKTABLE_CAT, FKTABLE_SCHEM, FKTABLE_NAME, KEY_SEQ");
-        return execute(select.toString());
+        sb.append(and("PKTABLE_CAT", "=", catalog))
+          .append(and("PKTABLE_SCHEM", "=", schema))
+          .append(and("PKTABLE_NAME", "=", table))
+          .append(
+              " ORDER BY FKTABLE_CAT, FKTABLE_SCHEM, FKTABLE_NAME, KEY_SEQ");
+
+        return execute(sb.toString());
     }
 
     /**
@@ -4070,9 +4136,13 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @see #storesUpperCaseIdentifiers
      */
     public ResultSet getCrossReference(
-            String parentCatalog, String parentSchema, String parentTable,
-            String foreignCatalog, String foreignSchema,
-            String foreignTable) throws SQLException {
+            String parentCatalog,
+            String parentSchema,
+            String parentTable,
+            String foreignCatalog,
+            String foreignSchema,
+            String foreignTable)
+            throws SQLException {
 
         if (parentTable == null) {
             throw JDBCUtil.nullArgument("parentTable");
@@ -4081,22 +4151,24 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         if (foreignTable == null) {
             throw JDBCUtil.nullArgument("foreignTable");
         }
+
         parentCatalog  = translateCatalog(parentCatalog);
         foreignCatalog = translateCatalog(foreignCatalog);
         parentSchema   = translateSchema(parentSchema);
         foreignSchema  = translateSchema(foreignSchema);
 
-        StringBuilder select =
-            toQueryPrefix("SYSTEM_CROSSREFERENCE").append(and("PKTABLE_CAT",
-                "=", parentCatalog)).append(and("PKTABLE_SCHEM", "=",
-                    parentSchema)).append(and("PKTABLE_NAME", "=",
-                        parentTable)).append(and("FKTABLE_CAT", "=",
-                            foreignCatalog)).append(and("FKTABLE_SCHEM", "=",
-                                foreignSchema)).append(and("FKTABLE_NAME",
-                                    "=", foreignTable));
+        StringBuilder sb = toQueryPrefix("SYSTEM_CROSSREFERENCE");
 
-        select.append(" ORDER BY FKTABLE_CAT, FKTABLE_SCHEM, FKTABLE_NAME, KEY_SEQ");
-        return execute(select.toString());
+        sb.append(and("PKTABLE_CAT", "=", parentCatalog))
+          .append(and("PKTABLE_SCHEM", "=", parentSchema))
+          .append(and("PKTABLE_NAME", "=", parentTable))
+          .append(and("FKTABLE_CAT", "=", foreignCatalog))
+          .append(and("FKTABLE_SCHEM", "=", foreignSchema))
+          .append(and("FKTABLE_NAME", "=", foreignTable))
+          .append(
+              " ORDER BY FKTABLE_CAT, FKTABLE_SCHEM, FKTABLE_NAME, KEY_SEQ");
+
+        return execute(sb.toString());
     }
 
     /**
@@ -4249,27 +4321,33 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @return {@code ResultSet} - each row is an index column description
      * @throws SQLException if a database access error occurs
      */
-    public ResultSet getIndexInfo(String catalog, String schema, String table,
-                                  boolean unique,
-                                  boolean approximate) throws SQLException {
+    public ResultSet getIndexInfo(
+            String catalog,
+            String schema,
+            String table,
+            boolean unique,
+            boolean approximate)
+            throws SQLException {
 
         if (table == null) {
             throw JDBCUtil.nullArgument("table");
         }
+
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        Boolean nu = (unique) ? Boolean.FALSE
-                              : null;
-        StringBuilder select =
-            toQueryPrefix("SYSTEM_INDEXINFO").append(and("TABLE_CAT", "=",
-                catalog)).append(and("TABLE_SCHEM", "=",
-                                     schema)).append(and("TABLE_NAME", "=",
-                                         table)).append(and("NON_UNIQUE", "=",
-                                             nu));
+        Boolean       nu = (unique)
+                           ? Boolean.FALSE
+                           : null;
+        StringBuilder sb = toQueryPrefix("SYSTEM_INDEXINFO");
 
-        select.append(" ORDER BY NON_UNIQUE, TYPE, INDEX_NAME, ORDINAL_POSITION");
-        return execute(select.toString());
+        sb.append(and("TABLE_CAT", "=", catalog))
+          .append(and("TABLE_SCHEM", "=", schema))
+          .append(and("TABLE_NAME", "=", table))
+          .append(and("NON_UNIQUE", "=", nu))
+          .append(" ORDER BY NON_UNIQUE, TYPE, INDEX_NAME, ORDINAL_POSITION");
+
+        return execute(sb.toString());
     }
 
     //--------------------------JDBC 2.0-----------------------------
@@ -4299,9 +4377,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @see JDBCConnection
      * @since  JDK 1.2
      */
-    public boolean supportsResultSetConcurrency(int type,
-            int concurrency) throws SQLException {
-
+    public boolean supportsResultSetConcurrency(
+            int type,
+            int concurrency)
+            throws SQLException {
         return supportsResultSetType(type)
                && (concurrency == ResultSet.CONCUR_READ_ONLY
                    || concurrency == ResultSet.CONCUR_UPDATABLE);
@@ -4620,33 +4699,39 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @see #getSearchStringEscape
      * @since JDK 1.2
      */
-    public ResultSet getUDTs(String catalog, String schemaPattern,
-                             String typeNamePattern,
-                             int[] types) throws SQLException {
+    public ResultSet getUDTs(
+            String catalog,
+            String schemaPattern,
+            String typeNamePattern,
+            int[] types)
+            throws SQLException {
 
         if (wantsIsNull(typeNamePattern)
                 || (types != null && types.length == 0)) {
             executeSelect("SYSTEM_UDTS", "0=1");
         }
+
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuilder select =
-            toQueryPrefix("SYSTEM_UDTS").append(and("TYPE_CAT", "=",
-                catalog)).append(and("TYPE_SCHEM", "LIKE",
-                                     schemaPattern)).append(and("TYPE_NAME",
-                                         "LIKE", typeNamePattern));
+        StringBuilder sb = toQueryPrefix("SYSTEM_UDTS");
+
+        sb.append(and("TYPE_CAT", "=", catalog))
+          .append(and("TYPE_SCHEM", "LIKE", schemaPattern))
+          .append(and("TYPE_NAME", "LIKE", typeNamePattern));
 
         if (types == null) {
 
             // do not use to narrow search
         } else {
-            select.append(" AND DATA_TYPE IN (").append(
-                StringUtil.getList(types, ",", "")).append(')');
+            sb.append(" AND DATA_TYPE IN (")
+              .append(StringUtil.getList(types, ",", ""))
+              .append(')');
         }
 
-        select.append(" ORDER BY DATA_TYPE, TYPE_CAT, TYPE_SCHEM, TYPE_NAME");
-        return execute(select.toString());
+        sb.append(" ORDER BY DATA_TYPE, TYPE_CAT, TYPE_SCHEM, TYPE_NAME");
+
+        return execute(sb.toString());
     }
 
     /**
@@ -4812,27 +4897,36 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since JDK 1.4, HSQLDB 1.7
      */
     public ResultSet getSuperTypes(
-            String catalog, String schemaPattern,
-            String typeNamePattern) throws SQLException {
+            String catalog,
+            String schemaPattern,
+            String typeNamePattern)
+            throws SQLException {
 
         if (wantsIsNull(typeNamePattern)) {
             return executeSelect("SYSTEM_SUPERTYPES", "0=1");
         }
+
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuilder select = toQueryPrefixNoSelect(
-            "SELECT * FROM (SELECT USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME,"
-            + "CAST (NULL AS INFORMATION_SCHEMA.SQL_IDENTIFIER), CAST (NULL AS INFORMATION_SCHEMA.SQL_IDENTIFIER), DATA_TYPE "
-            + "FROM INFORMATION_SCHEMA.USER_DEFINED_TYPES "
-            + "UNION SELECT DOMAIN_CATALOG, DOMAIN_SCHEMA, DOMAIN_NAME,NULL,NULL, DATA_TYPE "
-            + "FROM INFORMATION_SCHEMA.DOMAINS) "
-            + "AS SUPERTYPES(TYPE_CAT, TYPE_SCHEM, TYPE_NAME, SUPERTYPE_CAT, SUPERTYPE_SCHEM, SUPERTYPE_NAME) ").append(
-                and("TYPE_CAT", "=", catalog)).append(
-                and("TYPE_SCHEM", "LIKE", schemaPattern)).append(
-                and("TYPE_NAME", "LIKE", typeNamePattern));
+        StringBuilder sb = new StringBuilder();
 
-        return execute(select.toString());
+        sb.append(
+            "SELECT * FROM (SELECT USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME,")
+          .append(
+              "CAST (NULL AS INFORMATION_SCHEMA.SQL_IDENTIFIER), CAST (NULL AS INFORMATION_SCHEMA.SQL_IDENTIFIER), DATA_TYPE ")
+          .append("FROM INFORMATION_SCHEMA.USER_DEFINED_TYPES ")
+          .append(
+              "UNION SELECT DOMAIN_CATALOG, DOMAIN_SCHEMA, DOMAIN_NAME,NULL,NULL, DATA_TYPE ")
+          .append("FROM INFORMATION_SCHEMA.DOMAINS) ")
+          .append(
+              "AS SUPERTYPES(TYPE_CAT, TYPE_SCHEM, TYPE_NAME, SUPERTYPE_CAT, SUPERTYPE_SCHEM, SUPERTYPE_NAME) ")
+          .append(whereTrue)
+          .append(and("TYPE_CAT", "=", catalog))
+          .append(and("TYPE_SCHEM", "LIKE", schemaPattern))
+          .append(and("TYPE_NAME", "LIKE", typeNamePattern));
+
+        return execute(sb.toString());
     }
 
     /**
@@ -4879,16 +4973,21 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since JDK 1.4, HSQLDB 1.7
      */
     public ResultSet getSuperTables(
-            String catalog, String schemaPattern,
-            String tableNamePattern) throws SQLException {
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern)
+            throws SQLException {
 
         // query with no result
-        StringBuilder select = toQueryPrefixNoSelect(
-            "SELECT TABLE_NAME AS TABLE_CAT, TABLE_NAME AS TABLE_SCHEM, TABLE_NAME, TABLE_NAME AS SUPERTABLE_NAME "
-            + "FROM INFORMATION_SCHEMA.TABLES ").append(
-                and("TABLE_NAME", "=", ""));
+        StringBuilder sb = new StringBuilder();
 
-        return execute(select.toString());
+        sb.append(
+            "SELECT TABLE_NAME AS TABLE_CAT, TABLE_NAME AS TABLE_SCHEM, TABLE_NAME, TABLE_NAME AS SUPERTABLE_NAME ")
+          .append("FROM INFORMATION_SCHEMA.TABLES ")
+          .append(whereTrue)
+          .append(and("TABLE_NAME", "=", ""));
+
+        return execute(sb.toString());
     }
 
     /**
@@ -4980,23 +5079,28 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since JDK 1.4, HSQLDB 1.7
      */
     public ResultSet getAttributes(
-            String catalog, String schemaPattern, String typeNamePattern,
-            String attributeNamePattern) throws SQLException {
+            String catalog,
+            String schemaPattern,
+            String typeNamePattern,
+            String attributeNamePattern)
+            throws SQLException {
 
-        if (wantsIsNull(typeNamePattern)
-                || wantsIsNull(attributeNamePattern)) {
+        if (wantsIsNull(typeNamePattern) || wantsIsNull(attributeNamePattern)) {
             return executeSelect("SYSTEM_UDTATTRIBUTES", "0=1");
         }
+
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuilder select = toQueryPrefix("SYSTEM_UDTATTRIBUTES").append(
-            and("TYPE_CAT", "=", catalog)).append(
-            and("TYPE_SCHEM", "LIKE", schemaPattern)).append(
-            and("TYPE_NAME", "LIKE", typeNamePattern)).append(
-            and("ATTR_NAME", "LIKE", attributeNamePattern));
+        StringBuilder sb = toQueryPrefix("SYSTEM_UDTATTRIBUTES");
 
-        select.append(" ORDER BY TYPE_CAT, TYPE_SCHEM, TYPE_NAME, ORDINAL_POSITION");
-        return execute(select.toString());
+        sb.append(and("TYPE_CAT", "=", catalog))
+          .append(and("TYPE_SCHEM", "LIKE", schemaPattern))
+          .append(and("TYPE_NAME", "LIKE", typeNamePattern))
+          .append(and("ATTR_NAME", "LIKE", attributeNamePattern))
+          .append(
+              " ORDER BY TYPE_CAT, TYPE_SCHEM, TYPE_NAME, ORDINAL_POSITION");
+
+        return execute(sb.toString());
     }
 
     /**
@@ -5019,7 +5123,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since JDK 1.4, HSQLDB 1.7
      */
     public boolean supportsResultSetHoldability(
-            int holdability) throws SQLException {
+            int holdability)
+            throws SQLException {
         return holdability == ResultSet.HOLD_CURSORS_OVER_COMMIT
                || holdability == ResultSet.CLOSE_CURSORS_AT_COMMIT;
     }
@@ -5232,15 +5337,17 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @see #getSearchStringEscape
      * @since JDK 1.6, HSQLDB 1.9
      */
-    public ResultSet getSchemas(String catalog,
-                                String schemaPattern) throws SQLException {
+    public ResultSet getSchemas(
+            String catalog,
+            String schemaPattern)
+            throws SQLException {
 
-        StringBuilder select =
-            toQueryPrefix("SYSTEM_SCHEMAS").append(and("TABLE_CATALOG", "=",
-                catalog)).append(and("TABLE_SCHEM", "LIKE", schemaPattern));
+        StringBuilder sb = toQueryPrefix(
+            "SYSTEM_SCHEMAS").append(and("TABLE_CATALOG", "=", catalog))
+                             .append(and("TABLE_SCHEM", "LIKE", schemaPattern))
+                             .append(" ORDER BY TABLE_CATALOG, TABLE_SCHEM");
 
-        select.append(" ORDER BY TABLE_CATALOG, TABLE_SCHEM");
-        return execute(select.toString());
+        return execute(sb.toString());
     }
 
     /**
@@ -5251,7 +5358,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @throws SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 1.9
      */
-    public boolean supportsStoredFunctionsUsingCallSyntax() throws SQLException {
+    public boolean supportsStoredFunctionsUsingCallSyntax()
+            throws SQLException {
         return true;
     }
 
@@ -5351,29 +5459,34 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since JDK 1.6, HSQLDB 1.9
      */
     public ResultSet getFunctions(
-            String catalog, String schemaPattern,
-            String functionNamePattern) throws SQLException {
+            String catalog,
+            String schemaPattern,
+            String functionNamePattern)
+            throws SQLException {
 
-        String baseSelect = "select " +
-            "sp.procedure_cat as FUNCTION_CAT," +
-            "sp.procedure_schem as FUNCTION_SCHEM," +
-            "sp.procedure_name as FUNCTION_NAME," +
-            "sp.remarks as REMARKS," +
-            "sp.function_type as FUNCTION_TYPE," +
-            "sp.specific_name as SPECIFIC_NAME " +
-            "from information_schema.system_procedures sp " +
-            "where sp.procedure_type = 2 ";
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("select ")
+          .append("sp.procedure_cat as FUNCTION_CAT,")
+          .append("sp.procedure_schem as FUNCTION_SCHEM,")
+          .append("sp.procedure_name as FUNCTION_NAME,")
+          .append("sp.remarks as REMARKS,")
+          .append("sp.function_type as FUNCTION_TYPE,")
+          .append("sp.specific_name as SPECIFIC_NAME ")
+          .append("from information_schema.system_procedures sp ")
+          .append("where sp.procedure_type = 2 ");
 
         if (wantsIsNull(functionNamePattern)) {
-            return execute(baseSelect + "and 1=0");
+            sb.append("and 1=0");
+
+            return execute(sb.toString());
         }
+
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuilder sb = new StringBuilder(baseSelect);
-        sb.append(and("sp.procedure_cat", "=",
-                      catalog)).append(and("sp.procedure_schem", "LIKE",
-                          schemaPattern)).append(and("sp.procedure_name",
-                              "LIKE", functionNamePattern));
+        sb.append(and("sp.procedure_cat", "=", catalog))
+          .append(and("sp.procedure_schem", "LIKE", schemaPattern))
+          .append(and("sp.procedure_name", "LIKE", functionNamePattern));
 
         // By default, query already returns the result ordered by
         // FUNCTION_SCHEM, FUNCTION_NAME...
@@ -5475,48 +5588,66 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since JDK 1.6, HSQLDB 1.9
      */
     public ResultSet getFunctionColumns(
-            String catalog, String schemaPattern, String functionNamePattern,
-            String columnNamePattern) throws SQLException {
+            String catalog,
+            String schemaPattern,
+            String functionNamePattern,
+            String columnNamePattern)
+            throws SQLException {
 
         StringBuilder sb = new StringBuilder(256);
 
-        sb.append("select pc.procedure_cat as FUNCTION_CAT,").append(
-            "pc.procedure_schem as FUNCTION_SCHEM,").append(
-            "pc.procedure_name as FUNCTION_NAME,").append(
-            "pc.column_name as COLUMN_NAME,").append(
-            "case pc.column_type").append(" when 3 then 5").append(
-            " when 4 then 3").append(" when 5 then 4").append(
-            " else pc.column_type").append(" end as COLUMN_TYPE,").append(
-            "pc.DATA_TYPE,").append("pc.TYPE_NAME,").append(
-            "pc.PRECISION,").append("pc.LENGTH,").append("pc.SCALE,").append(
-            "pc.RADIX,").append("pc.NULLABLE,").append("pc.REMARKS,").append(
-            "pc.CHAR_OCTET_LENGTH,").append("pc.ORDINAL_POSITION,").append(
-            "pc.IS_NULLABLE,").append("pc.SPECIFIC_NAME,").append(
-            "case pc.column_type").append(" when 3 then 1").append(
-            " else 0").append(" end AS COLUMN_GROUP ").append(
-            "from information_schema.system_procedurecolumns pc ").append(
-            "join (select procedure_schem,").append("procedure_name,").append(
-            "specific_name ").append(
-            "from information_schema.system_procedures ").append(
-            "where procedure_type = 2) p ").append(
-            "on pc.procedure_schem = p.procedure_schem ").append(
-            "and pc.procedure_name = p.procedure_name ").append(
-            "and pc.specific_name = p.specific_name ").append(
-            "and ((pc.column_type = 3 and pc.column_name = '@p0') ").append(
-            "or ").append("(pc.column_type <> 3)) ");
+        sb.append("select pc.procedure_cat as FUNCTION_CAT,")
+          .append("pc.procedure_schem as FUNCTION_SCHEM,")
+          .append("pc.procedure_name as FUNCTION_NAME,")
+          .append("pc.column_name as COLUMN_NAME,")
+          .append("case pc.column_type")
+          .append(" when 3 then 5")
+          .append(" when 4 then 3")
+          .append(" when 5 then 4")
+          .append(" else pc.column_type")
+          .append(" end as COLUMN_TYPE,")
+          .append("pc.DATA_TYPE,")
+          .append("pc.TYPE_NAME,")
+          .append("pc.PRECISION,")
+          .append("pc.LENGTH,")
+          .append("pc.SCALE,")
+          .append("pc.RADIX,")
+          .append("pc.NULLABLE,")
+          .append("pc.REMARKS,")
+          .append("pc.CHAR_OCTET_LENGTH,")
+          .append("pc.ORDINAL_POSITION,")
+          .append("pc.IS_NULLABLE,")
+          .append("pc.SPECIFIC_NAME,")
+          .append("case pc.column_type")
+          .append(" when 3 then 1")
+          .append(" else 0")
+          .append(" end AS COLUMN_GROUP ")
+          .append("from information_schema.system_procedurecolumns pc ")
+          .append("join (select procedure_schem,")
+          .append("procedure_name,")
+          .append("specific_name ")
+          .append("from information_schema.system_procedures ")
+          .append("where procedure_type = 2) p ")
+          .append("on pc.procedure_schem = p.procedure_schem ")
+          .append("and pc.procedure_name = p.procedure_name ")
+          .append("and pc.specific_name = p.specific_name ")
+          .append("and ((pc.column_type = 3 and pc.column_name = '@p0') ")
+          .append("or ")
+          .append("(pc.column_type <> 3)) ");
 
         if (wantsIsNull(functionNamePattern)
                 || wantsIsNull(columnNamePattern)) {
             return execute(sb.append("where 1=0").toString());
         }
+
         schemaPattern = translateSchema(schemaPattern);
 
-        sb.append("where 1=1 ").append(
-            and("pc.procedure_cat", "=", catalog)).append(
-            and("pc.procedure_schem", "LIKE", schemaPattern)).append(
-            and("pc.procedure_name", "LIKE", functionNamePattern)).append(
-            and("pc.column_name", "LIKE", columnNamePattern)).append(
-            " order by 1, 2, 3, 17, 18 , 15");
+        sb.append("where 1=1 ")
+          .append(and("pc.procedure_cat", "=", catalog))
+          .append(and("pc.procedure_schem", "LIKE", schemaPattern))
+          .append(and("pc.procedure_name", "LIKE", functionNamePattern))
+          .append(and("pc.column_name", "LIKE", columnNamePattern))
+          .append(" order by 1, 2, 3, 17, 18 , 15");
 
         // Order by FUNCTION_CAT, FUNCTION_SCHEM, FUNCTION_NAME, SPECIFIC_NAME
         //      COLUMN_GROUP and ORDINAL_POSITION
@@ -5538,7 +5669,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since JDK 1.6, HSQLDB 1.9
      */
     @SuppressWarnings("unchecked")
-    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
         if (isWrapperFor(iface)) {
             return (T) this;
@@ -5563,7 +5694,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since JDK 1.6, HSQLDB 1.9
      */
     public boolean isWrapperFor(
-            java.lang.Class<?> iface) throws java.sql.SQLException {
+            java.lang.Class<?> iface)
+            throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
@@ -5632,8 +5764,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since JDK 1.7, HSQLDB 2.0.1
      */
     public ResultSet getPseudoColumns(
-            String catalog, String schemaPattern, String tableNamePattern,
-            String columnNamePattern) throws SQLException {
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern,
+            String columnNamePattern)
+            throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
@@ -5703,8 +5838,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * NULL related properties are updated on each call.
      */
     private boolean concatNulls = true;
-    private boolean nullsFirst = true;
-    private boolean nullsOrder = true;
+    private boolean nullsFirst  = true;
+    private boolean nullsOrder  = true;
 
     /**
      * A CSV list representing the SQL IN list to use when generating
@@ -5751,13 +5886,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * conjunction:  we just stick additional conjunctive predicates on the
      * end of this and Presto! Everything works :-)
      */
-    private static final String whereTrue = " WHERE TRUE";
-
-    public static final int JDBC_MAJOR = 4;
-
-    public static final int JDBC_MINOR = 2;
-
-    public static final String THIS_VERSION = HsqlDatabaseProperties.THIS_VERSION;
+    private static final String whereTrue  = " WHERE TRUE";
+    public static final int     JDBC_MAJOR = 4;
+    public static final int     JDBC_MINOR = 2;
+    public static final String THIS_VERSION =
+        HsqlDatabaseProperties.THIS_VERSION;
 
     /**
      * Constructs a new {@code JDBCDatabaseMetaData} object using the
@@ -5853,8 +5986,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             return sb.append(" AND ").append(id).append(" IS NULL").toString();
         }
 
-        String v = isStr ? Type.SQL_VARCHAR.convertToSQLString(val)
-                         : String.valueOf(val);
+        String v = isStr
+                   ? Type.SQL_VARCHAR.convertToSQLString(val)
+                   : String.valueOf(val);
 
         sb.append(" AND ").append(id).append(' ');
 
@@ -5906,7 +6040,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         // next, causing the JDBCResultSet's Result object to be nullified
         final int scroll = ResultSet.TYPE_SCROLL_INSENSITIVE;
         final int concur = ResultSet.CONCUR_READ_ONLY;
-        JDBCStatement st = (JDBCStatement) connection.createStatement(scroll,
+        JDBCStatement st = (JDBCStatement) connection.createStatement(
+            scroll,
             concur);
 
         st.maxRows = -1;
@@ -5932,8 +6067,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @param where the where condition for the select
      * @throws SQLException if database error occurs
      */
-    private ResultSet executeSelect(String table,
-                                    String where) throws SQLException {
+    private ResultSet executeSelect(
+            String table,
+            String where)
+            throws SQLException {
 
         String select = selstar + table;
 
@@ -5957,20 +6094,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @param t the name of the table
      */
     private StringBuilder toQueryPrefix(String t) {
-
         StringBuilder sb = new StringBuilder(255);
 
         return sb.append(selstar).append(t).append(whereTrue);
-    }
-
-    /**
-     * Retrieves "&lt;expression&gt; WHERE 1=1" in string
-     */
-    private StringBuilder toQueryPrefixNoSelect(String t) {
-
-        StringBuilder sb = new StringBuilder(255);
-
-        return sb.append(t).append(whereTrue);
     }
 
     /**
@@ -5987,23 +6113,21 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     }
 
     private void setCurrentProperties() throws SQLException {
-        ResultSet rs = executeSelect("SYSTEM_PROPERTIES",
-           "PROPERTY_NAME IN "+
-           "('sql.concat_nulls', 'sql.nulls_first' , 'sql.nulls_order')");
 
-        while(rs.next()) {
-            String prop = rs.getString(2);
+        ResultSet rs = executeSelect(
+            "SYSTEM_PROPERTIES",
+            "PROPERTY_NAME IN "
+            + "('sql.concat_nulls', 'sql.nulls_first' , 'sql.nulls_order')");
+
+        while (rs.next()) {
+            String  prop  = rs.getString(2);
             boolean value = Boolean.valueOf(rs.getString(3));
 
             if (prop.equals("sql.concat_nulls")) {
                 concatNulls = value;
-            } else
-
-            if (prop.equals("sql.nulls_first")) {
+            } else if (prop.equals("sql.nulls_first")) {
                 nullsFirst = value;
-            } else
-
-            if (prop.equals("sql.nulls_order")) {
+            } else if (prop.equals("sql.nulls_order")) {
                 nullsOrder = value;
             }
         }
@@ -6018,8 +6142,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     public String getDatabaseDefaultCollation() {
 
         String value = null;
+
         try {
-            ResultSet rs = executeSelect("SYSTEM_PROPERTIES",
+            ResultSet rs = executeSelect(
+                "SYSTEM_PROPERTIES",
                 "PROPERTY_NAME = 'sql.default_collation'");
 
             if (rs.next()) {
@@ -6027,8 +6153,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             }
 
             rs.close();
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         return value;
     }
@@ -6038,12 +6163,13 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
     String getDatabaseDefaultSchema() throws SQLException {
 
-        final ResultSet rs = executeSelect("SYSTEM_SCHEMAS",
-            "IS_DEFAULT=TRUE");
+        final ResultSet rs = executeSelect("SYSTEM_SCHEMAS", "IS_DEFAULT=TRUE");
+        String          value = rs.next()
+                                ? rs.getString(1)
+                                : null;
 
-        String value = rs.next() ? rs.getString(1)
-                         : null;
         rs.close();
+
         return value;
     }
 
@@ -6062,9 +6188,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
     void setConnectionDefaultSchema(String schemaName) throws SQLException {
 
-        execute("SET SCHEMA "
-                + StringConverter.toQuotedString(schemaName,
-                    '"', true));
+        execute(
+            "SET SCHEMA " + StringConverter.toQuotedString(schemaName,
+                    '"',
+                    true));
     }
 
     /**
@@ -6074,8 +6201,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
     private String translateSchema(String schemaName) throws SQLException {
 
-        if (useSchemaDefault && schemaName != null
-                && schemaName.isEmpty()) {
+        if (useSchemaDefault && schemaName != null && schemaName.isEmpty()) {
             final String result = getDatabaseDefaultSchema();
 
             if (result != null) {
@@ -6091,12 +6217,13 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
     String getDatabaseDefaultCatalog() throws SQLException {
 
-        final ResultSet rs = executeSelect("SYSTEM_SCHEMAS",
-            "IS_DEFAULT=TRUE");
+        final ResultSet rs = executeSelect("SYSTEM_SCHEMAS", "IS_DEFAULT=TRUE");
+        String          value = rs.next()
+                                ? rs.getString(2)
+                                : null;
 
-        String value = rs.next() ? rs.getString(2)
-                         : null;
         rs.close();
+
         return value;
     }
 
@@ -6107,8 +6234,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
     private String translateCatalog(String catalogName) throws SQLException {
 
-        if (useSchemaDefault && catalogName != null
-                && catalogName.isEmpty()) {
+        if (useSchemaDefault && catalogName != null && catalogName.isEmpty()) {
             String result = getDatabaseDefaultCatalog();
 
             if (result != null) {

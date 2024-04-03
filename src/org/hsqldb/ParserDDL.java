@@ -103,13 +103,6 @@ public class ParserDDL extends ParserRoutine {
                 break;
 
             case Tokens.TEMP :
-                read();
-                readThis(Tokens.TABLE);
-
-                isTable   = true;
-                tableType = TableBase.TEMP_TABLE;
-                break;
-
             case Tokens.TEMPORARY :
                 read();
                 readThis(Tokens.TABLE);
@@ -1862,13 +1855,6 @@ public class ParserDDL extends ParserRoutine {
                             break;
 
                         case Tokens.FUNCTION :
-                            statementType = StatementTypes.CREATE_ROUTINE;
-                            sql = getStatementForRoutine(
-                                position,
-                                startStatementTokensSchema);
-                            cs = new StatementSchema(sql, statementType);
-                            break;
-
                         case Tokens.PROCEDURE :
                             statementType = StatementTypes.CREATE_ROUTINE;
                             sql = getStatementForRoutine(

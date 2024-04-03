@@ -325,7 +325,6 @@ public class Result {
                 }
 
                 hasLob = true;
-                continue;
             } else if (addedResultMode == ResultConstants.NONE) {
                 break;
             } else {
@@ -1688,8 +1687,7 @@ public class Result {
     private static void writeSimple(
             RowOutputInterface out,
             ResultMetaData meta,
-            Object[] data)
-            throws IOException {
+            Object[] data) {
 
         out.writeInt(1);
         out.writeData(

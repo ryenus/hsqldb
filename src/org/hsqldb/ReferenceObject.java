@@ -83,7 +83,7 @@ public class ReferenceObject implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_CREATE)
           .append(' ')

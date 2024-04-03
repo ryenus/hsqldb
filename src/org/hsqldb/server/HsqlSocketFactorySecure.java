@@ -378,7 +378,7 @@ public final class HsqlSocketFactorySecure extends HsqlSocketFactory
             ? end
             : DN.length());
 
-        if (CN.length() < 1) {
+        if (CN.isEmpty()) {
             throw new UnknownHostException(
                 Error.getMessage(ErrorCode.M_SERVER_SECURE_VERIFY_2));
         }

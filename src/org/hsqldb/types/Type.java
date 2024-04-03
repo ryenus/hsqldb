@@ -557,7 +557,7 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     /**
      * Result type of combining values of two types in different operations.
-     * other type is not always comparable with this, but a operation should
+     * The other type is not always comparable with this, but an operation should
      * be valid without any explicit CAST
      */
     public abstract Type getCombinedType(

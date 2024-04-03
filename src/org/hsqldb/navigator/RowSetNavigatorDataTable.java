@@ -249,7 +249,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         currentRow = iterator.getCurrentRow();
 
-        return result;
+        return true;
     }
 
     public void removeCurrent() {

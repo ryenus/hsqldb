@@ -1424,13 +1424,10 @@ public class DataFileCache {
     private void logSevereEvent(String message, Throwable t, long position) {
 
         if (logEvents) {
-            StringBuilder sb = new StringBuilder(message);
+            StringBuilder sb = new StringBuilder();
 
-            sb.append(' ').append(position);
-
-            message = sb.toString();
-
-            database.logger.logSevereEvent(message, t);
+            sb.append(message).append(' ').append(position);
+            database.logger.logSevereEvent(sb.toString(), t);
         }
     }
 

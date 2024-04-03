@@ -479,7 +479,6 @@ public class RCData {
         // Debug:
         // System.err.println("TI set to " + ti + "\nPOST: "
         // + SqlTool.tiToString(c.getTransactionIsolation()));
-
         return c;
     }
 

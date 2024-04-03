@@ -100,7 +100,7 @@ import org.hsqldb.rowio.RowOutputBinary;
 // fredt@users 20041112 - patch by William Crick - use web_inf directory
 
 /**
- * Servlet can act as an interface between the client and the database for the
+ * Servlet can act as an interface between the client and the database for
  * the client / server mode of HSQL Database Engine. It uses the HTTP protocol
  * for communication. This class is not required if the included HSQLDB
  * Weberver is used on the server host. But if the host is running a J2EE
@@ -211,12 +211,11 @@ public class Servlet extends HttpServlet {
     public void doGet(
             HttpServletRequest request,
             HttpServletResponse response)
-            throws IOException,
-                   ServletException {
+            throws IOException {
 
         String query = request.getQueryString();
 
-        if ((query == null) || (query.length() == 0)) {
+        if (query == null || query.isEmpty()) {
             response.setContentType("text/html");
 
             // fredt@users 20020130 - patch 1.7.0 by fredt
@@ -246,8 +245,7 @@ public class Servlet extends HttpServlet {
     public void doPost(
             HttpServletRequest request,
             HttpServletResponse response)
-            throws IOException,
-                   ServletException {
+            throws IOException {
 
         DataInputStream  inStream = null;
         DataOutputStream dataOut  = null;
@@ -285,7 +283,7 @@ public class Servlet extends HttpServlet {
             } else if (type == ResultConstants.DISCONNECT
                        || type == ResultConstants.RESETSESSION) {
 
-                // Upon DISCONNECT 6 bytes are read by the ClientConnectionHTTP": mode (1 byte), a length (int), and an 'additional results (1 byte)
+                // Upon DISCONNECT 6 bytes are read by the ClientConnectionHTTP: mode (1 byte), a length (int), and an 'additional results (1 byte)
                 response.setHeader("Cache-Control", "no-cache");    // DB-traffic should not be cached by proxies
                 response.setContentType("application/octet-stream");
                 response.setContentLength(6);
