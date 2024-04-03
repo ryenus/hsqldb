@@ -138,7 +138,7 @@ public class DbBackupMain {
                         sa,
                         firstPatInd,
                         patternStrings,
-                        firstPatInd - firstPatInd,
+                        0,
                         sa.length - firstPatInd);
                 }
 

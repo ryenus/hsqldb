@@ -102,7 +102,6 @@ public class JDBCArrayBasic implements Array {
      * @since JDK 1.2
      */
     public String getBaseTypeName() throws SQLException {
-
         checkClosed();
 
         return elementType.getNameString();
@@ -120,7 +119,6 @@ public class JDBCArrayBasic implements Array {
      * @since JDK 1.2
      */
     public int getBaseType() throws SQLException {
-
         checkClosed();
 
         return elementType.getJDBCTypeCode();
@@ -190,8 +188,9 @@ public class JDBCArrayBasic implements Array {
      *                         access the array
      * @since JDK 1.2
      */
-    public Object getArray(java.util.Map<String,
-            Class<?>> map) throws SQLException {
+    public Object getArray(
+            java.util.Map<String, Class<?>> map)
+            throws SQLException {
         return getArray();
     }
 
@@ -283,9 +282,11 @@ public class JDBCArrayBasic implements Array {
      * access the array
      * @since JDK 1.2
      */
-    public Object getArray(long index, int count,
-                           java.util.Map<String,
-                               Class<?>> map) throws SQLException {
+    public Object getArray(
+            long index,
+            int count,
+            java.util.Map<String, Class<?>> map)
+            throws SQLException {
         return getArray(index, count);
     }
 
@@ -346,8 +347,9 @@ public class JDBCArrayBasic implements Array {
      * access the array
      * @since JDK 1.2
      */
-    public ResultSet getResultSet(java.util.Map<String,
-            Class<?>> map) throws SQLException {
+    public ResultSet getResultSet(
+            java.util.Map<String, Class<?>> map)
+            throws SQLException {
         return getResultSet();
     }
 
@@ -420,9 +422,11 @@ public class JDBCArrayBasic implements Array {
      * access the array
      * @since JDK 1.2
      */
-    public ResultSet getResultSet(long index, int count,
-                                  java.util.Map<String,
-                                      Class<?>> map) throws SQLException {
+    public ResultSet getResultSet(
+            long index,
+            int count,
+            java.util.Map<String, Class<?>> map)
+            throws SQLException {
         return getResultSet(index, count);
     }
 
@@ -478,8 +482,10 @@ public class JDBCArrayBasic implements Array {
         return data;
     }
 
-    private Result newColumnResult(long position,
-                                   int count) throws SQLException {
+    private Result newColumnResult(
+            long position,
+            int count)
+            throws SQLException {
 
         if (!JDBCClobClient.isInLimits(data.length, position, count)) {
             throw JDBCUtil.outOfRangeArgument();
@@ -492,12 +498,8 @@ public class JDBCArrayBasic implements Array {
 
         ResultMetaData meta = ResultMetaData.newSimpleResultMetaData(types);
 
-        meta.columnLabels = new String[] {
-            "C1", "C2"
-        };
-        meta.colIndexes   = new int[] {
-            -1, -1
-        };
+        meta.columnLabels = new String[]{ "C1", "C2" };
+        meta.colIndexes   = new int[]{ -1, -1 };
         meta.columns      = new ColumnBase[2];
 
         for (int i = 0; i < meta.columns.length; i++) {
@@ -526,6 +528,5 @@ public class JDBCArrayBasic implements Array {
         return result;
     }
 
-    private void checkClosed() throws SQLException {
-    }
+    private void checkClosed() throws SQLException {}
 }

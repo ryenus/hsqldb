@@ -36,7 +36,7 @@ import java.io.InputStream;
 import java.io.Reader;
 
 /**
- * This class is an part implementation of DataInput. It wraps a Reader object.
+ * This class is a part implementation of DataInput. It wraps a Reader object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0

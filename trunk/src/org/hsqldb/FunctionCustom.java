@@ -549,9 +549,6 @@ public class FunctionCustom extends FunctionSQL {
 
             case FUNC_SQLCODE :
             case FUNC_SQLERRM :
-                parseList = optionalNoParamList;
-                break;
-
             case FUNC_DBTIMEZONE :
             case FUNC_SESSIONTIMEZONE :
             case FUNC_SYSDATE :
@@ -655,9 +652,6 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TO_DATE :
             case FUNC_TO_TIMESTAMP :
             case FUNC_TO_TIMESTAMP_TZ :
-                parseList = optionalDoubleParamList;
-                break;
-
             case FUNC_LOAD_FILE :
             case FUNC_ROUND :
             case FUNC_TIMESTAMP :
@@ -2205,8 +2199,7 @@ public class FunctionCustom extends FunctionSQL {
                         break;
                     }
 
-                    sb.append(string, start, i);
-                    sb.append(replace);
+                    sb.append(string, start, i).append(replace);
 
                     start = i + find.length();
                 }
@@ -2825,10 +2818,6 @@ public class FunctionCustom extends FunctionSQL {
                 return;
 
             case FUNC_DATABASE :
-                dataType = Type.SQL_VARCHAR_DEFAULT;
-
-                return;
-
             case FUNC_DATABASE_NAME :
                 dataType = Type.SQL_VARCHAR_DEFAULT;
 
@@ -2964,8 +2953,6 @@ public class FunctionCustom extends FunctionSQL {
                 if (!nodes[2].dataType.isDateOrTimestampType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
-
-                if (nodes[2].dataType.typeCode == Types.SQL_DATE) {}
 
                 dataType = nodes[2].dataType;
 
@@ -3678,8 +3665,6 @@ public class FunctionCustom extends FunctionSQL {
                     case Types.SQL_INTEGER :
                     case Types.SQL_SMALLINT :
                     case Types.TINYINT :
-                        break;
-
                     case Types.SQL_BIT :
                     case Types.SQL_BIT_VARYING :
                         break;
@@ -3980,9 +3965,6 @@ public class FunctionCustom extends FunctionSQL {
                         break;
 
                     case FUNC_REGEXP_REPLACE :
-                        dataType = Type.SQL_VARCHAR_DEFAULT;
-                        break;
-
                     case FUNC_REGEXP_SUBSTR :
                     case FUNC_REGEXP_SUBSTRING :
                         dataType = Type.SQL_VARCHAR_DEFAULT;
@@ -4344,7 +4326,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_POSITION_CHAR : {
 
                 // LOCATE
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder(64);
 
                 sb.append(Tokens.T_LOCATE)
                   .append(Tokens.T_OPENBRACKET)
@@ -4363,9 +4345,10 @@ public class FunctionCustom extends FunctionSQL {
 
             case FUNC_LPAD :
             case FUNC_RPAD : {
-                StringBuilder sb = new StringBuilder(name);
+                StringBuilder sb = new StringBuilder(64);
 
-                sb.append(Tokens.T_OPENBRACKET)
+                sb.append(name)
+                  .append(Tokens.T_OPENBRACKET)
                   .append(nodes[0].getSQL())
                   .append(Tokens.T_COMMA)
                   .append(nodes[1].getSQL());
@@ -4385,7 +4368,7 @@ public class FunctionCustom extends FunctionSQL {
                 return super.getSQL();
 
             case FUNC_POSITION_ARRAY : {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder(64);
 
                 sb.append(name)
                   .append('(')
@@ -4408,7 +4391,7 @@ public class FunctionCustom extends FunctionSQL {
             }
 
             case FUNC_SORT_ARRAY : {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder(64);
 
                 sb.append(name).append('(').append(nodes[0].getSQL());
 
@@ -4466,7 +4449,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TIMESTAMPADD : {
                 String token = Tokens.getSQLTSIString(
                     ((Number) nodes[0].getValue(null)).intValue());
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder(64);
 
                 sb.append(Tokens.T_TIMESTAMPADD)
                   .append(Tokens.T_OPENBRACKET)
@@ -4483,7 +4466,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TIMESTAMPDIFF : {
                 String token = Tokens.getSQLTSIString(
                     ((Number) nodes[0].getValue(null)).intValue());
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder(64);
 
                 sb.append(Tokens.T_TIMESTAMPDIFF)
                   .append(Tokens.T_OPENBRACKET)
@@ -4498,7 +4481,7 @@ public class FunctionCustom extends FunctionSQL {
             }
 
             case FUNC_DATE_ADD : {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder(64);
 
                 sb.append(nodes[0].getSQL())
                   .append(' ')
@@ -4509,7 +4492,7 @@ public class FunctionCustom extends FunctionSQL {
             }
 
             case FUNC_DATE_SUB : {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder(64);
 
                 sb.append(nodes[0].getSQL())
                   .append(' ')
@@ -4604,7 +4587,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DIAGNOSTICS : {
 
                 //exprSubType == ExpressionColumn.idx_row_count
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder(64);
 
                 sb.append(name)
                   .append('(')

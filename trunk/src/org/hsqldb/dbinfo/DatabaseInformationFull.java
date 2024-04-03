@@ -3475,10 +3475,6 @@ final class DatabaseInformationFull
                         OrderedHashSet<Expression> expressions =
                             constraint.getCheckColumnExpressions();
 
-                        if (expressions == null) {
-                            break;
-                        }
-
                         iterator = expressions.iterator();
 
                         // calculate distinct column references

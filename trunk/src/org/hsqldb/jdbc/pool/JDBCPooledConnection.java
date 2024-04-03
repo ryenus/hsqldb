@@ -63,7 +63,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * @since JDK 1.2, HSQLDB 2.0
  */
 public class JDBCPooledConnection
-implements PooledConnection, JDBCConnectionEventListener {
+        implements PooledConnection, JDBCConnectionEventListener {
 
     synchronized public Connection getConnection() throws SQLException {
 
@@ -97,8 +97,7 @@ implements PooledConnection, JDBCConnectionEventListener {
 
     public void addStatementEventListener(StatementEventListener listener) {}
 
-    public void removeStatementEventListener(
-            StatementEventListener listener) {}
+    public void removeStatementEventListener(StatementEventListener listener) {}
 
     // ------------------------ internal implementation ------------------------
     synchronized public void connectionClosed() {
@@ -191,7 +190,8 @@ implements PooledConnection, JDBCConnectionEventListener {
         isInUse = false;
     }
 
-    protected OrderedHashSet<ConnectionEventListener> listeners = new OrderedHashSet<>();
+    protected OrderedHashSet<ConnectionEventListener> listeners =
+        new OrderedHashSet<>();
     protected JDBCConnection connection;
     protected JDBCConnection userConnection;
     protected boolean        isInUse;

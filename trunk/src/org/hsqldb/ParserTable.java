@@ -2610,7 +2610,7 @@ public class ParserTable extends ParserDML {
             throw Error.error(ErrorCode.X_42518);
         }
 
-        Boolean  cascade = readIfThis(Tokens.CASCADE);
+        boolean  cascade = readIfThis(Tokens.CASCADE);
         String   sql     = getLastPart();
         Object[] args    = new Object[]{ table, period, cascade };
         HsqlName[] writeLockNames =
@@ -2653,7 +2653,7 @@ public class ParserTable extends ParserDML {
             throw Error.error(ErrorCode.X_42518);
         }
 
-        Boolean  cascade = readIfThis(Tokens.CASCADE);
+        boolean  cascade = readIfThis(Tokens.CASCADE);
         String   sql     = getLastPart();
         Object[] args    = new Object[]{ table, cascade };
         HsqlName[] writeLockNames =

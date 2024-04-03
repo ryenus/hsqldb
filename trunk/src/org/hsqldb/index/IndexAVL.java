@@ -198,6 +198,7 @@ public class IndexAVL implements Index {
         for (int i = 0; i < colDesc.length; i++) {
             if (this.colDesc[i] || this.nullsLast[i]) {
                 simpleOrder = false;
+                break;
             }
         }
 
@@ -1459,7 +1460,7 @@ public class IndexAVL implements Index {
             x = last(store, x);
 
             if (x == null) {
-                return x;
+                return null;
             }
 
             if (session == null) {

@@ -43,10 +43,10 @@ import java.util.NoSuchElementException;
  * sorted on values. Equal values are sorted by key.<p>
  *
  * findXXX() methods return the array index into the list
- * pair containing a matching key or value, or  or -1 if not found.<p>
+ * pair containing a matching key or value, or -1 if not found.<p>
  *
  * Sorting methods originally contributed by Tony Lai (tony_lai@users dot sourceforge.net).
- * Non-recursive implementation of fast quicksort added by Sergio Bossa sbtourist@users dot sourceforge.net)
+ * Non-recursive implementation of fast quicksort added by Sergio Bossa (sbtourist@users dot sourceforge.net)
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.3

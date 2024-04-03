@@ -331,8 +331,11 @@ final class DatabaseManagerCommon {
         }
     }
 
-    static long testStatement(Statement sStatement, String sql,
-                              int max) throws SQLException {
+    static long testStatement(
+            Statement sStatement,
+            String sql,
+            int max)
+            throws SQLException {
 
         long start = System.currentTimeMillis();
 
@@ -350,8 +353,9 @@ final class DatabaseManagerCommon {
                     break;
                 }
 
-                s = s.substring(0, j) + ((int) (Math.random() * i))
-                    + s.substring(j + 3);
+                s = s.substring(
+                    0,
+                    j) + ((int) (Math.random() * i)) + s.substring(j + 3);
             }
 
             while (true) {

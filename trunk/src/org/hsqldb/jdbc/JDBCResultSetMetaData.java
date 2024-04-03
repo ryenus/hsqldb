@@ -139,7 +139,6 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * @throws SQLException if a database access error occurs
      */
     public boolean isAutoIncrement(int column) throws SQLException {
-
         checkColumn(column);
 
         return resultMetaData.columns[--column].isIdentity();
@@ -201,7 +200,6 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * @throws SQLException if a database access error occurs
      */
     public boolean isSearchable(int column) throws SQLException {
-
         checkColumn(column);
 
         return resultMetaData.columns[--column].isSearchable();
@@ -231,7 +229,8 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
         Type type = translateType(resultMetaData.columnTypes[--column]);
 
         return (type.typeCode == Types.SQL_DECIMAL
-                || type.typeCode == Types.SQL_NUMERIC) && type.scale > 0;
+                || type.typeCode == Types.SQL_NUMERIC)
+               && type.scale > 0;
     }
 
     /**
@@ -264,7 +263,6 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * @throws SQLException if a database access error occurs
      */
     public int isNullable(int column) throws SQLException {
-
         checkColumn(column);
 
         return resultMetaData.columns[--column].getNullability();
@@ -455,8 +453,9 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         String label = resultMetaData.columnLabels[column];
 
-        return label == null ? resultMetaData.columns[column].getNameString()
-                             : label;
+        return label == null
+               ? resultMetaData.columns[column].getNameString()
+               : label;
     }
 
     /**
@@ -482,8 +481,9 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         String name = resultMetaData.columns[--column].getSchemaNameString();
 
-        return name == null ? ""
-                            : name;
+        return name == null
+               ? ""
+               : name;
     }
 
     /**
@@ -513,7 +513,8 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
         checkColumn(column);
 
         // type in columnTypes overrides column type
-        Type type      = translateType(resultMetaData.columnTypes[--column]);
+        Type type = translateType(resultMetaData.columnTypes[--column]);
+
         return type.getJDBCPrecision();
     }
 
@@ -560,8 +561,9 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         String name = resultMetaData.columns[--column].getTableNameString();
 
-        return name == null ? ""
-                            : name;
+        return name == null
+               ? ""
+               : name;
     }
 
     /**
@@ -599,8 +601,9 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         String name = resultMetaData.columns[--column].getCatalogNameString();
 
-        return name == null ? ""
-                            : name;
+        return name == null
+               ? ""
+               : name;
     }
 
     /**
@@ -666,7 +669,6 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * @throws SQLException if a database access error occurs
      */
     public boolean isReadOnly(int column) throws SQLException {
-
         checkColumn(column);
 
         return !resultMetaData.columns[--column].isWriteable();
@@ -782,7 +784,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * @since JDK 1.6
      */
     @SuppressWarnings("unchecked")
-    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
         if (isWrapperFor(iface)) {
             return (T) this;
@@ -807,7 +809,8 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * @since JDK 1.6
      */
     public boolean isWrapperFor(
-            java.lang.Class<?> iface) throws java.sql.SQLException {
+            java.lang.Class<?> iface)
+            throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
@@ -830,9 +833,12 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *        JDBCResultSetMetaData object
      * @throws SQLException if a database access error occurs
      */
-    JDBCResultSetMetaData(ResultMetaData meta, boolean isUpdatable,
-                          boolean isInsertable,
-                          JDBCConnection conn) throws SQLException {
+    JDBCResultSetMetaData(
+            ResultMetaData meta,
+            boolean isUpdatable,
+            boolean isInsertable,
+            JDBCConnection conn)
+            throws SQLException {
         init(meta, conn);
     }
 
@@ -874,8 +880,9 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
     private void checkColumn(int column) throws SQLException {
 
         if (column < 1 || column > columnCount) {
-            throw JDBCUtil.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
-                                    String.valueOf(column));
+            throw JDBCUtil.sqlException(
+                ErrorCode.JDBC_COLUMN_NOT_FOUND,
+                String.valueOf(column));
         }
     }
 
@@ -917,6 +924,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
             return sb.toString();
         }
+
         sb.append('[');
 
         for (int i = 0; i < columnCount; i++) {
@@ -933,6 +941,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
                 sb.append(' ');
             }
         }
+
         sb.append('\n');
         sb.append(']');
 
@@ -963,8 +972,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
             meta.scale                = getScale(i);
             meta.schemaName           = getSchemaName(i);
             meta.tableName            = getTableName(i);
-        } catch (SQLException e) {
-        }
+        } catch (SQLException e) {}
 
         return meta;
     }

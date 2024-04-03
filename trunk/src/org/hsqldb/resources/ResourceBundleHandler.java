@@ -234,8 +234,9 @@ public final class ResourceBundleHandler {
             return ResourceBundle.getBundle(name, locale);
         } else {
             try {
-                return (ResourceBundle) newGetBundleMethod.invoke(null,
-                        new Object[]{ name, locale, cl });
+                return (ResourceBundle) newGetBundleMethod.invoke(
+                    null,
+                    new Object[]{ name, locale, cl });
             } catch (Exception e) {
                 return ResourceBundle.getBundle(name, locale);
             }

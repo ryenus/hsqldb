@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,7 +185,7 @@ public class Defines {
             default: {
                 throw new PreprocessorException("Right hand side NUMBER,"
                         + "STRING or IDENT token required at position: "
-                        + +tokenizer.getStartIndex()
+                        + tokenizer.getStartIndex()
                         + " in ["
                         + expression
                         + "]"); // NOI18N

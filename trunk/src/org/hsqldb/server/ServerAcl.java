@@ -161,12 +161,13 @@ public final class ServerAcl {
 
         public String toString() {
 
-            StringBuilder sb = new StringBuilder("Addrs ");
+            StringBuilder sb = new StringBuilder();
 
-            sb.append((value.length == 16)
+            sb.append("Addrs ")
+              .append((value.length == 16)
                       ? ("[" + ServerAcl.colonNotation(value) + ']')
-                      : ServerAcl.dottedNotation(value));
-            sb.append("/" + bitBlockSize + ' ' + (allow
+                      : ServerAcl.dottedNotation(value))
+              .append("/" + bitBlockSize + ' ' + (allow
                     ? "ALLOW"
                     : "DENY"));
 
@@ -412,7 +413,7 @@ public final class ServerAcl {
 
                 line = line.trim();
 
-                if (line.length() < 1) {
+                if (line.isEmpty()) {
                     continue;
                 }
 
@@ -536,7 +537,7 @@ public final class ServerAcl {
         while ((s = br.readLine()) != null) {
             s = s.trim();
 
-            if (s.length() < 1) {
+            if (s.isEmpty()) {
                 continue;
             }
 

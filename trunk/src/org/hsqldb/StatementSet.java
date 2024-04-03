@@ -149,10 +149,10 @@ public class StatementSet extends StatementDMQL {
         OrderedHashSet<TableDerived> subQueries = null;
 
         if (expression != null) {
-            subQueries = expression.collectAllSubqueries(subQueries);
+            subQueries = expression.collectAllSubqueries(null);
         }
 
-        if (subQueries == null || subQueries.size() == 0) {
+        if (subQueries == null || subQueries.isEmpty()) {
             return TableDerived.emptyArray;
         }
 

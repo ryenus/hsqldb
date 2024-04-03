@@ -140,7 +140,7 @@ class TestScriptRunner {
                 scriptFileMap.put(sa[i], currentUrlid);
             }
             if (currentUrlid == null) throw new IllegalArgumentException();
-            if (scriptFileMap.size() < 1) {
+            if (scriptFileMap.isEmpty()) {
                 scriptFileMap.put("-", currentUrlid);
             }
         } catch (IllegalArgumentException e) {

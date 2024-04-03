@@ -1333,21 +1333,9 @@ public class SchemaManager {
                 if (t != null) {
                     return t;
                 }
-
-                if (prefix == null) {
-                    prefix = session.getSchemaName(null);
-                }
             } else if (prePrefix == null) {
 
                 // allow parsing in-routine table names in older .script files
-                if (Tokens.T_MODULE.equals(prefix)) {
-                    Table t = findSessionTable(session, name);
-
-                    if (t != null) {
-                        return t;
-                    }
-                }
-
                 if (Tokens.T_SESSION.equals(prefix)
                         || Tokens.T_MODULE.equals(prefix)) {
                     Table t = findSessionTable(session, name);
@@ -1359,10 +1347,6 @@ public class SchemaManager {
             }
 
             if (SqlInvariants.INFORMATION_SCHEMA.equals(prefix)) {
-                if (database.dbInfo == null) {
-                    return null;
-                }
-
                 return database.dbInfo.getSystemTable(session, name);
             }
         }
@@ -2511,7 +2495,7 @@ public class SchemaManager {
             }
 
             if (defaultSchemaHsqlName != null) {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder(64);
 
                 sb.append(Tokens.T_SET)
                   .append(' ')

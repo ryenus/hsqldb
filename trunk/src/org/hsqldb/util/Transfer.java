@@ -155,7 +155,7 @@ public class Transfer extends Panel
 
     public void trace(String s) {
 
-        if ((s != null) && !s.equals("")) {
+        if (s != null && !s.isEmpty()) {
             tMessage.setText(s);
 
             if (TRACE) {
@@ -432,7 +432,7 @@ public class Transfer extends Panel
                 String sFileName = f.getFile();
                 String Path      = f.getDirectory();
 
-                if ((sFileName == null) || (sFileName.equals(""))) {
+                if (sFileName == null || sFileName.isEmpty()) {
                     exit();
 
                     return;
@@ -463,7 +463,7 @@ public class Transfer extends Panel
                 String sFileName = f.getFile();
                 String Path      = f.getDirectory();
 
-                if ((sFileName == null) || (sFileName.equals(""))) {
+                if (sFileName == null || sFileName.isEmpty()) {
                     exit();
 
                     return;
@@ -786,7 +786,7 @@ public class Transfer extends Panel
         } else if (s.contains("Select Catalog")) {
             String selection = lTable.getSelectedItem();
 
-            if ((selection == null) || (selection.equals(""))) {
+            if (selection == null || selection.isEmpty()) {
                 return;
             }
 

@@ -84,8 +84,6 @@ public class StatementQuery extends StatementDMQL {
         switch (type) {
 
             case StatementTypes.SELECT_CURSOR :
-                return queryExpression.getMetaData();
-
             case StatementTypes.SELECT_SINGLE :
                 return queryExpression.getMetaData();
 

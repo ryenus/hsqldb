@@ -36,7 +36,7 @@ import java.util.NoSuchElementException;
 import org.hsqldb.map.BaseHashMap;
 
 /**
- * A Map of long primitives to to long primitive.
+ * A Map of long primitives to long primitive.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.6.0

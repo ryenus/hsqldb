@@ -1335,7 +1335,6 @@ public class Scanner {
                     nextIndex - currentPosition);
 
                 currentPosition = nextIndex + 1;
-                continue;
             } else {
                 charWriter.write(
                     sqlString,
@@ -2546,7 +2545,7 @@ public class Scanner {
 
             if (c == -1) {
                 if (uuid && ch == '-' && hi) {
-                    hi = !hi;
+                    hi = false;
                     continue;
                 }
 

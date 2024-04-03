@@ -112,6 +112,7 @@ public class IndexAVLCheck {
             for (int j = 0; j < statList.length; j++) {
                 if (statList[j].hasErrors) {
                     hasErrors = true;
+                    break;
                 }
             }
 
@@ -517,7 +518,7 @@ public class IndexAVLCheck {
             int     units    = object.getStorageSize() / cacheScale;
             boolean result   = true;
 
-            for (; units > 0; ) {
+            while (units > 0) {
                 int blockIndex   = (int) (position / fileBlockItemCount);
                 int blockOffset  = (int) (position % fileBlockItemCount);
                 int currentUnits = fileBlockItemCount - blockOffset;

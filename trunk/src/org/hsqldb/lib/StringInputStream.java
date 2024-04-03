@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ public class StringInputStream extends InputStream {
         available = s.length() * 2;
     }
 
-    public int read() throws java.io.IOException {
+    public int read() {
 
         if (available == 0) {
             return -1;
@@ -75,7 +75,7 @@ public class StringInputStream extends InputStream {
         }
     }
 
-    public int available() throws IOException {
+    public int available() {
         return available;
     }
 }

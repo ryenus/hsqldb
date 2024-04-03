@@ -59,7 +59,7 @@ class SqlServerTransferHelper extends TransferHelper {
             return t;
         }
 
-        if (t.equals("")) {
+        if (t.isEmpty()) {
             return t;
         }
 

@@ -145,13 +145,10 @@ public final class JDBCColumnMetaData {
         for (int i = 0; i < len; i++) {
             field = fields[i];
 
-            sb.append(field.getName())
-            .append('=')
-            .append(field.get(this));
+            sb.append(field.getName()).append('=').append(field.get(this));
 
             if (i + 1 < len) {
-                sb.append(',')
-                .append(' ');
+                sb.append(',').append(' ');
             }
         }
 

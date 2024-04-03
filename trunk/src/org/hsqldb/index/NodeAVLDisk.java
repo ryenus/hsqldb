@@ -89,7 +89,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  *  iId is a reference to the Index object that contains this node.<br>
  *  This fields can be eliminated in the future, by changing the
- *  method signatures to take a Index parameter from Index.java (fredt@users)
+ *  method signatures to take an Index parameter from Index.java (fredt@users)
  *
  *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *

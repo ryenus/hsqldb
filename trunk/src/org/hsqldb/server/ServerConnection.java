@@ -156,7 +156,8 @@ class ServerConnection implements Runnable {
 
     static {
         int serverBundleHandle = ResourceBundleHandler.getBundleHandle(
-            "org_hsqldb_server_Server_messages", null);
+            "org_hsqldb_server_Server_messages",
+            null);
 
         if (serverBundleHandle < 0) {
             throw new RuntimeException(
@@ -166,10 +167,12 @@ class ServerConnection implements Runnable {
             // Not necessary to localize message.
         }
 
-        TEXTBANNER_PART1 = ResourceBundleHandler.getString(serverBundleHandle,
-                "textbanner.part1");
-        TEXTBANNER_PART2 = ResourceBundleHandler.getString(serverBundleHandle,
-                "textbanner.part2");
+        TEXTBANNER_PART1 = ResourceBundleHandler.getString(
+            serverBundleHandle,
+            "textbanner.part1");
+        TEXTBANNER_PART2 = ResourceBundleHandler.getString(
+            serverBundleHandle,
+            "textbanner.part2");
 
         if (TEXTBANNER_PART1 == null || TEXTBANNER_PART2 == null) {
             throw new RuntimeException(

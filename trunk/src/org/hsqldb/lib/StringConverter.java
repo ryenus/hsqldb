@@ -351,7 +351,7 @@ public class StringConverter {
      * need to be written to the log file (input) are Java Unicode strings.
      * input is converted into a 7bit escaped ASCII string (output)with the
      * following transformations. All characters outside the 0x20-7f range are
-     * converted to a escape sequence and added to output. If a backslash
+     * converted to an escape sequence and added to output. If a backslash
      * character is immediately followed by 'u', the backslash character is
      * converted to escape sequence and added to output. All the remaining
      * characters in input are added to output without conversion. The escape
@@ -675,7 +675,7 @@ public class StringConverter {
      * the string is doubled.<p>
      *
      * null string argument returns null. If the caller needs the literal
-     * "NULL" it should created it itself<p>
+     * "NULL" it should be created it itself<p>
      *
      * @param s Java string
      * @param quoteChar character used for quoting

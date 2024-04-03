@@ -372,7 +372,7 @@ public final class UserManager {
         boolean             isAdmin     = session.isAdmin();
         String              sessionName = session.getUsername();
 
-        if (userList == null || userList.size() == 0) {
+        if (userList == null || userList.isEmpty()) {
             return list;
         }
 
@@ -460,7 +460,7 @@ public final class UserManager {
         HsqlArrayList<String> list = new HsqlArrayList<>();
 
         if (pwCheckFunction != null) {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(64);
 
             sb.append(Tokens.T_SET)
               .append(' ')
@@ -477,7 +477,7 @@ public final class UserManager {
         }
 
         if (extAuthenticationFunction != null) {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(64);
 
             sb.append(Tokens.T_SET)
               .append(' ')

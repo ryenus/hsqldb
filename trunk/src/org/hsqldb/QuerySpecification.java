@@ -1805,11 +1805,10 @@ public class QuerySpecification extends QueryExpression {
             for (int i = start; i < indexStartAggregates; i++) {
                 if (isAggregated && aggregateCheck[i]) {
                     continue;
+                } else if (havingColumnCount > 0 && i == indexStartHaving) {
+                    continue;
                 } else {
-                    if (havingColumnCount > 0 && i == indexStartHaving) {}
-                    else {
-                        data[i] = exprColumns[i].getValue(session);
-                    }
+                    data[i] = exprColumns[i].getValue(session);
                 }
             }
 

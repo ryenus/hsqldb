@@ -84,17 +84,13 @@ public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
 
     public V get(Integer key) {
 
-        if (key instanceof Integer) {
-            int intKey = key.intValue();
-
-            return get(intKey);
-        }
-
         if (key == null) {
             throw new NullPointerException();
         }
 
-        return null;
+        int intKey = key.intValue();
+
+        return get(intKey);
     }
 
     public V get(int key) {

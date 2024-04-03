@@ -2269,7 +2269,7 @@ public class Session implements SessionInterface {
 
     public HsqlException getLastWarning() {
 
-        if (sqlWarnings == null || sqlWarnings.size() == 0) {
+        if (sqlWarnings == null || sqlWarnings.isEmpty()) {
             return null;
         }
 

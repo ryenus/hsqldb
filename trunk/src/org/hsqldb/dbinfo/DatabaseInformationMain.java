@@ -263,7 +263,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
     /** ensures int value is Integer for insertion in sys table */
     protected final Integer integer32(int value) {
-        return ValuePool.getInt(value);
+        return Integer.valueOf(value);
     }
 
     /**
@@ -684,7 +684,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         String  tableCatalog;    // table catalog
         String  tableSchema;     // table schema
         String  tableName;       // table name
-        Boolean inKey;           // column participates in PK or AK?
+        boolean inKey;           // column participates in PK or AK?
 
         //-------------------------------------------
 
@@ -1320,7 +1320,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         String  tableCatalog;
         String  tableSchema;
         String  tableName;
-        Boolean nonUnique;
+        boolean nonUnique;
         String  indexQualifier;
         String  indexName;
         Integer indexType;

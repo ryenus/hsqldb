@@ -74,7 +74,7 @@ public class TextFileOps {
         RowInputInterface     rowIn;
         RowInsertSimple       rowInsert;
 
-        if (dataFileName == null || dataFileName.length() == 0) {
+        if (dataFileName == null || dataFileName.isEmpty()) {
             throw Error.error(ErrorCode.X_S0501);
         }
 
@@ -201,7 +201,7 @@ public class TextFileOps {
         RowOutputInterface    rowOut;
         int                   lineCount = 0;
 
-        if (dataFileName == null || dataFileName.length() == 0) {
+        if (dataFileName == null || dataFileName.isEmpty()) {
             throw Error.error(ErrorCode.X_S0501);
         }
 

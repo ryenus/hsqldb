@@ -220,9 +220,9 @@ class TransferSQLText extends DataAccessPoint {
 
         columnDef.start = curPos;
 
-        if ((ColumnsDesc == null)
-                || (ColumnsDesc.length() == 0)
-                || (curPos >= ColumnsDesc.length())) {
+        if (ColumnsDesc == null
+                || ColumnsDesc.isEmpty()
+                || curPos >= ColumnsDesc.length()) {
             return new TransferSQLText.ColumnDef();
         }
 
@@ -257,7 +257,7 @@ class TransferSQLText extends DataAccessPoint {
             columnDef.len        += nextPos;
             nextPos              = 0;
 
-            if (!columnDef.columnName.toUpperCase().equals("CONSTRAINT")) {
+            if (!columnDef.columnName.equalsIgnoreCase("CONSTRAINT")) {
                 i = 0;
 
                 for (; i < stbuff.length() && stbuff.charAt(i) == ' '; i++) {}
@@ -403,7 +403,7 @@ class TransferSQLText extends DataAccessPoint {
                     continue;
                 }
 
-                if (!Token.toUpperCase().equals("CREATE")) {
+                if (!Token.equalsIgnoreCase("CREATE")) {
                     continue;
                 }
 
@@ -476,10 +476,9 @@ class TransferSQLText extends DataAccessPoint {
                     continue;
                 }
 
-                if (Token.toUpperCase().equals("INSERT")) {
+                if (Token.equalsIgnoreCase("INSERT")) {
                     try {
-                        if (!Tokenizer.nextToken().toUpperCase().equals(
-                                "INTO")) {
+                        if (!Tokenizer.nextToken().equalsIgnoreCase("INTO")) {
                             throw new DataAccessPointException(
                                 "Error in INSERT statement: no INTO found");
                         }
@@ -500,10 +499,9 @@ class TransferSQLText extends DataAccessPoint {
                     } catch (NoSuchElementException NSE) {
                         continue;
                     }
-                } else if (Token.toUpperCase().equals("ALTER")) {
+                } else if (Token.equalsIgnoreCase("ALTER")) {
                     try {
-                        if (!Tokenizer.nextToken().toUpperCase().equals(
-                                "TABLE")) {
+                        if (!Tokenizer.nextToken().equalsIgnoreCase("TABLE")) {
                             continue;
                         }
 
@@ -545,7 +543,7 @@ class TransferSQLText extends DataAccessPoint {
                     } catch (NoSuchElementException NSE) {
                         continue;
                     }
-                } else if (!Token.toUpperCase().equals("CREATE")) {
+                } else if (!Token.equalsIgnoreCase("CREATE")) {
                     continue;
                 }
 
@@ -583,13 +581,13 @@ class TransferSQLText extends DataAccessPoint {
 
                 if (Token.equals("INDEX") || Token.equals("UNIQUE")) {
                     try {
-                        while ((Token = Tokenizer.nextToken()).toUpperCase()
-                                .equals("INDEX")) {}
+                        while ((Token = Tokenizer.nextToken()).equalsIgnoreCase(
+                                "INDEX")) {}
 
                         String IndexdropCommand = "DROP INDEX " + Token + " ;";
 
-                        while ((Token = Tokenizer.nextToken(" (")).toUpperCase()
-                                .equals("ON")) {}
+                        while ((Token = Tokenizer.nextToken(
+                                " (")).equalsIgnoreCase("ON")) {}
 
                         name = Token;
 
@@ -682,7 +680,7 @@ class TransferSQLText extends DataAccessPoint {
         try {
             Tokenizer = new StringTokenizer(statement);
 
-            while (!Tokenizer.nextToken().toUpperCase().equals("FROM")) {}
+            while (!Tokenizer.nextToken().equalsIgnoreCase("FROM")) {}
 
             tableName = Tokenizer.nextToken(" ;");
         } catch (NoSuchElementException NSE) {
@@ -734,12 +732,12 @@ class TransferSQLText extends DataAccessPoint {
                     continue;
                 }
 
-                if (!Token.toUpperCase().equals("INSERT")) {
+                if (!Token.equalsIgnoreCase("INSERT")) {
                     continue;
                 }
 
                 try {
-                    if (!Tokenizer.nextToken().toUpperCase().equals("INTO")) {
+                    if (!Tokenizer.nextToken().equalsIgnoreCase("INTO")) {
                         throw new DataAccessPointException(
                             "Error in INSERT statement: no INTO found");
                     }
@@ -758,7 +756,7 @@ class TransferSQLText extends DataAccessPoint {
                     while ((currentLine = WTextRead.readLine()) != null) {
                         currentLine = currentLine.trim();
 
-                        boolean newLine = (currentLine.length() == 0);
+                        boolean newLine = currentLine.isEmpty();
 
                         if (newLine) {
                             int iColumnNb = 0;

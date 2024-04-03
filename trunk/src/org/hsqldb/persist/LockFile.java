@@ -1480,18 +1480,22 @@ public class LockFile {
      */
     public String toString() {
 
-        return new StringBuilder(super.toString()).append("[file =")
-                .append(cpath)
-                .append(", exists=")
-                .append(file.exists())
-                .append(", locked=")
-                .append(isLocked())
-                .append(", valid=")
-                .append(isValid())
-                .append(", ")
-                .append(toStringImpl())
-                .append("]")
-                .toString();
+        StringBuilder sb = new StringBuilder(128);
+
+        sb.append(super.toString())
+          .append("[file =")
+          .append(cpath)
+          .append(", exists=")
+          .append(file.exists())
+          .append(", locked=")
+          .append(isLocked())
+          .append(", valid=")
+          .append(isValid())
+          .append(", ")
+          .append(toStringImpl())
+          .append("]");
+
+        return sb.toString();
     }
 
     /**

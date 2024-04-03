@@ -35,6 +35,7 @@ import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
 import java.io.Reader;
 import java.io.StringReader;
+
 import java.sql.Clob;
 import java.sql.SQLException;
 
@@ -81,7 +82,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * access an SQL {@code CLOB} value.  In addition, this interface
  * has methods for updating a {@code CLOB} value.
  * <p>
- * All methods on the {@code Clob} interface must be 
+ * All methods on the {@code Clob} interface must be
  * fully implemented if the JDBC driver supports the data type.
  *
  * <!-- start Release-specific documentation -->
@@ -190,8 +191,10 @@ public class JDBCClob implements Clob {
      *          does not support this method
      * @since JDK 1.2, HSQLDB 1.7.2
      */
-    public String getSubString(final long pos,
-                               final int length) throws SQLException {
+    public String getSubString(
+            final long pos,
+            final int length)
+            throws SQLException {
 
         final String data = getData();
         final int    dlen = data.length();
@@ -271,8 +274,10 @@ public class JDBCClob implements Clob {
      * does not support this method
      * @since JDK 1.2, HSQLDB 1.7.2
      */
-    public long position(final String searchstr,
-                         long start) throws SQLException {
+    public long position(
+            final String searchstr,
+            long start)
+            throws SQLException {
 
         final String data = getData();
 
@@ -286,8 +291,9 @@ public class JDBCClob implements Clob {
 
         final int position = data.indexOf(searchstr, (int) start - 1);
 
-        return (position == -1) ? -1
-                                : position + 1;
+        return (position == -1)
+               ? -1
+               : position + 1;
     }
 
     /**
@@ -307,8 +313,10 @@ public class JDBCClob implements Clob {
      *         does not support this method
      * @since JDK 1.2, HSQLDB 1.7.2
      */
-    public long position(final Clob searchstr,
-                         final long start) throws SQLException {
+    public long position(
+            final Clob searchstr,
+            final long start)
+            throws SQLException {
 
         final String data = getData();
 
@@ -343,8 +351,9 @@ public class JDBCClob implements Clob {
 
         final int index = data.indexOf(pattern, (int) startIndex);
 
-        return (index == -1) ? -1
-                             : index + 1;
+        return (index == -1)
+               ? -1
+               : index + 1;
     }
 
     //---------------------------- jdbc 3.0 -----------------------------------
@@ -416,8 +425,14 @@ public class JDBCClob implements Clob {
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public int setString(long pos, String str) throws SQLException {
-        return setString(pos, str, 0, str == null ? 0
-                                                  : str.length());
+
+        return setString(
+            pos,
+            str,
+            0,
+            str == null
+            ? 0
+            : str.length());
     }
 
     /**
@@ -489,8 +504,12 @@ public class JDBCClob implements Clob {
      *         does not support this method
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-    public int setString(final long pos, final String str, final int offset,
-                         final int len) throws SQLException {
+    public int setString(
+            final long pos,
+            final String str,
+            final int offset,
+            final int len)
+            throws SQLException {
 
         checkReadonly();
 
@@ -630,8 +649,9 @@ public class JDBCClob implements Clob {
      *
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-    public java.io.OutputStream setAsciiStream(final long pos)
-    throws SQLException {
+    public java.io.OutputStream setAsciiStream(
+            final long pos)
+            throws SQLException {
 
         checkReadonly();
         checkClosed();
@@ -643,7 +663,6 @@ public class JDBCClob implements Clob {
         return new java.io.ByteArrayOutputStream() {
 
             boolean closed = false;
-
             public synchronized void close() throws java.io.IOException {
 
                 if (closed) {
@@ -659,8 +678,11 @@ public class JDBCClob implements Clob {
                 super.count = 0;
 
                 try {
-                    final String str = new String(bytes, 0, length,
-                                                  JavaSystem.CS_US_ASCII);
+                    final String str = new String(
+                        bytes,
+                        0,
+                        length,
+                        JavaSystem.CS_US_ASCII);
 
                     JDBCClob.this.setString(pos, str);
                 } catch (Throwable e) {
@@ -739,8 +761,9 @@ public class JDBCClob implements Clob {
      *
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-    public java.io.Writer setCharacterStream(final long pos)
-    throws SQLException {
+    public java.io.Writer setCharacterStream(
+            final long pos)
+            throws SQLException {
 
         checkReadonly();
         checkClosed();
@@ -752,7 +775,6 @@ public class JDBCClob implements Clob {
         return new java.io.StringWriter() {
 
             private boolean closed = false;
-
             public synchronized void close() throws java.io.IOException {
 
                 if (closed) {
@@ -869,7 +891,7 @@ public class JDBCClob implements Clob {
      * @param pos the offset to the first character of the partial value to
      * be retrieved.  The first character in the Clob is at position 1.
      * @param length the length in characters of the partial value to be retrieved.
-     * @return {@code Reader} through which 
+     * @return {@code Reader} through which
      *         the partial {@code Clob} value can be read.
      * @throws SQLException if pos is less than 1;
      *         or if pos is greater than the number of characters
@@ -881,8 +903,10 @@ public class JDBCClob implements Clob {
      *         does not support this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public Reader getCharacterStream(long pos,
-                                     long length) throws SQLException {
+    public Reader getCharacterStream(
+            long pos,
+            long length)
+            throws SQLException {
 
         if (length > Integer.MAX_VALUE) {
             throw JDBCUtil.outOfRangeArgument("length: " + length);
@@ -956,29 +980,24 @@ public class JDBCClob implements Clob {
     }
 
     protected void checkReadonly() throws SQLException {
-
         if (!m_createdByConnection) {
-            throw JDBCUtil.sqlException(ErrorCode.X_25006,
-                                        "Clob is read-only");
+            throw JDBCUtil.sqlException(ErrorCode.X_25006, "Clob is read-only");
         }
     }
 
     protected synchronized void checkClosed() throws SQLException {
-
         if (m_closed) {
             throw JDBCUtil.sqlException(ErrorCode.X_07501);
         }
     }
 
     synchronized String getData() throws SQLException {
-
         checkClosed();
 
         return m_data;
     }
 
     private synchronized void setData(String data) throws SQLException {
-
         checkClosed();
 
         m_data = data;
@@ -998,9 +1017,12 @@ public class JDBCClob implements Clob {
      * @throws SQLException if there is an error accessing the
      *            {@code CLOB} value or if pos is less than 1
      */
-    public int setStringBuffer(final long pos, final StringBuffer sb,
-                               final int offset,
-                               final int len) throws SQLException {
+    public int setStringBuffer(
+            final long pos,
+            final StringBuffer sb,
+            final int offset,
+            final int len)
+            throws SQLException {
 
         checkReadonly();
 

@@ -787,7 +787,7 @@ public class Types {
      * the value.  In practice, it turns out that single query yielding
      * widely varying values for display size of CHAR and VARCHAR columns
      * on repeated execution results in patently poor usability, as some fairly
-     * high-profile, otherwise "enterprise-quality" RAD tools depend on
+     * high-profile, otherwise "enterprise-quality" RAD tools depend
      * on the first value returned to lay out forms and limit the size of
      * single line edit controls, set corresponding local datastore storage
      * sizes, etc. In practice, It also turns out that many tools (due to

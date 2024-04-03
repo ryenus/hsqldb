@@ -114,17 +114,13 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
 
     public V get(Long key) {
 
-        if (key instanceof Long) {
-            long longKey = key.longValue();
-
-            return get(longKey);
-        }
-
         if (key == null) {
             throw new NullPointerException();
         }
 
-        return null;
+        long longKey = key.longValue();
+
+        return get(longKey);
     }
 
     public V get(long key) {

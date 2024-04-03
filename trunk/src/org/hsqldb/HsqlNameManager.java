@@ -327,7 +327,7 @@ public final class HsqlNameManager {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("S").append(i).append('_').append(j);
+        sb.append('S').append(i).append('_').append(j);
 
         return sb.toString();
     }
@@ -349,8 +349,7 @@ public final class HsqlNameManager {
                 sb.append("SYS_").append(prefix).append('_');
 
                 if (namepart != null) {
-                    sb.append(namepart);
-                    sb.append('_');
+                    sb.append(namepart).append('_');
                 }
 
                 sb.append(sysNumber.incrementAndGet());
@@ -497,7 +496,7 @@ public final class HsqlNameManager {
                 return statementName;
             }
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(64);
 
             sb.append(schema.getStatementName())
               .append('.')
@@ -512,7 +511,7 @@ public final class HsqlNameManager {
                 return null;
             }
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(64);
 
             sb.append(Tokens.T_COMMENT)
               .append(' ')

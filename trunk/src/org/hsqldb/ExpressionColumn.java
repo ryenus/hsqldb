@@ -471,10 +471,10 @@ public class ExpressionColumn extends Expression {
                                 String message = getColumnName();
 
                                 if (alias != null) {
-                                    StringBuilder sb = new StringBuilder(
-                                        message);
+                                    StringBuilder sb = new StringBuilder(64);
 
-                                    sb.append(' ')
+                                    sb.append(message)
+                                      .append(' ')
                                       .append(Tokens.T_AS)
                                       .append(' ')
                                       .append(alias.getStatementName());
@@ -780,17 +780,15 @@ public class ExpressionColumn extends Expression {
             }
 
             case OpTypes.COALESCE : {
-                Object value = null;
-
                 for (int i = 0; i < nodes.length; i++) {
-                    value = nodes[i].getValue(session, dataType);
+                    Object value = nodes[i].getValue(session, dataType);
 
                     if (value != null) {
                         return value;
                     }
                 }
 
-                return value;
+                return null;
             }
 
             case OpTypes.DYNAMIC_PARAM : {
@@ -861,7 +859,7 @@ public class ExpressionColumn extends Expression {
                             return columnName;
                         }
 
-                        StringBuilder sb = new StringBuilder();
+                        StringBuilder sb = new StringBuilder(64);
 
                         sb.append(tableName).append('.').append(columnName);
 
@@ -872,7 +870,7 @@ public class ExpressionColumn extends Expression {
                 if (rangeVariable.tableAlias == null) {
                     return column.getName().getSchemaQualifiedStatementName();
                 } else {
-                    StringBuilder sb = new StringBuilder();
+                    StringBuilder sb = new StringBuilder(64);
 
                     sb.append(rangeVariable.tableAlias.getStatementName())
                       .append('.')

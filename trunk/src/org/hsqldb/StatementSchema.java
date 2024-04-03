@@ -99,9 +99,6 @@ public class StatementSchema extends Statement {
 
             case StatementTypes.RENAME_OBJECT :
             case StatementTypes.RENAME_SCHEMA :
-                group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
-                break;
-
             case StatementTypes.ALTER_DOMAIN :
             case StatementTypes.ALTER_CONSTRAINT :
             case StatementTypes.ALTER_INDEX :
@@ -115,9 +112,6 @@ public class StatementSchema extends Statement {
             case StatementTypes.DROP_TABLE_PERIOD :
             case StatementTypes.ADD_TABLE_SYSTEM_VERSIONING :
             case StatementTypes.DROP_TABLE_SYSTEM_VERSIONING :
-                group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
-                break;
-
             case StatementTypes.DROP_ASSERTION :
             case StatementTypes.DROP_CHARACTER_SET :
             case StatementTypes.DROP_COLLATION :
@@ -1537,8 +1531,6 @@ public class StatementSchema extends Statement {
             }
 
             case StatementTypes.CREATE_TRANSFORM :
-                return Result.updateZeroResult;
-
             case StatementTypes.CREATE_TRANSLATION :
                 return Result.updateZeroResult;
 

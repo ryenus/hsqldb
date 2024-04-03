@@ -53,8 +53,8 @@ import org.hsqldb.trigger.Trigger;
 /**
  * Sample code for use of triggers in hsqldb.<p>
  *
- * This class org.hsqldb.sample package, but a typical implementation is in
- * users's class hierarchy.
+ * This class is in org.hsqldb.sample package, but a typical implementation is in
+ * user's class hierarchy.
  *
  * SQL to invoke is:<p>
  * CREATE TRIGGER triggerSample BEFORE|AFTER INSERT|UPDATE|DELETE

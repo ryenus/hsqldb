@@ -292,7 +292,7 @@ class WebServerConnection implements Runnable {
                     .toString();
 
 // System.out.println(requestHeader); //For debugging
-            // Throw an error if the Content-Type is something other than an what
+            // Throw an error if the Content-Type is something other than what
             // ClientConnectionHTTP is supposed to send
             if (!requestHeader.contains(
                     "Content-Type: application/octet-stream")) {
@@ -377,7 +377,7 @@ class WebServerConnection implements Runnable {
                 DataOutputStream dataOut = new DataOutputStream(
                     socket.getOutputStream());
 
-                // Upon DISCONNECT 6 bytes are read by the ClientConnectionHTTP": mode (1 byte), a length (int), and an 'additional results (1 byte)
+                // Upon DISCONNECT 6 bytes are read by the ClientConnectionHTTP: mode (1 byte), a length (int), and an 'additional results (1 byte)
                 String header = getHead(
                     HEADER_OK,
                     false,

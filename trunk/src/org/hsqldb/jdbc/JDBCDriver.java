@@ -36,6 +36,7 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
+
 import java.util.Properties;
 
 import java.sql.DriverAction;
@@ -125,16 +126,15 @@ import org.hsqldb.persist.HsqlProperties;
  */
 public class JDBCDriver implements Driver {
 
-
     /**
      * name of loginTimeout property, can not change
      */
     static final String conn_loginTimeout = "loginTimeout";
+
     /**
      * Default constructor
      */
-    public JDBCDriver() {
-    }
+    public JDBCDriver() {}
 
     /**
      * Attempts to make a database connection to the given URL.
@@ -230,10 +230,12 @@ public class JDBCDriver implements Driver {
      * @throws SQLException if a database access error occurs or the url is
      * {@code null}
      */
-    public Connection connect(String url,
-                              Properties info) throws SQLException {
+    public Connection connect(String url, Properties info) throws SQLException {
 
-        if (url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
+        if (url.regionMatches(true,
+                              0,
+                              DatabaseURL.S_URL_INTERNAL,
+                              0,
                               DatabaseURL.S_URL_INTERNAL.length())) {
             JDBCConnection conn = threadConnection.get();
 
@@ -254,10 +256,11 @@ public class JDBCDriver implements Driver {
      * @return a {@code Connection} object that represents a
      *      connection to the URL
      */
-
     @SuppressWarnings("deprecation")
-    public static Connection getConnection(String url,
-            Properties info) throws SQLException {
+    public static Connection getConnection(
+            String url,
+            Properties info)
+            throws SQLException {
 
         final HsqlProperties props = DatabaseURL.parseURL(url, true, false);
 
@@ -274,7 +277,10 @@ public class JDBCDriver implements Driver {
         long timeout = 0;
 
         if (info != null) {
-            timeout = HsqlProperties.getIntegerProperty(info, conn_loginTimeout, 0);
+            timeout = HsqlProperties.getIntegerProperty(
+                info,
+                conn_loginTimeout,
+                0);
         }
 
         props.addProperties(info);
@@ -317,8 +323,7 @@ public class JDBCDriver implements Driver {
 
         try {
             t.join(1000 * timeout);
-        } catch (InterruptedException ie) {
-        }
+        } catch (InterruptedException ie) {}
 
         if (ex[0] != null) {
             throw ex[0];
@@ -348,13 +353,20 @@ public class JDBCDriver implements Driver {
             return false;
         }
 
-        if (url.regionMatches(true, 0, DatabaseURL.S_URL_PREFIX, 0,
+        if (url.regionMatches(true,
+                              0,
+                              DatabaseURL.S_URL_PREFIX,
+                              0,
                               DatabaseURL.S_URL_PREFIX.length())) {
             return true;
         }
 
-        return url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
-                DatabaseURL.S_URL_INTERNAL.length());
+        return url.regionMatches(
+            true,
+            0,
+            DatabaseURL.S_URL_INTERNAL,
+            0,
+            DatabaseURL.S_URL_INTERNAL.length());
     }
 
     /**
@@ -394,15 +406,14 @@ public class JDBCDriver implements Driver {
             return new DriverPropertyInfo[0];
         }
 
-        String[]             choices = new String[] {
-            "true", "false"
-        };
+        String[]             choices = new String[]{ "true", "false" };
         DriverPropertyInfo[] pinfo   = new DriverPropertyInfo[6];
         DriverPropertyInfo   p;
 
         if (info == null) {
             info = new Properties();
         }
+
         p          = new DriverPropertyInfo("user", null);
         p.value    = info.getProperty("user");
         p.required = true;
@@ -489,19 +500,19 @@ public class JDBCDriver implements Driver {
      * {@code java.util.logging}.
      * @since JDK 1.7, HSQLDB 2.0.1
      */
-    public java.util.logging
-            .Logger getParentLogger() throws java.sql
-                .SQLFeatureNotSupportedException {
-        throw (java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
+    public java.util.logging.Logger getParentLogger()
+            throws java.sql.SQLFeatureNotSupportedException {
+        throw(java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
 
     public static final JDBCDriver driverInstance = new JDBCDriver();
 
     static {
         try {
-            DriverManager.registerDriver(driverInstance, new EmptyDiverAction());
-        } catch (Exception e) {
-        }
+            DriverManager.registerDriver(
+                driverInstance,
+                new EmptyDiverAction());
+        } catch (Exception e) {}
     }
 
     /**
@@ -510,14 +521,11 @@ public class JDBCDriver implements Driver {
      * The registered instance is kept to allow access to its threadConnection.
      *
      */
-
     public final ThreadLocal<JDBCConnection> threadConnection =
-            new ThreadLocal<>();
+        new ThreadLocal<>();
 
     //------------------------- JDBC 4.2 -----------------------------------
-
     private static class EmptyDiverAction implements java.sql.DriverAction {
         public void deregister() {}
-
     }
 }

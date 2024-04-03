@@ -40,7 +40,7 @@ import java.io.Reader;
  * streams or arrays of octets or characters. <p>
  *
  * This algorithm is a good choice for searching large, forward-only access
- * streams for repeated search using pre-processed small to medium sized
+ * streams for repeated search using pre-processed small to medium-sized
  * patterns.  <p>
  *
  * This is because in addition to the facts that it:

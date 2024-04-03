@@ -1453,19 +1453,7 @@ public class FunctionSQL extends Expression {
                 break;
             }
 
-            case FUNC_CARDINALITY : {
-                if (nodes[0].dataType == null) {
-                    throw Error.error(ErrorCode.X_42567);
-                }
-
-                if (!nodes[0].dataType.isArrayType()) {
-                    throw Error.error(ErrorCode.X_42563);
-                }
-
-                dataType = Type.SQL_INTEGER;
-                break;
-            }
-
+            case FUNC_CARDINALITY :
             case FUNC_MAX_CARDINALITY : {
                 if (nodes[0].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
@@ -2005,8 +1993,6 @@ public class FunctionSQL extends Expression {
             }
 
             case FUNC_OCCURENCES_REGEX :
-                break;
-
             case FUNC_POSITION_REGEX :
                 break;
 

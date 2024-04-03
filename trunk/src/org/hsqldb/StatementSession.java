@@ -831,7 +831,7 @@ public class StatementSession extends Statement {
                 Boolean       ifNotExists = (Boolean) arguments[4];
 
                 try {
-                    if (tempConstraints.size() != 0) {
+                    if (tempConstraints.size() > 0) {
                         table = ParserDDL.addTableConstraintDefinitions(
                             session,
                             table,

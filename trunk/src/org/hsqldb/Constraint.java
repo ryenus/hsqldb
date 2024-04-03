@@ -429,7 +429,7 @@ public final class Constraint implements SchemaObject {
     public String getAlterSQL() {
 
         if (core.addedRefCols.length > 0) {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(64);
 
             sb.append(Tokens.T_ALTER)
               .append(' ')

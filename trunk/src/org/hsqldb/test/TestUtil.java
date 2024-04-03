@@ -227,7 +227,7 @@ public class TestUtil {
 
                 startLine = sqlReader.getStartLineNumber();
 
-                if (section.size() == 0) {
+                if (section.isEmpty()) {
                     break;
                 }
 
@@ -551,7 +551,7 @@ abstract class ParsedSection {
 
                     lines[k] = lines[k].substring(0, endIndex);
 
-                    if (lines[k].length() == 0) {
+                    if (lines[k].isEmpty()) {
                         resEndRow = k - 1;
                     } else {
                         resEndRow = k;
@@ -1173,7 +1173,7 @@ class WaitSection extends ParsedSection {
 
         StringBuilder sb = new StringBuilder();
 
-        if (lines.length == 1 && lines[0].trim().length() < 1) {
+        if (lines.length == 1 && lines[0].trim().isEmpty()) {
             return null;
         }
 
@@ -1261,7 +1261,7 @@ class ProceedSection extends ParsedSection {
 
         StringBuilder sb = new StringBuilder();
 
-        if (lines.length == 1 && lines[0].trim().length() < 1) {
+        if (lines.length == 1 && lines[0].trim().isEmpty()) {
             return "";
         }
 
@@ -1392,7 +1392,7 @@ class ExceptionParsedSection extends ParsedSection {
 
         expectedState = lines[0].trim();
 
-        if (expectedState.length() < 1) {
+        if (expectedState.isEmpty()) {
             expectedState = null;
         }
 
@@ -1485,7 +1485,7 @@ class DisplaySection extends ParsedSection {
 
         StringBuilder sb = new StringBuilder();
 
-        if (lines.length == 1 && lines[0].trim().length() < 1) {
+        if (lines.length == 1 && lines[0].trim().isEmpty()) {
             return null;
         }
 

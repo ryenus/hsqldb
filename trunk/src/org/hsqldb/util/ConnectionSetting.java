@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,8 +64,12 @@ public class ConnectionSetting implements java.io.Serializable {
     // Constructors
     private ConnectionSetting() {}
 
-    ConnectionSetting(String name, String driver, String url, String user,
-                      String pw) {
+    ConnectionSetting(
+            String name,
+            String driver,
+            String url,
+            String user,
+            String pw) {
 
         this.name   = name;
         this.driver = driver;
@@ -94,7 +98,8 @@ public class ConnectionSetting implements java.io.Serializable {
     }
 
     public int hashCode() {
-        return getName() == null ? 0
-                                 : getName().trim().hashCode();
+        return getName() == null
+               ? 0
+               : getName().trim().hashCode();
     }
 }

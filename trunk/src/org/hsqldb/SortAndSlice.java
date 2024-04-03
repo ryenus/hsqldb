@@ -82,7 +82,7 @@ public final class SortAndSlice {
     }
 
     public boolean hasOrder() {
-        return exprList.size() != 0;
+        return exprList.size() > 0;
     }
 
     public boolean hasLimit() {

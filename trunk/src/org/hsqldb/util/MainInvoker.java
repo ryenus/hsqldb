@@ -84,8 +84,8 @@ public class MainInvoker {
 
         try {
             while (++curInArg < sa.length) {
-                if (sa[curInArg].length() < 1) {
-                    if (outList.size() < 1) {
+                if (sa[curInArg].isEmpty()) {
+                    if (outList.isEmpty()) {
                         syntaxFailure();
                     }
 
@@ -98,7 +98,7 @@ public class MainInvoker {
                 }
             }
 
-            if (outList.size() < 1) {
+            if (outList.isEmpty()) {
                 syntaxFailure();
             }
 

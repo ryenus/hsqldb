@@ -138,7 +138,7 @@ public final class TextFileSettings {
         lvs = translateSep(lvs);
         qc  = translateSep(qc);
 
-        if (fs.length() == 0 || vs.length() == 0 || lvs.length() == 0) {
+        if (fs.isEmpty() || vs.isEmpty() || lvs.isEmpty()) {
             throw Error.error(ErrorCode.X_S0503);
         }
 

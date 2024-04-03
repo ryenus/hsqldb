@@ -320,7 +320,7 @@ public final class ResultMetaData {
         return out;
     }
 
-    ResultMetaData(RowInputInterface in) throws IOException {
+    ResultMetaData(RowInputInterface in) {
 
         type        = in.readInt();
         columnCount = in.readInt();

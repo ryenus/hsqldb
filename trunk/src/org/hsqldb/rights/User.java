@@ -72,7 +72,7 @@ public class User extends Grantee {
 
     public String getSQL() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_CREATE)
           .append(' ')
@@ -154,7 +154,7 @@ public class User extends Grantee {
 
     public String getInitialSchemaSQL() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_ALTER)
           .append(' ')
@@ -266,7 +266,7 @@ public class User extends Grantee {
      */
     public String getConnectUserSQL() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_SET)
           .append(' ')

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -55,14 +56,13 @@ import javax.swing.JFrame;
 //        for JComboBox fontSizesComboBox and String fontSizes[];
 class FontDialogSwing extends JDialog {
 
-    private static boolean      isRunning   = false;
-    private static final String BACKGROUND  = "Background";
-    private static final String FOREGROUND  = "Foreground";
-    private static JButton      bgColorButton;
-    private static JCheckBox    ckbbold;
-    private static JButton      fgColorButton;
-    private static JComboBox    fontsComboBox;
-
+    private static boolean        isRunning  = false;
+    private static final String   BACKGROUND = "Background";
+    private static final String   FOREGROUND = "Foreground";
+    private static JButton        bgColorButton;
+    private static JCheckBox      ckbbold;
+    private static JButton        fgColorButton;
+    private static JComboBox      fontsComboBox;
     private static final String[] fontSizes = {
         "8", "9", "10", "11", "12", "13", "14", "16", "18", "24", "36"
     };
@@ -71,9 +71,9 @@ class FontDialogSwing extends JDialog {
     //  private static JSpinner           spinnerFontSizes;
     //  private static SpinnerNumberModel spinnerModelSizes;
     private static DatabaseManagerSwing fOwner;
-    private static final JFrame frame =
-        new JFrame("DataBaseManagerSwing Font Selection Dialog");
-    private static JCheckBox ckbitalic;
+    private static final JFrame frame = new JFrame(
+        "DataBaseManagerSwing Font Selection Dialog");
+    private static JCheckBox            ckbitalic;
 
     /**
      * Create and display FontDialogSwing Dialog.
@@ -99,62 +99,68 @@ class FontDialogSwing extends JDialog {
                 new ImageIcon(CommonSwing.getIcon("ItalicFont")));
 
             ckbitalic.putClientProperty("is3DEnabled", Boolean.TRUE);
-            ckbitalic.addActionListener(new ActionListener() {
+            ckbitalic.addActionListener(
+                new ActionListener() {
 
-                public void actionPerformed(ActionEvent e) {
-                    setStyle();
-                }
-            });
+                    public void actionPerformed(ActionEvent e) {
+                        setStyle();
+                    }
+                });
 
-            ckbbold =
-                new JCheckBox(new ImageIcon(CommonSwing.getIcon("BoldFont")));
+            ckbbold = new JCheckBox(
+                new ImageIcon(CommonSwing.getIcon("BoldFont")));
 
             ckbbold.putClientProperty("is3DEnabled", Boolean.TRUE);
-            ckbbold.addActionListener(new ActionListener() {
+            ckbbold.addActionListener(
+                new ActionListener() {
 
-                public void actionPerformed(ActionEvent e) {
-                    setStyle();
-                }
-            });
+                    public void actionPerformed(ActionEvent e) {
+                        setStyle();
+                    }
+                });
 
             fgColorButton = new JButton(
                 "Foreground",
                 new ImageIcon(CommonSwing.getIcon("ColorSelection")));
 
             fgColorButton.putClientProperty("is3DEnabled", Boolean.TRUE);
-            fgColorButton.addActionListener(new ActionListener() {
+            fgColorButton.addActionListener(
+                new ActionListener() {
 
-                public void actionPerformed(ActionEvent e) {
-                    setColor(FOREGROUND);
-                }
-            });
+                    public void actionPerformed(ActionEvent e) {
+                        setColor(FOREGROUND);
+                    }
+                });
 
             bgColorButton = new JButton(
                 "Background",
                 new ImageIcon(CommonSwing.getIcon("ColorSelection")));
 
             bgColorButton.putClientProperty("is3DEnabled", Boolean.TRUE);
-            bgColorButton.addActionListener(new ActionListener() {
+            bgColorButton.addActionListener(
+                new ActionListener() {
 
-                public void actionPerformed(ActionEvent e) {
-                    setColor(BACKGROUND);
-                }
-            });
+                    public void actionPerformed(ActionEvent e) {
+                        setColor(BACKGROUND);
+                    }
+                });
 
-            JButton closeButton = new JButton("Close",
-                    new ImageIcon(CommonSwing.getIcon("Close")));
+            JButton closeButton = new JButton(
+                "Close",
+                new ImageIcon(CommonSwing.getIcon("Close")));
 
             closeButton.putClientProperty("is3DEnabled", Boolean.TRUE);
-            closeButton.addActionListener(new ActionListener() {
+            closeButton.addActionListener(
+                new ActionListener() {
 
-                public void actionPerformed(ActionEvent e) {
-                    frame.setVisible(false);
-                }
-            });
+                    public void actionPerformed(ActionEvent e) {
+                        frame.setVisible(false);
+                    }
+                });
 
             GraphicsEnvironment ge =
                 GraphicsEnvironment.getLocalGraphicsEnvironment();
-            String[]  fontNames = ge.getAvailableFontFamilyNames();
+            String[]  fontNames              = ge.getAvailableFontFamilyNames();
             Dimension fontsComboBoxDimension = new Dimension(160, 25);
 
             fontsComboBox = new JComboBox(fontNames);
@@ -164,34 +170,36 @@ class FontDialogSwing extends JDialog {
             fontsComboBox.setPreferredSize(fontsComboBoxDimension);
             fontsComboBox.setMaximumSize(fontsComboBoxDimension);
             fontsComboBox.setEditable(false);
-            String defaultFont = "Dialog";
-            fontsComboBox.setSelectedItem(defaultFont);
-            fontsComboBox.addActionListener(new ActionListener() {
 
-                public void actionPerformed(ActionEvent e) {
-                    setFont();
-                }
-            });
+            String defaultFont = "Dialog";
+
+            fontsComboBox.setSelectedItem(defaultFont);
+            fontsComboBox.addActionListener(
+                new ActionListener() {
+
+                    public void actionPerformed(ActionEvent e) {
+                        setFont();
+                    }
+                });
 
             // weconsultants@users 20050215 - Added for Compatbilty fix for  JDK 1.3
             //  weconsultants@users 20050215 - Added for Compatbilty fix for JDK 1.3
             JComboBox fontSizesComboBox = new JComboBox(fontSizes);
-
-            Dimension spinnerDimension = new Dimension(45, 25);
+            Dimension spinnerDimension  = new Dimension(45, 25);
 
             fontSizesComboBox.putClientProperty("is3DEnabled", Boolean.TRUE);
             fontSizesComboBox.setMinimumSize(spinnerDimension);
             fontSizesComboBox.setPreferredSize(spinnerDimension);
             fontSizesComboBox.setMaximumSize(spinnerDimension);
-            fontSizesComboBox.addItemListener(new ItemListener() {
+            fontSizesComboBox.addItemListener(
+                new ItemListener() {
 
-                public void itemStateChanged(ItemEvent evt) {
-
-                    if (evt.getStateChange() == ItemEvent.SELECTED) {
-                        setFontSize((String) evt.getItem());
+                    public void itemStateChanged(ItemEvent evt) {
+                        if (evt.getStateChange() == ItemEvent.SELECTED) {
+                            setFontSize((String) evt.getItem());
+                        }
                     }
-                }
-            });
+                });
 
             // weconsultants@users 20050215 - Commented out for Compatbilty fix for  JDK 1.3
             //            Dimension spinnerDimension = new Dimension(50, 25);
@@ -231,23 +239,23 @@ class FontDialogSwing extends JDialog {
         Font txtResultFont = fOwner.txtResult.getFont();
 
         fOwner.txtResult.setFont(
-            new Font(
-                fontsComboBox.getSelectedItem().toString(),
-                txtResultFont.getStyle(), txtResultFont.getSize()));
+            new Font(fontsComboBox.getSelectedItem().toString(),
+                     txtResultFont.getStyle(),
+                     txtResultFont.getSize()));
 
         Font txtCommandFont = fOwner.txtResult.getFont();
 
         fOwner.txtCommand.setFont(
-            new Font(
-                fontsComboBox.getSelectedItem().toString(),
-                txtCommandFont.getStyle(), txtCommandFont.getSize()));
+            new Font(fontsComboBox.getSelectedItem().toString(),
+                     txtCommandFont.getStyle(),
+                     txtCommandFont.getSize()));
 
         Font txtTreeFont = fOwner.txtResult.getFont();
 
         fOwner.tTree.setFont(
-            new Font(
-                fontsComboBox.getSelectedItem().toString(),
-                txtTreeFont.getStyle(), txtTreeFont.getSize()));
+            new Font(fontsComboBox.getSelectedItem().toString(),
+                     txtTreeFont.getStyle(),
+                     txtTreeFont.getSize()));
     }
 
     /**
@@ -255,16 +263,14 @@ class FontDialogSwing extends JDialog {
      */
     public static void setFontSize(String inFontSize) {
 
-        // weconsultants@users 20050215 - Changed for Compatbilty fix for JDK 1.3
-        // Convert Strng to float for deriveFont() call
-        Float stageFloat = Float.valueOf(inFontSize);
-        float fontSize   = stageFloat.floatValue();
-        Font  fonttTree  = fOwner.tTree.getFont().deriveFont(fontSize);
+        // weconsultants@users 20050215 - Changed for Compatibility fix for JDK 1.3
+        // Convert String to float for deriveFont() call
+        float fontSize = Float.parseFloat(inFontSize);
+        Font  fontTree = fOwner.tTree.getFont().deriveFont(fontSize);
 
-        fOwner.tTree.setFont(fonttTree);
+        fOwner.tTree.setFont(fontTree);
 
-        Font fontTxtCommand =
-            fOwner.txtCommand.getFont().deriveFont(fontSize);
+        Font fontTxtCommand = fOwner.txtCommand.getFont().deriveFont(fontSize);
 
         fOwner.txtCommand.setFont(fontTxtCommand);
 
@@ -292,14 +298,14 @@ class FontDialogSwing extends JDialog {
         fOwner.tTree.setFont(fOwner.txtCommand.getFont().deriveFont(style));
         fOwner.txtCommand.setFont(
             fOwner.txtCommand.getFont().deriveFont(style));
-        fOwner.txtResult.setFont(
-            fOwner.txtResult.getFont().deriveFont(style));
+        fOwner.txtResult.setFont(fOwner.txtResult.getFont().deriveFont(style));
     }
 
     public static void setColor(String inTarget) {
 
         if (inTarget.equals(BACKGROUND)) {
-            Color backgroundColor = JColorChooser.showDialog(null,
+            Color backgroundColor = JColorChooser.showDialog(
+                null,
                 "DataBaseManagerSwing Choose Background Color",
                 fOwner.txtResult.getBackground());
 
@@ -309,7 +315,8 @@ class FontDialogSwing extends JDialog {
                 fOwner.txtResult.setBackground(backgroundColor);
             }
         } else {
-            Color foregroundColor = JColorChooser.showDialog(null,
+            Color foregroundColor = JColorChooser.showDialog(
+                null,
                 "DataBaseManagerSwing Choose Foreground Color",
                 fOwner.txtResult.getForeground());
 

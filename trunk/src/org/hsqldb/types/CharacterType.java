@@ -1167,7 +1167,7 @@ public class CharacterType extends Type {
                 offset++;
 
                 match = true;
-            } else if (array[i].length() == 0) {
+            } else if (array[i].isEmpty()) {
 
                 // string skip
                 match = false;

@@ -1038,7 +1038,7 @@ public class RangeVariable {
             }
         }
 
-        if (conditionsList.size() == 0) {
+        if (conditionsList.isEmpty()) {
             if (rangeTable.isView()) {
                 ((TableDerived) rangeTable).resetToView();
             }

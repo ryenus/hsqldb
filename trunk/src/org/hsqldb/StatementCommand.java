@@ -206,9 +206,6 @@ public class StatementCommand extends Statement {
                 break;
 
             case StatementTypes.SET_TABLE_SOURCE :
-                group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
-                break;
-
             case StatementTypes.SET_TABLE_READONLY :
                 group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 break;

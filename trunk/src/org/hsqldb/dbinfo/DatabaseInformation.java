@@ -339,7 +339,8 @@ public class DatabaseInformation {
 
             return (DatabaseInformation) ctor.newInstance(ctorParms);
         } catch (Exception e) {
-            e.printStackTrace();
+
+            // e.printStackTrace();
         }
 
         return new DatabaseInformation(db);

@@ -59,7 +59,7 @@ class HsqlThreadFactory implements ThreadFactory {
 
     /**
      * Constructs a new HsqlThreadFactory whose retrieved threads come from the
-     * specified ThreadFactory object or from this factory implementation, if'
+     * specified ThreadFactory object or from this factory implementation, if
      * the specified implementation is null.
      *
      * @param f the factory implementation this factory uses

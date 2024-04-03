@@ -1026,7 +1026,7 @@ public class ExpressionOp extends Expression {
                         leftValue,
                         nodes[LEFT].dataType,
                         0,
-                        atLocal);
+                        true);
                 }
 
                 if (rightValue == null) {

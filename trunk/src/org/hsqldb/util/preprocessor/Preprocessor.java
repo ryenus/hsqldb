@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -350,7 +350,7 @@ public class Preprocessor {
             this.resolver = resolver;
         }
 
-        if (predefined == null || predefined.trim().length() == 0) {
+        if (predefined == null || predefined.trim().isEmpty()) {
             this.defines = new Defines();
         } else {
             predefined = this.resolver.resolveProperties(predefined);

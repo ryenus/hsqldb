@@ -33,6 +33,7 @@ package org.hsqldb.jdbc;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import java.sql.Blob;
 import java.sql.SQLException;
 
@@ -87,8 +88,10 @@ public class JDBCBlobClient implements Blob {
      * @throws SQLException if there is an error accessing the
      *   {@code BLOB} value
      */
-    public synchronized byte[] getBytes(long pos,
-                                        int length) throws SQLException {
+    public synchronized byte[] getBytes(
+            long pos,
+            int length)
+            throws SQLException {
 
         checkClosed();
 
@@ -112,7 +115,6 @@ public class JDBCBlobClient implements Blob {
      *   {@code BLOB} value
      */
     public synchronized InputStream getBinaryStream() throws SQLException {
-
         checkClosed();
 
         return new BlobInputStream(session, blob, 0, length());
@@ -130,8 +132,10 @@ public class JDBCBlobClient implements Blob {
      * @throws SQLException if there is an error accessing the
      *   {@code BLOB}
      */
-    public synchronized long position(byte[] pattern,
-                                      long start) throws SQLException {
+    public synchronized long position(
+            byte[] pattern,
+            long start)
+            throws SQLException {
 
         checkClosed();
 
@@ -164,8 +168,10 @@ public class JDBCBlobClient implements Blob {
      * @throws SQLException if there is an error accessing the
      *   {@code BLOB} value
      */
-    public synchronized long position(Blob pattern,
-                                      long start) throws SQLException {
+    public synchronized long position(
+            Blob pattern,
+            long start)
+            throws SQLException {
 
         checkClosed();
 
@@ -212,8 +218,10 @@ public class JDBCBlobClient implements Blob {
      * @throws SQLException if there is an error accessing the
      *   {@code BLOB} value
      */
-    public synchronized int setBytes(long pos,
-                                     byte[] bytes) throws SQLException {
+    public synchronized int setBytes(
+            long pos,
+            byte[] bytes)
+            throws SQLException {
         return setBytes(pos, bytes, 0, bytes.length);
     }
 
@@ -234,8 +242,12 @@ public class JDBCBlobClient implements Blob {
      * @throws SQLException if there is an error accessing the
      *   {@code BLOB} value
      */
-    public synchronized int setBytes(long pos, byte[] bytes, int offset,
-                                     int len) throws SQLException {
+    public synchronized int setBytes(
+            long pos,
+            byte[] bytes,
+            int offset,
+            int len)
+            throws SQLException {
 
         checkClosed();
 
@@ -253,7 +265,6 @@ public class JDBCBlobClient implements Blob {
 
         try {
             startUpdate();
-
             blob.setBytes(session, pos - 1, bytes, offset, len);
 
             return len;
@@ -273,8 +284,9 @@ public class JDBCBlobClient implements Blob {
      * @throws SQLException if there is an error accessing the
      *   {@code BLOB} value
      */
-    public synchronized OutputStream setBinaryStream(long pos)
-    throws SQLException {
+    public synchronized OutputStream setBinaryStream(
+            long pos)
+            throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
@@ -334,8 +346,10 @@ public class JDBCBlobClient implements Blob {
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized InputStream getBinaryStream(long pos,
-            long length) throws SQLException {
+    public synchronized InputStream getBinaryStream(
+            long pos,
+            long length)
+            throws SQLException {
 
         checkClosed();
 
@@ -369,7 +383,6 @@ public class JDBCBlobClient implements Blob {
     }
 
     public synchronized void setWritable(JDBCResultSet result, int index) {
-
         isWritable = true;
         resultSet  = result;
         colIndex   = index;
@@ -399,7 +412,6 @@ public class JDBCBlobClient implements Blob {
     }
 
     private void checkClosed() throws SQLException {
-
         if (isClosed) {
             throw JDBCUtil.sqlException(ErrorCode.X_0F502);
         }
