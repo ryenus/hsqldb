@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.2
  *
  */
@@ -124,8 +124,11 @@ public class SetFunctionValueAggregate implements SetFunction {
         }
 
         switch (setType) {
+
+            case OpTypes.VARIANCE :
             case OpTypes.VAR_SAMP :
             case OpTypes.STDDEV_SAMP :
+            case OpTypes.STDDEV :
                 this.sample = true;
         }
 
@@ -309,8 +312,10 @@ public class SetFunctionValueAggregate implements SetFunction {
 
                 return;
 
+            case OpTypes.STDDEV :
             case OpTypes.STDDEV_POP :
             case OpTypes.STDDEV_SAMP :
+            case OpTypes.VARIANCE :
             case OpTypes.VAR_POP :
             case OpTypes.VAR_SAMP :
                 addDataPoint((Number) item);
@@ -324,108 +329,6 @@ public class SetFunctionValueAggregate implements SetFunction {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
-        }
-    }
-
-    public void addGroup(SetFunction group) {
-
-        SetFunctionValueAggregate item = (SetFunctionValueAggregate) group;
-
-        if (isDistinct) {
-            HashSet<Object>  otherSet = item.distinctValues;
-            Iterator<Object> it       = otherSet.iterator();
-
-            while (it.hasNext()) {
-                Object value = it.next();
-
-                add(value);
-            }
-
-            return;
-        }
-
-        switch (setType) {
-
-            case OpTypes.COUNT :
-                count += item.count;
-
-                return;
-
-            case OpTypes.STDDEV_POP :
-            case OpTypes.STDDEV_SAMP :
-            case OpTypes.VAR_POP :
-            case OpTypes.VAR_SAMP :
-                count += item.count;
-
-                addDataGroup(item);
-
-                return;
-
-            case OpTypes.AVG :
-            case OpTypes.SUM :
-                count += item.count;
-
-                switch (typeCode) {
-
-                    case Types.TINYINT :
-                    case Types.SQL_SMALLINT :
-                    case Types.SQL_INTEGER :
-                        loLong += item.loLong;
-
-                        return;
-
-                    case Types.SQL_INTERVAL_SECOND :
-                    case Types.SQL_INTERVAL_MONTH :
-                    case Types.SQL_DATE :
-                    case Types.SQL_TIME :
-                    case Types.SQL_TIME_WITH_TIME_ZONE :
-                    case Types.SQL_TIMESTAMP :
-                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                        addLongGroup(item);
-
-                        fraction += item.fraction;
-
-                        if (fraction > 1000000000) {
-                            addLong(fraction / 1000000000);
-
-                            fraction %= 1000000000;
-                        }
-
-                        currentDouble = item.currentDouble;
-
-                        return;
-                    }
-
-                    case Types.SQL_BIGINT :
-                        addLongGroup(item);
-
-                        return;
-
-                    case Types.SQL_REAL :
-                    case Types.SQL_FLOAT :
-                    case Types.SQL_DOUBLE :
-                        currentDouble += item.currentDouble;
-
-                        return;
-
-                    case Types.SQL_NUMERIC :
-                    case Types.SQL_DECIMAL :
-                        if (currentBigDecimal == null) {
-                            currentBigDecimal = item.currentBigDecimal;
-                        } else {
-                            currentBigDecimal = currentBigDecimal.add(
-                                item.currentBigDecimal);
-                        }
-
-                        return;
-
-                    default :
-                        throw Error.error(ErrorCode.X_42563);
-                }
-            default :
-                add(group.getValue());
-
-                return;
         }
     }
 
@@ -551,7 +454,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                             (int) nanos,
                             type.scale);
 
-                        if (setType == Types.SQL_DATE) {
+                        if (typeCode == Types.SQL_DATE) {
                             seconds = HsqlDateTime.getNormalisedDate(seconds);
                             nanos   = 0;
                         }
@@ -574,11 +477,6 @@ public class SetFunctionValueAggregate implements SetFunction {
                                         * DTIType.limitNanoseconds) / count;
 
                         nanos = DTIType.normaliseFraction((int) nanos, 0);
-
-                        if (setType == Types.SQL_DATE) {
-                            seconds = HsqlDateTime.getNormalisedDate(seconds);
-                            nanos   = 0;
-                        }
 
                         return new TimeData((int) seconds, (int) nanos, 0);
                     }
@@ -652,9 +550,15 @@ public class SetFunctionValueAggregate implements SetFunction {
                        ? Boolean.TRUE
                        : Boolean.FALSE;
 
+            case OpTypes.STDDEV :
+                return getStdDevOrZero();
+
             case OpTypes.STDDEV_POP :
             case OpTypes.STDDEV_SAMP :
                 return getStdDev();
+
+            case OpTypes.VARIANCE :
+                return getVarianceOrZero();
 
             case OpTypes.VAR_POP :
             case OpTypes.VAR_SAMP :
@@ -693,12 +597,6 @@ public class SetFunctionValueAggregate implements SetFunction {
                 loLong -= temp & 0x00000000ffffffffL;
             }
         }
-    }
-
-    private void addLongGroup(SetFunctionValueAggregate item) {
-        addLong(item.loLong);
-
-        hiLong += item.hiLong;
     }
 
     private BigInteger getLongSum() {
@@ -753,6 +651,167 @@ public class SetFunctionValueAggregate implements SetFunction {
         sk  += xi;
     }
 
+    private Double getVariance() {
+
+        if (!initialized) {
+            return null;
+        }
+
+        return sample
+               ? (n == 1)
+                 ? null    // NULL (not NaN) is correct in this case
+                 : Double.valueOf(vk / (double) (n - 1))
+               : Double.valueOf(vk / (double) (n));
+    }
+
+    private Double getVarianceOrZero() {
+
+        if (!initialized) {
+            return null;
+        }
+
+        if (n == 1) {
+            return 0d;
+        }
+
+        return getVariance();
+    }
+
+    private Double getStdDev() {
+
+        if (!initialized) {
+            return null;
+        }
+
+        return sample
+               ? (n == 1)
+                 ? null    // NULL (not NaN) is correct in this case
+                 : Double.valueOf(Math.sqrt(vk / (double) (n - 1)))
+               : Double.valueOf(Math.sqrt(vk / (double) (n)));
+    }
+
+    private Double getStdDevOrZero() {
+
+        if (!initialized) {
+            return null;
+        }
+
+        if (n == 1) {
+            return 0d;
+        }
+
+        return getStdDev();
+    }
+
+    // end statistics support
+    public void addGroup(SetFunction group) {
+
+        SetFunctionValueAggregate item = (SetFunctionValueAggregate) group;
+
+        if (isDistinct) {
+            HashSet<Object>  otherSet = item.distinctValues;
+            Iterator<Object> it       = otherSet.iterator();
+
+            while (it.hasNext()) {
+                Object value = it.next();
+
+                add(value);
+            }
+
+            return;
+        }
+
+        switch (setType) {
+
+            case OpTypes.COUNT :
+                count += item.count;
+
+                return;
+
+            case OpTypes.STDDEV_POP :
+            case OpTypes.STDDEV_SAMP :
+            case OpTypes.VAR_POP :
+            case OpTypes.VAR_SAMP :
+            case OpTypes.STDDEV :
+            case OpTypes.VARIANCE :
+                count += item.count;
+
+                addDataGroup(item);
+
+                return;
+
+            case OpTypes.AVG :
+            case OpTypes.SUM :
+                count += item.count;
+
+                switch (typeCode) {
+
+                    case Types.TINYINT :
+                    case Types.SQL_SMALLINT :
+                    case Types.SQL_INTEGER :
+                        loLong += item.loLong;
+
+                        return;
+
+                    case Types.SQL_INTERVAL_SECOND :
+                    case Types.SQL_INTERVAL_MONTH :
+                    case Types.SQL_DATE :
+                    case Types.SQL_TIME :
+                    case Types.SQL_TIME_WITH_TIME_ZONE :
+                    case Types.SQL_TIMESTAMP :
+                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                        addLongGroup(item);
+
+                        fraction += item.fraction;
+
+                        if (fraction > 1000000000) {
+                            addLong(fraction / 1000000000);
+
+                            fraction %= 1000000000;
+                        }
+
+                        currentDouble = item.currentDouble;
+
+                        return;
+                    }
+
+                    case Types.SQL_BIGINT :
+                        addLongGroup(item);
+
+                        return;
+
+                    case Types.SQL_REAL :
+                    case Types.SQL_FLOAT :
+                    case Types.SQL_DOUBLE :
+                        currentDouble += item.currentDouble;
+
+                        return;
+
+                    case Types.SQL_NUMERIC :
+                    case Types.SQL_DECIMAL :
+                        if (currentBigDecimal == null) {
+                            currentBigDecimal = item.currentBigDecimal;
+                        } else {
+                            currentBigDecimal = currentBigDecimal.add(
+                                item.currentBigDecimal);
+                        }
+
+                        return;
+
+                    default :
+                        throw Error.error(ErrorCode.X_42563);
+                }
+            default :
+                add(group.getValue());
+        }
+    }
+
+    private void addLongGroup(SetFunctionValueAggregate item) {
+        addLong(item.loLong);
+
+        hiLong += item.hiLong;
+    }
+
     private void addDataGroup(SetFunctionValueAggregate value) {
 
         double cm;
@@ -776,32 +835,4 @@ public class SetFunctionValueAggregate implements SetFunction {
         sk += value.sk;
         n  += value.n;
     }
-
-    private Double getVariance() {
-
-        if (!initialized) {
-            return null;
-        }
-
-        return sample
-               ? (n == 1)
-                 ? null    // NULL (not NaN) is correct in this case
-                 : Double.valueOf(vk / (double) (n - 1))
-               : Double.valueOf(vk / (double) (n));
-    }
-
-    private Double getStdDev() {
-
-        if (!initialized) {
-            return null;
-        }
-
-        return sample
-               ? (n == 1)
-                 ? null    // NULL (not NaN) is correct in this case
-                 : Double.valueOf(Math.sqrt(vk / (double) (n - 1)))
-               : Double.valueOf(Math.sqrt(vk / (double) (n)));
-    }
-
-    // end statistics support
 }

@@ -872,8 +872,10 @@ public class ParserBase {
         expressionTypeMap.put(Tokens.EVERY, OpTypes.EVERY);
         expressionTypeMap.put(Tokens.ANY, OpTypes.SOME);
         expressionTypeMap.put(Tokens.SOME, OpTypes.SOME);
+        expressionTypeMap.put(Tokens.STDDEV, OpTypes.STDDEV);
         expressionTypeMap.put(Tokens.STDDEV_POP, OpTypes.STDDEV_POP);
         expressionTypeMap.put(Tokens.STDDEV_SAMP, OpTypes.STDDEV_SAMP);
+        expressionTypeMap.put(Tokens.VARIANCE, OpTypes.VARIANCE);
         expressionTypeMap.put(Tokens.VAR_POP, OpTypes.VAR_POP);
         expressionTypeMap.put(Tokens.VAR_SAMP, OpTypes.VAR_SAMP);
         expressionTypeMap.put(Tokens.ARRAY_AGG, OpTypes.ARRAY_AGG);

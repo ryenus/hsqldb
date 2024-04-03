@@ -130,6 +130,16 @@ public class ExpressionAggregate extends Expression {
                 sb.append(left).append(')');
                 break;
 
+            case OpTypes.STDDEV :
+                sb.append(' ').append(Tokens.T_STDDEV).append('(');
+                sb.append(left).append(')');
+                break;
+
+            case OpTypes.VARIANCE :
+                sb.append(' ').append(Tokens.T_VARIANCE).append('(');
+                sb.append(left).append(')');
+                break;
+
             default :
                 throw Error.runtimeError(
                     ErrorCode.U_S0500,
@@ -193,6 +203,14 @@ public class ExpressionAggregate extends Expression {
 
             case OpTypes.VAR_SAMP :
                 sb.append(Tokens.T_VAR_SAMP).append(' ');
+                break;
+
+            case OpTypes.STDDEV :
+                sb.append(Tokens.T_STDDEV).append(' ');
+                break;
+
+            case OpTypes.VARIANCE :
+                sb.append(Tokens.T_VARIANCE).append(' ');
                 break;
 
             default :
@@ -382,8 +400,10 @@ public class ExpressionAggregate extends Expression {
 
                 break;
 
+            case OpTypes.STDDEV :
             case OpTypes.STDDEV_POP :
             case OpTypes.STDDEV_SAMP :
+            case OpTypes.VARIANCE :
             case OpTypes.VAR_POP :
             case OpTypes.VAR_SAMP :
                 if (dataType.isNumberType()) {
