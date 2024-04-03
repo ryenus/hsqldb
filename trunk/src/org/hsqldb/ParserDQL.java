@@ -315,10 +315,6 @@ public class ParserDQL extends ParserBase {
                         break;
 
                     case Tokens.TEXT :
-                        typeNumber       = Types.LONGVARCHAR;
-                        acceptsPrecision = false;
-                        break;
-
                     case Tokens.MEDIUMTEXT :
                     case Tokens.LONGTEXT :
                         typeNumber       = Types.LONGVARCHAR;
@@ -2520,8 +2516,10 @@ public class ParserDQL extends ParserBase {
 
                 break;
 
+            case OpTypes.STDDEV :
             case OpTypes.STDDEV_POP :
             case OpTypes.STDDEV_SAMP :
+            case OpTypes.VARIANCE :
             case OpTypes.VAR_POP :
             case OpTypes.VAR_SAMP :
                 if (all || distinct) {
@@ -3203,9 +3201,13 @@ public class ParserDQL extends ParserBase {
             case Tokens.VAR_POP :
             case Tokens.VAR_SAMP :
             case Tokens.ARRAY_AGG :
+
+            // non-standard
             case Tokens.GROUP_CONCAT :
             case Tokens.STRING_AGG :
             case Tokens.MEDIAN :
+            case Tokens.STDDEV :
+            case Tokens.VARIANCE :
                 e = readAggregateFunctionOrNull();    // general set function
 
                 if (e != null) {
@@ -3427,7 +3429,7 @@ public class ParserDQL extends ParserBase {
                     break loop;
 
                 case Tokens.COMMA :
-                    if (list.size() == 0) {
+                    if (list.isEmpty()) {
                         throw unexpectedToken();
                     }
 
@@ -3448,7 +3450,7 @@ public class ParserDQL extends ParserBase {
             }
         }
 
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             if (token.tokenType != Tokens.CLOSEBRACKET) {
                 TableDerived td = XreadSubqueryTableBody(
                     OpTypes.TABLE_SUBQUERY);
@@ -3542,7 +3544,7 @@ public class ParserDQL extends ParserBase {
                     break loop;
 
                 case Tokens.COMMA :
-                    if (map.size() == 0) {
+                    if (map.isEmpty()) {
                         throw unexpectedToken();
                     }
 
@@ -8277,7 +8279,7 @@ public class ParserDQL extends ParserBase {
 
         public NumberSequence[] getSequences() {
 
-            if (usedSequences.size() == 0) {
+            if (usedSequences.isEmpty()) {
                 return NumberSequence.emptyArray;
             }
 
@@ -8290,7 +8292,7 @@ public class ParserDQL extends ParserBase {
 
         public Routine[] getRoutines() {
 
-            if (callProcedure == null && usedRoutines.size() == 0) {
+            if (callProcedure == null && usedRoutines.isEmpty()) {
                 return Routine.emptyArray;
             }
 
@@ -8453,7 +8455,7 @@ public class ParserDQL extends ParserBase {
 
         ExpressionColumn[] getParameters() {
 
-            if (parameters.size() == 0) {
+            if (parameters.isEmpty()) {
                 return ExpressionColumn.emptyArray;
             }
 

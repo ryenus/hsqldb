@@ -266,16 +266,19 @@ public class TriggerDef implements Runnable, SchemaObject {
         StringBuilder sb = getSQLMain();
 
         if (maxRowsQueued != 0) {
-            sb.append(Tokens.T_QUEUE).append(' ');
-            sb.append(maxRowsQueued).append(' ');
+            sb.append(Tokens.T_QUEUE)
+              .append(' ')
+              .append(maxRowsQueued)
+              .append(' ');
 
             if (nowait) {
                 sb.append(Tokens.T_NOWAIT).append(' ');
             }
         }
 
-        sb.append(Tokens.T_CALL).append(' ');
-        sb.append(StringConverter.toQuotedString(triggerClassName, '"', false));
+        sb.append(Tokens.T_CALL)
+          .append(' ')
+          .append(StringConverter.toQuotedString(triggerClassName, '"', false));
 
         return sb.toString();
     }
@@ -645,7 +648,7 @@ public class TriggerDef implements Runnable, SchemaObject {
 
         notify();    // notify push's wait
 
-        if (pendingQueue.size() == 0) {
+        if (pendingQueue.isEmpty()) {
             return null;
         } else {
             return pendingQueue.removeFirst();

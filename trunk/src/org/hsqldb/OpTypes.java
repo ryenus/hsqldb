@@ -142,7 +142,9 @@ public interface OpTypes {
         ARRAY_SUBQUERY             = 102,
         JSON_FUNCTION              = 103,
         JSON_SQL_FUNCTION          = 104,
-        GROUPING                   = 105;    // grouping function
+        GROUPING                   = 105,    // grouping function
+        STDDEV                     = 142,
+        VARIANCE                   = 143;
     //J-
     int[] aggOpTypes = new int[] {
 
@@ -162,6 +164,8 @@ public interface OpTypes {
         OpTypes.GROUP_CONCAT,
         OpTypes.STRING_AGG,
         OpTypes.MEDIAN,
+        OpTypes.STDDEV,
+        OpTypes.VARIANCE,
     };
 
     int[] columnOpTypes = new int[]{ OpTypes.COLUMN };
