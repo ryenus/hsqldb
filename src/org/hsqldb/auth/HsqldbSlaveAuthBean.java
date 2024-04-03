@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.lib.FrameworkLogger;
  *
  * @see AuthFunctionBean
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @since 2.0.1
+ * @since 2.7.3
  */
 public class HsqldbSlaveAuthBean implements AuthFunctionBean {
     private static FrameworkLogger logger =
@@ -135,6 +135,10 @@ public class HsqldbSlaveAuthBean implements AuthFunctionBean {
                     if (problem == null) {
                         throw nestedSe;
                     }
+                }
+
+                if (problem != null) {
+                    throw problem;
                 }
             }
         }
