@@ -326,7 +326,7 @@ public final class DatabaseURL {
             if (!noPath && extraProps != null) {
                 String filePath = extraProps.getProperty("filepath");
 
-                if (filePath != null && database.length() != 0) {
+                if (filePath != null && database.length() > 0) {
                     database += ";" + filePath;
                 } else {
                     if (url.indexOf(S_MEM) == postUrlPos + 1

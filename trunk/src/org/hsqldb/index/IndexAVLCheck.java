@@ -528,7 +528,7 @@ public class IndexAVLCheck {
                 }
 
                 BitMap bitMap   = getBitMap(blockIndex);
-                int    countSet = bitMap.countSet(blockOffset, currentUnits);
+                int    countSet = bitMap.countSetBits(blockOffset, blockOffset + currentUnits);
 
                 if (countSet > 0) {
 
