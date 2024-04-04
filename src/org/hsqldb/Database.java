@@ -227,7 +227,7 @@ public class Database {
      */
     void reopen() {
 
-        boolean isNew = false;
+        boolean isNew;
 
         setState(DATABASE_OPENING);
 

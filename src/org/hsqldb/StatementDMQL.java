@@ -304,7 +304,7 @@ public abstract class StatementDMQL extends Statement {
             subQueries = OrderedHashSet.addAll(subQueries, set);
         }
 
-        if (subQueries == null || subQueries.size() == 0) {
+        if (subQueries == null || subQueries.isEmpty()) {
             return TableDerived.emptyArray;
         }
 

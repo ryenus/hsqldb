@@ -280,17 +280,17 @@ public class BitMap {
         }
     }
 
-    public int countSet(int from, int count) {
+    public int countSetBits(int from, int limit) {
 
-        int set = 0;
+        int setCount = 0;
 
-        for (int i = from; i < from + count; i++) {
+        for (int i = from; i < limit; i++) {
             if (isSet(i)) {
-                set++;
+                setCount++;
             }
         }
 
-        return set;
+        return setCount;
     }
 
     public int countSetBits() {
