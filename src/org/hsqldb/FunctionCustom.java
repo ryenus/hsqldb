@@ -1394,7 +1394,7 @@ public class FunctionCustom extends FunctionSQL {
                         Type.SQL_DATE);
 
                 return ValuePool.getInt(
-                    (int) (diff.getSeconds() / (24 * 60 * 60) + 1));
+                    (int) (diff.getSeconds() / DTIType.secondsInDay + 1));
             }
 
             case FUNC_PI :

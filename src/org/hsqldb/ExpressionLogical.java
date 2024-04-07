@@ -2481,11 +2481,7 @@ public class ExpressionLogical extends Expression {
             return true;
         }
 
-        if (nodes[RIGHT].getRangeVariable() == range) {
-            return true;
-        }
-
-        return false;
+        return nodes[RIGHT].getRangeVariable() == range;
     }
 
     void getJoinRangeVariables(
@@ -2603,9 +2599,7 @@ public class ExpressionLogical extends Expression {
             PersistentStore store = rangeVar.rangeTable.getRowStore(session);
             double          cost  = store.elementCount();
 
-            return cost < Index.minimumSelectivity
-                   ? Index.minimumSelectivity
-                   : cost;
+            return Math.max(cost, Index.minimumSelectivity);
         }
     }
 

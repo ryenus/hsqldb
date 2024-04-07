@@ -30,9 +30,12 @@
 
 
 package org.hsqldb.jdbc.pool;
+
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import javax.sql.XAConnection;
+
 import javax.transaction.xa.XAResource;
 
 import org.hsqldb.jdbc.JDBCConnection;
@@ -53,13 +56,16 @@ import org.hsqldb.jdbc.JDBCConnection;
  * @author Fred Toussi (fredt at users.sourceforge.net)
  * @see javax.sql.XAConnection
  */
-public class JDBCXAConnection extends JDBCPooledConnection implements XAConnection {
+public class JDBCXAConnection extends JDBCPooledConnection
+        implements XAConnection {
 
     JDBCXAResource xaResource;
 
-    public JDBCXAConnection(JDBCXADataSource dataSource, JDBCConnection connection) {
-
+    public JDBCXAConnection(
+            JDBCXADataSource dataSource,
+            JDBCConnection connection) {
         super(connection);
+
         xaResource = new JDBCXAResource(dataSource, connection);
     }
 
