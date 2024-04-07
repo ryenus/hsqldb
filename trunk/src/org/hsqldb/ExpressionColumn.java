@@ -1412,9 +1412,7 @@ public class ExpressionColumn extends Expression {
                 break;
         }
 
-        return factor < Index.minimumSelectivity
-               ? Index.minimumSelectivity
-               : factor;
+        return Math.max(factor, Index.minimumSelectivity);
     }
 
     public Expression duplicate() {

@@ -32,13 +32,16 @@
 package org.hsqldb.jdbc.pool;
 
 import java.io.Serializable;
+
 import java.sql.SQLException;
+
 import java.util.Properties;
 
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
+
 import javax.sql.CommonDataSource;
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
@@ -56,27 +59,31 @@ import org.hsqldb.jdbc.JDBCDriver;
  * @since JDK 1.2, HSQLDB 2.0
  */
 public class JDBCPooledDataSource extends JDBCCommonDataSource
-implements ConnectionPoolDataSource, Serializable, Referenceable,
-           CommonDataSource {
+        implements ConnectionPoolDataSource, Serializable, Referenceable,
+                   CommonDataSource {
 
     public PooledConnection getPooledConnection() throws SQLException {
 
-        JDBCConnection connection =
-            (JDBCConnection) JDBCDriver.getConnection(url, connectionProps);
+        JDBCConnection connection = (JDBCConnection) JDBCDriver.getConnection(
+            url,
+            connectionProps);
 
         return new JDBCPooledConnection(connection);
     }
 
-    public PooledConnection getPooledConnection(String user,
-            String password) throws SQLException {
+    public PooledConnection getPooledConnection(
+            String user,
+            String password)
+            throws SQLException {
 
         Properties props = new Properties();
 
         props.setProperty("user", user);
         props.setProperty("password", password);
 
-        JDBCConnection connection =
-            (JDBCConnection) JDBCDriver.getConnection(url, props);
+        JDBCConnection connection = (JDBCConnection) JDBCDriver.getConnection(
+            url,
+            props);
 
         return new JDBCPooledConnection(connection);
     }
@@ -96,8 +103,8 @@ implements ConnectionPoolDataSource, Serializable, Referenceable,
         ref.add(new StringRefAddr("database", getDatabase()));
         ref.add(new StringRefAddr("user", getUser()));
         ref.add(new StringRefAddr("password", password));
-        ref.add(new StringRefAddr("loginTimeout",
-                                  Integer.toString(loginTimeout)));
+        ref.add(
+            new StringRefAddr("loginTimeout", Integer.toString(loginTimeout)));
 
         return ref;
     }

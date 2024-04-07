@@ -114,7 +114,7 @@ import org.hsqldb.types.Type;
  * <div class="ReleaseSpecificDocumentation">
  * <p class="rshead">HSQLDB-Specific Information:</p>
  *
- * <h2>Metadata Table Production</h2>
+ * <p class="rshead2">Metadata Table Production</p>
  *
  * Starting with HSQLDB 1.7.2, the metadata table (a.k.a system table) production
  * implementation provided in the default build filters metadata based on each
@@ -153,12 +153,12 @@ import org.hsqldb.types.Type;
  * in compliance with the SQL:2011 Standard and report the properties of all
  * database objects.</p>
  *
- * <h2>Schema Metadata</h2>
+ * <p class="rshead2">Schema Metadata</p>
  *
  * The SQL SCHEMA concept became fully supported in the HSQLDB 1.8.x series and
  * this fact is reflected in the all subsequent versions of this class.
  *
- * <h2>Catalog Metadata</h2>
+ * <p class="rshead2">Catalog Metadata</p>
  *
  * Starting with HSQLDB 2.0, SQL standards compliance up to SQL:2008 and beyond
  * is a major theme which is reflected in the provision of the majority of the
@@ -179,13 +179,13 @@ import org.hsqldb.types.Type;
  * such as opening, manipulating or querying against multiple database
  * catalogs within a single session, not even in a one-at-a-time fashion.
  *
- * <h2>Index Metadata</h2>
+ * <p class="rshead2">Index Metadata</p>
  *
  * It must still be noted that as of the most recent release, HSQLDB continues
  * to ignore the {@code approximate} argument of {@link #getIndexInfo
  * getIndexInfo()} as no data is returned for CARDINALITY and PAGES coloumns.
  *
- * <h2>Notes for developers extending metadata table production</h2>
+ * <p class="rshead2">Notes for developers extending metadata table production</p>
  *
  * Note that in the absence of an ORDER BY clause, queries against the metadata
  * tables that directly support this class are expected to return rows in JDBC

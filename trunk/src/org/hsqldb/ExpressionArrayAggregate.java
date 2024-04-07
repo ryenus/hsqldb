@@ -111,18 +111,27 @@ public class ExpressionArrayAggregate extends Expression {
         switch (opType) {
 
             case OpTypes.ARRAY_AGG :
-                sb.append(' ').append(Tokens.T_ARRAY_AGG).append('(');
-                sb.append(left).append(')');
+                sb.append(' ')
+                  .append(Tokens.T_ARRAY_AGG)
+                  .append('(')
+                  .append(left)
+                  .append(')');
                 break;
 
             case OpTypes.GROUP_CONCAT :
-                sb.append(' ').append(Tokens.T_GROUP_CONCAT).append('(');
-                sb.append(left).append(')');
+                sb.append(' ')
+                  .append(Tokens.T_GROUP_CONCAT)
+                  .append('(')
+                  .append(left)
+                  .append(')');
                 break;
 
             case OpTypes.MEDIAN :
-                sb.append(' ').append(Tokens.T_MEDIAN).append('(');
-                sb.append(left).append(')');
+                sb.append(' ')
+                  .append(Tokens.T_MEDIAN)
+                  .append('(')
+                  .append(left)
+                  .append(')');
                 break;
 
             default :
@@ -162,9 +171,9 @@ public class ExpressionArrayAggregate extends Expression {
         }
 
         if (getLeftNode() != null) {
-            sb.append(" arg=[");
-            sb.append(nodes[LEFT].describe(session, blanks + 1));
-            sb.append(']');
+            sb.append(" arg=[")
+              .append(nodes[LEFT].describe(session, blanks + 1))
+              .append(']');
         }
 
         return sb.toString();
@@ -270,13 +279,14 @@ public class ExpressionArrayAggregate extends Expression {
 
         if (other instanceof ExpressionArrayAggregate) {
             ExpressionArrayAggregate o = (ExpressionArrayAggregate) other;
+            boolean result = super.equals(other)
+                             && opType == other.opType
+                             && exprSubType == other.exprSubType
+                             && isDistinctAggregate == o.isDistinctAggregate
+                             && separator.equals(o.separator)
+                             && condition.equals(o.condition);
 
-            return super.equals(other)
-                   && opType == other.opType
-                   && exprSubType == other.exprSubType
-                   && isDistinctAggregate == o.isDistinctAggregate
-                   && separator.equals(o.separator)
-                   && condition.equals(o.condition);
+            return result;
         }
 
         return false;

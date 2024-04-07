@@ -193,15 +193,15 @@ public class ExpressionAccessor extends Expression {
         sb.append("ARRAY ACCESS");
 
         if (getLeftNode() != null) {
-            sb.append(" array=[");
-            sb.append(nodes[LEFT].describe(session, blanks + 1));
-            sb.append(']');
+            sb.append(" array=[")
+              .append(nodes[LEFT].describe(session, blanks + 1))
+              .append(']');
         }
 
         if (getRightNode() != null) {
-            sb.append(" array_index=[");
-            sb.append(nodes[RIGHT].describe(session, blanks + 1));
-            sb.append(']');
+            sb.append(" array_index=[")
+              .append(nodes[RIGHT].describe(session, blanks + 1))
+              .append(']');
         }
 
         return sb.toString();
