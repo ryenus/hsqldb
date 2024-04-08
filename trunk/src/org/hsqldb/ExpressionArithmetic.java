@@ -115,10 +115,15 @@ public class ExpressionArithmetic extends Expression {
         switch (opType) {
 
             case OpTypes.CAST :
-                sb.append(' ').append(Tokens.T_CAST).append('(');
-                sb.append(left).append(' ').append(Tokens.T_AS).append(' ');
-                sb.append(dataType.getTypeDefinition());
-                sb.append(')');
+                sb.append(' ')
+                  .append(Tokens.T_CAST)
+                  .append('(')
+                  .append(left)
+                  .append(' ')
+                  .append(Tokens.T_AS)
+                  .append(' ')
+                  .append(dataType.getTypeDefinition())
+                  .append(')');
                 break;
 
             case OpTypes.NEGATE :
@@ -166,8 +171,9 @@ public class ExpressionArithmetic extends Expression {
 
             case OpTypes.VALUE :
                 sb.append("VALUE = ")
-                  .append(dataType.convertToSQLString(valueData));
-                sb.append(", TYPE = ").append(dataType.getNameString());
+                  .append(dataType.convertToSQLString(valueData))
+                  .append(", TYPE = ")
+                  .append(dataType.getNameString());
 
                 return sb.toString();
 
@@ -175,12 +181,13 @@ public class ExpressionArithmetic extends Expression {
 
             //
             case OpTypes.VALUELIST :
-                sb.append("VALUELIST ");
-                sb.append(" TYPE = ").append(dataType.getNameString());
+                sb.append("VALUELIST ")
+                  .append(" TYPE = ")
+                  .append(dataType.getNameString());
 
                 for (int i = 0; i < nodes.length; i++) {
-                    sb.append(nodes[i].describe(session, blanks + blanks));
-                    sb.append(' ');
+                    sb.append(nodes[i].describe(session, blanks + blanks))
+                      .append(' ');
                 }
 
                 break;
@@ -210,24 +217,24 @@ public class ExpressionArithmetic extends Expression {
                 break;
 
             case OpTypes.CAST :
-                sb.append("CAST ");
-                sb.append(dataType.getTypeDefinition());
-                sb.append(' ');
+                sb.append("CAST ")
+                  .append(dataType.getTypeDefinition())
+                  .append(' ');
                 break;
 
             default :
         }
 
         if (getLeftNode() != null) {
-            sb.append(" arg_left=[");
-            sb.append(nodes[LEFT].describe(session, blanks + 1));
-            sb.append(']');
+            sb.append(" arg_left=[")
+              .append(nodes[LEFT].describe(session, blanks + 1))
+              .append(']');
         }
 
         if (getRightNode() != null) {
-            sb.append(" arg_right=[");
-            sb.append(nodes[RIGHT].describe(session, blanks + 1));
-            sb.append(']');
+            sb.append(" arg_right=[")
+              .append(nodes[RIGHT].describe(session, blanks + 1))
+              .append(']');
         }
 
         return sb.toString();

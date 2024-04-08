@@ -270,12 +270,11 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         sb.append(')').append(' ');
 
         if (routineType == SchemaObject.FUNCTION) {
-            sb.append(Tokens.T_RETURNS);
-            sb.append(' ');
+            sb.append(Tokens.T_RETURNS).append(' ');
 
             if (returnsTable) {
-                sb.append(Tokens.T_TABLE);
-                sb.append(returnTable.getColumnListWithTypeSQL());
+                sb.append(Tokens.T_TABLE)
+                  .append(returnTable.getColumnListWithTypeSQL());
             } else {
                 sb.append(returnType.getTypeDefinition());
             }

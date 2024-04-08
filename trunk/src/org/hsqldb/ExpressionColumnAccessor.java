@@ -121,7 +121,7 @@ public class ExpressionColumnAccessor extends Expression {
 
     Expression replaceAliasInOrderBy(
             Session session,
-            Expression[] columns,
+            List<Expression> columns,
             int length) {
         return this;
     }

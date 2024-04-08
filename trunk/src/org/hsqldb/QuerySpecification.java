@@ -108,12 +108,13 @@ public class QuerySpecification extends QueryExpression {
 
     //
     Type[]                                resultColumnTypes;
-    private ArrayListIdentity<Expression> aggregateSet;
+
+    //
+    private ArrayListIdentity<Expression> aggregateList;
 
     //
     private ArrayListIdentity<Expression> resolvedSubqueryExpressions = null;
 
-    //
     //
     private boolean[] aggregateCheck;
 
@@ -320,13 +321,10 @@ public class QuerySpecification extends QueryExpression {
                 // resolve to aliases in select list
                 // this is non-standard and probably should be allowed only
                 // for basic group by lists
-                Expression[] exprArray = new Expression[exprColumnList.size()];
-
-                exprColumnList.toArray(exprArray);
 
                 Expression resolved = e.replaceAliasInOrderBy(
                     session,
-                    exprArray,
+                    exprColumnList,
                     indexLimitVisible);
 
                 if (resolved != e) {
@@ -421,8 +419,8 @@ public class QuerySpecification extends QueryExpression {
         // must be after asterisk expansion
         resolveColumnReferencesInGroupingSets(session, rangeGroups);
         setColumnIndexes();
-        finaliseColumns();
         resolveColumnReferences(session, rangeGroups);
+        finaliseColumns();
         setReferenceableColumns();
 
         unresolvedExpressions = Expression.resolveColumnSet(
@@ -624,22 +622,23 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = 0; i < indexLimitVisible; i++) {
+            Expression e = exprColumnList.get(i);
+
             resolveColumnReferencesAndAllocate(
                 session,
-                exprColumns[i],
+                e,
                 rangeVariables.length,
                 rangeGroups,
                 acceptsSequences);
 
             if (!isGrouped && !isDistinctSelect) {
-                List<TableDerived> list = exprColumns[i].collectAllSubqueries(
-                    null);
+                List<TableDerived> list = e.collectAllSubqueries(null);
 
                 if (list != null) {
                     isMergeable = false;
                 }
 
-                List<Expression> set = exprColumns[i].collectAllExpressions(
+                List<Expression> set = e.collectAllExpressions(
                     null,
                     OpTypes.sequenceExpressionSet,
                     OpTypes.subqueryAggregateExpressionSet);
@@ -653,9 +652,11 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = indexStartHaving; i < indexStartOrderBy; i++) {
+            Expression e = exprColumnList.get(i);
+
             resolveColumnReferencesAndAllocate(
                 session,
-                exprColumns[i],
+                e,
                 rangeVariables.length,
                 rangeGroups,
                 false);
@@ -689,26 +690,13 @@ public class QuerySpecification extends QueryExpression {
                 }
             }
 
-            e.replaceAliasInOrderBy(session, exprColumns, indexLimitVisible);
+            e.replaceAliasInOrderBy(session, exprColumnList, indexLimitVisible);
             resolveColumnReferencesAndAllocate(
                 session,
                 e,
                 rangeVariables.length,
                 RangeGroup.emptyArray,
                 false);
-
-            if (isAggregated || isGrouped) {
-                boolean check = e.getLeftNode()
-                                 .isComposedOf(
-                                     exprColumns,
-                                     0,
-                                     indexLimitVisible + groupByColumnCount,
-                                     OpTypes.aggregateFunctionSet);
-
-                if (!check) {
-                    throw Error.error(ErrorCode.X_42576);
-                }
-            }
         }
 
         if (sortAndSlice.limitCondition != null) {
@@ -806,7 +794,7 @@ public class QuerySpecification extends QueryExpression {
     private void resolveColumnReferencesAndAllocate(
             Session session,
             Expression expression,
-            int count,
+            int rangeCount,
             RangeGroup[] rangeGroups,
             boolean withSequences) {
 
@@ -817,7 +805,7 @@ public class QuerySpecification extends QueryExpression {
         List<Expression> list = expression.resolveColumnReferences(
             session,
             this,
-            count,
+            rangeCount,
             rangeGroups,
             null,
             withSequences);
@@ -833,7 +821,7 @@ public class QuerySpecification extends QueryExpression {
                             e.nodes[j].resolveColumnReferences(
                                 session,
                                 this,
-                                count,
+                                rangeCount,
                                 RangeGroup.emptyArray,
                                 null,
                                 false);
@@ -854,13 +842,13 @@ public class QuerySpecification extends QueryExpression {
                     resolved = resolveColumnReferences(
                         session,
                         e,
-                        count,
+                        rangeCount,
                         withSequences);
                 }
 
                 if (resolved) {
                     if (e.isSelfAggregate()) {
-                        addAggregateToSet(expression, e);
+                        addAggregateToList(expression, e);
                     }
 
                     if (resolvedSubqueryExpressions == null) {
@@ -880,13 +868,13 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    private void addAggregateToSet(Expression parent, Expression e) {
+    private void addAggregateToList(Expression parent, Expression e) {
 
-        if (aggregateSet == null) {
-            aggregateSet = new ArrayListIdentity<>();
+        if (aggregateList == null) {
+            aggregateList = new ArrayListIdentity<>();
         }
 
-        aggregateSet.add(e);
+        aggregateList.add(e);
 
         isAggregated = true;
 
@@ -1062,7 +1050,7 @@ public class QuerySpecification extends QueryExpression {
             int i = ((Integer) e.getValue(null)).intValue();
 
             if (0 < i && i <= indexLimitVisible) {
-                orderBy.setLeftNode(exprColumns[i - 1]);
+                orderBy.setLeftNode(exprColumnList.get(i - 1));
 
                 return i;
             }
@@ -1179,7 +1167,7 @@ public class QuerySpecification extends QueryExpression {
         if (isAggregated) {
             aggregateCheck = new boolean[indexStartAggregates];
 
-            tempSet.addAll(aggregateSet);
+            tempSet.addAll(aggregateList);
 
             indexLimitData = indexLimitExpressions = exprColumns.length
                     + tempSet.size();
@@ -1308,7 +1296,7 @@ public class QuerySpecification extends QueryExpression {
             setGroupedAggregateConditions(session);
         } else if (!sortAndSlice.hasOrder()
                    && !sortAndSlice.hasLimit()
-                   && aggregateSet.size() == 1
+                   && aggregateList.size() == 1
                    && indexLimitVisible == 1) {
             Expression e      = exprColumns[indexStartAggregates];
             int        opType = e.getType();
@@ -1412,6 +1400,24 @@ public class QuerySpecification extends QueryExpression {
         //  fredt@users
         OrderedHashSet<Expression> extraSet = null;
 
+        if (isAggregated || isGrouped) {
+            int orderColumnCount = sortAndSlice.getOrderLength();
+            for (int i = indexStartOrderBy;
+                    i < indexStartOrderBy + orderColumnCount; i++) {
+                Expression e = exprColumns[i];
+                boolean check = e.getLeftNode()
+                                 .isComposedOf(
+                                     exprColumns,
+                                     0,
+                                     indexLimitVisible + groupByColumnCount,
+                                     OpTypes.aggregateFunctionSet);
+
+                if (!check) {
+                    throw Error.error(ErrorCode.X_42576);
+                }
+            }
+        }
+
         tempSet.clear();
 
         if (isGrouped) {
@@ -1443,7 +1449,7 @@ public class QuerySpecification extends QueryExpression {
                 if (!resolveForGroupBy(tempSet)) {
                     throw Error.error(
                         ErrorCode.X_42574,
-                        (tempSet.get(0)).getSQL());
+                        tempSet.get(0).getSQL());
                 }
 
                 extraSet = new OrderedHashSet<>();
@@ -1474,6 +1480,8 @@ public class QuerySpecification extends QueryExpression {
         tempSet.clear();
 
         if (havingColumnCount != 0) {
+            Expression condition = exprColumns[indexStartHaving];
+
             if (unresolvedExpressions != null) {
                 tempSet.addAll(unresolvedExpressions);
             }
@@ -1487,9 +1495,9 @@ public class QuerySpecification extends QueryExpression {
                 tempSet.addAll(extraSet);
             }
 
-            if (!exprColumns[indexStartHaving].isComposedOf(tempSet,
-                    outerRanges,
-                    OpTypes.subqueryAggregateExpressionSet)) {
+            if (!condition.isComposedOf(tempSet,
+                                        outerRanges,
+                                        OpTypes.subqueryAggregateExpressionSet)) {
                 throw Error.error(ErrorCode.X_42573);
             }
 
@@ -2418,15 +2426,13 @@ public class QuerySpecification extends QueryExpression {
 
     public String describe(Session session, int blanks) {
 
-        StringBuilder sb;
         String        temp;
-        StringBuilder b = new StringBuilder(blanks);
+        StringBuilder sb = new StringBuilder();
+        StringBuilder b  = new StringBuilder(blanks);
 
         for (int i = 0; i < blanks; i++) {
             b.append(' ');
         }
-
-        sb = new StringBuilder();
 
         sb.append(b)
           .append("isDistinctSelect=[")

@@ -1345,14 +1345,20 @@ public class SchemaManager {
                     }
                 }
             }
-
-            if (SqlInvariants.INFORMATION_SCHEMA.equals(prefix)) {
-                return database.dbInfo.getSystemTable(session, name);
-            }
         }
 
         if (prefix == null) {
             prefix = session.getSchemaName(null);
+        }
+
+        if (type == SchemaObject.TABLE
+                && SqlInvariants.INFORMATION_SCHEMA.equals(prefix)
+                && database.dbInfo != null) {
+            Table t = database.dbInfo.getSystemTable(session, name);
+
+            if (t != null) {
+                return t;
+            }
         }
 
         return findSchemaObject(name, prefix, type);
