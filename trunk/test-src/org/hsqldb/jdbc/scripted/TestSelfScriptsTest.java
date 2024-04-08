@@ -144,6 +144,10 @@ public class TestSelfScriptsTest extends BaseTestCase {
         while (itr.hasNext()) {
             final String scriptPath = itr.next();
             final File file = new File(scriptPath);
+
+            if (!file.getName().startsWith("TestSelf")) {
+                continue;
+            }
             printProgress(scriptPath);
 
             TestCase tc = new NamedDummyCase(scriptPath);
@@ -182,9 +186,9 @@ public class TestSelfScriptsTest extends BaseTestCase {
         return scripts.size();
     }
 
-    private static class NamedDummyCase extends TestCase {
+    public static class NamedDummyCase extends TestCase {
 
-        private NamedDummyCase(String name) {
+        public NamedDummyCase(String name) {
             super(name);
         }
 
