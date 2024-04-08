@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package org.hsqldb.util;
 
 import java.io.Serializable;
+
 import java.util.Vector;
 
 /**
@@ -46,7 +47,6 @@ class DataAccessPoint implements Serializable {
     String         databaseToConvert;
 
     public DataAccessPoint() {
-
         tracer            = null;
         helper            = HelperFactory.getHelper("");
         databaseToConvert = "";
@@ -80,13 +80,17 @@ class DataAccessPoint implements Serializable {
         return false;
     }
 
-    TransferResultSet getData(String statement)
-    throws DataAccessPointException {
+    TransferResultSet getData(
+            String statement)
+            throws DataAccessPointException {
         return null;
     }
 
-    void putData(String statement, TransferResultSet r,
-                 int iMaxRows) throws DataAccessPointException {}
+    void putData(
+            String statement,
+            TransferResultSet r,
+            int iMaxRows)
+            throws DataAccessPointException {}
 
     Vector getSchemas() throws DataAccessPointException {
         return new Vector();
@@ -98,14 +102,17 @@ class DataAccessPoint implements Serializable {
 
     void setCatalog(String sCatalog) throws DataAccessPointException {}
 
-    Vector getTables(String sCatalog,
-                     String[] sSchemas) throws DataAccessPointException {
+    Vector getTables(
+            String sCatalog,
+            String[] sSchemas)
+            throws DataAccessPointException {
         return new Vector();
     }
 
-    void getTableStructure(TransferTable SQLCommands,
-                           DataAccessPoint Dest)
-                           throws DataAccessPointException {
+    void getTableStructure(
+            TransferTable SQLCommands,
+            DataAccessPoint Dest)
+            throws DataAccessPointException {
         throw new DataAccessPointException("Nothing to Parse");
     }
 

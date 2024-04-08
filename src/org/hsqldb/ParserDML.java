@@ -1566,7 +1566,7 @@ public class ParserDML extends ParserDQL {
             readThis(Tokens.THEN);
 
             if (readIfThis(Tokens.UPDATE)) {
-                if (updateExpressions.size() != 0) {
+                if (updateExpressions.size() > 0) {
                     throw Error.error(ErrorCode.X_42547);
                 }
 
@@ -1597,7 +1597,7 @@ public class ParserDML extends ParserDQL {
                 return StatementTypes.DELETE_WHERE;
             }
         } else if (token.tokenType == Tokens.NOT) {
-            if (insertExpressions.size() != 0) {
+            if (insertExpressions.size() > 0) {
                 throw Error.error(ErrorCode.X_42548);
             }
 

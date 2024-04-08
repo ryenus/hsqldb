@@ -824,7 +824,7 @@ public class Expression implements Cloneable {
      */
     Expression replaceAliasInOrderBy(
             Session session,
-            Expression[] columns,
+            List<Expression> columns,
             int length) {
 
         if (isSelfAggregate()) {

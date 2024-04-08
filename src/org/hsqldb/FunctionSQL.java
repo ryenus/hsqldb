@@ -2316,8 +2316,10 @@ public class FunctionSQL extends Expression {
                     return name;
                 }
 
-                sb.append(name).append(Tokens.T_OPENBRACKET).append(precision);
-                sb.append(Tokens.T_CLOSEBRACKET);
+                sb.append(name)
+                  .append(Tokens.T_OPENBRACKET)
+                  .append(precision)
+                  .append(Tokens.T_CLOSEBRACKET);
 
                 return sb.toString();
             }

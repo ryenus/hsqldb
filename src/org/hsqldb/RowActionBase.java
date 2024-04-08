@@ -43,7 +43,7 @@ package org.hsqldb;
  * timestamps are not in any order
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.7.0
+ * @version 2.7.3
 
  * @since 2.0.0
  */
@@ -59,15 +59,15 @@ public class RowActionBase {
     public static final byte ACTION_DEBUG         = 7;
 
     //
-    RowActionBase next;
-    Session       session;
-    long          actionSCN;
-    long          commitSCN;
-    byte          type;
-    boolean       deleteComplete;
-    boolean       rolledback;
-    boolean       prepared;
-    int[]         changeColumnMap;
+    RowActionBase    next;
+    Session          session;
+    long             actionSCN;
+    long             commitSCN;
+    byte             type;
+    volatile boolean deleteComplete;
+    boolean          rolledback;
+    boolean          prepared;
+    int[]            changeColumnMap;
 
     RowActionBase() {}
 

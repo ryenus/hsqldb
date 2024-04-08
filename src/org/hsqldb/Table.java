@@ -530,8 +530,7 @@ public class Table extends TableBase implements SchemaObject {
                 String d = c.getSQL();
 
                 if (d.length() > 0) {
-                    sb.append(',');
-                    sb.append(d);
+                    sb.append(',').append(d);
                 }
             }
         }

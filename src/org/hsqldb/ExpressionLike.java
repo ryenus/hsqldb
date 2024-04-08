@@ -353,9 +353,11 @@ public final class ExpressionLike extends ExpressionLogical {
 
         /* @todo fredt - scripting of non-ascii escapes needs changes to general script logging */
         if (nodes[ESCAPE] != null) {
-            sb.append(' ').append(Tokens.T_ESCAPE).append(' ');
-            sb.append(nodes[ESCAPE].getSQL());
-            sb.append(' ');
+            sb.append(' ')
+              .append(Tokens.T_ESCAPE)
+              .append(' ')
+              .append(nodes[ESCAPE].getSQL())
+              .append(' ');
         }
 
         return sb.toString();

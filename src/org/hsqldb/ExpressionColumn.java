@@ -1140,7 +1140,7 @@ public class ExpressionColumn extends Expression {
 
     Expression replaceAliasInOrderBy(
             Session session,
-            Expression[] columns,
+            List<Expression> columns,
             int length) {
 
         for (int i = 0; i < nodes.length; i++) {
@@ -1158,7 +1158,8 @@ public class ExpressionColumn extends Expression {
                 int matchIndex = -1;
 
                 for (int i = 0; i < length; i++) {
-                    SimpleName aliasName = columns[i].alias;
+                    Expression e         = columns.get(i);
+                    SimpleName aliasName = e.alias;
                     String     alias     = aliasName == null
                                            ? null
                                            : aliasName.name;
@@ -1177,11 +1178,11 @@ public class ExpressionColumn extends Expression {
                 }
 
                 if (matchIndex >= 0) {
-                    return columns[matchIndex];
+                    return columns.get(matchIndex);
                 }
 
                 for (int i = 0; i < length; i++) {
-                    Expression e = columns[i];
+                    Expression e = columns.get(i);
 
                     if (e instanceof ExpressionColumn) {
                         if (equals(e)) {
@@ -1210,7 +1211,7 @@ public class ExpressionColumn extends Expression {
                 }
 
                 if (matchIndex >= 0) {
-                    return columns[matchIndex];
+                    return columns.get(matchIndex);
                 }
 
                 break;

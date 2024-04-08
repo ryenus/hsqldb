@@ -406,9 +406,7 @@ public class RangeVariable {
     public boolean reverseOrder() {
 
         if (joinConditions.length == 1) {
-            joinConditions[0].reverseIndexCondition();
-
-            return true;
+            return joinConditions[0].reverseIndexCondition();
         }
 
         return false;
@@ -766,11 +764,7 @@ public class RangeVariable {
                 Expression dataExpression = rangeTable.getDataExpression();
 
                 if (dataExpression != null) {
-                    if (set == null) {
-                        set = new OrderedHashSet<>();
-                    }
-
-                    OrderedHashSet.addAll(set, dataExpression.getSubqueries());
+                    set = dataExpression.collectAllSubqueries(set);
                 }
             } else {
                 OrderedHashSet<TableDerived> temp =
@@ -1168,12 +1162,13 @@ public class RangeVariable {
 
         if (conditions == whereConditions) {
             if (joinConditions[0].nonIndexCondition != null) {
-                sb.append("join condition = [");
-                sb.append(
-                    joinConditions[0].nonIndexCondition.describe(session,
-                            blanks));
-                sb.append(b).append("]\n");
-                sb.append(b);
+                sb.append("join condition = [")
+                  .append(
+                      joinConditions[0].nonIndexCondition.describe(session,
+                              blanks))
+                  .append(b)
+                  .append("]\n")
+                  .append(b);
             }
         }
 
@@ -2204,12 +2199,12 @@ public class RangeVariable {
             return true;
         }
 
-        private void reverseIndexCondition() {
+        private boolean reverseIndexCondition() {
 
             if (indexedColumnCount == 0) {
                 reversed = true;
 
-                return;
+                return true;
             }
 
             if (opType == OpTypes.EQUAL || opType == OpTypes.IS_NULL) {
@@ -2247,6 +2242,8 @@ public class RangeVariable {
             }
 
             reversed = true;
+
+            return true;
         }
 
         String describe(Session session, int blanks) {
