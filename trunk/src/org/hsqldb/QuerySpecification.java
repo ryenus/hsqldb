@@ -107,7 +107,7 @@ public class QuerySpecification extends QueryExpression {
     public boolean isUniqueResultRows;
 
     //
-    Type[]                                resultColumnTypes;
+    Type[] resultColumnTypes;
 
     //
     private ArrayListIdentity<Expression> aggregateList;
@@ -321,7 +321,6 @@ public class QuerySpecification extends QueryExpression {
                 // resolve to aliases in select list
                 // this is non-standard and probably should be allowed only
                 // for basic group by lists
-
                 Expression resolved = e.replaceAliasInOrderBy(
                     session,
                     exprColumnList,
@@ -1402,6 +1401,7 @@ public class QuerySpecification extends QueryExpression {
 
         if (isAggregated || isGrouped) {
             int orderColumnCount = sortAndSlice.getOrderLength();
+
             for (int i = indexStartOrderBy;
                     i < indexStartOrderBy + orderColumnCount; i++) {
                 Expression e = exprColumns[i];
