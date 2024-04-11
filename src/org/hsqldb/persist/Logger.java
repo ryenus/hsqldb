@@ -359,7 +359,7 @@ public class Logger implements EventLogInterface {
             -1);
 
         if (level >= 0) {
-            setEventLogLevel(level, false);
+            setEventLogLevel(level);
         }
 
         level = database.urlProperties.getIntegerProperty(
@@ -375,7 +375,7 @@ public class Logger implements EventLogInterface {
             -1);
 
         if (level >= 0) {
-            setEventLogLevel(level, true);
+            setSqlLogLevel(level);
         }
     }
 
@@ -787,21 +787,26 @@ public class Logger implements EventLogInterface {
         */
     }
 
-    public void setEventLogLevel(int level, boolean logSql) {
+    public void setEventLogLevel(int level) {
 
-        if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_RESULT) {
+        if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_DETAIL) {
             throw Error.error(ErrorCode.X_42556);
         }
 
-        if (logSql) {
-            propSqlLogLevel = level;
+        propEventLogLevel = level;
 
-            sqlLog.setLevel(level);
-        } else {
-            propEventLogLevel = level;
+        appLog.setLevel(level);
+    }
 
-            appLog.setLevel(level);
+    public void setSqlLogLevel(int level) {
+
+        if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_SQL_RESULT) {
+            throw Error.error(ErrorCode.X_42556);
         }
+
+        propSqlLogLevel = level;
+
+        sqlLog.setLevel(level);
     }
 
     public void setExternalEventLogLevel(int level) {
@@ -886,7 +891,7 @@ public class Logger implements EventLogInterface {
             String values      = "";
             int    paramLength = 0;
 
-            if (propSqlLogLevel < SimpleLog.LOG_DETAIL) {
+            if (propSqlLogLevel < SimpleLog.LOG_SQL_DETAIL) {
                 if (sql.length() > 256) {
                     sql = sql.substring(0, 256);
                 }
@@ -901,7 +906,7 @@ public class Logger implements EventLogInterface {
                     paramLength);
             }
 
-            if (propSqlLogLevel == SimpleLog.LOG_RESULT) {
+            if (propSqlLogLevel == SimpleLog.LOG_SQL_RESULT) {
                 StringBuilder sb = new StringBuilder(values);
 
                 sb.append(' ').append('[');

@@ -674,7 +674,7 @@ public class Session implements SessionInterface {
             setIsolation(isolationLevelDefault);
         }
 
-        if (database.logger.getSqlEventLogLevel() > 0) {
+        if (database.logger.getSqlEventLogLevel() > SimpleLog.LOG_NONE) {
             Statement endTX = commit
                               ? StatementSession.commitNoChainStatement
                               : StatementSession.rollbackNoChainStatement;
@@ -684,7 +684,7 @@ public class Session implements SessionInterface {
                 endTX,
                 null,
                 Result.updateZeroResult,
-                SimpleLog.LOG_ERROR);
+                SimpleLog.LOG_SQL_BASIC);
         }
 
 /* debug 190
@@ -1380,13 +1380,14 @@ public class Session implements SessionInterface {
             sessionContext.setDynamicArguments(pvals);
 
             // statements such as DISCONNECT may close the session
-            if (database.logger.getSqlEventLogLevel() >= SimpleLog.LOG_NORMAL) {
+            if (database.logger.getSqlEventLogLevel()
+                    >= SimpleLog.LOG_SQL_NORMAL) {
                 database.logger.logStatementEvent(
                     this,
                     cs,
                     pvals,
                     Result.updateZeroResult,
-                    SimpleLog.LOG_NORMAL);
+                    SimpleLog.LOG_SQL_NORMAL);
             }
 
             r                               = cs.execute(this);
@@ -1445,9 +1446,7 @@ public class Session implements SessionInterface {
             }
 
             if (abortTransaction) {
-                Result result = handleAbortTransaction();
-
-                return result;
+                return handleAbortTransaction();
             }
 
             database.txManager.beginActionResume(this);
@@ -1467,13 +1466,13 @@ public class Session implements SessionInterface {
 
                 // tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
                 if (database.logger.getSqlEventLogLevel()
-                        >= SimpleLog.LOG_NORMAL) {
+                        >= SimpleLog.LOG_SQL_NORMAL) {
                     database.logger.logStatementEvent(
                         this,
                         cs,
                         pvals,
                         r,
-                        SimpleLog.LOG_NORMAL);
+                        SimpleLog.LOG_SQL_NORMAL);
                 }
             }
 

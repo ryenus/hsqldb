@@ -51,12 +51,15 @@ import org.hsqldb.types.HsqlDateTime.SystemTimeString;
  */
 public class SimpleLog {
 
-    public static final int LOG_NONE    = 0;
-    public static final int LOG_ERROR   = 1;
-    public static final int LOG_WARNING = 2;
-    public static final int LOG_NORMAL  = 3;
-    public static final int LOG_DETAIL  = 4;
-    public static final int LOG_RESULT  = 4;
+    public static final int LOG_NONE       = 0;
+    public static final int LOG_ERROR      = 1;
+    public static final int LOG_WARNING    = 2;
+    public static final int LOG_NORMAL     = 3;
+    public static final int LOG_DETAIL     = 4;
+    public static final int LOG_SQL_BASIC  = 1;
+    public static final int LOG_SQL_NORMAL = 2;
+    public static final int LOG_SQL_DETAIL = 3;
+    public static final int LOG_SQL_RESULT = 4;
 
     //
     public static final String logTypeName = "ENGINE";

@@ -569,7 +569,11 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
 
                     if (internal) {
-                        session.database.logger.setEventLogLevel(value, isSql);
+                        if (isSql) {
+                            session.database.logger.setSqlLogLevel(value);
+                        } else {
+                            session.database.logger.setEventLogLevel(value);
+                        }
                     } else {
                         session.database.logger.setExternalEventLogLevel(value);
                     }
