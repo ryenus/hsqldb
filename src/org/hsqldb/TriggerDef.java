@@ -107,8 +107,6 @@ public class TriggerDef implements Runnable, SchemaObject {
     protected boolean                valid     = true;    // parsing valid
     protected volatile boolean       keepGoing = true;
 
-    TriggerDef() {}
-
     /**
      *  Constructs a new TriggerDef object to represent an HSQLDB trigger
      *  declared in an SQL CREATE TRIGGER statement.
@@ -138,7 +136,7 @@ public class TriggerDef implements Runnable, SchemaObject {
      *      as determined by noWait
      */
     public TriggerDef(
-            HsqlNameManager.HsqlName name,
+            HsqlName name,
             int when,
             int operation,
             boolean forEach,
@@ -199,7 +197,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     }
 
     public TriggerDef(
-            HsqlNameManager.HsqlName name,
+            HsqlName name,
             int when,
             int operation,
             boolean forEachRow,
@@ -591,6 +589,7 @@ public class TriggerDef implements Runnable, SchemaObject {
                         this.triggerType,
                         name.name,
                         table.getName().name,
+                        table.getColumnLabels(),
                         triggerData.oldRow,
                         triggerData.newRow);
                 }
@@ -688,6 +687,7 @@ public class TriggerDef implements Runnable, SchemaObject {
                     triggerType,
                     name.name,
                     table.getName().name,
+                    table.getColumnLabels(),
                     oldData,
                     newData);
             } finally {

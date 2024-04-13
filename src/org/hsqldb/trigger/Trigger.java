@@ -129,17 +129,39 @@ public interface Trigger {
      * SQL State from org.hsqldb.error.ErrorCode.
      *
      * @param type the type as one of the int values defined in the interface
-     * @param trigName the name of the trigger
-     * @param tabName the name of the table upon which the triggered action is
+     * @param triggerName the name of the trigger
+     * @param tableName the name of the table upon which the triggered action is
+     *   occurring
+     * @param columnNames names of the columns of the table
+     * @param oldRow the old row
+     * @param newRow the new row
+     * @throws HsqlException the preferred type of exception thrown by the method
+     */
+    default void fire(
+            int type,
+            String triggerName,
+            String tableName,
+            String[] columnNames,
+            Object[] oldRow,
+            Object[] newRow) {
+        fire(type, triggerName, tableName, oldRow, newRow);
+    }
+
+    /**
+     * Old fire method.
+     *
+     * @param type the type as one of the int values defined in the interface
+     * @param triggerName the name of the trigger
+     * @param tableName the name of the table upon which the triggered action is
      *   occurring
      * @param oldRow the old row
      * @param newRow the new row
      * @throws HsqlException the preferred type of exception thrown by the method
      */
-    void fire(
+    default void fire(
             int type,
-            String trigName,
-            String tabName,
+            String triggerName,
+            String tableName,
             Object[] oldRow,
-            Object[] newRow);
+            Object[] newRow) {}
 }
