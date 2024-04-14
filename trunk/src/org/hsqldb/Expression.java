@@ -1857,7 +1857,7 @@ public class Expression implements Cloneable {
 
         RangeVariable[] ranges = rangeGroup.getRangeVariables();
 
-        for (int i = 0; i < set.size(); i++) {
+        for (int i = 0; i < nameSet.size(); i++) {
             HsqlName name = nameSet.get(i);
 
             switch (name.type) {
