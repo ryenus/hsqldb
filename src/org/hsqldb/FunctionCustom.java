@@ -44,6 +44,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
+import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
@@ -1417,7 +1418,7 @@ public class FunctionCustom extends FunctionSQL {
 
             case FUNC_ROUND :
             case FUNC_TRUNC : {
-                int interval = Types.SQL_INTERVAL_DAY;
+                int part = Types.SQL_INTERVAL_DAY;
 
                 if (data[0] == null) {
                     return null;
@@ -1431,17 +1432,17 @@ public class FunctionCustom extends FunctionSQL {
                             return null;
                         }
 
-                        interval = HsqlDateTime.toStandardIntervalPart(
+                        part = HsqlDateTime.toStandardIntervalPart(
                             (String) data[1]);
                     }
 
-                    if (interval < 0) {
+                    if (part < 0) {
                         throw Error.error(ErrorCode.X_42566, (String) data[1]);
                     }
 
                     return funcType == FUNC_ROUND
-                           ? type.round(session, data[0], interval)
-                           : type.truncate(session, data[0], interval);
+                           ? type.round(session, data[0], part)
+                           : type.truncate(session, data[0], part);
                 }
             }
 
@@ -3258,6 +3259,16 @@ public class FunctionCustom extends FunctionSQL {
                         if (!nodes[1].dataType.isCharacterType()) {
                             throw Error.error(ErrorCode.X_42566);
                         }
+
+                        if (nodes[1].opType == OpTypes.VALUE) {
+                            String value = (String) nodes[1].valueData;
+                            int part = HsqlDateTime.toStandardIntervalPart(
+                                value);
+
+                            if (part < 0) {
+                                throw Error.error(ErrorCode.X_42566, value);
+                            }
+                        }
                     }
 
                     dataType = nodes[0].dataType;
@@ -4627,11 +4638,11 @@ public class FunctionCustom extends FunctionSQL {
     /**
      * Returns a four character code representing the sound of the given
      * {@code String}. Non-ASCCI characters in the
-     * input {@code String} are ignored. <p>
+     * input {@code String} are ignored.<p>
      *
      * This method was rewritten for HSQLDB to comply with the description at
      * <a href="http://www.archives.gov/research/census/soundex.html">
-     * http://www.archives.gov/research/census/soundex.html </a>.<p>
+     * http://www.archives.gov/research/census/soundex.html </a>.
      * @param s the {@code String} for which to calculate the 4 character
      *      {@code SOUNDEX} value
      * @return the 4 character {@code SOUNDEX} value for the given
@@ -4689,135 +4700,102 @@ public class FunctionCustom extends FunctionSQL {
         return b;
     }
 
+    private static IntValueHashMap tsiTokensForStringPart =
+        new IntValueHashMap();
+
+    static {
+        tsiTokensForStringPart.put("yy", Tokens.SQL_TSI_YEAR);
+        tsiTokensForStringPart.put("yyyy", Tokens.SQL_TSI_YEAR);
+        tsiTokensForStringPart.put("year", Tokens.SQL_TSI_YEAR);
+        tsiTokensForStringPart.put("qq", Tokens.SQL_TSI_QUARTER);
+        tsiTokensForStringPart.put("quarter", Tokens.SQL_TSI_QUARTER);
+        tsiTokensForStringPart.put("mm", Tokens.SQL_TSI_MONTH);
+        tsiTokensForStringPart.put("month", Tokens.SQL_TSI_MONTH);
+        tsiTokensForStringPart.put("dd", Tokens.SQL_TSI_DAY);
+        tsiTokensForStringPart.put("day", Tokens.SQL_TSI_DAY);
+        tsiTokensForStringPart.put("dy", Tokens.DAY_OF_YEAR);
+        tsiTokensForStringPart.put("dayofyear", Tokens.DAY_OF_YEAR);
+        tsiTokensForStringPart.put("dw", Tokens.DAY_OF_WEEK);
+        tsiTokensForStringPart.put("weekday", Tokens.DAY_OF_WEEK);
+        tsiTokensForStringPart.put("wk", Tokens.SQL_TSI_WEEK);
+        tsiTokensForStringPart.put("week", Tokens.SQL_TSI_WEEK);
+        tsiTokensForStringPart.put("hh", Tokens.SQL_TSI_HOUR);
+        tsiTokensForStringPart.put("hour", Tokens.SQL_TSI_HOUR);
+        tsiTokensForStringPart.put("mi", Tokens.SQL_TSI_MINUTE);
+        tsiTokensForStringPart.put("minute", Tokens.SQL_TSI_MINUTE);
+        tsiTokensForStringPart.put("ss", Tokens.SQL_TSI_SECOND);
+        tsiTokensForStringPart.put("second", Tokens.SQL_TSI_SECOND);
+        tsiTokensForStringPart.put("ms", Tokens.SQL_TSI_MILLI_SECOND);
+        tsiTokensForStringPart.put("millisecond", Tokens.SQL_TSI_MILLI_SECOND);
+        tsiTokensForStringPart.put("mcs", Tokens.SQL_TSI_MICRO_SECOND);
+        tsiTokensForStringPart.put("microsecond", Tokens.SQL_TSI_MICRO_SECOND);
+        tsiTokensForStringPart.put("ns", Tokens.SQL_TSI_FRAC_SECOND);
+        tsiTokensForStringPart.put("nanosecond", Tokens.SQL_TSI_FRAC_SECOND);
+        tsiTokensForStringPart.put("tz", Tokens.TIMEZONE);
+        tsiTokensForStringPart.put("tzoffset", Tokens.TIMEZONE);
+    }
+
     private static int getTSIToken(String string) {
 
-        int part;
+        int part = tsiTokensForStringPart.get(
+            string.toLowerCase(Locale.ENGLISH),
+            -1);
 
-        if ("yy".equalsIgnoreCase(string)
-                || "yyyy".equalsIgnoreCase(string)
-                || "year".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_YEAR;
-        } else if ("qq".equalsIgnoreCase(string)
-                   || "quarter".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_QUARTER;
-        } else if ("mm".equalsIgnoreCase(string)
-                   || "month".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_MONTH;
-        } else if ("dd".equalsIgnoreCase(string)
-                   || "day".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_DAY;
-        } else if ("dy".equalsIgnoreCase(string)
-                   || "dayofyear".equalsIgnoreCase(string)) {
-            part = Tokens.DAY_OF_YEAR;
-        } else if ("dw".equalsIgnoreCase(string)
-                   || "weekday".equalsIgnoreCase(string)) {
-            part = Tokens.DAY_OF_WEEK;
-        } else if ("wk".equalsIgnoreCase(string)
-                   || "week".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_WEEK;
-        } else if ("hh".equalsIgnoreCase(string)
-                   || "hour".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_HOUR;
-        } else if ("mi".equalsIgnoreCase(string)
-                   || "minute".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_MINUTE;
-        } else if ("ss".equalsIgnoreCase(string)
-                   || "second".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_SECOND;
-        } else if ("ms".equalsIgnoreCase(string)
-                   || "millisecond".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_MILLI_SECOND;
-        } else if ("mcs".equalsIgnoreCase(string)
-                   || "microsecond".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_MICRO_SECOND;
-        } else if ("ns".equalsIgnoreCase(string)
-                   || "nanosecond".equalsIgnoreCase(string)) {
-            part = Tokens.SQL_TSI_FRAC_SECOND;
-        } else if ("tz".equalsIgnoreCase(string)
-                   || "tzoffset".equalsIgnoreCase(string)) {
-            part = Tokens.TIMEZONE;
-        } else {
+        if (part == -1) {
             throw Error.error(ErrorCode.X_42566, string);
         }
 
         return part;
     }
 
+    private static IntKeyIntValueHashMap tokensForTSIPart =
+        new IntKeyIntValueHashMap();
+
+    static {
+        tokensForTSIPart.put(Tokens.SQL_TSI_FRAC_SECOND, Tokens.NANOSECOND);
+        tokensForTSIPart.put(Tokens.SQL_TSI_MILLI_SECOND, Tokens.MILLISECOND);
+        tokensForTSIPart.put(Tokens.SQL_TSI_SECOND, Tokens.SECOND);
+        tokensForTSIPart.put(Tokens.SQL_TSI_MINUTE, Tokens.MINUTE);
+        tokensForTSIPart.put(Tokens.SQL_TSI_HOUR, Tokens.HOUR);
+        tokensForTSIPart.put(Tokens.SQL_TSI_DAY, Tokens.DAY);
+        tokensForTSIPart.put(Tokens.DAY_OF_WEEK, Tokens.DAY_OF_WEEK);
+        tokensForTSIPart.put(Tokens.DAY_OF_YEAR, Tokens.DAY_OF_YEAR);
+        tokensForTSIPart.put(Tokens.TIMEZONE, Tokens.TIMEZONE);
+        tokensForTSIPart.put(Tokens.SQL_TSI_WEEK, Tokens.WEEK_OF_YEAR);
+        tokensForTSIPart.put(Tokens.SQL_TSI_MONTH, Tokens.MONTH);
+        tokensForTSIPart.put(Tokens.SQL_TSI_QUARTER, Tokens.QUARTER);
+        tokensForTSIPart.put(Tokens.SQL_TSI_YEAR, Tokens.YEAR);
+    }
+
     private static int getExtractTokenForTSIPart(int part) {
 
-        switch (part) {
+        int token = tokensForTSIPart.get(part, -1);
 
-            case Tokens.SQL_TSI_FRAC_SECOND :
-                return Tokens.NANOSECOND;
-
-            case Tokens.SQL_TSI_MILLI_SECOND :
-                return Tokens.MILLISECOND;
-
-            case Tokens.SQL_TSI_SECOND :
-                return Tokens.SECOND;
-
-            case Tokens.SQL_TSI_MINUTE :
-                return Tokens.MINUTE;
-
-            case Tokens.SQL_TSI_HOUR :
-                return Tokens.HOUR;
-
-            case Tokens.SQL_TSI_DAY :
-                return Tokens.DAY;
-
-            case Tokens.DAY_OF_WEEK :
-                return Tokens.DAY_OF_WEEK;
-
-            case Tokens.DAY_OF_YEAR :
-                return Tokens.DAY_OF_YEAR;
-
-            case Tokens.TIMEZONE :
-                return Tokens.TIMEZONE;
-
-            case Tokens.SQL_TSI_WEEK :
-                return Tokens.WEEK_OF_YEAR;
-
-            case Tokens.SQL_TSI_MONTH :
-                return Tokens.MONTH;
-
-            case Tokens.SQL_TSI_QUARTER :
-                return Tokens.QUARTER;
-
-            case Tokens.SQL_TSI_YEAR :
-                return Tokens.YEAR;
-
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
+        if (token == -1) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
         }
+
+        return token;
+    }
+
+    private static IntValueHashMap sqlTypeForToken = new IntValueHashMap();
+
+    static {
+        sqlTypeForToken.put("YEAR_MONTH", Types.SQL_INTERVAL_YEAR_TO_MONTH);
+        sqlTypeForToken.put("DAY_HOUR", Types.SQL_INTERVAL_DAY_TO_HOUR);
+        sqlTypeForToken.put("DAY_MINUTE", Types.SQL_INTERVAL_DAY_TO_MINUTE);
+        sqlTypeForToken.put("DAY_SECOND", Types.SQL_INTERVAL_DAY_TO_SECOND);
+        sqlTypeForToken.put("DAY_MICROSECOND", Types.SQL_INTERVAL_DAY_TO_SECOND);
+        sqlTypeForToken.put("HOUR_MINUTE", Types.SQL_INTERVAL_HOUR_TO_MINUTE);
+        sqlTypeForToken.put("HOUR_SECOND", Types.SQL_INTERVAL_HOUR_TO_SECOND);
+        sqlTypeForToken.put("HOUR_MICROSECOND", Types.SQL_INTERVAL_HOUR_TO_SECOND);
+        sqlTypeForToken.put("MINUTE_SECOND", Types.SQL_INTERVAL_MINUTE_TO_SECOND);
+        sqlTypeForToken.put("MINUTE_MICROSECOND", Types.SQL_INTERVAL_MINUTE_TO_SECOND);
+        sqlTypeForToken.put("SECOND_MICROSECOND", Types.SQL_INTERVAL_SECOND);
     }
 
     static int getSQLTypeForToken(String string) {
-
-        int type = -1;
-
-        if ("YEAR_MONTH".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_YEAR_TO_MONTH;
-        } else if ("DAY_HOUR".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_DAY_TO_HOUR;
-        } else if ("DAY_MINUTE".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_DAY_TO_MINUTE;
-        } else if ("DAY_SECOND".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_DAY_TO_SECOND;
-        } else if ("DAY_MICROSECOND".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_DAY_TO_SECOND;
-        } else if ("HOUR_MINUTE".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_HOUR_TO_MINUTE;
-        } else if ("HOUR_SECOND".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_HOUR_TO_SECOND;
-        } else if ("HOUR_MICROSECOND".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_HOUR_TO_SECOND;
-        } else if ("MINUTE_SECOND".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_MINUTE_TO_SECOND;
-        } else if ("MINUTE_MICROSECOND".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_MINUTE_TO_SECOND;
-        } else if ("SECOND_MICROSECOND".equalsIgnoreCase(string)) {
-            type = Types.SQL_INTERVAL_SECOND;
-        }
+        int type = sqlTypeForToken.get(string.toUpperCase(Locale.ENGLISH), -1);
 
         return type;
     }
