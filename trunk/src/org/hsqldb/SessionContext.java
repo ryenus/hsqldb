@@ -36,7 +36,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashSet;
-import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.List;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashMap;
@@ -70,7 +70,7 @@ public class SessionContext {
     RangeGroup[]                         sessionVariableRangeGroups;
 
     //
-    private HsqlArrayList<Object> stack;
+    private HsqlDeque<Object> stack;
 
     //
     Object[]   diagnosticsVariables = ValuePool.emptyObjectArray;
@@ -162,7 +162,7 @@ public class SessionContext {
         session.sessionData.persistentStoreCollection.push(isRoutine);
 
         if (stack == null) {
-            stack = new HsqlArrayList<>(32, true);
+            stack = new HsqlDeque<>();
         }
 
         stack.add(diagnosticsVariables);
@@ -181,7 +181,9 @@ public class SessionContext {
         stack.add(isInRoutine);
         stack.add(ValuePool.getInt(currentMaxRows));
         stack.add(ValuePool.getInt(rownum));
+        stack.add(currentStatement);
 
+        //
         diagnosticsVariables =
             new Object[ExpressionColumn.diagnosticsVariableTokens.length];
         rangeIterators      = new RangeIterator[8];
@@ -202,23 +204,23 @@ public class SessionContext {
 
         session.sessionData.persistentStoreCollection.pop(isRoutine);
 
-        rownum = ((Integer) stack.remove(stack.size() - 1)).intValue();
-        currentMaxRows = ((Integer) stack.remove(stack.size() - 1)).intValue();
-        isInRoutine          = (Boolean) stack.remove(stack.size() - 1);
-        noSQL                = (Boolean) stack.remove(stack.size() - 1);
-        isReadOnly           = (Boolean) stack.remove(stack.size() - 1);
-        isAutoCommit         = (Boolean) stack.remove(stack.size() - 1);
-        lastIdentity         = (Number) stack.remove(stack.size() - 1);
-        savepointTimestamps  = (LongDeque) stack.remove(stack.size() - 1);
-        savepoints = (OrderedHashMap<String, Integer>) stack.remove(
-            stack.size() - 1);
-        rangeIterators       = (RangeIterator[]) stack.remove(stack.size() - 1);
-        routineCursors       = (Result[]) stack.remove(stack.size() - 1);
-        routineVariables     = (Object[]) stack.remove(stack.size() - 1);
-        triggerArguments     = ((Object[][]) stack.remove(stack.size() - 1));
-        routineArguments     = (Object[]) stack.remove(stack.size() - 1);
-        dynamicArguments     = (Object[]) stack.remove(stack.size() - 1);
-        diagnosticsVariables = (Object[]) stack.remove(stack.size() - 1);
+        currentStatement     = (Statement) stack.removeLast();
+        rownum               = ((Integer) stack.removeLast()).intValue();
+        currentMaxRows       = ((Integer) stack.removeLast()).intValue();
+        isInRoutine          = (Boolean) stack.removeLast();
+        noSQL                = (Boolean) stack.removeLast();
+        isReadOnly           = (Boolean) stack.removeLast();
+        isAutoCommit         = (Boolean) stack.removeLast();
+        lastIdentity         = (Number) stack.removeLast();
+        savepointTimestamps  = (LongDeque) stack.removeLast();
+        savepoints = (OrderedHashMap<String, Integer>) stack.removeLast();
+        rangeIterators       = (RangeIterator[]) stack.removeLast();
+        routineCursors       = (Result[]) stack.removeLast();
+        routineVariables     = (Object[]) stack.removeLast();
+        triggerArguments     = ((Object[][]) stack.removeLast());
+        routineArguments     = (Object[]) stack.removeLast();
+        dynamicArguments     = (Object[]) stack.removeLast();
+        diagnosticsVariables = (Object[]) stack.removeLast();
 
         depth--;
     }
@@ -240,14 +242,14 @@ public class SessionContext {
     public void pushStatementState() {
 
         if (stack == null) {
-            stack = new HsqlArrayList<>(32, true);
+            stack = new HsqlDeque<>();
         }
 
-        stack.add(ValuePool.getInt(rownum));
+        stack.addLast(ValuePool.getInt(rownum));
     }
 
     public void popStatementState() {
-        rownum = ((Integer) stack.remove(stack.size() - 1)).intValue();
+        rownum = ((Integer) stack.removeLast()).intValue();
     }
 
     public void setDynamicArguments(Object[] args) {
