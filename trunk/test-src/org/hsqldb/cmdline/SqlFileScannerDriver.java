@@ -90,7 +90,7 @@ public class SqlFileScannerDriver {
         Token token;
         while ((token = ts.yylex()) != null) {
             if (!isNestingCommand(token)) {
-                System.out.println(token.toString());
+                System.out.println(token);
                 if (token.type == Token.SPECIAL_TYPE
                         && token.val.trim().equalsIgnoreCase("q")) {
                     break;
@@ -147,7 +147,7 @@ public class SqlFileScannerDriver {
         TokenList newTS = new TokenList();
         while ((token = y.yylex()) != null) {
             System.err.print("LOADING ");
-            System.err.println(token.toString());
+            System.err.println(token);
             if (token.type == Token.PL_TYPE
                     && token.val.matches("\\s*(?i)" + endToken + "\\s*")) {
                 System.err.println("Terminated block with " + token.val);

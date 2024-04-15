@@ -88,7 +88,7 @@ public final class ConnectionFactory {
      * Class loading precedence is:
      * <ol>
      * <li>{@link ServiceLoader#load(Class) ServiceLoader.load(Driver.class)</li>
-     * <li>{@link Thread#getContextClassLoader()</li>
+     * <li>{@link Thread#getContextClassLoader()}</li>
      * <li>Calling class.{@link Class#getClassLoader() getClassLoader()}</li>
      * <li>this class.{@link Class#getClassLoader() getClassLoader()}</li>
      * <li>{@link Class#forName(String)}</li>
@@ -116,7 +116,7 @@ public final class ConnectionFactory {
      * Class loading precedence is:
      * <ol>
      * <li>{@link ServiceLoader#load(Class) ServiceLoader.load(Driver.class)</li>
-     * <li>{@link Thread#getContextClassLoader()</li>
+     * <li>{@link Thread#getContextClassLoader()}</li>
      * <li>Calling class.{@link Class#getClassLoader() getClassLoader()}</li>
      * <li>this class.{@link Class#getClassLoader() getClassLoader()}</li>
      * <li>{@link Class#forName(String)}</li>
@@ -138,7 +138,7 @@ public final class ConnectionFactory {
      * Class loading precedence is:
      * <ol>
      * <li>{@link ServiceLoader#load(Class) ServiceLoader.load(Driver.class)</li>
-     * <li>{@link Thread#getContextClassLoader()</li>
+     * <li>{@link Thread#getContextClassLoader()}</li>
      * <li>Calling class.{@link Class#getClassLoader() getClassLoader()}</li>
      * <li>this class.{@link Class#getClassLoader() getClassLoader()}</li>
      * <li>{@link Class#forName(String)}</li>
