@@ -123,7 +123,7 @@ public class StartCharModule implements LoginModule {
         }
         public boolean equals(Object other) {
             return (other instanceof RolePrincipal)
-                    && ((RolePrincipal) other).toString().equals(roleName);
+                    && other.toString().equals(roleName);
         }
     }
 
