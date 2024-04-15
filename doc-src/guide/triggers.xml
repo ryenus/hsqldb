@@ -248,7 +248,7 @@
 
       <para>When a row level trigger is activated, there is an OLD ROW, or a
       NEW ROW, or both. An INSERT statement supplies a NEW ROW row to be
-      inserted into a table. A DELETE statement supplies an OLD ROW be
+      inserted into a table. A DELETE statement supplies an OLD ROW to be
       deleted. An UPDATE statement supplies both OLD ROW and NEW ROW that
       represent the updated rows before and after the update. The REFERENCING
       clause gives names to these rows, so that the rows can be referenced in
@@ -291,18 +291,23 @@
 
       <para>A trigger action can be written as a Java class that implements
       the <classname>org.hsqldb.trigger.Trigger</classname> interface. This
-      interface has a single method which is called when the trigger is
+      interface has a fire method which is called when the trigger is
       activated, either before or after the event. When the method is called
       by the engine, it supplies the type of trigger as an int value defined
-      by the interface(as type argument), the name of the trigger (as trigName
-      argument), the name of the table (as tabName argument), the OLD ROW (as
-      oldRow argument) and the NEW ROW (as newRow argument). The oldRow
-      argument is null for row level INSERT triggers. The newRow argument is
-      null for row level DELETE triggers. For table level triggers, both
-      arguments are null (that is, there is no access to the data). The
-      triggerType argument is one of the constants in the org.hsqldb.Trigger
-      interface which indicate the type of trigger, for example,
-      INSERT_BEFORE_ROW or UPDATE_AFTER_ROW.</para>
+      by the interface(as type argument), the name of the trigger (as
+      triggerName argument), the name of the table (as tableName argument),
+      the list of names of the columns of the table (as columnNames argument),
+      the OLD ROW (as oldRow argument) and the NEW ROW (as newRow argument).
+      The oldRow argument is null for row level INSERT triggers. The newRow
+      argument is null for row level DELETE triggers. For table level
+      triggers, both arguments are null (that is, there is no access to the
+      data). The type argument is one of the constants in the
+      <interfacename>org.hsqldb.Trigger</interfacename> interface which
+      indicate the type of trigger, for example,
+      <constant>Trigger.INSERT_BEFORE_ROW</constant> or
+      <constant>Trigger.UPDATE_AFTER_ROW</constant>. For compatibility with
+      older triggers, there is also another fire method signature without the
+      columnNames argument.</para>
 
       <para>The Java class for the trigger can be reused for several triggers
       on different tables. The method code can distinguish between the
@@ -310,7 +315,7 @@
       appropriate action.</para>
 
       <informalexample>
-        <programlisting> fire (int type, String tabName, String table, Object oldRow[], Object newRow[])
+        <programlisting> fire (int type, String triggerName, String tableName, String[] columnNames, Object oldRow[], Object newRow[])
 </programlisting>
       </informalexample>
 
@@ -320,27 +325,30 @@
       modifications are ignored by the engine.</para>
 
       <para>A Java trigger that uses an instance of
-      <classname>org.hsqldb.trigger.Trigger</classname> has two forms,
+      <interfacename>org.hsqldb.trigger.Trigger</interfacename> has two forms,
       synchronous, or asynchronous (immediate or queued). By default, or when
-      QUEUE 0 is specified, the action is performed immediately by calling the
-      Java method. This is similar to SQL trigger actions.</para>
+      QUEUE 0 is specified, the trigger is synchronous and the action is
+      performed immediately by calling the Java method. This is similar to SQL
+      trigger actions.</para>
 
-      <para>When QUEUE n is specified with n larger than 0, the engine uses a
-      separate thread to execute the Java method, using a queue with the size
-      n. For certain applications, such as real-time systems this allows
-      asynchronous notifications to be sent by the trigger event, without
-      introducing delays in the engine. With asynchronous triggers, an extra
-      parameter, NOWAIT can be used in trigger definition. This overcomes the
-      queue full condition. In this mode, old calls that are still in the
-      queue are discarded one by one and replaced with new calls.</para>
+      <para>Asynchronous triggers must not modify the row data and they must
+      not execute any SQL statements. When QUEUE n is specified with n larger
+      than 0, the engine uses a separate thread to execute the Java method,
+      using a queue with the size n. For certain applications, such as
+      real-time systems this allows the trigger event to send asynchronous
+      notifications to external systems, without introducing delays in the
+      engine. With asynchronous triggers, an extra parameter, NOWAIT can be
+      used in trigger definition. This overcomes the queue full condition. In
+      this mode, old calls that are still in the queue are discarded one by
+      one and replaced with new calls.</para>
 
-      <para>Java row level triggers that are declared with BEFORE trigger
-      action time can modify the row data. Triggers with AFTER trigger action
-      time can modify the database, e.g. insert new rows. If the trigger needs
-      to access the database, the same method as in Java Language Routines
-      SQL/JRT can be used. The Java code should connect to the URL
-      <literal>"jdbc:default:connection"</literal> and use this connection to
-      access the database.</para>
+      <para>Synchronous Java row level triggers that are declared with BEFORE
+      trigger action time can modify the row data. Triggers with AFTER trigger
+      action time can modify the database, e.g. insert new rows. If the
+      trigger needs to access the database, the same method as in Java
+      Language Routines SQL/JRT can be used. The Java code should connect to
+      the URL <literal>"jdbc:default:connection"</literal> and use this
+      connection to access the database.</para>
 
       <para>For sample trigger classes and test code see,
       <classname>org.hsqldb.sample.TriggerSample</classname>,

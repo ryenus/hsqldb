@@ -916,7 +916,7 @@
 
               <entry><literal>false</literal></entry>
 
-              <entry>preventS execution of multiple, concatenated SQL
+              <entry>prevents execution of multiple, concatenated SQL
               statements</entry>
             </row>
 
