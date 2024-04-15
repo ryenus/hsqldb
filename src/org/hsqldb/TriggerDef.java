@@ -670,28 +670,27 @@ public class TriggerDef implements Runnable, SchemaObject {
             Object[] newData) {
 
         if (maxRowsQueued == 0) {
-            if (condition != Expression.EXPR_TRUE) {
-                session.sessionContext.triggerArguments = new Object[][] {
-                    oldData, newData
-                };
+            session.sessionContext.push();
 
-                if (!condition.testCondition(session)) {
-                    return;
-                }
-            }
+            session.sessionContext.triggerArguments = new Object[][] {
+                oldData, newData
+            };
 
             session.getInternalConnection();
 
             try {
-                trigger.fire(
-                    triggerType,
-                    name.name,
-                    table.getName().name,
-                    table.getColumnLabels(),
-                    oldData,
-                    newData);
+                if (condition.testCondition(session)) {
+                    trigger.fire(
+                            triggerType,
+                            name.name,
+                            table.getName().name,
+                            table.getColumnLabels(),
+                            oldData,
+                            newData);
+                }
             } finally {
                 session.releaseInternalConnection();
+                session.sessionContext.pop();
             }
 
             return;
