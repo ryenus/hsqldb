@@ -2359,8 +2359,7 @@ public class FunctionSQL extends Expression {
             sb.append(' ');
         }
 
-        sb.append("FUNCTION ").append("=[\n");
-        sb.append(name).append("(");
+        sb.append("FUNCTION ").append("=[\n").append(name).append("(");
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
@@ -2372,8 +2371,7 @@ public class FunctionSQL extends Expression {
               .append("]");
         }
 
-        sb.append(") returns ").append(dataType.getNameString());
-        sb.append("]\n");
+        sb.append(") returns ").append(dataType.getNameString()).append("]\n");
 
         return sb.toString();
     }

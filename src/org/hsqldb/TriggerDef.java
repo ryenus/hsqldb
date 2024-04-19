@@ -35,7 +35,6 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlDeque;
-import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.trigger.Trigger;
@@ -681,12 +680,12 @@ public class TriggerDef implements Runnable, SchemaObject {
             try {
                 if (condition.testCondition(session)) {
                     trigger.fire(
-                            triggerType,
-                            name.name,
-                            table.getName().name,
-                            table.getColumnLabels(),
-                            oldData,
-                            newData);
+                        triggerType,
+                        name.name,
+                        table.getName().name,
+                        table.getColumnLabels(),
+                        oldData,
+                        newData);
                 }
             } finally {
                 session.releaseInternalConnection();

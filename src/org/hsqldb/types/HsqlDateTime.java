@@ -47,6 +47,7 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.ResolverStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
@@ -539,25 +540,36 @@ public class HsqlDateTime {
 
     //J+
 
+    public static DateTimeFormatter toFormatter(String pattern, boolean parse) {
+
+        try {
+            String javaPattern = toJavaDatePattern(pattern, parse);
+            DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+
+            builder.parseCaseInsensitive();
+            builder.parseLenient();
+            builder.appendPattern(javaPattern);
+
+            DateTimeFormatter dtf = builder.toFormatter(defaultLocale);
+
+            return dtf;
+        } catch (Exception e) {
+            throw Error.error(e, ErrorCode.X_22007, e.toString());
+        }
+    }
+
     public static TimestampData toDate(
             DateTimeType dataType,
             String string,
-            String pattern) {
+            DateTimeFormatter formatter) {
 
-        long   seconds;
-        int    nanos       = 0;
-        int    zone        = 0;
-        String javaPattern = toJavaDatePattern(pattern, true);
+        long seconds;
+        int  nanos = 0;
+        int  zone  = 0;
 
         try {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern(
-                javaPattern,
-                defaultLocale);
-
-            dtf = dtf.withResolverStyle(ResolverStyle.LENIENT);
-
             ParsePosition    ppos = new ParsePosition(0);
-            TemporalAccessor ta   = dtf.parse(string, ppos);
+            TemporalAccessor ta   = formatter.parse(string, ppos);
 
             switch (dataType.typeCode) {
 
@@ -600,20 +612,21 @@ public class HsqlDateTime {
         }
     }
 
+    public static TimestampData toDate(
+            DateTimeType dataType,
+            String string,
+            String pattern) {
+        DateTimeFormatter dtf = toFormatter(pattern, true);
+
+        return toDate(dataType, string, dtf);
+    }
+
     public static String toFormattedDate(
             DateTimeType dataType,
             Object dateTime,
-            String pattern) {
-
-        String javaPattern = toJavaDatePattern(pattern, false);
+            DateTimeFormatter formatter) {
 
         try {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern(
-                javaPattern,
-                defaultLocale);
-
-            dtf = dtf.withResolverStyle(ResolverStyle.LENIENT);
-
             Temporal dt;
 
             switch (dataType.typeCode) {
@@ -659,12 +672,21 @@ public class HsqlDateTime {
                     throw Error.error(ErrorCode.X_42561);
             }
 
-            String result = dtf.format(dt);
+            String result = formatter.format(dt);
 
             return result;
         } catch (Exception e) {
             throw Error.error(e, ErrorCode.X_22007, e.toString());
         }
+    }
+
+    public static String toFormattedDate(
+            DateTimeType dataType,
+            Object dateTime,
+            String pattern) {
+        DateTimeFormatter dtf = toFormatter(pattern, false);
+
+        return toFormattedDate(dataType, dateTime, dtf);
     }
 
     /** Indicates end-of-input */

@@ -33,6 +33,8 @@ package org.hsqldb;
 
 import java.math.BigDecimal;
 
+import java.time.format.DateTimeFormatter;
+
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.UUID;
@@ -410,6 +412,7 @@ public class FunctionCustom extends FunctionSQL {
 
     private int                   extractSpec;
     private Pattern               pattern;
+    private DateTimeFormatter     dateTimeFormatter;
     private IntKeyIntValueHashMap charLookup;
 
     public static FunctionSQL newCustomFunction(
@@ -1507,10 +1510,17 @@ public class FunctionCustom extends FunctionSQL {
                         return null;
                     }
 
+                    if (dateTimeFormatter == null) {
                     return HsqlDateTime.toFormattedDate(
                         (DateTimeType) nodes[0].dataType,
                         data[0],
                         (String) data[1]);
+                    } else {
+                        return HsqlDateTime.toFormattedDate(
+                                (DateTimeType) nodes[0].dataType,
+                                data[0],
+                                dateTimeFormatter);
+                    }
                 }
             }
 
@@ -1539,10 +1549,19 @@ public class FunctionCustom extends FunctionSQL {
                         nodes[0].dataType);
                 }
 
-                TimestampData value = HsqlDateTime.toDate(
+                TimestampData value;
+
+                if (dateTimeFormatter == null) {
+                    value = HsqlDateTime.toDate(
                     (DateTimeType) dataType,
                     (String) data[0],
                     (String) data[1]);
+                } else {
+                    value = HsqlDateTime.toDate(
+                            (DateTimeType) dataType,
+                            (String) data[0],
+                            dateTimeFormatter);
+                }
 
                 return value;
             }
@@ -2279,7 +2298,6 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 int     flags = FunctionCustom.regexpParams((String) data[5]);
-                Pattern currentPattern;
                 String  source       = (String) data[0];
                 String  matchPattern = (String) data[1];
                 String  replace      = (String) data[2];
@@ -2306,12 +2324,9 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                currentPattern = pattern;
-
-                if (currentPattern == null) {
-                    currentPattern = Pattern.compile(matchPattern, flags);
-                }
-
+                Pattern currentPattern = pattern == null
+                                         ? Pattern.compile(matchPattern)
+                                         : pattern;
                 Matcher matcher = currentPattern.matcher(source);
                 String  result;
 
@@ -2343,14 +2358,11 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                Pattern currentPattern = pattern;
                 String  source         = (String) data[0];
                 String  matchPattern   = (String) data[1];
-
-                if (currentPattern == null) {
-                    currentPattern = Pattern.compile(matchPattern);
-                }
-
+                Pattern currentPattern = pattern == null
+                                         ? Pattern.compile(matchPattern)
+                                         : pattern;
                 Matcher matcher = currentPattern.matcher(source);
 
                 switch (funcType) {
@@ -3352,6 +3364,13 @@ public class FunctionCustom extends FunctionSQL {
                     if (!nodes[0].dataType.isDateTimeType()) {
                         throw Error.error(ErrorCode.X_42563);
                     }
+
+                    if (nodes[1].opType == OpTypes.VALUE
+                            && nodes[1].valueData != null) {
+                        dateTimeFormatter = HsqlDateTime.toFormatter(
+                            (String) nodes[1].valueData,
+                            false);
+                    }
                 }
 
                 // fixed maximum as format is a variable
@@ -3413,12 +3432,21 @@ public class FunctionCustom extends FunctionSQL {
                     nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
 
-                if (!nodes[0].dataType.isCharacterType()
-                        && !nodes[0].dataType.isDateOrTimestampType()) {
+                if (!nodes[1].dataType.isCharacterType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                if (!nodes[1].dataType.isCharacterType()) {
+                if (nodes[0].dataType.isCharacterType()) {
+                    if (nodes[1].opType == OpTypes.VALUE
+                            && nodes[1].valueData != null) {
+                        dateTimeFormatter = HsqlDateTime.toFormatter(
+                            (String) nodes[1].valueData,
+                            true);
+                    }
+                } else if (nodes[0].dataType.isDateOrTimestampType()) {
+
+                    //
+                } else {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
@@ -3957,7 +3985,8 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                if (nodes[1].exprSubType == OpTypes.VALUE) {
+                if (nodes[1].opType == OpTypes.VALUE
+                        && nodes[1].valueData != null) {
                     String matchPattern = (String) nodes[1].getValue(session);
 
                     pattern = Pattern.compile(matchPattern);
