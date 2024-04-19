@@ -769,7 +769,7 @@
     maximum value of the parameter is unlimited for CLOB and BLOB. It is 2 *
     1024 *1024 *1024 for other string types. (****) The parameter S is
     optional and indicates sub-second fraction precision of time (0 to 9).
-    When not used, it defaults to 6.</para>
+    When not used, it defaults to 6 for TIMESTAMP and 0 for TIME.</para>
   </section>
 
   <section xml:id="sgc_types_ops">
