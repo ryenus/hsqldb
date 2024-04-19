@@ -1511,15 +1511,15 @@ public class FunctionCustom extends FunctionSQL {
                     }
 
                     if (dateTimeFormatter == null) {
-                    return HsqlDateTime.toFormattedDate(
-                        (DateTimeType) nodes[0].dataType,
-                        data[0],
-                        (String) data[1]);
+                        return HsqlDateTime.toFormattedDate(
+                            (DateTimeType) nodes[0].dataType,
+                            data[0],
+                            (String) data[1]);
                     } else {
                         return HsqlDateTime.toFormattedDate(
-                                (DateTimeType) nodes[0].dataType,
-                                data[0],
-                                dateTimeFormatter);
+                            (DateTimeType) nodes[0].dataType,
+                            data[0],
+                            dateTimeFormatter);
                     }
                 }
             }
@@ -1553,14 +1553,14 @@ public class FunctionCustom extends FunctionSQL {
 
                 if (dateTimeFormatter == null) {
                     value = HsqlDateTime.toDate(
-                    (DateTimeType) dataType,
-                    (String) data[0],
-                    (String) data[1]);
+                        (DateTimeType) dataType,
+                        (String) data[0],
+                        (String) data[1]);
                 } else {
                     value = HsqlDateTime.toDate(
-                            (DateTimeType) dataType,
-                            (String) data[0],
-                            dateTimeFormatter);
+                        (DateTimeType) dataType,
+                        (String) data[0],
+                        dateTimeFormatter);
                 }
 
                 return value;
@@ -2297,12 +2297,12 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                int     flags = FunctionCustom.regexpParams((String) data[5]);
-                String  source       = (String) data[0];
-                String  matchPattern = (String) data[1];
-                String  replace      = (String) data[2];
-                int     start        = 1;
-                int     count        = 0;
+                int    flags = FunctionCustom.regexpParams((String) data[5]);
+                String source       = (String) data[0];
+                String matchPattern = (String) data[1];
+                String replace      = (String) data[2];
+                int    start        = 1;
+                int    count        = 0;
 
                 if (nodes[2] == null) {
                     replace = "";
@@ -2327,7 +2327,7 @@ public class FunctionCustom extends FunctionSQL {
                 Pattern currentPattern = pattern == null
                                          ? Pattern.compile(matchPattern)
                                          : pattern;
-                Matcher matcher = currentPattern.matcher(source);
+                Matcher matcher        = currentPattern.matcher(source);
                 String  result;
 
                 if (start > 1) {
@@ -2363,7 +2363,7 @@ public class FunctionCustom extends FunctionSQL {
                 Pattern currentPattern = pattern == null
                                          ? Pattern.compile(matchPattern)
                                          : pattern;
-                Matcher matcher = currentPattern.matcher(source);
+                Matcher matcher        = currentPattern.matcher(source);
 
                 switch (funcType) {
 
