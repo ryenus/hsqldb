@@ -127,7 +127,7 @@
     DatabaseManagerSwing is a database access tool that can be used with any
     database engine that has a JDBC driver.</para>
 
-    <para>An additional jar, sqltool.jar, contains Sql Tool, a command line
+    <para>An additional jar, sqltool.jar, contains SqlTool, a command line
     database access tool that can also be used with other database
     engines.</para>
   </section>
@@ -601,17 +601,19 @@
     <literal>ROLLBACK TO SAVEPOINT &lt;name&gt;</literal> SQL
     statement.</para>
 
-    <para>The Javadoc for <classname xlink:href="#JDBCConnection.html-link">
-    JDBCConnection</classname>, <classname xlink:href="#JDBCDriver.html-link">
-    JDBCDriver</classname>, <classname
-    xlink:href="#JDBCDatabaseMetaData.html-link">
-    JDBCDatabaseMetadata</classname> <classname
-    xlink:href="#JDBCResultSet.html-link"> JDBCResultSet</classname>,
-    <classname xlink:href="#JDBCStatement.html-link">
-    JDBCStatement</classname>, <classname
-    xlink:href="#JDBCPreparedStatement.html-link">
-    JDBCPreparedStatement</classname> list all the supported JDBC methods
-    together with information that is specific to HSQLDB.</para>
+    <para>The Javadoc for <classname
+    xlink:href="#JDBCConnection.html-link">JDBCConnection</classname>,
+    <classname xlink:href="#JDBCDriver.html-link">JDBCDriver</classname>,
+    <classname
+    xlink:href="#JDBCDatabaseMetaData.html-link">JDBCDatabaseMetadata</classname>,
+    <classname
+    xlink:href="#JDBCResultSet.html-link">JDBCResultSet</classname>,
+    <classname
+    xlink:href="#JDBCStatement.html-link">JDBCStatement</classname>,
+    <classname
+    xlink:href="#JDBCPreparedStatement.html-link">JDBCPreparedStatement</classname>
+    list all the supported JDBC methods together with information that is
+    specific to HSQLDB.</para>
   </section>
 
   <section xml:id="rgc_closing_db">

@@ -574,7 +574,7 @@ div.contentContainer ul.blockList li.blockList h2{
 }
 
 /* HyperSQL Javadoc styles */
-DIV.ReleaseSpecificDocumentation { 
+div.ReleaseSpecificDocumentation { 
     color:              #006A00;
     background-color:   #EEEEFF;
 	border:             none;
@@ -584,7 +584,7 @@ DIV.ReleaseSpecificDocumentation {
     padding-left:       10px;
 }
 
-DIV.ReleaseSpecificDocumentation p.rshead {
+div.ReleaseSpecificDocumentation p.rshead {
 	margin-top:         0px;
 	margin-left:        0px;
 	margin-right:       0px;
@@ -598,7 +598,7 @@ DIV.ReleaseSpecificDocumentation p.rshead {
     font-weight:        bold;		
 }
 
-DIV.ReleaseSpecificDocumentation p.rshead2 {
+div.ReleaseSpecificDocumentation p.rshead2 {
 	margin-top:         0px;
 	margin-left:        0px;
 	margin-right:       0px;
