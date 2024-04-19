@@ -71,7 +71,7 @@ public class SchemaManager {
     //
     OrderedHashMap<String, Schema> schemaMap        = new OrderedHashMap<>();
     MultiValueHashMap<HsqlName, HsqlName> referenceMap =
-        new MultiValueHashMap<HsqlName, HsqlName>();
+        new MultiValueHashMap<>();
     UserSchemaFilter               userSchemaFilter = new UserSchemaFilter();
 
     //

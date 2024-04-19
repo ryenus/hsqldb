@@ -44,8 +44,6 @@ import org.hsqldb.result.Result;
  */
 public class TriggerDefSQL extends TriggerDef {
 
-    OrderedHashSet<HsqlName> references;
-
     public TriggerDefSQL(
             HsqlNameManager.HsqlName name,
             int when,
@@ -72,7 +70,6 @@ public class TriggerDefSQL extends TriggerDef {
             updateColumns);
 
         this.routine    = routine;
-        this.references = routine.getReferences();
     }
 
     public OrderedHashSet<HsqlName> getReferences() {
