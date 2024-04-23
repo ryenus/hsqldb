@@ -69,7 +69,7 @@ public class TriggerDefSQL extends TriggerDef {
             conditionSQL,
             updateColumns);
 
-        this.routine    = routine;
+        this.routine = routine;
     }
 
     public OrderedHashSet<HsqlName> getReferences() {
