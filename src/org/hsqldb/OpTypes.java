@@ -37,7 +37,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Enumerate expression operation types<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.9.0
  */
 public interface OpTypes {
