@@ -34,6 +34,7 @@ package org.hsqldb;
 import java.text.SimpleDateFormat;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.navigator.RowSetNavigatorClient;
@@ -49,7 +50,7 @@ import org.hsqldb.types.ClobDataID;
  * the session level.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.3
  * @since 1.7.2
  */
 public interface SessionInterface {
@@ -140,6 +141,8 @@ public interface SessionInterface {
     Calendar getCalendarGMT();
 
     SimpleDateFormat getSimpleDateFormatGMT();
+
+    TimeZone getTimeZone();
 
     int getZoneSeconds();
 

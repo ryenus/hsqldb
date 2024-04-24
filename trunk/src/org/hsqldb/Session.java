@@ -1847,6 +1847,10 @@ public class Session implements SessionInterface {
     private Calendar calendar;
     private Calendar calendarGMT;
 
+    public TimeZone getTimeZone() {
+        return currentTimeZone;
+    }
+
     public int getZoneSeconds() {
         return currentTimestamp.getZone();
     }

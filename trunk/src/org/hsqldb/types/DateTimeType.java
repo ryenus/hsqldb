@@ -826,6 +826,21 @@ public final class DateTimeType extends DTIType {
     }
 
     public Object convertJavaToSQL(SessionInterface session, Object a) {
+
+        if (a instanceof LocalTime) {
+            return convertJavaToSQL(session, (LocalTime) a);
+        } else if (a instanceof OffsetTime) {
+            return convertJavaToSQL(session, (OffsetTime) a);
+        } else if (a instanceof LocalDate) {
+            return convertJavaToSQL(session, (LocalDate) a);
+        } else if (a instanceof LocalDateTime) {
+            return convertJavaToSQL(session, (LocalDateTime) a);
+        } else if (a instanceof OffsetDateTime) {
+            return convertJavaToSQL(session, (OffsetDateTime) a);
+        } else if (a instanceof ZonedDateTime) {
+            return convertJavaToSQL(session, (ZonedDateTime) a);
+        }
+
         return convertJavaToSQL(session, a, null);
     }
 
@@ -866,6 +881,11 @@ public final class DateTimeType extends DTIType {
 
             seconds     = millis / millisInSecond;
             zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
+
+            if (!withTimeZone) {
+                seconds     += zoneSeconds;
+                zoneSeconds = 0;
+            }
         } else if (a instanceof java.util.Calendar) {
             calendar = (java.util.Calendar) a;
 
@@ -874,66 +894,24 @@ public final class DateTimeType extends DTIType {
             seconds     = millis / millisInSecond;
             zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
             nanos       = (int) (millis % millisInSecond * nanosInMilli);
-        } else if (a instanceof java.time.LocalDate) {
-            LocalDate ld = (LocalDate) a;
 
-            setDateComponents(calendar, ld);
-
-            seconds      = calendar.getTimeInMillis() / millisInSecond;
-            zoneSeconds  = getZoneSeconds(seconds, calendar.getTimeZone());
-            nanos        = 0;
-            isDateObject = true;
-        } else if (a instanceof OffsetDateTime) {
-            OffsetDateTime odt = (OffsetDateTime) a;
-
-            seconds     = odt.toEpochSecond();
-            zoneSeconds = odt.get(ChronoField.OFFSET_SECONDS);
-            nanos       = odt.getNano();
-            hasZone     = true;
-        } else if (a instanceof ZonedDateTime) {
-            ZonedDateTime zdt = (ZonedDateTime) a;
-
-            seconds     = zdt.toEpochSecond();
-            zoneSeconds = zdt.get(ChronoField.OFFSET_SECONDS);
-            nanos       = zdt.getNano();
-            hasZone     = true;
-        } else if (a instanceof java.time.LocalDateTime) {
-            LocalDateTime ldt = (LocalDateTime) a;
-
-            setDateTimeComponents(calendar, ldt);
-
-            seconds     = calendar.getTimeInMillis() / millisInSecond;
-            zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
-            nanos       = ldt.getNano();
+            if (!withTimeZone) {
+                seconds     += zoneSeconds;
+                zoneSeconds = 0;
+            }
         } else if (a instanceof java.time.Instant) {
             Instant ins = (Instant) a;
 
             seconds     = ins.getEpochSecond();
             zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
             nanos       = ins.getNano();
-        } else if (a instanceof java.time.OffsetTime) {
-            OffsetTime ot = (OffsetTime) a;
 
-            seconds      = ot.toLocalTime().toSecondOfDay();
-            zoneSeconds  = ot.get(ChronoField.OFFSET_SECONDS);
-            seconds      = seconds - zoneSeconds;
-            nanos        = ot.getNano();
-            isTimeObject = true;
-            hasZone      = true;
-        } else if (a instanceof java.time.LocalTime) {
-            LocalTime lt = (LocalTime) a;
-
-            seconds      = lt.toSecondOfDay();
-            zoneSeconds  = getZoneSeconds(seconds, calendar.getTimeZone());
-            nanos        = lt.getNano();
-            isTimeObject = true;
+            if (!withTimeZone) {
+                seconds     += zoneSeconds;
+                zoneSeconds = 0;
+            }
         } else {
             throw Error.error(ErrorCode.X_42561);
-        }
-
-        if (!withTimeZone) {
-            seconds     += zoneSeconds;
-            zoneSeconds = 0;
         }
 
         switch (typeCode) {
@@ -964,11 +942,233 @@ public final class DateTimeType extends DTIType {
                 if (isTimeObject) {
                     return convertTimeToTimestamp(
                         calendar,
-                        seconds + zoneSeconds,
+                        (int) seconds + zoneSeconds,
                         nanos);
                 }
 
                 nanos = DateTimeType.normaliseFraction(nanos, scale);
+
+                return new TimestampData(seconds, nanos, zoneSeconds);
+            }
+
+            default :
+                throw Error.error(ErrorCode.X_42561);
+        }
+    }
+
+    public Object convertJavaToSQL(SessionInterface session, LocalTime lt) {
+
+        switch (typeCode) {
+
+            case Types.SQL_TIME : {
+                int seconds = lt.toSecondOfDay();
+                int nanos   = lt.getNano();
+
+                nanos = normaliseFraction(nanos, scale);
+
+                return new TimeData(seconds, nanos, 0);
+            }
+
+            case Types.SQL_TIME_WITH_TIME_ZONE : {
+                int seconds = lt.toSecondOfDay();
+                int nanos   = lt.getNano();
+
+                nanos = normaliseFraction(nanos, scale);
+
+                int zoneSeconds = session.getZoneSeconds();
+
+                seconds -= zoneSeconds;
+
+                return new TimeData(seconds, nanos, zoneSeconds);
+            }
+
+            case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                LocalDateTime ldt = LocalDateTime.of(LocalDate.now(session.getTimeZone().toZoneId()), lt);
+
+                return convertJavaToSQL(session, ldt);
+            }
+
+            default :
+                throw Error.error(ErrorCode.X_42561);
+        }
+    }
+
+    public Object convertJavaToSQL(SessionInterface session, OffsetTime ot) {
+
+        switch (typeCode) {
+
+            case Types.SQL_TIME : {
+                int seconds = ot.toLocalTime().toSecondOfDay();
+                int nanos   = ot.getNano();
+
+                nanos = normaliseFraction(nanos, scale);
+
+                return new TimeData(seconds, nanos, 0);
+            }
+
+            case Types.SQL_TIME_WITH_TIME_ZONE : {
+                int seconds = ot.toLocalTime().toSecondOfDay();
+                int nanos   = ot.getNano();
+
+                nanos = normaliseFraction(nanos, scale);
+
+                int zoneSeconds = ot.getOffset().getTotalSeconds();
+
+                seconds -= zoneSeconds;
+
+                return new TimeData(seconds, nanos, zoneSeconds);
+            }
+
+            case Types.SQL_TIMESTAMP : {
+                LocalDateTime ldt = LocalDateTime.of(LocalDate.now(ot.getOffset()), ot.toLocalTime());
+                return convertJavaToSQL(session, ldt);
+            }
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                OffsetDateTime odt = OffsetDateTime.of(LocalDate.now(ot.getOffset()), ot.toLocalTime(), ot.getOffset());
+                return convertJavaToSQL(session, odt);
+            }
+
+            default :
+                throw Error.error(ErrorCode.X_42561);
+        }
+    }
+
+    public Object convertJavaToSQL(SessionInterface session, LocalDate ld) {
+
+        switch (typeCode) {
+
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE : {
+                throw Error.error(ErrorCode.X_42561);
+            }
+
+            case Types.SQL_DATE :
+            case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                LocalDateTime ldt = LocalDateTime.of(ld, LocalTime.MIDNIGHT);
+
+                return convertJavaToSQL(session, ldt);
+            }
+
+            default :
+                throw Error.error(ErrorCode.X_42561);
+        }
+    }
+
+    public Object convertJavaToSQL(
+            SessionInterface session,
+            LocalDateTime ldt) {
+
+        switch (typeCode) {
+
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE : {
+                return convertJavaToSQL(session, ldt.toLocalTime());
+            }
+
+            case Types.SQL_DATE : {
+                ldt = LocalDateTime.of(ldt.toLocalDate(), LocalTime.MIDNIGHT);
+            }
+
+            // fall throught
+            case Types.SQL_TIMESTAMP : {
+                long seconds = ldt.toEpochSecond(ZoneOffset.UTC);
+                int  nanos   = ldt.getNano();
+
+                nanos = normaliseFraction(nanos, scale);
+
+                return new TimestampData(seconds, nanos, 0);
+            }
+
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                ZonedDateTime zdt = ZonedDateTime.of(
+                    ldt,
+                    session.getTimeZone().toZoneId());
+                long seconds     = zdt.toEpochSecond();
+                int  zoneSeconds = zdt.getOffset().getTotalSeconds();
+                int  nanos       = ldt.getNano();
+
+                nanos = normaliseFraction(nanos, scale);
+
+                return new TimestampData(seconds, nanos, zoneSeconds);
+            }
+
+            default :
+                throw Error.error(ErrorCode.X_42561);
+        }
+    }
+
+    public Object convertJavaToSQL(
+            SessionInterface session,
+            OffsetDateTime odt) {
+
+        switch (typeCode) {
+
+            case Types.SQL_TIME : {
+                return convertJavaToSQL(session, odt.toLocalTime());
+            }
+
+            case Types.SQL_TIME_WITH_TIME_ZONE : {
+                return convertJavaToSQL(session, odt.toOffsetTime());
+            }
+
+            case Types.SQL_DATE : {
+                return convertJavaToSQL(session, odt.toLocalDate());
+            }
+
+            case Types.SQL_TIMESTAMP : {
+                return convertJavaToSQL(session, odt.toLocalDateTime());
+            }
+
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                long seconds     = odt.toEpochSecond();
+                int  zoneSeconds = odt.getOffset().getTotalSeconds();
+                int  nanos       = odt.getNano();
+
+                nanos = normaliseFraction(nanos, scale);
+
+                return new TimestampData(seconds, nanos, zoneSeconds);
+            }
+
+            default :
+                throw Error.error(ErrorCode.X_42561);
+        }
+    }
+
+    public Object convertJavaToSQL(
+            SessionInterface session,
+            ZonedDateTime zdt) {
+
+        switch (typeCode) {
+
+            case Types.SQL_TIME :
+                return convertJavaToSQL(session, zdt.toLocalTime());
+
+            case Types.SQL_TIME_WITH_TIME_ZONE : {
+                int seconds     = zdt.toLocalTime().toSecondOfDay();
+                int zoneSeconds = zdt.getOffset().getTotalSeconds();
+                int nanos       = zdt.getNano();
+
+                nanos = normaliseFraction(nanos, scale);
+
+                return new TimeData(seconds, nanos, zoneSeconds);
+            }
+
+            case Types.SQL_DATE : {
+                return convertJavaToSQL(session, zdt.toLocalDate());
+            }
+
+            case Types.SQL_TIMESTAMP : {
+                return convertJavaToSQL(session, zdt.toLocalDateTime());
+            }
+
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                long seconds     = zdt.toEpochSecond();
+                int  zoneSeconds = zdt.getOffset().getTotalSeconds();
+                int  nanos       = zdt.getNano();
+
+                nanos = normaliseFraction(nanos, scale);
 
                 return new TimestampData(seconds, nanos, zoneSeconds);
             }
@@ -1692,15 +1892,14 @@ public final class DateTimeType extends DTIType {
 
     TimestampData convertTimeToTimestamp(
             Calendar calendar,
-            long seconds,
+            int timeSeconds,
             int nanos) {
 
         calendar.setTimeInMillis(System.currentTimeMillis());
-        setTimeComponentsOnly(calendar, (int) seconds);
+        setTimeComponentsOnly(calendar, timeSeconds);
 
-        seconds = calendar.getTimeInMillis() / millisInSecond;
-
-        int zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
+        long seconds     = calendar.getTimeInMillis() / millisInSecond;
+        int  zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
 
         if (!withTimeZone) {
             seconds     += zoneSeconds;
