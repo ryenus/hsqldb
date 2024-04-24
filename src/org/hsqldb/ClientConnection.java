@@ -106,9 +106,8 @@ public class ClientConnection implements SessionInterface, Cloneable {
     //
     private boolean  isReadOnlyDefault = false;
     private boolean  isAutoCommit      = true;
-    private int      zoneSeconds;
+    private TimeZone timeZone;
     private Scanner  scanner;
-    private String   zoneString;
     private Calendar calendar;
     private Calendar calendarGMT;
     SimpleDateFormat simpleDateFormatGMT;
@@ -146,9 +145,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
         this.database     = database;
         this.isTLS        = isTLS;
         this.isTLSWrapper = isTLSWrapper;
-        this.zoneSeconds = timeZone.getOffset(
-            System.currentTimeMillis()) / 1000;
-        this.zoneString   = timeZone.getID();
+        this.timeZone     = timeZone;
 
         initStructures();
         initConnection(host, port, isTLS);
@@ -157,8 +154,8 @@ public class ClientConnection implements SessionInterface, Cloneable {
             user,
             password,
             database,
-            zoneString,
-            zoneSeconds);
+            timeZone.getID(),
+            timeZone.getOffset(System.currentTimeMillis()) / 1000);
         Result resultIn = execute(login);
 
         if (resultIn.isError()) {
@@ -180,8 +177,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
         this.database     = other.database;
         this.isTLS        = other.isTLS;
         this.isTLSWrapper = other.isTLSWrapper;
-        this.zoneSeconds  = other.zoneSeconds;
-        this.zoneString   = other.zoneString;
+        this.timeZone     = other.timeZone;
 
         //
         this.sessionID              = other.sessionID;
@@ -617,9 +613,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
     public Calendar getCalendar() {
 
         if (calendar == null) {
-            TimeZone zone = TimeZone.getTimeZone(zoneString);
-
-            calendar = new GregorianCalendar(zone);
+            calendar = new GregorianCalendar(timeZone);
         }
 
         return calendar;
@@ -656,8 +650,12 @@ public class ClientConnection implements SessionInterface, Cloneable {
         return simpleDateFormatGMT;
     }
 
+    public TimeZone getTimeZone() {
+        return timeZone;
+    }
+
     public int getZoneSeconds() {
-        return zoneSeconds;
+        return timeZone.getOffset(System.currentTimeMillis()) / 1000;
     }
 
     public int getStreamBlockSize() {
