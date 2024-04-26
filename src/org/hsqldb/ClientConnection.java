@@ -325,15 +325,15 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
         switch (id) {
 
-            case SessionInterface.INFO_AUTOCOMMIT :
-            case SessionInterface.INFO_CONNECTION_READONLY :
-                return data[SessionInterface.INFO_BOOLEAN];
+            case Attributes.INFO_AUTOCOMMIT :
+            case Attributes.INFO_CONNECTION_READONLY :
+                return data[AttributePos.INFO_BOOLEAN];
 
-            case SessionInterface.INFO_ISOLATION :
-                return data[SessionInterface.INFO_INTEGER];
+            case Attributes.INFO_ISOLATION :
+                return data[AttributePos.INFO_INTEGER];
 
-            case SessionInterface.INFO_CATALOG :
-                return data[SessionInterface.INFO_VARCHAR];
+            case Attributes.INFO_CATALOG :
+                return data[AttributePos.INFO_VARCHAR];
         }
 
         return null;
@@ -345,21 +345,21 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
         Object[] data = resultOut.getSingleRowData();
 
-        data[SessionInterface.INFO_ID] = ValuePool.getInt(id);
+        data[AttributePos.INFO_ID] = ValuePool.getInt(id);
 
         switch (id) {
 
-            case SessionInterface.INFO_AUTOCOMMIT :
-            case SessionInterface.INFO_CONNECTION_READONLY :
-                data[SessionInterface.INFO_BOOLEAN] = value;
+            case Attributes.INFO_AUTOCOMMIT :
+            case Attributes.INFO_CONNECTION_READONLY :
+                data[AttributePos.INFO_BOOLEAN] = value;
                 break;
 
-            case SessionInterface.INFO_ISOLATION :
-                data[SessionInterface.INFO_INTEGER] = value;
+            case Attributes.INFO_ISOLATION :
+                data[AttributePos.INFO_INTEGER] = value;
                 break;
 
-            case SessionInterface.INFO_CATALOG :
-                data[SessionInterface.INFO_VARCHAR] = value;
+            case Attributes.INFO_CATALOG :
+                data[AttributePos.INFO_VARCHAR] = value;
                 break;
 
             default :
@@ -374,7 +374,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
     public synchronized boolean isReadOnlyDefault() {
 
-        Object info = getAttribute(SessionInterface.INFO_CONNECTION_READONLY);
+        Object info = getAttribute(Attributes.INFO_CONNECTION_READONLY);
 
         isReadOnlyDefault = ((Boolean) info).booleanValue();
 
@@ -385,7 +385,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
         if (mode != isReadOnlyDefault) {
             setAttribute(
-                SessionInterface.INFO_CONNECTION_READONLY,
+                Attributes.INFO_CONNECTION_READONLY,
                 mode
                 ? Boolean.TRUE
                 : Boolean.FALSE);
@@ -396,7 +396,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
     public synchronized boolean isAutoCommit() {
 
-        Object info = getAttribute(SessionInterface.INFO_AUTOCOMMIT);
+        Object info = getAttribute(Attributes.INFO_AUTOCOMMIT);
 
         isAutoCommit = ((Boolean) info).booleanValue();
 
@@ -407,7 +407,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
         if (mode != isAutoCommit) {
             setAttribute(
-                SessionInterface.INFO_AUTOCOMMIT,
+                Attributes.INFO_AUTOCOMMIT,
                 mode
                 ? Boolean.TRUE
                 : Boolean.FALSE);
@@ -417,11 +417,11 @@ public class ClientConnection implements SessionInterface, Cloneable {
     }
 
     public synchronized void setIsolationDefault(int level) {
-        setAttribute(SessionInterface.INFO_ISOLATION, ValuePool.getInt(level));
+        setAttribute(Attributes.INFO_ISOLATION, ValuePool.getInt(level));
     }
 
     public synchronized int getIsolation() {
-        Object info = getAttribute(SessionInterface.INFO_ISOLATION);
+        Object info = getAttribute(Attributes.INFO_ISOLATION);
 
         return ((Integer) info).intValue();
     }

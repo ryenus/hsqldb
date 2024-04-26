@@ -41,6 +41,7 @@ import org.hsqldb.ColumnBase;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.SessionInterface.AttributePos;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Statement;
 import org.hsqldb.error.Error;
@@ -86,9 +87,9 @@ public class Result {
         Collation.getDefaultInstance();
 
         sessionAttributesMetaData = ResultMetaData.newResultMetaData(
-            SessionInterface.INFO_LIMIT);
+            AttributePos.INFO_LIMIT);
 
-        for (int i = 0; i < Session.INFO_LIMIT; i++) {
+        for (int i = 0; i < AttributePos.INFO_LIMIT; i++) {
             sessionAttributesMetaData.columns[i] = new ColumnBase(
                 null,
                 null,
@@ -96,13 +97,13 @@ public class Result {
                 null);
         }
 
-        sessionAttributesMetaData.columns[Session.INFO_ID].setType(
+        sessionAttributesMetaData.columns[AttributePos.INFO_ID].setType(
             Type.SQL_INTEGER);
-        sessionAttributesMetaData.columns[Session.INFO_INTEGER].setType(
+        sessionAttributesMetaData.columns[AttributePos.INFO_INTEGER].setType(
             Type.SQL_INTEGER);
-        sessionAttributesMetaData.columns[Session.INFO_BOOLEAN].setType(
+        sessionAttributesMetaData.columns[AttributePos.INFO_BOOLEAN].setType(
             Type.SQL_BOOLEAN);
-        sessionAttributesMetaData.columns[Session.INFO_VARCHAR].setType(
+        sessionAttributesMetaData.columns[AttributePos.INFO_VARCHAR].setType(
             Type.SQL_VARCHAR);
         sessionAttributesMetaData.prepareData();
     }
@@ -1078,7 +1079,7 @@ public class Result {
         result.navigator = new RowSetNavigatorClient(1);
         result.metaData  = sessionAttributesMetaData;
 
-        result.navigator.add(new Object[SessionInterface.INFO_LIMIT]);
+        result.navigator.add(new Object[AttributePos.INFO_LIMIT]);
 
         return result;
     }

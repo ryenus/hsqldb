@@ -65,6 +65,7 @@ import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.SessionInterface.Attributes;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -1215,7 +1216,7 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         try {
-            sessionProxy.setAttribute(SessionInterface.INFO_CATALOG, catalog);
+            sessionProxy.setAttribute(Attributes.INFO_CATALOG, catalog);
         } catch (HsqlException e) {
             throw JDBCUtil.sqlException(e);
         }
@@ -1244,8 +1245,7 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         try {
-            return (String) sessionProxy.getAttribute(
-                SessionInterface.INFO_CATALOG);
+            return (String) sessionProxy.getAttribute(Attributes.INFO_CATALOG);
         } catch (HsqlException e) {
             throw JDBCUtil.sqlException(e);
         }

@@ -1914,26 +1914,25 @@ public class Session implements SessionInterface {
         Result   r    = Result.newSessionAttributesResult();
         Object[] data = r.getSingleRowData();
 
-        data[SessionInterface.INFO_ID] = ValuePool.getInt(id);
+        data[AttributePos.INFO_ID] = ValuePool.getInt(id);
 
         switch (id) {
 
-            case SessionInterface.INFO_ISOLATION :
-                data[SessionInterface.INFO_INTEGER] = ValuePool.getInt(
+            case Attributes.INFO_ISOLATION :
+                data[AttributePos.INFO_INTEGER] = ValuePool.getInt(
                     isolationLevel);
                 break;
 
-            case SessionInterface.INFO_AUTOCOMMIT :
-                data[SessionInterface.INFO_BOOLEAN] =
-                    sessionContext.isAutoCommit;
+            case Attributes.INFO_AUTOCOMMIT :
+                data[AttributePos.INFO_BOOLEAN] = sessionContext.isAutoCommit;
                 break;
 
-            case SessionInterface.INFO_CONNECTION_READONLY :
-                data[SessionInterface.INFO_BOOLEAN] = sessionContext.isReadOnly;
+            case Attributes.INFO_CONNECTION_READONLY :
+                data[AttributePos.INFO_BOOLEAN] = sessionContext.isReadOnly;
                 break;
 
-            case SessionInterface.INFO_CATALOG :
-                data[SessionInterface.INFO_VARCHAR] =
+            case Attributes.INFO_CATALOG :
+                data[AttributePos.INFO_VARCHAR] =
                     database.getCatalogName().name;
                 break;
         }
@@ -1944,38 +1943,37 @@ public class Session implements SessionInterface {
     private Result setAttributes(Result r) {
 
         Object[] row = r.getSessionAttributes();
-        int      id  = ((Integer) row[SessionInterface.INFO_ID]).intValue();
+        int      id  = ((Integer) row[AttributePos.INFO_ID]).intValue();
 
         try {
             switch (id) {
 
-                case SessionInterface.INFO_AUTOCOMMIT : {
+                case Attributes.INFO_AUTOCOMMIT : {
                     boolean value =
-                        ((Boolean) row[SessionInterface.INFO_BOOLEAN]).booleanValue();
+                        ((Boolean) row[AttributePos.INFO_BOOLEAN]).booleanValue();
 
                     this.setAutoCommit(value);
                     break;
                 }
 
-                case SessionInterface.INFO_CONNECTION_READONLY : {
+                case Attributes.INFO_CONNECTION_READONLY : {
                     boolean value =
-                        ((Boolean) row[SessionInterface.INFO_BOOLEAN]).booleanValue();
+                        ((Boolean) row[AttributePos.INFO_BOOLEAN]).booleanValue();
 
                     this.setReadOnlyDefault(value);
                     break;
                 }
 
-                case SessionInterface.INFO_ISOLATION : {
+                case Attributes.INFO_ISOLATION : {
                     int value =
-                        ((Integer) row[SessionInterface.INFO_INTEGER]).intValue();
+                        ((Integer) row[AttributePos.INFO_INTEGER]).intValue();
 
                     this.setIsolationDefault(value);
                     break;
                 }
 
-                case SessionInterface.INFO_CATALOG : {
-                    String value =
-                        ((String) row[SessionInterface.INFO_VARCHAR]);
+                case Attributes.INFO_CATALOG : {
+                    String value = ((String) row[AttributePos.INFO_VARCHAR]);
 
                     this.setCatalog(value);
                 }
@@ -1991,16 +1989,16 @@ public class Session implements SessionInterface {
 
         switch (id) {
 
-            case SessionInterface.INFO_ISOLATION :
+            case Attributes.INFO_ISOLATION :
                 return ValuePool.getInt(isolationLevel);
 
-            case SessionInterface.INFO_AUTOCOMMIT :
+            case Attributes.INFO_AUTOCOMMIT :
                 return sessionContext.isAutoCommit;
 
-            case SessionInterface.INFO_CONNECTION_READONLY :
+            case Attributes.INFO_CONNECTION_READONLY :
                 return isReadOnlyDefault;
 
-            case SessionInterface.INFO_CATALOG :
+            case Attributes.INFO_CATALOG :
                 return database.getCatalogName().name;
         }
 
@@ -2011,28 +2009,28 @@ public class Session implements SessionInterface {
 
         switch (id) {
 
-            case SessionInterface.INFO_AUTOCOMMIT : {
+            case Attributes.INFO_AUTOCOMMIT : {
                 boolean value = ((Boolean) object).booleanValue();
 
                 this.setAutoCommit(value);
                 break;
             }
 
-            case SessionInterface.INFO_CONNECTION_READONLY : {
+            case Attributes.INFO_CONNECTION_READONLY : {
                 boolean value = ((Boolean) object).booleanValue();
 
                 this.setReadOnlyDefault(value);
                 break;
             }
 
-            case SessionInterface.INFO_ISOLATION : {
+            case Attributes.INFO_ISOLATION : {
                 int value = ((Integer) object).intValue();
 
                 this.setIsolationDefault(value);
                 break;
             }
 
-            case SessionInterface.INFO_CATALOG : {
+            case Attributes.INFO_CATALOG : {
                 String value = ((String) object);
 
                 this.setCatalog(value);

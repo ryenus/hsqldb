@@ -984,7 +984,9 @@ public final class DateTimeType extends DTIType {
 
             case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                LocalDateTime ldt = LocalDateTime.of(LocalDate.now(session.getTimeZone().toZoneId()), lt);
+                LocalDateTime ldt = LocalDateTime.of(
+                    LocalDate.now(session.getTimeZone().toZoneId()),
+                    lt);
 
                 return convertJavaToSQL(session, ldt);
             }
@@ -1021,11 +1023,19 @@ public final class DateTimeType extends DTIType {
             }
 
             case Types.SQL_TIMESTAMP : {
-                LocalDateTime ldt = LocalDateTime.of(LocalDate.now(ot.getOffset()), ot.toLocalTime());
+                LocalDateTime ldt = LocalDateTime.of(
+                    LocalDate.now(ot.getOffset()),
+                    ot.toLocalTime());
+
                 return convertJavaToSQL(session, ldt);
             }
+
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                OffsetDateTime odt = OffsetDateTime.of(LocalDate.now(ot.getOffset()), ot.toLocalTime(), ot.getOffset());
+                OffsetDateTime odt = OffsetDateTime.of(
+                    LocalDate.now(ot.getOffset()),
+                    ot.toLocalTime(),
+                    ot.getOffset());
+
                 return convertJavaToSQL(session, odt);
             }
 
@@ -1046,7 +1056,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_DATE :
             case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                LocalDateTime ldt = LocalDateTime.of(ld, LocalTime.MIDNIGHT);
+                LocalDateTime ldt = ld.atStartOfDay();
 
                 return convertJavaToSQL(session, ldt);
             }
