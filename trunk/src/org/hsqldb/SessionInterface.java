@@ -55,17 +55,22 @@ import org.hsqldb.types.ClobDataID;
  */
 public interface SessionInterface {
 
-    int INFO_ID      = 0;    // used
-    int INFO_INTEGER = 1;    // used
-    int INFO_BOOLEAN = 2;    // used
-    int INFO_VARCHAR = 3;    // used
-    int INFO_LIMIT   = 4;
+    public interface AttributePos {
 
-    //
-    int INFO_ISOLATION           = 0;    // used
-    int INFO_AUTOCOMMIT          = 1;    // used
-    int INFO_CONNECTION_READONLY = 2;    // used
-    int INFO_CATALOG             = 3;    // used
+        int INFO_ID      = 0;
+        int INFO_INTEGER = 1;
+        int INFO_BOOLEAN = 2;
+        int INFO_VARCHAR = 3;
+        int INFO_LIMIT   = 4;
+    }
+
+    public interface Attributes {
+
+        int INFO_ISOLATION           = 0;
+        int INFO_AUTOCOMMIT          = 1;
+        int INFO_CONNECTION_READONLY = 2;
+        int INFO_CATALOG             = 3;
+    }
 
     //
     int TX_READ_UNCOMMITTED = 1;
