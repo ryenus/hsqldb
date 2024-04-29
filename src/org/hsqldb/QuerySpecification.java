@@ -1989,7 +1989,9 @@ public class QuerySpecification extends QueryExpression {
                     }
 
                     for (int j = 0; j < indexLimitVisible; j++) {
-                        data[j] = exprColumns[j].getValue(session);
+                        if (!aggregateCheck[j]) {
+                            data[j] = exprColumns[j].getValue(session);
+                        }
                     }
 
                     navigator.update(groupData, data);
