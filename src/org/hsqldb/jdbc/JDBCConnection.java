@@ -1265,7 +1265,7 @@ public class JDBCConnection implements Connection {
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      * HSQLDB 2.0 accepts all isolation levels. {@code Connection.TRANSACTION_READ_UNCOMMITED}
-     * is promoted to {@code Connection.TRANSACTION_READ_COMMITED, but the transactions become read only}.
+     * is promoted to {@code Connection.TRANSACTION_READ_COMMITED}, but the transactions become read only.
      * Calling this method during a transaction always succeeds and the selected
      * isolation level is used from the next transaction.
      *

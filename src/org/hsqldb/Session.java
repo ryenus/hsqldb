@@ -296,13 +296,11 @@ public class Session implements SessionInterface {
         }
 
         if (level == SessionInterface.TX_READ_UNCOMMITTED) {
-            level = SessionInterface.TX_READ_COMMITTED;
+            level               = SessionInterface.TX_READ_COMMITTED;
+            isReadOnlyIsolation = true;
         }
 
-        if (isolationLevel != level) {
-            isolationLevel      = level;
-            isReadOnlyIsolation = level == SessionInterface.TX_READ_UNCOMMITTED;
-        }
+        isolationLevel = level;
     }
 
     public synchronized int getIsolation() {
@@ -1909,7 +1907,16 @@ public class Session implements SessionInterface {
         return simpleDateFormatGMT;
     }
 
-    private Result getAttributesResult(int id) {
+    public Result getSetAttributeResult(int id) {
+
+        Result result = getAttributesResult(id);
+
+        result.setResultType(ResultConstants.SETSESSIONATTR);
+
+        return result;
+    }
+
+    public Result getAttributesResult(int id) {
 
         Result   r    = Result.newSessionAttributesResult();
         Object[] data = r.getSingleRowData();
@@ -1934,6 +1941,10 @@ public class Session implements SessionInterface {
             case Attributes.INFO_CATALOG :
                 data[AttributePos.INFO_VARCHAR] =
                     database.getCatalogName().name;
+                break;
+
+            case Attributes.INFO_TIMEZONE :
+                data[AttributePos.INFO_VARCHAR] = currentTimeZone.getID();
                 break;
         }
 
@@ -2004,6 +2015,11 @@ public class Session implements SessionInterface {
 
         return null;
     }
+
+    /**
+     * no-op, only for ClientConnection
+     */
+    public void setAttributeFromResult(Result result) {}
 
     public synchronized void setAttribute(int id, Object object) {
 

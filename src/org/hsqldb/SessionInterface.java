@@ -70,6 +70,7 @@ public interface SessionInterface {
         int INFO_AUTOCOMMIT          = 1;
         int INFO_CONNECTION_READONLY = 2;
         int INFO_CATALOG             = 3;
+        int INFO_TIMEZONE            = 4;
     }
 
     //
@@ -124,6 +125,8 @@ public interface SessionInterface {
     Object getAttribute(int id);
 
     void setAttribute(int id, Object value);
+
+    void setAttributeFromResult(Result result);
 
     long getId();
 

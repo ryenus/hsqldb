@@ -190,6 +190,8 @@ class JDBCStatementBase {
                 generatedResult = current;
             } else if (current.getType() == ResultConstants.DATA) {
                 resultIn.addChainedResult(current);
+            } else if (current.getType() == ResultConstants.SETSESSIONATTR) {
+                connection.sessionProxy.setAttributeFromResult(current);
             }
         }
 
