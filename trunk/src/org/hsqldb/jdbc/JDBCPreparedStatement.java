@@ -3264,7 +3264,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-    public synchronized void cancel() throws SQLException {
+    public void cancel() throws SQLException {
 
         checkClosed();
 
