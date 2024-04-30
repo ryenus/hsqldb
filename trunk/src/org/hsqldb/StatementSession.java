@@ -34,6 +34,7 @@ package org.hsqldb;
 import java.util.TimeZone;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.SessionInterface.Attributes;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -469,7 +470,13 @@ public class StatementSession extends Statement {
                            == null) {
                     session.resetTimeZone();
 
-                    return Result.updateZeroResult;
+                    Result result = Result.newUpdateZeroResult();
+                    Result attribute = session.getSetAttributeResult(
+                        Attributes.INFO_TIMEZONE);
+
+                    result.addChainedResult(attribute);
+
+                    return result;
                 }
 
                 try {
@@ -520,7 +527,13 @@ public class StatementSession extends Statement {
 
                         session.setTimeZone(zone);
 
-                        return Result.updateZeroResult;
+                        Result result = Result.newUpdateZeroResult();
+                        Result attribute = session.getSetAttributeResult(
+                            Attributes.INFO_TIMEZONE);
+
+                        result.addChainedResult(attribute);
+
+                        return result;
                     } else {
                         value =
                             Type.SQL_INTERVAL_HOUR_TO_MINUTE.convertToDefaultType(
@@ -546,7 +559,13 @@ public class StatementSession extends Statement {
 
                         session.setTimeZone(zone);
 
-                        return Result.updateZeroResult;
+                        Result result = Result.newUpdateZeroResult();
+                        Result attribute = session.getSetAttributeResult(
+                            Attributes.INFO_TIMEZONE);
+
+                        result.addChainedResult(attribute);
+
+                        return result;
                     }
                 }
 
@@ -766,7 +785,13 @@ public class StatementSession extends Statement {
                         session.setAutoCommitRows(rows);
                     }
 
-                    return Result.updateZeroResult;
+                    Result result = Result.newUpdateZeroResult();
+                    Result attribute = session.getSetAttributeResult(
+                        Attributes.INFO_AUTOCOMMIT);
+
+                    result.addChainedResult(attribute);
+
+                    return result;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }

@@ -310,6 +310,25 @@ public class ClientConnection implements SessionInterface, Cloneable {
         isClosed = true;
     }
 
+    public void setAttributeFromResult(Result result) {
+
+        Object[] data = result.getSingleRowData();
+        int      id   = (Integer) data[AttributePos.INFO_ID];
+
+        switch (id) {
+
+            case Attributes.INFO_AUTOCOMMIT :
+                isAutoCommit = (Boolean) data[AttributePos.INFO_BOOLEAN];
+                break;
+
+            case Attributes.INFO_TIMEZONE :
+                String zoneID = (String) data[AttributePos.INFO_VARCHAR];
+
+                timeZone = TimeZone.getTimeZone(zoneID);
+                break;
+        }
+    }
+
     public synchronized Object getAttribute(int id) {
 
         resultOut.setResultType(ResultConstants.GETSESSIONATTR);
@@ -321,7 +340,12 @@ public class ClientConnection implements SessionInterface, Cloneable {
             throw Error.error(in);
         }
 
-        Object[] data = in.getSingleRowData();
+        return getAttributeFromData(in, id);
+    }
+
+    public static Object getAttributeFromData(Result result, int id) {
+
+        Object[] data = result.getSingleRowData();
 
         switch (id) {
 
@@ -334,6 +358,9 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
             case Attributes.INFO_CATALOG :
                 return data[AttributePos.INFO_VARCHAR];
+
+            case Attributes.INFO_TIMEZONE :
+                return data[AttributePos.INFO_VARCHAR];
         }
 
         return null;
@@ -341,9 +368,27 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
     public synchronized void setAttribute(int id, Object value) {
 
-        resultOut.setResultType(ResultConstants.SETSESSIONATTR);
+        setAttributeResult(resultOut, id, value);
 
-        Object[] data = resultOut.getSingleRowData();
+        Result resultIn = execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw Error.error(resultIn);
+        }
+    }
+
+    public static Result setAttributeResult(
+            Result result,
+            int id,
+            Object value) {
+
+        if (result == null) {
+            result = Result.newSessionAttributesResult();
+        }
+
+        result.setResultType(ResultConstants.SETSESSIONATTR);
+
+        Object[] data = result.getSingleRowData();
 
         data[AttributePos.INFO_ID] = ValuePool.getInt(id);
 
@@ -359,17 +404,14 @@ public class ClientConnection implements SessionInterface, Cloneable {
                 break;
 
             case Attributes.INFO_CATALOG :
+            case Attributes.INFO_TIMEZONE :
                 data[AttributePos.INFO_VARCHAR] = value;
                 break;
 
             default :
         }
 
-        Result resultIn = execute(resultOut);
-
-        if (resultIn.isError()) {
-            throw Error.error(resultIn);
-        }
+        return result;
     }
 
     public synchronized boolean isReadOnlyDefault() {
