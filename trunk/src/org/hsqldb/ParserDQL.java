@@ -204,7 +204,15 @@ public class ParserDQL extends ParserBase {
                         if (token.tokenType == Tokens.OPENBRACKET) {
                             read();
 
-                            int precision = readInteger();
+                            int precision;
+
+                            if (token.tokenType == Tokens.ASTERISK) {
+                                read();
+
+                                precision = 40;
+                            } else {
+                                precision = readInteger();
+                            }
 
                             scale = 0;
 
