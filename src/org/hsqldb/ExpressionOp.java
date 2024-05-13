@@ -85,9 +85,7 @@ public class ExpressionOp extends Expression {
 
         super(type);
 
-        nodes        = new Expression[BINARY];
-        nodes[LEFT]  = left;
-        nodes[RIGHT] = right;
+        nodes = new Expression[]{ left, right };
 
         switch (opType) {
 
@@ -115,8 +113,7 @@ public class ExpressionOp extends Expression {
 
         super(OpTypes.CAST);
 
-        nodes         = new Expression[UNARY];
-        nodes[LEFT]   = e;
+        nodes         = new Expression[]{ e };
         this.dataType = dataType;
         this.alias    = e.alias;
     }
@@ -129,8 +126,7 @@ public class ExpressionOp extends Expression {
 
         super(OpTypes.CAST);
 
-        nodes         = new Expression[UNARY];
-        nodes[LEFT]   = e;
+        nodes         = new Expression[]{ e };
         this.dataType = dataType;
         this.alias    = e.alias;
     }
@@ -142,8 +138,7 @@ public class ExpressionOp extends Expression {
 
         super(OpTypes.CAST);
 
-        nodes       = new Expression[UNARY];
-        nodes[LEFT] = e;
+        nodes = new Expression[]{ e };
 
         switch (e.dataType.typeCode) {
 

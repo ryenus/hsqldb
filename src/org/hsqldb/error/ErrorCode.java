@@ -363,6 +363,7 @@ public interface ErrorCode {
     int X_22511 = 3472;                            // invalid function argument
     int X_22521 = 3473;                            // object serialization failure
     int X_22522 = 3474;                            // query execution reached limit of recursion
+    int X_22523 = 3475;                            // unsupported format string
 
     // 04-PSM - xxxx
     int X_2202A = 3488;                            // data exception: null value in field reference
