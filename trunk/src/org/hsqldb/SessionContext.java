@@ -156,7 +156,7 @@ public class SessionContext {
     private void push(boolean isRoutine) {
 
         if (depth > 256) {
-            throw Error.error(ErrorCode.GENERAL_ERROR);
+            throw Error.error(ErrorCode.X_22522);
         }
 
         session.sessionData.persistentStoreCollection.push(isRoutine);

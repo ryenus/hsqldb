@@ -67,6 +67,7 @@ import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.LobData;
+import org.hsqldb.types.NumberFormat;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -1513,10 +1514,17 @@ public class FunctionCustom extends FunctionSQL {
                     }
 
                     if (dateTimeFormatter == null) {
-                        return HsqlDateTime.toFormattedDate(
-                            (DateTimeType) nodes[0].dataType,
-                            data[0],
-                            (String) data[1]);
+                        if (nodes[0].dataType.isDateTimeType()) {
+                            return HsqlDateTime.toFormattedDate(
+                                (DateTimeType) nodes[0].dataType,
+                                data[0],
+                                (String) data[1]);
+                        } else {
+                            NumberFormat formatter = new NumberFormat(
+                                (String) data[1]);
+
+                            return formatter.format((Number) data[0]);
+                        }
                     } else {
                         return HsqlDateTime.toFormattedDate(
                             (DateTimeType) nodes[0].dataType,
@@ -3363,15 +3371,19 @@ public class FunctionCustom extends FunctionSQL {
                         throw Error.error(ErrorCode.X_42563);
                     }
 
-                    if (!nodes[0].dataType.isDateTimeType()) {
+                    if (nodes[0].dataType.isDateTimeType()) {}
+                    else if (nodes[0].dataType.isNumberType()) {}
+                    else {
                         throw Error.error(ErrorCode.X_42563);
                     }
 
                     if (nodes[1].opType == OpTypes.VALUE
                             && nodes[1].valueData != null) {
-                        dateTimeFormatter = HsqlDateTime.toFormatter(
-                            (String) nodes[1].valueData,
-                            false);
+                        if (nodes[0].dataType.isDateTimeType()) {
+                            dateTimeFormatter = HsqlDateTime.toFormatter(
+                                (String) nodes[1].valueData,
+                                false);
+                        }
                     }
                 }
 
