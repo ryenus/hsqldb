@@ -159,7 +159,7 @@ public class NumberFormat {
         if (num instanceof BigDecimal) {
             number = (BigDecimal) num;
         } else if (num instanceof Double) {
-            number = BigDecimal.valueOf((Double) num);
+            number = BigDecimal.valueOf(num.doubleValue());
         } else {
             number = BigDecimal.valueOf(num.longValue());
         }
