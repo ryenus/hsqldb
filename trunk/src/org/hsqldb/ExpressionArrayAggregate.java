@@ -284,7 +284,8 @@ public class ExpressionArrayAggregate extends Expression {
                              && exprSubType == other.exprSubType
                              && isDistinctAggregate == o.isDistinctAggregate
                              && separator.equals(o.separator)
-                             && condition.equals(o.condition);
+                             && condition.equals(o.condition)
+                             && sort == o.sort;
 
             return result;
         }
