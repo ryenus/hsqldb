@@ -260,13 +260,13 @@ public class ExpressionOp extends Expression {
                   .append(' ')
                   .append(dataType.getTypeDefinition());
 
-                if(template != null) {
-                  sb.append(' ')
-                    .append(Tokens.T_FORMAT)
-                    .append(' ')
-                    .append('\'')
-                    .append(template)
-                    .append('\'');
+                if (template != null) {
+                    sb.append(' ')
+                      .append(Tokens.T_FORMAT)
+                      .append(' ')
+                      .append('\'')
+                      .append(template)
+                      .append('\'');
                 }
 
                 sb.append(')');
