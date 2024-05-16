@@ -36,6 +36,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 
 import java.text.ParsePosition;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -47,6 +48,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
+
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -58,8 +60,8 @@ import java.util.Locale;
  * @since 2.7.3
  */
 public class DateFormat {
-    public static final Locale defaultLocale    = Locale.UK;
 
+    public static final Locale defaultLocale = Locale.UK;
     //J-
 
     private static final char[][] dateTokens     = {
@@ -103,7 +105,9 @@ public class DateFormat {
     public static DateTimeFormatter toFormatter(String pattern, boolean parse) {
 
         try {
-            String javaPattern = toJavaDatePattern(pattern, parse);
+            String javaPattern               = toJavaDatePattern(
+                pattern,
+                parse);
             DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
 
             builder.parseCaseInsensitive();
@@ -128,7 +132,7 @@ public class DateFormat {
         int  zone  = 0;
 
         try {
-            ParsePosition ppos = new ParsePosition(0);
+            ParsePosition    ppos = new ParsePosition(0);
             TemporalAccessor ta   = formatter.parse(string, ppos);
 
             switch (dataType.typeCode) {
@@ -143,7 +147,7 @@ public class DateFormat {
                         break;
                     }
 
-                    // fall through
+                // fall through
                 case Types.SQL_TIMESTAMP :
                     if (ta.isSupported(ChronoField.SECOND_OF_MINUTE)) {
                         LocalDateTime ldt = LocalDateTime.from(ta);
@@ -153,7 +157,7 @@ public class DateFormat {
                         break;
                     }
 
-                    // fall through
+                // fall through
                 case Types.DATE :
                     LocalDate ld = LocalDate.from(ta);
 
@@ -196,15 +200,15 @@ public class DateFormat {
                 case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                     TimestampData ts = (TimestampData) dateTime;
                     LocalDateTime ldt = LocalDateTime.ofEpochSecond(
-                            ts.seconds + ts.zone,
-                            ts.nanos,
-                            ZoneOffset.UTC);
+                        ts.seconds + ts.zone,
+                        ts.nanos,
+                        ZoneOffset.UTC);
 
                     if (dataType.typeCode
                             == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
                         dt = OffsetDateTime.of(
-                                ldt,
-                                ZoneOffset.ofTotalSeconds(ts.zone));
+                            ldt,
+                            ZoneOffset.ofTotalSeconds(ts.zone));
                     } else {
                         dt = ldt;
                     }
@@ -215,13 +219,13 @@ public class DateFormat {
                 case Types.SQL_TIME_WITH_TIME_ZONE :
                     TimeData ti = (TimeData) dateTime;
                     LocalTime lt = LocalTime.ofNanoOfDay(
-                            (ti.seconds + ti.zone) * DTIType.nanosInSecond
-                                    + ti.nanos);
+                        (ti.seconds + ti.zone) * DTIType.nanosInSecond
+                        + ti.nanos);
 
                     if (dataType.typeCode == Types.SQL_TIME_WITH_TIME_ZONE) {
                         dt = OffsetTime.of(
-                                lt,
-                                ZoneOffset.ofTotalSeconds(ti.zone));
+                            lt,
+                            ZoneOffset.ofTotalSeconds(ti.zone));
                     } else {
                         dt = lt;
                     }
@@ -264,7 +268,7 @@ public class DateFormat {
         int           len = format.length();
         char          ch;
         StringBuilder sb        = new StringBuilder(len);
-        Tokenizer tokenizer = new Tokenizer();
+        Tokenizer     tokenizer = new Tokenizer();
 
         if (format.startsWith(javaPrefix)) {
             return format.substring(javaPrefix.length());
@@ -272,8 +276,8 @@ public class DateFormat {
 
         for (int i = 0; i <= len; i++) {
             ch = (i == len)
-                    ? e
-                    : format.charAt(i);
+                 ? e
+                 : format.charAt(i);
 
             if (tokenizer.isInQuotes()) {
                 if (tokenizer.isQuoteChar(ch)) {
@@ -314,8 +318,8 @@ public class DateFormat {
                         //
                     } else {
                         throw Error.error(
-                                ErrorCode.X_22007,
-                                format.substring(i));
+                            ErrorCode.X_22007,
+                            format.substring(i));
                     }
                 }
 
@@ -349,7 +353,7 @@ public class DateFormat {
         private final char     quoteChar;
         private final char[]   literalChars;
         private static char[]  defaultLiterals = new char[] {
-                ' ', ',', '-', '.', '/', ':', ';'
+            ' ', ',', '-', '.', '/', ':', ';'
         };
         private final char[][] tokens;
 
@@ -483,5 +487,4 @@ public class DateFormat {
             return left > 0;
         }
     }
-
 }
