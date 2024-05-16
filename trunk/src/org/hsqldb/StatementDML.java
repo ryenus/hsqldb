@@ -1618,8 +1618,6 @@ public class StatementDML extends StatementDMQL {
                     store,
                     data,
                     changedColumns);
-
-//                newRow.rowAction.updatedAction = row.rowAction;
             }
 
             navigator.beforeFirst();

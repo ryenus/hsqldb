@@ -2888,7 +2888,7 @@ public final class DateTimeType extends DTIType {
                         }
                     }
 
-                    return HsqlDateTime.toDate(Type.SQL_TIMESTAMP, s, pattern);
+                    return DateFormat.toDate(Type.SQL_TIMESTAMP, s, pattern);
                 }
 
             // fall through
