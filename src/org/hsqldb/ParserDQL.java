@@ -6451,6 +6451,7 @@ public class ParserDQL extends ParserBase {
 
         Expression e;
         Type       typeObject;
+        String     template;
 
         read();
         readThis(Tokens.OPENBRACKET);
@@ -6461,10 +6462,17 @@ public class ParserDQL extends ParserBase {
 
         typeObject = readTypeDefinition(false, true);
 
+        if (readIfThis(Tokens.FORMAT)) {
+            template = readQuotedString();
+        } else {
+            template = null;
+        }
+
         if (e.isUnresolvedParam()) {
             e.setDataType(session, typeObject);
         } else {
-            e = new ExpressionOp(e, typeObject);
+
+            e = new ExpressionOp(e, typeObject, template);
         }
 
         readThis(Tokens.CLOSEBRACKET);
@@ -6475,7 +6483,7 @@ public class ParserDQL extends ParserBase {
     private Expression readConvertExpressionOrNull() {
 
         Expression e;
-        Expression mode = null;
+        Expression format = null;
         Type       typeObject;
         int        position = getPosition();
 
@@ -6495,7 +6503,7 @@ public class ParserDQL extends ParserBase {
             e = XreadValueExpression();
 
             if (readIfThis(Tokens.COMMA)) {
-                mode = this.XreadSimpleValueSpecificationOrNull();
+                format = this.XreadSimpleValueSpecificationOrNull();
             }
         } else {
             e = XreadValueExpression();
@@ -6511,10 +6519,10 @@ public class ParserDQL extends ParserBase {
             }
         }
 
-        if (e.isUnresolvedParam() && mode == null) {
+        if (e.isUnresolvedParam()) {
             e.setDataType(session, typeObject);
         } else {
-            e = new ExpressionOp(e, typeObject, mode);
+            e = new ExpressionOp(e, typeObject);
         }
 
         readThis(Tokens.CLOSEBRACKET);

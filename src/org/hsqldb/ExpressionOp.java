@@ -39,10 +39,13 @@ import org.hsqldb.map.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BinaryType;
 import org.hsqldb.types.CharacterType;
+import org.hsqldb.types.DateFormat;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
+
+import java.time.format.DateTimeFormatter;
 
 /**
  * Implementation of CAST, CASE, LIMIT and ZONE operations.
@@ -58,6 +61,8 @@ public class ExpressionOp extends Expression {
         OpTypes.LIMIT,
         new ExpressionValue(ValuePool.INTEGER_0, Type.SQL_INTEGER),
         new ExpressionValue(ValuePool.INTEGER_1, Type.SQL_INTEGER));
+    String            template;
+    DateTimeFormatter dateTimeFormatter;
 
     /**
      * Creates a multiple arg operation expression
@@ -119,16 +124,17 @@ public class ExpressionOp extends Expression {
     }
 
     /**
-     * creates a CONVERT expression with format
-     * when format is null, it is a simple CAST
+     * creates a CAST expression with template
+     * when template is null, it is a simple CAST
      */
-    ExpressionOp(Expression e, Type dataType, Expression format) {
+    ExpressionOp(Expression e, Type dataType, String template) {
 
         super(OpTypes.CAST);
 
         nodes         = new Expression[]{ e };
         this.dataType = dataType;
         this.alias    = e.alias;
+        this.template = template;
     }
 
     /**
@@ -252,8 +258,18 @@ public class ExpressionOp extends Expression {
                   .append(' ')
                   .append(Tokens.T_AS)
                   .append(' ')
-                  .append(dataType.getTypeDefinition())
-                  .append(')');
+                  .append(dataType.getTypeDefinition());
+
+                if(template != null) {
+                  sb.append(' ')
+                    .append(Tokens.T_FORMAT)
+                    .append(' ')
+                    .append('\'')
+                    .append(template)
+                    .append('\'');
+                }
+
+                sb.append(')');
                 break;
 
             case OpTypes.CONVERT :
@@ -492,10 +508,40 @@ public class ExpressionOp extends Expression {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                if (node.opType == OpTypes.VALUE) {
-                    setAsConstantValue(session, parent);
-                } else if (nodes[LEFT].opType == OpTypes.DYNAMIC_PARAM) {
-                    node.dataType = dataType;
+                if (template == null) {
+                    if (node.opType == OpTypes.VALUE) {
+                        setAsConstantValue(session, parent);
+                    } else if (node.opType == OpTypes.DYNAMIC_PARAM) {
+                        node.dataType = dataType;
+                    }
+                } else {
+                    if (dataType.isCharacterType()) {
+                        if (node.opType == OpTypes.DYNAMIC_PARAM) {
+                            node.dataType = Type.SQL_TIMESTAMP;
+                        }
+
+                        if (!node.dataType.isDateTimeType()) {
+                            throw Error.error(ErrorCode.X_42561);
+                        }
+
+                        dateTimeFormatter = DateFormat.toFormatter(
+                            template,
+                            false);
+                    } else if (dataType.isDateTimeType()) {
+                        if (node.opType == OpTypes.DYNAMIC_PARAM) {
+                            node.dataType = Type.SQL_VARCHAR_DEFAULT;
+                        }
+
+                        if (!node.dataType.isCharacterType()) {
+                            throw Error.error(ErrorCode.X_42561);
+                        }
+
+                        dateTimeFormatter = DateFormat.toFormatter(
+                            template,
+                            true);
+                    } else {
+                        throw Error.error(ErrorCode.X_42561);
+                    }
                 }
 
                 break;
@@ -919,10 +965,29 @@ public class ExpressionOp extends Expression {
             }
 
             case OpTypes.CAST : {
-                Object value = dataType.castToType(
-                    session,
-                    nodes[LEFT].getValue(session),
-                    nodes[LEFT].dataType);
+                Object value;
+
+                if (dateTimeFormatter == null) {
+                    value = dataType.castToType(
+                        session,
+                        nodes[LEFT].getValue(session),
+                        nodes[LEFT].dataType);
+                } else {
+                    if (dataType.isDateTimeType()) {
+                        String string = (String) nodes[LEFT].getValue(session);
+
+                        value = DateFormat.toDate(
+                            (DateTimeType) dataType,
+                            string,
+                            dateTimeFormatter);
+                    } else {
+                        value = nodes[LEFT].getValue(session);
+                        value = DateFormat.toFormattedDate(
+                            (DateTimeType) nodes[LEFT].dataType,
+                            value,
+                            dateTimeFormatter);
+                    }
+                }
 
                 if (dataType.userTypeModifier != null) {
                     Constraint[] constraints =
@@ -1060,5 +1125,16 @@ public class ExpressionOp extends Expression {
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
         }
+    }
+
+    public boolean equals(Expression other) {
+
+        boolean value = super.equals(other);
+
+        if (opType == OpTypes.CAST) {
+            value = value && equals(template, ((ExpressionOp) other).template);
+        }
+
+        return value;
     }
 }

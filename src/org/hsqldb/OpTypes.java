@@ -143,8 +143,9 @@ public interface OpTypes {
         JSON_FUNCTION              = 103,
         JSON_SQL_FUNCTION          = 104,
         GROUPING                   = 105,    // grouping function
-        STDDEV                     = 142,
-        VARIANCE                   = 143;
+        STDDEV                     = 106,
+        VARIANCE                   = 107,
+        ANY_VALUE                  = 108;
     //J-
     int[] aggOpTypes = new int[] {
 

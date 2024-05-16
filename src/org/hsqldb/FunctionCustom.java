@@ -61,6 +61,7 @@ import org.hsqldb.types.BlobData;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.DTIType;
+import org.hsqldb.types.DateFormat;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.HsqlDateTime;
 import org.hsqldb.types.IntervalMonthData;
@@ -1515,7 +1516,7 @@ public class FunctionCustom extends FunctionSQL {
 
                     if (dateTimeFormatter == null) {
                         if (nodes[0].dataType.isDateTimeType()) {
-                            return HsqlDateTime.toFormattedDate(
+                            return DateFormat.toFormattedDate(
                                 (DateTimeType) nodes[0].dataType,
                                 data[0],
                                 (String) data[1]);
@@ -1526,7 +1527,7 @@ public class FunctionCustom extends FunctionSQL {
                             return formatter.format((Number) data[0]);
                         }
                     } else {
-                        return HsqlDateTime.toFormattedDate(
+                        return DateFormat.toFormattedDate(
                             (DateTimeType) nodes[0].dataType,
                             data[0],
                             dateTimeFormatter);
@@ -1562,12 +1563,12 @@ public class FunctionCustom extends FunctionSQL {
                 TimestampData value;
 
                 if (dateTimeFormatter == null) {
-                    value = HsqlDateTime.toDate(
+                    value = DateFormat.toDate(
                         (DateTimeType) dataType,
                         (String) data[0],
                         (String) data[1]);
                 } else {
-                    value = HsqlDateTime.toDate(
+                    value = DateFormat.toDate(
                         (DateTimeType) dataType,
                         (String) data[0],
                         dateTimeFormatter);
@@ -3380,7 +3381,7 @@ public class FunctionCustom extends FunctionSQL {
                     if (nodes[1].opType == OpTypes.VALUE
                             && nodes[1].valueData != null) {
                         if (nodes[0].dataType.isDateTimeType()) {
-                            dateTimeFormatter = HsqlDateTime.toFormatter(
+                            dateTimeFormatter = DateFormat.toFormatter(
                                 (String) nodes[1].valueData,
                                 false);
                         }
@@ -3453,7 +3454,7 @@ public class FunctionCustom extends FunctionSQL {
                 if (nodes[0].dataType.isCharacterType()) {
                     if (nodes[1].opType == OpTypes.VALUE
                             && nodes[1].valueData != null) {
-                        dateTimeFormatter = HsqlDateTime.toFormatter(
+                        dateTimeFormatter = DateFormat.toFormatter(
                             (String) nodes[1].valueData,
                             true);
                     }
