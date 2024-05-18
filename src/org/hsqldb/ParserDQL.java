@@ -3196,6 +3196,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.ARRAY :
                 return readCollection(OpTypes.ARRAY);
 
+            case Tokens.ANY_VALUE :
             case Tokens.COUNT :
             case Tokens.AVG :
             case Tokens.MAX :
@@ -6471,7 +6472,6 @@ public class ParserDQL extends ParserBase {
         if (e.isUnresolvedParam()) {
             e.setDataType(session, typeObject);
         } else {
-
             e = new ExpressionOp(e, typeObject, template);
         }
 

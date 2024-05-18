@@ -266,6 +266,16 @@ public class SetFunctionValueAggregate implements SetFunction {
                 }
             }
 
+            case OpTypes.ANY_VALUE : {
+                if (currentValue == null) {
+                    currentValue = item;
+
+                    return;
+                }
+
+                return;
+            }
+
             case OpTypes.MIN : {
                 if (currentValue == null) {
                     currentValue = item;
@@ -536,6 +546,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                 }
             }
 
+            case OpTypes.ANY_VALUE :
             case OpTypes.MIN :
             case OpTypes.MAX :
                 return currentValue;

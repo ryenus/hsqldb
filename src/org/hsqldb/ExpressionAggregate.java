@@ -79,6 +79,14 @@ public class ExpressionAggregate extends Expression {
 
         switch (opType) {
 
+            case OpTypes.ANY_VALUE :
+                sb.append(' ')
+                  .append(Tokens.T_ANY_VALUE)
+                  .append('(')
+                  .append(left)
+                  .append(')');
+                break;
+
             case OpTypes.COUNT :
                 sb.append(' ')
                   .append(Tokens.T_COUNT)
@@ -203,6 +211,10 @@ public class ExpressionAggregate extends Expression {
         }
 
         switch (opType) {
+
+            case OpTypes.ANY_VALUE :
+                sb.append(Tokens.T_ANY_VALUE).append(' ');
+                break;
 
             case OpTypes.COUNT :
                 sb.append(Tokens.T_COUNT).append(' ');
@@ -425,6 +437,7 @@ public class ExpressionAggregate extends Expression {
                 }
             }
 
+            case OpTypes.ANY_VALUE :
             case OpTypes.MIN :
             case OpTypes.MAX :
                 if (dataType.isArrayType() || dataType.isLobType()) {

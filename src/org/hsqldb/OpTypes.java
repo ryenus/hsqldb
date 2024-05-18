@@ -165,8 +165,9 @@ public interface OpTypes {
         OpTypes.GROUP_CONCAT,
         OpTypes.STRING_AGG,
         OpTypes.MEDIAN,
-        OpTypes.STDDEV,
         OpTypes.VARIANCE,
+        OpTypes.STDDEV,
+        OpTypes.ANY_VALUE,
     };
 
     int[] columnOpTypes = new int[]{ OpTypes.COLUMN };
