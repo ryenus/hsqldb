@@ -61,7 +61,7 @@ import java.util.Locale;
  */
 public class DateFormat {
 
-    public static final Locale defaultLocale = Locale.UK;
+    public static final Locale    defaultLocale  = Locale.UK;
     //J-
 
     private static final char[][] dateTokens     = {
