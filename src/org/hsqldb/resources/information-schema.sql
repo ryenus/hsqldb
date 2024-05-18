@@ -564,7 +564,7 @@ VALUES
 ('T827', 'JSON_TABLE: sibling NESTED COLUMNS clauses', '', '', 'NO', NULL, ''),
 ('T828', 'JSON_QUERY', '', '', 'NO', NULL, ''),
 ('T829', 'JSON_QUERY: array wrapper options', '', '', 'NO', NULL, ''),
-('T830', 'Enforcing unique keys in SQL/JSON constructor functions', '', '', 'YES', NULL, '');
+('T830', 'Enforcing unique keys in SQL/JSON constructor functions', '', '', 'YES', NULL, ''),
 ('T831', 'SQL/JSON path language: strict mode', '', '', 'NO', NULL, ''),
 ('T832', 'SQL/JSON path language: item method', '', '', 'NO', NULL, ''),
 ('T833', 'SQL/JSON path language: multiple subscripts', '', '', 'NO', NULL, ''),
