@@ -124,7 +124,7 @@
     tokens are separated with the vertical bar ( <literal>&lt;vertical
     bar&gt;</literal> ). At the end of each function definition, the standard
     which specifies the function is noted in parentheses as JDBC or HyperSQL,
-    or the SQL:2016 Standard.</para>
+    or the SQL:2023 Standard.</para>
   </section>
 
   <section xml:id="bfc_string_binary_functions">
@@ -177,7 +177,7 @@
 
     <para>BIT_LENGTH can be used with character, binary and bit strings. It
     return a BIGINT value that measures the bit length of the string.
-    (SQL:2016)</para>
+    (SQL:2023)</para>
 
     <para>See also CHARACTER_LENGTH and OCTET_LENGTH.</para>
 
@@ -216,7 +216,7 @@
     string in the given unit. CHAR_LENGTH counts characters, OCTET_LENGTH
     counts octets and BIT_LENGTH counts bits in the string. For CHAR_LENGTH,
     if <literal>[ USING OCTETS ] </literal>is specified, the octet count is
-    returned, which is twice the normal length. (SQL:2016)</para>
+    returned, which is twice the normal length. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CONCAT function</primary>
@@ -426,7 +426,7 @@
     <para><literal>LOWER ( &lt;char value expr&gt; ) </literal></para>
 
     <para>Returns a character string that is the lower-case version of the
-    <literal>&lt;char value expr&gt;</literal>. (SQL:2016)</para>
+    <literal>&lt;char value expr&gt;</literal>. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LPAD function</primary>
@@ -443,7 +443,7 @@
     left with spaces. If <literal>&lt;length&gt;</literal> is smaller than the
     length of the string argument, the argument is truncated. If the optional
     <literal>&lt;char value expr 2&gt;</literal> is specified, this string is
-    used for padding, instead of spaces. (HyperSQL)</para>
+    used for padding, instead of spaces. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LTRIM function</primary>
@@ -459,7 +459,7 @@
     characters removed. Equivalent to SQL/Foundation <literal>TRIM( LEADING '
     ' FROM &lt;char value expr1&gt; )</literal>. When called with two
     arguments, <literal>&lt;char value expr 2&gt;</literal> represents the
-    leading character to be removed. (JDBC)</para>
+    leading character to be removed. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>OCTET_LENGTH function</primary>
@@ -475,7 +475,7 @@
 
     <para>Return a BIGINT value that measures the length of the string in
     octets<literal>. When used with character strings</literal>, the octet
-    count is returned, which is twice the normal length. (SQL:2016)</para>
+    count is returned, which is twice the normal length. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>OVERLAY function</primary>
@@ -502,7 +502,7 @@
     <literal>&lt;char value expr 2&gt;</literal> is copied.</para>
 
     <para>The binary version of OVERLAY returns a binary string formed in the
-    same manner as the character version. (SQL:2016)</para>
+    same manner as the character version. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>POSITION function</primary>
@@ -519,7 +519,7 @@
     <para>The character and binary versions of POSITION search the string
     value of the second argument for the first occurrence of the first
     argument string. If the search is successful, the position in the string
-    is returned as a BIGINT. Otherwise zero is returned. (SQL:2016)</para>
+    is returned as a BIGINT. Otherwise zero is returned. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>RAWTOHEX function</primary>
@@ -722,7 +722,7 @@
     right with spaces. If <literal>&lt;length&gt;</literal> is smaller than
     the length of the string argument, the argument is truncated. If the
     optional <literal>&lt;char value expr 2&gt;</literal> is specified, this
-    string is used for padding, instead of spaces. (HyperSQL)</para>
+    string is used for padding, instead of spaces. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>RTRIM function</primary>
@@ -738,7 +738,7 @@
     characters removed. Equivalent to SQL/Foundation <literal>TRIM(TRAILING '
     ' FROM &lt;character string&gt;)</literal>. When called with two
     arguments, <literal>&lt;char value expr 2&gt;</literal> represents the
-    trailing character to be removed. (JDBC)</para>
+    trailing character to be removed. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SOUNDEX function</primary>
@@ -802,7 +802,7 @@
     <literal>&lt;string length&gt; </literal>characters are returned.</para>
 
     <para>The binary version of SUBSTRING returns a binary string in the same
-    manner. (SQL:2016)</para>
+    manner. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TO_BASE64 function</primary>
@@ -814,6 +814,116 @@
 
     <para>Returns a character string as a base 64 representation of the bytes
     in the <literal>&lt;binary value expr&gt;</literal>. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TO_CHAR (number) function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TO_CHAR</emphasis></simpara>
+
+    <para><literal>TO_CHAR ( &lt;Numeric value expr&gt;, &lt;char value
+    expr&gt; )</literal></para>
+
+    <para>This function converts a numeric value to a character string using
+    the format given in the second argument. In the format template, the
+    digits 0 and 9 are used for the digits of the numeric value. If the
+    numeric value has more significant digits than the template, the hash
+    symbol (#) is returned as the result. By default, the result has the minus
+    sign at the beginning when the numeric value is negative, or a space when
+    it is positive. The special format element MI can be used at the end of
+    the format template for a minus sign for negative numeric values or a
+    space for positive values. The special format element S can be used at the
+    beginning or end of the template for a plus or minus sign to be included
+    for all numeric values at that position. Alternatively, the format element
+    PR can be used once at the end of the format string for angle brackets
+    around the negative results. Numeric values of type DOUBLE are first
+    converted to DECIMAL with the same scale as indicated in the template.
+    (HyperSQL)</para>
+
+    <table colsep="1" frame="all" pgwide="0">
+      <title>TO_CHAR (number) format elements</title>
+
+      <tgroup cols="2">
+        <colspec colwidth="5cm"/>
+
+        <colspec/>
+
+        <tbody>
+          <row>
+            <entry><literal>9</literal></entry>
+
+            <entry>The digit 9 means a space is used in the result when no
+            digit is present. Otherwise the digit from the numeric value.
+            </entry>
+          </row>
+
+          <row>
+            <entry><literal>0</literal></entry>
+
+            <entry><para>The digit 0 means the zero digit is used in the
+            result when no digit is present. Otherwise the digit from the
+            numeric value</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>B</literal></entry>
+
+            <entry><para>A blank string is returned if the numeric value is
+            zero.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>FM</literal></entry>
+
+            <entry><para>Removes the initial spaces in the
+            result.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>MI</literal></entry>
+
+            <entry><para>Space or minus sign at the end of the sequence of
+            digits.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>S</literal></entry>
+
+            <entry><para>Plus or minus sign at the beginning or end of the
+            sequence of digits.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>PR</literal></entry>
+
+            <entry><para>Angle brackets around the result are used for
+            negative values.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>.</literal></entry>
+
+            <entry><para>The period character. Used for the decimal
+            point.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>,</literal></entry>
+
+            <entry><para>The comma character. Used for grouping
+            digits.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <informalexample>
+      <programlisting> TO_CHAR ( 1234567.890, '999,999,999.999' )
+     1,234,567.890 
+
+ TO_CHAR ( 1234567.890, '000,999,999.999' )
+ 001,234,567.890 </programlisting>
+    </informalexample>
 
     <indexterm significance="preferred" type="sql">
       <primary>TRIM function</primary>
@@ -841,7 +951,7 @@
     <literal>&lt;binary value expr&gt;</literal>. Consecutive instances of
     <literal>&lt;trim octet&gt; </literal>are removed in the same manner as in
     the character version. If<literal> [ &lt;trim octet&gt; ]</literal> is not
-    specified, the 0 octet is used as default. (SQL:2016)</para>
+    specified, the 0 octet is used as default. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TRANSLATE function</primary>
@@ -890,7 +1000,7 @@
     <para><literal>UPPER ( &lt;char value expr&gt; ) </literal></para>
 
     <para>Returns a character string that is the upper case version of the
-    <literal>&lt;char value expr&gt;</literal> . (SQL:2016)</para>
+    <literal>&lt;char value expr&gt;</literal> . (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>UNHEX function</primary>
@@ -922,7 +1032,7 @@
     <title>JSON Functions</title>
 
     <para>JSON constructor functions convert SQL data into JSON values, These
-    functions are supported by HyperSQL according to the SQL:2016 Standard.
+    functions are supported by HyperSQL according to the SQL:2023 Standard.
     Each function returns a JSON object or JSON array as a string. The format
     conforms to the IETF rfc:7159 document, The JavaScript Object Notation
     (JSON) Data Interchange Format.</para>
@@ -975,7 +1085,7 @@
 
     <para>The second form of <literal>JSON_ARRAY</literal> converts the values
     from a single &lt;query expression&gt; into a JSON array.
-    (SQL:2016)</para>
+    (SQL:2023)</para>
 
     <informalexample>
       <programlisting>-- a JSON array is constructed from a single row of the table
@@ -1008,7 +1118,7 @@ C1
     <para><literal>JSON_ARRAYAGG</literal> is an aggregate function similar to
     the <literal>ARRAY_AGG</literal> SQL function, It evaluates a value
     expression over a series of rows and combines the values, separated by
-    commas, into a single JSON array. Returns a JSON string. (SQL:2016)</para>
+    commas, into a single JSON array. Returns a JSON string. (SQL:2023)</para>
 
     <informalexample>
       <programlisting>-- a JSON array is constructed from all rows of the table
@@ -1042,7 +1152,7 @@ C1
 
     <para>The optional <literal>WITH UNIQUE KEYS</literal> clause forces an
     error if the keys within the JSON object are not unique. The default is
-    <literal>WITHOUT UNIQUE KEYS</literal>. (SQL:2016)</para>
+    <literal>WITHOUT UNIQUE KEYS</literal>. (SQL:2023)</para>
 
     <informalexample>
       <programlisting>-- a JSON object is constructed from each row of the table; both syntax options are shown
@@ -1076,7 +1186,7 @@ SWE        {"SWE":"Sweden"}
     <para><literal>JSON_OBJECTAGG</literal> is an aggregate function similar
     to the <literal>ARRAY_AGG</literal> SQL function, It constructs a JSON
     object by using keys and values from the aggregated rows.
-    (SQL:2016)</para>
+    (SQL:2023)</para>
 
     <informalexample>
       <programlisting>-- a JSON object is constructed from multiple rows of the table
@@ -1103,7 +1213,7 @@ C1
     ) </literal></para>
 
     <para>Returns the absolute value of the argument as a value of the same
-    type. (JDBC and SQL:2016)</para>
+    type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>ACOS function</primary>
@@ -1114,7 +1224,7 @@ C1
     <para><literal>ACOS ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the arc-cosine of the argument in radians as a value of
-    DOUBLE type. (JDBC)</para>
+    DOUBLE type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>ASIN function</primary>
@@ -1125,7 +1235,7 @@ C1
     <para><literal>ASIN ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the arc-sine of the argument in radians as a value of DOUBLE
-    type. (JDBC)</para>
+    type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>ATAN function</primary>
@@ -1136,7 +1246,7 @@ C1
     <para><literal>ATAN ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the arc-tangent of the argument in radians as a value of
-    DOUBLE type. (JDBC)</para>
+    DOUBLE type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>ATAN2 function</primary>
@@ -1165,7 +1275,7 @@ C1
     <para>Returns the smallest integer greater than or equal to the argument.
     If the argument is exact numeric then the result is exact numeric with a
     scale of 0. If the argument is approximate numeric, then the result is of
-    DOUBLE type. (JDBC and SQL:2016)</para>
+    DOUBLE type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>BITAND function</primary>
@@ -1243,7 +1353,7 @@ C1
     <para><literal>COS ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the cosine of the argument (an angle expressed in radians)
-    as a value of DOUBLE type. (JDBC)</para>
+    as a value of DOUBLE type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>COSH function</primary>
@@ -1254,7 +1364,7 @@ C1
     <para><literal>COSH ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the hyperbolic cosine of the argument as a value of DOUBLE
-    type. (HyperSQL)</para>
+    type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>COT function</primary>
@@ -1266,7 +1376,7 @@ C1
 
     <para>Returns the cotangent of the argument as a value of DOUBLE type. The
     <literal>&lt;num value expr&gt;</literal> represents an angle expressed in
-    radians. (JDBC)</para>
+    radians. (SQL:2016)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DEGREES function</primary>
@@ -1289,7 +1399,7 @@ C1
     <para><literal>EXP ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the exponential value of the argument as a value of DOUBLE
-    type. (JDBC and SQL:2016)</para>
+    type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>FLOOR function</primary>
@@ -1302,7 +1412,7 @@ C1
     <para>Returns the largest integer that is less than or equal to the
     argument. If the argument is exact numeric then the result is exact
     numeric with a scale of 0. If the argument is approximate numeric, then
-    the result is of DOUBLE type. (JDBC and SQL:2016)</para>
+    the result is of DOUBLE type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LN function</primary>
@@ -1313,7 +1423,7 @@ C1
     <para><literal>LN ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the natural logarithm of the argument, as a value of DOUBLE
-    type. (SQL:2016)</para>
+    type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LOG function</primary>
@@ -1335,7 +1445,7 @@ C1
     <para><literal>LOG10 ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the base 10 logarithm of the argument as a value of DOUBLE
-    type. (JDBC)</para>
+    type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>MOD function</primary>
@@ -1349,7 +1459,7 @@ C1
     <para>Returns the remainder (modulus) of <literal>&lt;num value expr
     1&gt;</literal> divided by <literal>&lt;num value expr 2&gt;.</literal>
     The data type of the returned value is the same as the second argument.
-    (JDBC and SQL:2016)</para>
+    (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>NAVL function</primary>
@@ -1386,7 +1496,7 @@ C1
 
     <para>Returns the value of <literal>&lt;num value expr 1&gt;</literal>
     raised to the power of <literal>&lt;int value expr 2&gt;</literal> as a
-    value of DOUBLE type. (JDBC and SQL:2016)</para>
+    value of DOUBLE type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>RADIANS function</primary>
@@ -1459,7 +1569,7 @@ C1
     <para><literal>SIN ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the sine of the argument (an angle expressed in radians) as
-    a value of DOUBLE type. (JDBC)</para>
+    a value of DOUBLE type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SINH function</primary>
@@ -1470,7 +1580,7 @@ C1
     <para><literal>SINH ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the hyperbolic sine of the argument as a value of DOUBLE
-    type. (HyperSQL)</para>
+    type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SQRT function</primary>
@@ -1481,7 +1591,7 @@ C1
     <para><literal>SQRT ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the square root of the argument as a value of DOUBLE type.
-    (JDBC and SQL:2016)</para>
+    (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TAN function</primary>
@@ -1492,7 +1602,7 @@ C1
     <para><literal>TAN ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the tangent of the argument (an angle expressed in radians)
-    as a value of DOUBLE type. (JDBC)</para>
+    as a value of DOUBLE type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TANH function</primary>
@@ -1503,7 +1613,7 @@ C1
     <para><literal>TANH ( &lt;num value expr&gt; ) </literal></para>
 
     <para>Returns the hyperbolic tangent of the argument as a value of DOUBLE
-    type. (HyperSQL)</para>
+    type. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TO_NUMBER function</primary>
@@ -1583,7 +1693,7 @@ C1
     arguments, including <literal>&lt;int value expr&gt;</literal> smaller
     than 1, or equal values for <literal>&lt;value expr 2&gt;</literal> and
     <literal>&lt;value expr 3&gt;</literal> will cause an exception.
-    (SQL:2016)</para>
+    (SQL:2023)</para>
 
     <para>An example is given below:</para>
 
@@ -1619,9 +1729,10 @@ C1
 
       <para><literal>TIMEZONE()</literal></para>
 
-      <para>Returns the current time zone for the session. This value is the
-      same as SESSION_TIMEZONE if the user has not changed the TIME ZONE of
-      the session. Returns an INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
+      <para>Returns the current time zone displacement for the session. This
+      value is the same as SESSION_TIMEZONE if the user has not changed the
+      TIME ZONE of the session. Returns an INTERVAL HOUR TO MINUTE value.
+      (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SESSION_TIMEZONE function</primary>
@@ -1631,9 +1742,9 @@ C1
 
       <para><literal>SESSION_TIMEZONE()</literal></para>
 
-      <para>Returns the default time zone for the current session. This value
-      is based on the default Java Calendar for the current session. Returns
-      an INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
+      <para>Returns the initial (default) time zone displacement for the
+      current session. Returns an INTERVAL HOUR TO MINUTE value.
+      (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SESSIONTIMEZONE function</primary>
@@ -1643,8 +1754,7 @@ C1
 
       <para><literal>SESSIONTIMEZONE()</literal></para>
 
-      <para>Similar to SESSION_TIMEZONE but converts the INTERVAL to a
-      VARCHAR. (HyperSQL)</para>
+      <para>Returns the same value as SESSION_TIMEZONE. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DATABASE_TIMEZONE function</primary>
@@ -1654,9 +1764,9 @@ C1
 
       <para><literal>DATABASE_TIMEZONE()</literal></para>
 
-      <para>Returns the time zone for the database engine. This is based on
-      where the database server process is located. Returns an INTERVAL HOUR
-      TO MINUTE value. (HyperSQL)</para>
+      <para>Returns the time zone displacement for the database engine. This
+      is based on where the database server process is located. Returns an
+      INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
 
       <simpara><emphasis role="bold">DBTIMEZONE</emphasis></simpara>
 
@@ -1728,7 +1838,7 @@ C1
 
       <para>From version 2.7.0 the functions return values with microsecond
       precision. Previous versions returned values with millisecond precision.
-      (SQL:2016)</para>
+      (SQL:2023)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>NOW function</primary>
@@ -2065,7 +2175,7 @@ C1
       MINUTE | SECOND | SECONDS_MIDNIGHT</literal> options may be valid for
       INTERVAL types based on seconds. For example,<literal> DAY | HOUR |
       MINUTE</literal> are the only valid fields for the INTERVAL DAY TO
-      MINUTE data type. (SQL:2016 with HyperSQL extensions)</para>
+      MINUTE data type. (SQL:2023 with HyperSQL extensions)</para>
     </section>
 
     <section xml:id="bfc_datetime_arithmetic">
@@ -2583,7 +2693,8 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
       directly as an alternative. These format strings must have the
       <literal>'JAVA:'</literal> prefix as in the second example above, and
       the literals inside the format string must be enclosed in double single
-      quotes.(HyperSQL)</para>
+      quotes as required by Java
+      <classname>DateTimeFormatter</classname>.(HyperSQL)</para>
 
       <para>The supported format components are all uppercase as
       follows:</para>
@@ -2769,7 +2880,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     <para><literal>CARDINALITY( &lt;array value expr&gt; )</literal></para>
 
     <para>Returns the element count for the given array argument.
-    (SQL:2016)</para>
+    (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>MAX_CARDINALITY function</primary>
@@ -2781,7 +2892,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     )</literal></para>
 
     <para>Returns the maximum allowed element count for the given array
-    argument. (SQL:2016)</para>
+    argument. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>POSITION_ARRAY function</primary>
@@ -2822,7 +2933,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     <para>Returns a new array that contains the elements of the
     <literal>&lt;array value expr&gt;</literal> minus the number of elements
     specified by the <literal>&lt;num value expr&gt;. </literal>Elements are
-    discarded from the end of the array. (SQL:2016)</para>
+    discarded from the end of the array. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SEQUENCE_ARRAY function</primary>
@@ -2916,7 +3027,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
 
     <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
     otherwise returns <literal>&lt;value expr 2&gt;</literal> if not null and
-    so on. The type of both arguments must be comparable. (SQL:2016)</para>
+    so on. The type of both arguments must be comparable. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CONVERT function</primary>
@@ -2997,7 +3108,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     be of any type, so long as they are comparable. The return type is the
     combined type of the arguments. For example comparing an integer value
     with a double value will return the greatest value as a DOUBLE.
-    (HyperSQL)</para>
+    (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>IFNULL function</primary>
@@ -3035,7 +3146,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     be of any type, so long as they are comparable. The return type is the
     combined type of the arguments. For example comparing an integer value
     with a double value will return the smallest value as a DOUBLE.
-    (HyperSQL)</para>
+    (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LOAD_FILE function</primary>
@@ -3070,7 +3181,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not equal
     to <literal>&lt;value expr 2&gt;</literal>, otherwise returns null. The
     type of both arguments must be the same. This function is a shorthand for
-    a specific CASE expression. (SQL:2016)</para>
+    a specific CASE expression. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>NVL function</primary>

@@ -2197,8 +2197,8 @@
       operation&gt;</literal></simpara>
 
       <simpara><literal>&lt;computational operation&gt; ::= AVG | MAX | MIN |
-      SUM | EVERY | ANY | SOME | COUNT | STDDEV_POP | STDDEV_SAMP | VAR_SAMP |
-      VAR_POP | MEDIAN</literal></simpara>
+      ANY_VALUE | SUM | EVERY | ANY | SOME | COUNT | STDDEV_POP | STDDEV_SAMP
+      | VAR_SAMP | VAR_POP | MEDIAN</literal></simpara>
 
       <simpara><literal>&lt;set quantifier&gt; ::= DISTINCT |
       ALL</literal></simpara>
@@ -2225,11 +2225,11 @@
       normal query into an aggregate query returning a single row instead of
       the multiple rows that the original query returns. For example,
       <literal>SELECT acolumn &lt;table expression&gt;</literal> is a query
-      that returns the value of acolumn for all the rows the satisfy the given
-      condition. But <literal>SELECT MAX(acolumn) &lt;table
-      expression&gt;</literal> returns only one row, containing the largest
-      value in that column. The query <literal>SELECT COUNT(*) &lt;table
-      expression&gt;</literal> returns the count of rows, while
+      that returns the value of <literal>acolumn</literal> for all the rows
+      the satisfy the given condition. But <literal>SELECT MAX(acolumn)
+      &lt;table expression&gt;</literal> returns only one row, containing the
+      largest value in that column. The query <literal>SELECT COUNT(*)
+      &lt;table expression&gt;</literal> returns the count of rows, while
       <literal>SELECT COUNT(acolumn) &lt;table expression&gt;</literal>
       returns the count of rows where <literal>acolumn IS NOT
       NULL</literal>.</simpara>
@@ -2256,6 +2256,10 @@
 
       <simpara>MAX and MIN can be performed on all types of expressions and
       return the minimum or the maximum value.</simpara>
+
+      <simpara>ANY_VALUE returns a value from a single row of the original
+      query. The filter condition can be used to limit the eligible
+      values.</simpara>
 
       <simpara><literal>COUNT(*)</literal> returns the count of all values,
       including nulls, while <literal>COUNT(&lt;value
@@ -4309,6 +4313,10 @@ DIRECT SALES (null) (null)  3778500
       AND &lt;search condition&gt; ] THEN &lt;merge update or delete
       specification&gt;</literal></simpara>
 
+      <simpara><literal>&lt;merge update or delete specification&gt; ::=
+      &lt;merge update specification&gt; | &lt;merge delete
+      specification&gt;</literal></simpara>
+
       <simpara><literal>&lt;merge when not matched clause&gt; ::= WHEN NOT
       MATCHED [ AND &lt;search condition&gt; ] THEN &lt;merge insert
       specification&gt;</literal></simpara>
@@ -4380,7 +4388,9 @@ DIRECT SALES (null) (null)  3778500
       row, then the existing row is updated. When the x value does not match,
       the row is inserted. Therefore one row of table t is updated from
       'dining table' to 'conference table', and two rows are inserted into
-      table t. The second example uses a SELECT statement as the source of the
+      table t.</simpara>
+
+      <simpara>The second example uses a SELECT statement as the source of the
       values for the MERGE.</simpara>
 
       <simpara>In the third example, a new row in inserted into the table only
