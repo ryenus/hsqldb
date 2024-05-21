@@ -963,26 +963,33 @@ public class FunctionCustom extends FunctionSQL {
                     default :
                         return Tokens.T_LOCKS;
                 }
-            case FUNC_TIMEZONE :
-                return new IntervalSecondData(session.getZoneSeconds(), 0);
+            case FUNC_TIMEZONE : {
+                TimestampData ts = DateTimeType.newCurrentTimestamp(
+                    session.currentTimeZone);
 
-            case FUNC_SESSION_TIMEZONE :
-                return new IntervalSecondData(session.getZoneSeconds(), 0);
+                return new IntervalSecondData(ts.getZone(), 0);
+            }
+
+            case FUNC_SESSION_TIMEZONE : {
+                TimestampData ts = DateTimeType.newCurrentTimestamp(
+                    session.timeZone);
+
+                return new IntervalSecondData(ts.getZone(), 0);
+            }
 
             case FUNC_DBTIMEZONE : {
-                TimestampData timestamp =
-                    DateTimeType.newSystemTimestampWithZone();
+                int                zoneSeconds = HsqlDateTime.getZoneSeconds();
                 IntervalSecondData zone = new IntervalSecondData(
-                    timestamp.getZone(),
+                    zoneSeconds,
                     0);
 
                 return Type.SQL_INTERVAL_HOUR_TO_MINUTE.convertToString(zone);
             }
 
             case FUNC_DATABASE_TIMEZONE :
-                int sec = HsqlDateTime.getZoneSeconds();
+                int zoneSeconds = HsqlDateTime.getZoneSeconds();
 
-                return new IntervalSecondData(sec, 0);
+                return new IntervalSecondData(zoneSeconds, 0);
 
             case FUNC_DATABASE_VERSION :
                 return HsqlDatabaseProperties.THIS_FULL_VERSION;
