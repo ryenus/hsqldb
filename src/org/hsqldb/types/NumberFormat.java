@@ -91,7 +91,7 @@ public class NumberFormat {
                 case 'M' :
                     if (!signStart
                             && i == patternLength - 2
-                            && pattern.charAt(i + 1) == 'M') {
+                            && pattern.charAt(i + 1) == 'I') {
                         signEnd      = true;
                         signEndMinus = true;
 

@@ -319,8 +319,14 @@ public class ParserBase {
         }
     }
 
+    /**
+     * For keyword usage checks in SQL routine definitions.
+     * As RESULT was not in the reserved key list before 2.7.3,
+     * we make an exception to allow its use, as it is often used for
+     * variable names.
+     */
     boolean isReservedKey() {
-        return token.isReservedIdentifier;
+        return token.isReservedIdentifier && token.tokenType != Tokens.RESULT;
     }
 
     boolean isCoreReservedKey() {
@@ -864,6 +870,7 @@ public class ParserBase {
         expressionTypeMap.put(Tokens.NOT_EQUALS, OpTypes.NOT_EQUAL);
 
         // aggregates
+        expressionTypeMap.put(Tokens.ANY_VALUE, OpTypes.ANY_VALUE);
         expressionTypeMap.put(Tokens.COUNT, OpTypes.COUNT);
         expressionTypeMap.put(Tokens.MAX, OpTypes.MAX);
         expressionTypeMap.put(Tokens.MIN, OpTypes.MIN);
