@@ -78,9 +78,9 @@
     <title>Preface</title>
 
     <para>HyperSQL DataBase (HSQLDB) is a modern relational database system
-    that conforms closely to the SQL:2016 Standard and JDBC 4.3
+    that conforms closely to the SQL:2023 Standard and JDBC 4.3
     specifications. It supports all core features and many optional features
-    of SQL:2016.</para>
+    of SQL:2023.</para>
 
     <para>The first versions of HSQLDB were released in 2001. Version 2, first
     released in 2010, was a complete rewrite of most parts of the database

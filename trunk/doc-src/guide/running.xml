@@ -54,7 +54,7 @@
 
     <para>HyperSQL Database (HSQLDB) is a modern relational database system.
     Version 2.7.3 is the latest release of the all-new version 2 code. Written
-    from ground up to follow the international ISO SQL:2016 standard, it
+    from ground up to follow the international ISO SQL:2023 standard, it
     supports the complete set of the classic features of the SQL Standard,
     together with optional features such as stored procedures and
     triggers.</para>

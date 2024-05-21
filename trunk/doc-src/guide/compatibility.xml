@@ -58,7 +58,7 @@
     <para>HyperSQL 2.x has been written to the SQL Standard and avoids the
     traps caused by superficial imitation of the Standard by some other RDBMS.
     The SQL Standard has existed since 1989 and has been expanded over the
-    years in several revisions. HyperSQL follows SQL:2016, which still stays
+    years in several revisions. HyperSQL follows SQL:2023, which still stays
     almost fully compatible with SQL-92. The X-Open specification has also
     defined a number of SQL functions which are implemented by most
     RDBMS.</para>
@@ -138,7 +138,7 @@
 
         <listitem>
           <para>Use <literal>SET DATABASE TRANSACTION CONTROL MVCC</literal>
-          if your application is multi-user.</para>
+          only if your application is multi-user.</para>
         </listitem>
 
         <listitem>

@@ -54,11 +54,11 @@
 
     <para>The SQL language consists of statements for different operations.
     HyperSQL 2.x supports the dialect of SQL defined progressively by ISO
-    (also ANSI) SQL standards 92, 1999, 2003, 2008, 2011 and 2016. This means
-    the syntax specified by the Standard text is accepted for any supported
-    operation. Almost all features of SQL-92 up to Advanced Level are
-    supported, as well as the additional features that make up the SQL:2016
-    core and many optional features of this standard.</para>
+    (also ANSI) SQL standards 92, 1999, 2003, 2008, 2011, 2016 and 2023. This
+    means the syntax specified by the Standard text is accepted for any
+    supported operation. Almost all features of SQL-92 up to Advanced Level
+    are supported, as well as the additional features that make up the
+    SQL:2023 core and many optional features of this standard.</para>
 
     <para>At the time of this release, HyperSQL supports the widest range of
     SQL Standard features among all open source RDBMS.</para>
@@ -76,7 +76,7 @@
     HyperSQL does not prevent you from using a reserved word if it does not
     support its use or can distinguish it. For example, CUBE is a reserved
     word for a feature that is supported by HyperSQL from version 2.5.1.
-    Before this version, CUBE was allowed as a table or column name, but it is
+    Before this version, CUBE was allowed as a table or column name but it is
     no longer allowed. You should avoid using such names as future versions of
     HyperSQL are likely to support the reserved words and may reject your
     table definitions or queries. The full list of SQL reserved words is in
@@ -763,13 +763,13 @@
     used, S defaults to 0. If none is used, P defaults to 128 and S defaults
     to 0. The maximum value of each parameter is unlimited. (**) The parameter
     L is used for fixed length. If not used, it defaults to 1. (***) The
-    parameter L is used for maximum length. It is required for VARCHAR(L) and
-    VARBINARY(L) but is optional for the other types. If not used, it defaults
-    to 1G for BLOB or CLOB, and 16M for the LONGVARCHAR and LONGVARBINARY. The
-    maximum value of the parameter is unlimited for CLOB and BLOB. It is 2 *
-    1024 *1024 *1024 for other string types. (****) The parameter S is
-    optional and indicates sub-second fraction precision of time (0 to 9).
-    When not used, it defaults to 6 for TIMESTAMP and 0 for TIME.</para>
+    parameter L is used for maximum length. It is optional. If not used, it
+    defaults to 32K for VARCHAR and VARBINARY, 1G for BLOB or CLOB, and 16M
+    for the LONGVARCHAR and LONGVARBINARY. The maximum value of the parameter
+    is unlimited for CLOB and BLOB. It is 2 * 1024 *1024 *1024 for other
+    string types. (****) The parameter S is optional and indicates sub-second
+    fraction precision of time (0 to 9). When not used, it defaults to 6 for
+    TIMESTAMP and 0 for TIME.</para>
   </section>
 
   <section xml:id="sgc_types_ops">
@@ -2121,7 +2121,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
   <section xml:id="sgc_array">
     <title>Arrays</title>
 
-    <para>Array are a powerful feature of SQL:2016 and can help solve many
+    <para>Array are a powerful feature of SQL:2023 and can help solve many
     common problems. Arrays should not be used as a substitute for
     tables.</para>
 
