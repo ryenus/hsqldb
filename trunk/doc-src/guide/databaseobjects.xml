@@ -4067,8 +4067,9 @@
 
       <para>SQL_FEATURES</para>
 
-      <para>List of all SQL:2011 standard features, including information on
-      whether they are supported or not supported by HyperSQL</para>
+      <para>List of all SQL:2023 standard core and optional features,
+      including information on whether they are supported or not supported by
+      HyperSQL</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SQL_IMPLEMENTATION_INFO</primary>

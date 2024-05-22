@@ -239,7 +239,7 @@
 
       <listitem>
         <simpara>The /*w MILLIS*/ directive causes the test to Wait for a
-        specified number of millisedonds.</simpara>
+        specified number of milliseconds.</simpara>
 
         <informalexample>
           <programlisting>/*w 1000*/ Optional message</programlisting>
