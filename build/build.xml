@@ -35,7 +35,6 @@ javac.bootcp.override=/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar:/usr/lib/jvm/ja
     </tstamp>
 
     <property name="build.label" value="private-${timestamp}"/>
-    <property name="build.vendor" value="${user.name}"/>
     <property name="hsqldb.title" value="HSQLDB"/>
     <property name="hsqldb.vendor" value="The HSQL Development Group"/>
     <property name="description"
@@ -533,7 +532,6 @@ examples:
           <attribute name='Implementation-Title'
                      value='Runtime without utilities and servers'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
-          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='minclasses' />
@@ -553,7 +551,6 @@ examples:
           <attribute name='Implementation-Title'
                      value='Runtime without utilities'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
-          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='minclasses' />
@@ -579,7 +576,6 @@ examples:
           <attribute name='Implementation-Title'
                      value='Standard runtime'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
-          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='minclasses' />
@@ -619,7 +615,6 @@ ${err.1}</fail>
           <attribute name='Implementation-Title'
           value='DatabaseManagerSwing only'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
-          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
           <attribute name='Class-Path'
                      value='hsqldb-${hsqldb.version}.jar hsqldb.jar hsqldbmin.jar hsqldbmain.jar'/>
@@ -662,7 +657,6 @@ ${err.1}</fail>
           <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
           <attribute name='Implementation-Title' value='SqlTool Client'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
-          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Class-Path'
               value='hsqldb-${hsqldb.version}.jar hsqldb.jar hsqldbmin.jar hsqldbmain.jar'/>
           <attribute name='Sealed' value='true'/>
@@ -727,7 +721,6 @@ ${err.2}</fail>
           <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
           <attribute name='Implementation-Title' value='HSQLDB Java Source Preprocessor Library'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
-          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='preprocessorclasses' />
@@ -745,7 +738,6 @@ ${err.2}</fail>
           <attribute name='Implementation-Title'
           value='Utilities runtime, without JDBC driver'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
-          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
           <attribute name='Class-Path'
           value='hsqldb-${hsqldb.version}.jar hsqldb.jar hsqldbmin.jar hsqldbmain.jar'/>
@@ -1156,7 +1148,6 @@ optimizations) manually.
             resultproperty="exec.val.0"
             classname="aQute.bnd.main.bnd">
         <sysproperty key="hsqldb.version" value="${hsqldb.version}"/>
-        <sysproperty key="build.vendor" value="${user.name}"/>
         <sysproperty key="build.description" value="${description}"/>
         <sysproperty key="hsqldb.title" value="${hsqldb.title}"/>
         <arg value="wrap"/>
