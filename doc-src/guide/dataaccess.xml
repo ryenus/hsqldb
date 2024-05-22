@@ -49,7 +49,7 @@
     <title>Overview</title>
 
     <para>HyperSQL data access and data change statements are compatible with
-    the latest SQL:2016 Standard. There are a few extensions and some
+    the latest SQL:2023 Standard. There are a few extensions and some
     relaxation of rules, but these do not affect statements that are written
     to the Standard syntax. There is full support for classic SQL, as
     specified by SQL-92, and many enhancements added in later versions of the
@@ -2536,7 +2536,7 @@
       access statement and begins with the SELECT keyword.</para>
 
       <indexterm significance="preferred" type="sql">
-        <primary>SELECT</primary>
+        <primary>SELECT statement</primary>
       </indexterm>
 
       <simpara><emphasis role="bold">SELECT STATEMENT</emphasis></simpara>
@@ -2598,6 +2598,10 @@
     <section xml:id="dac_subquery">
       <title>Subquery</title>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>subquery</primary>
+      </indexterm>
+
       <para>A subquery is simply a query expression in brackets. A query
       expression is usually a complete SELECT statement and is discussed in
       the rest of this chapter. A scalar subquery returns one row with one
@@ -2624,6 +2628,10 @@
 
     <section xml:id="dac_query_specification">
       <title>Query Specification</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>query specification</primary>
+      </indexterm>
 
       <para>A query specification is also known as a SELECT statement. It is
       the most common form of <literal>&lt;derived table&gt;</literal> . A
@@ -2689,6 +2697,10 @@
 
     <section xml:id="dac_table_expression">
       <title>Table Expression</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>table expression</primary>
+      </indexterm>
 
       <para>A table expression is part of the SELECT statement and consists of
       the FROM clause with optional other clauses that performs selection (of
@@ -2774,6 +2786,10 @@
       <section xml:id="dac_system_time_period">
         <title>System Time Period</title>
 
+        <indexterm significance="preferred" type="sql">
+          <primary>System Time Period Usage</primary>
+        </indexterm>
+
         <para>The <literal>&lt;query system time period
         specification&gt;</literal> can be used after the name of a
         system-versioned table to query historic data in the table. Without
@@ -2794,7 +2810,7 @@ SELECT DISTINCT firstname, lastname, email FROM customer FOR SYSTEM_TIME FROM CU
         <title>Derived Table</title>
 
         <indexterm significance="preferred" type="sql">
-          <primary>derived table</primary>
+          <primary>Derived Table</primary>
         </indexterm>
 
         <simpara><emphasis role="bold">derived table</emphasis></simpara>
@@ -2814,7 +2830,7 @@ SELECT DISTINCT firstname, lastname, email FROM customer FOR SYSTEM_TIME FROM CU
         <title>Lateral</title>
 
         <indexterm significance="preferred" type="sql">
-          <primary>LATERAL</primary>
+          <primary>LATERAL derived table</primary>
         </indexterm>
 
         <simpara><emphasis role="bold">LATERAL</emphasis></simpara>
