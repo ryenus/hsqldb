@@ -1743,6 +1743,12 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
+                if (session.database.sqlDoubleNaN) {
+                    if (d > 1 || d < -1) {
+                        throw Error.error(ErrorCode.X_22003);
+                    }
+                }
+
                 return Double.valueOf(java.lang.Math.acos(d));
             }
 
@@ -1752,6 +1758,12 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 double d = NumberType.toDouble(data[0]);
+
+                if (session.database.sqlDoubleNaN) {
+                    if (d > 1 || d < -1) {
+                        throw Error.error(ErrorCode.X_22003);
+                    }
+                }
 
                 return Double.valueOf(java.lang.Math.asin(d));
             }
