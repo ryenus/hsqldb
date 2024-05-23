@@ -84,7 +84,7 @@
     which allows the user to specify the execution order of the new
     trigger.</simpara>
 
-    <simpara>A row level trigger allows access to the deleted or inserted
+    <simpara>A row-level trigger allows access to the deleted or inserted
     rows. For UPDATE actions there is both an old and new version of each row.
     A trigger can be specified to activate before or after the action has been
     performed.</simpara>
@@ -95,7 +95,7 @@
       <simpara>A trigger that is declared as BEFORE DELETE cannot modify the
       deleted row. In other words, it cannot decide to delete a different row
       by changing the column values of the row. A trigger that is declared as
-      BEFORE INSERT and BEFORE UPDATE can modify the values that are inserted
+      BEFORE INSERT or BEFORE UPDATE can modify the values that are inserted
       into the database. For example, a badly formatted string can be cleaned
       up by a trigger before INSERT or UPDATE.</simpara>
 

@@ -2052,7 +2052,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     type, and the result is evaluated in INTERVAL YEAR TO MONTH type.</para>
 
     <informalexample>
-      <programlisting> (COL1 – COL2) YEAR TO MONTH /* the difference between two DATE or two TIEMSTAMP values in years and months */
+      <programlisting> (COL1 – COL2) YEAR TO MONTH /* the difference between two DATE or two TIMESTAMP values in years and months */
  (CURRENT_DATE – COL3) DAY /* the number of days between the value of COL3 and the current date */
  (CURRENT_DATE - DATE '2000-01-01') YEAR TO MONTH /* the number of years and months since the beginning of this century */
  CURRENT_DATE - 2 DAY /* the date of the day before yesterday */

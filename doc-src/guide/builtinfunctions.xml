@@ -853,8 +853,8 @@
             <entry><literal>9</literal></entry>
 
             <entry>The digit 9 means a space is used in the result when no
-            digit is present. Otherwise the digit from the numeric value.
-            </entry>
+            digit is present. Otherwise the digit from the numeric
+            value.</entry>
           </row>
 
           <row>
@@ -2660,7 +2660,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
 
       <para>These functions translate a formatted datetime string to a
       TIMESTAMP. TO_DATE returns a TIMESTAMP(0) value with no sub-second
-      fraction. TO_TIMESTAMP returns a TIMESTAMP(6). TO_TIEMSTAMP_TZ returns a
+      fraction. TO_TIMESTAMP returns a TIMESTAMP(6). TO_TIMESTAMP_TZ returns a
       TIMESTAMP(6) WITH TIME ZONE value. The format string can contain pattern
       elements from the list given below, plus punctuation and space
       characters. The pattern should contain all the necessary fields to
