@@ -862,7 +862,7 @@
 
             <entry><para>The digit 0 means the zero digit is used in the
             result when no digit is present. Otherwise the digit from the
-            numeric value</para></entry>
+            numeric value.</para></entry>
           </row>
 
           <row>
@@ -1376,7 +1376,7 @@ C1
 
     <para>Returns the cotangent of the argument as a value of DOUBLE type. The
     <literal>&lt;num value expr&gt;</literal> represents an angle expressed in
-    radians. (SQL:2016)</para>
+    radians. (SQL:2023)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DEGREES function</primary>
