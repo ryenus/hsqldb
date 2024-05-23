@@ -2655,7 +2655,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
 
       <simpara><emphasis role="bold">TO_TIMESTAMP_TZ</emphasis></simpara>
 
-      <para><literal>TO_TIMESTAMP ( &lt;char value expr&gt;, &lt;char value
+      <para><literal>TO_TIMESTAMP_TZ ( &lt;char value expr&gt;, &lt;char value
       expr&gt; )</literal></para>
 
       <para>These functions translate a formatted datetime string to a
