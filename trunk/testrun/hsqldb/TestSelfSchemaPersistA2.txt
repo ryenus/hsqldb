@@ -8,6 +8,7 @@
 CREATE USER otheruser PASSWORD otheruser;
 
 --                  ******************************       MEM Tables
+SET AUTOCOMMIT TRUE
 /*c2*/SELECT * FROM tblt1;
 /*c1*/SELECT * FROM tblt1 WHERE i = 0;
 /*c2*/SELECT * FROM tblt1 WHERE i in (0, 1, 11, 12);

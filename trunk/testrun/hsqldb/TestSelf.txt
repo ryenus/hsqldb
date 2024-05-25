@@ -21,9 +21,11 @@ set database transaction control locks
 /*r
  PUBLIC*/select table_catalog from information_schema.tables limit 1
 /*e*/select '''
-/*d* Next section dumps one line of result
-/*o*/select * from information_schema.tables limit 1
-/*C1*/select * from information_schema.tables limit 1
+-- /*d* This message is displayed
+-- next line dumps the result of the SELECT
+-- /*o*/select * from information_schema.tables limit 1
+-- next line is ignored and not executed
+-- /*C1*/select * from information_schema.tables limit 1
 
 -- Miscelaneous tests by fredt
 -- bug #897591

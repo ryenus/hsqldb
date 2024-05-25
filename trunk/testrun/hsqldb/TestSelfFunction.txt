@@ -1,4 +1,6 @@
--- AUXILIAR TABLES + DECLARES
+-- AUXILIARY TABLES + DECLARES
+SET AUTOCOMMIT TRUE
+
 DROP TABLE tt1 IF EXISTS;
 DROP TABLE tt2 IF EXISTS;
 CREATE Cached TABLE tt1(
@@ -68,3 +70,4 @@ create table testtt(i INT, v VARCHAR(100))
 insert into testtt select * from table(test(-1))
 /*c50*/select * from testtt
 
+SET AUTOCOMMIT FALSE

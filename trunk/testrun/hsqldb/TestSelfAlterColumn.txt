@@ -214,4 +214,6 @@ alter table "testacc" alter column "c" set not null
 alter table "testacc" drop primary key;
 alter table "testacc" alter column "c" set null;
 insert into "testacc" values (10,10,null);
+alter table "testacc" add column if not exists "c" int;
+/*e*/alter table "testacc" add column "c" int;
 

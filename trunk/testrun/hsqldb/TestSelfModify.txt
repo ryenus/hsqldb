@@ -24,18 +24,21 @@
 -- TEST 1
 -- Correct handling of index creation for foreign keys
 -- insert some values
-/*u1*/insert into verein values ('abcdefg');
-/*u1*/insert into verein values ('hijklmn');
-/*u1*/insert into verein values ('opqrstu');
-/*u1*/insert into verein values ('vwxyz');
-/*u1*/insert into bewerb values ('abcdefg',1);
-/*e*/insert into bewerb values ('abcdefg',2);
-/*u1*/insert into bewerb values ('hijklmn',5);
-/*e*/insert into bewerb values ('hijklmn',6);
-/*u1*/insert into bewerb values ('opqrstu',8);
-/*e*/insert into bewerb values ('opqrstu',9);
-/*u1*/insert into bewerb values ('vwxyz',10);
+/*u1*/insert into verein values ('abcdefg', default, default);
+/*u1*/insert into verein values ('hijklmn', default, default);
+/*u1*/insert into verein values ('opqrstu', default, default);
+/*u1*/insert into verein values ('vwxyz', default, default);
+/*u1*/insert into bewerb values ('abcdefg',1, default, default);
+/*e*/insert into bewerb values ('abcdefg',2, default, default);
+/*u1*/insert into bewerb values ('hijklmn',5, default, default);
+/*e*/insert into bewerb values ('hijklmn',6, default, default);
+/*u1*/insert into bewerb values ('opqrstu',8, default, default);
+/*e*/insert into bewerb values ('opqrstu',9, default, default);
+/*u1*/insert into bewerb values ('vwxyz',10, default, default);
 
+/*c4*/select * from verein
+/*c4*/select * from verein for system_time as of current_timestamp
+/*c0*/select * from verein for system_time as of current_timestamp - 1 year
 --CHECKPOINT DEFRAG
 
 --test identity increment

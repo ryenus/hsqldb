@@ -1,6 +1,7 @@
 -- $Id$
 -- Test .script persistence of Sequence rights
 
+SET AUTOCOMMIT TRUE
 CONNECT USER blaine PASSWORD "b";
 -- Following is default, but just to eliminate any ambiguity...
 SET SCHEMA public;
@@ -37,3 +38,5 @@ SET SCHEMA public;
 /*u0*/REVOKE ALL ON SEQUENCE bsch.bs1 FROM public RESTRICT;
 CONNECT USER sa PASSWORD "";
 /*u0*/REVOKE USAGE ON SEQUENCE public.ps6 FROM BLAINE RESTRICT;
+
+SET AUTOCOMMIT FALSE

@@ -44,6 +44,26 @@ insert into test (sel, name1, name2) values (1, 'foo', 'qux')
   count(a.name1) as counter from test a group by case when a.sel=1
   then a.name2 else a.name1 end order by counter, name
 --
+-- order by must be in group or an aggregate
+/*r
+ foo,bar
+ baz,foo
+ foo,qux
+*/select a.name1, a.name2 from test a group by name1, name2 order by count(a.name1), name2
+
+/*e*/select a.name1, a.name2 from test a group by sel, name1 order by count(a.name1)
+
+/*e*/select a.name1, a.name2
+  from test a group by sel, name1 order by a.name1
+
+alter table test add constraint const primary key(name1, name2)
+
+/*r
+ foo,bar,0
+ baz,foo,1
+ foo,qux,1
+*/select name1, name2, sel from test group by name1, name2 order by sel
+
 select coalesce(a.name1, a.name2) as name,count(a.sel) as counter from test a
  group by coalesce(a.name1, a.name2)
 
@@ -52,17 +72,42 @@ select * from (select case when a.sel=1 then a.name2 else a.name1 end as name,
 
 
 drop table test;
+
+set database sql references false
 drop table trades_a if exists;
 create table trades_a(opened timestamp, userid int, points int);
+insert into trades_a values ('2017-12-28', 1, 10);
+
 CREATE VIEW trades_scores AS SELECT (EXTRACT(YEAR FROM
  opened) || '-' || EXTRACT(MONTH FROM opened) || '-' ||
  EXTRACT(DAY FROM opened)) AS date, userid, SUM(points)
  AS score FROM trades_a GROUP BY date, userid
 
-insert into trades_a values (now, 1, 10);
-select * from trades_scores;
+/*r
+ 2017-12-28,1,10*/SELECT (EXTRACT(YEAR FROM
+ opened) || '-' || EXTRACT(MONTH FROM opened) || '-' ||
+ EXTRACT(DAY FROM opened)) AS date, userid, SUM(points)
+ AS score FROM trades_a GROUP BY date, userid
+
+/*r
+ 2017-12-28,1,10*/SELECT (EXTRACT(YEAR FROM
+ opened) || '-' || EXTRACT(MONTH FROM opened) || '-' ||
+ EXTRACT(DAY FROM opened)) AS date, userid, SUM(points)
+ AS score FROM trades_a GROUP BY (EXTRACT(YEAR FROM
+ opened) || '-' || EXTRACT(MONTH FROM opened) || '-' ||
+ EXTRACT(DAY FROM opened)), userid
+
+/*r
+ 2017-12-28,1,10*/select * from trades_scores;
+
+/*o*/SELECT AVG(points) AS VALUE FROM trades_a GROUP BY TIMESTAMP(UNIX_TIMESTAMP(opened) - mod ( UNIX_TIMESTAMP(opened), 60));
+
+/*r
+ 10*/SELECT AVG(points) AS VALUE FROM trades_a GROUP BY TIMESTAMP(UNIX_TIMESTAMP(opened) - mod ( UNIX_TIMESTAMP(opened), 60));
+
 drop table trades_a cascade;
 
+set database sql references true
 --
 drop table PROCESSDETAIL if exists;
 
@@ -143,8 +188,8 @@ INSERT INTO DATE_TEST VALUES ('2008-01-01')
 SELECT * FROM DATE_TEST
 SELECT * FROM DATE_TEST WHERE DATECOL > '2007-01-01'
 SELECT * FROM DATE_TEST GROUP BY DATECOL HAVING DATECOL > '2007-01-01'
-SELECT MAX(DATECOL) FROM DATE_TEST HAVING MAX(DATECOL) > '2007-01-01'
-
+/*c1*/SELECT MAX(DATECOL) FROM DATE_TEST HAVING MAX(DATECOL) > '2007-01-01'
+/*c1*/SELECT MAX(DATECOL) FROM DATE_TEST HAVING MAX(DATECOL) < LOCALTIMESTAMP
 create table hist (mydate date, files int, space int);
 insert into hist values (current_date, 1, 10);
 select SUBSTR(CAST (MYDATE AS VARCHAR(20)),1,10), SUM(FILES), SUM(SPACE)

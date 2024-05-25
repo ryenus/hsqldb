@@ -1,3 +1,4 @@
+SET AUTOCOMMIT TRUE
 -- Test persistence via .script file
 /*u0*/create table bschema.b5(i int);
 /*c0*/select * from bschema.b5;

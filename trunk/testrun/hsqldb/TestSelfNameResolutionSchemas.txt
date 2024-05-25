@@ -5,6 +5,7 @@
 --  alter permutations to test)
 --                  ******************************       PHASE 1 Tables
 --DROP TABLE nosuch;
+SET AUTOCOMMIT TRUE
 DROP TABLE t1 IF exists;
 DROP TABLE t2 IF exists;
 DROP TABLE t3 IF exists;
@@ -570,3 +571,5 @@ drop table t4 if exists;
 -- /*e*/SELECT * FROM wrong.t2;
 -- /*c1*/SELECT * FROM other.t2;
 -- /*c2*/SELECT * FROM other.t1;  SHOULD FAIL since we created public.t1
+
+SET AUTOCOMMIT FALSE

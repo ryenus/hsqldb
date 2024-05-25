@@ -36,26 +36,31 @@ select coalesce(a.name1, a.name2) as name,count(a.sel) as counter from test a
 select case when a.sel=1 then a.name2 else a.name1 end as name,
  count(a.name1) as counter from test a group by case when a.sel=1
  then a.name2 else a.name1 end
- -- nested expressions
-create table single (c char(1));
-insert into single values('X');
-/*r1*/select case c when 'X' then 1 else 2 end from single;
-insert into single values(null);
+-- nested expressions
+call database_version()
+create table single_col (c char(1));
+insert into single_col values('X');
+/*r1*/select case c when 'X' then 1 else 2 end from single_col;
+insert into single_col values(null);
+/*r
+ X
+ null
+*/select c from single_col order by c nulls last
 /*r
  X
  Y
-*/select ifnull(c,'Y') from single
+*/select ifnull(c,'Y') from single_col order by 1 nulls last
 /*r
  X
  Y
-*/select coalesce(c,'Y') from single
-/*e*/select coalesce() from single
-/*e*/select coalesce(c) from single
-/*e*/select ifnull() from single
-/*e*/select ifnull(c) from single
-insert into single values('Y')
-insert into single values('Z')
-drop table single;
+*/select coalesce(c,'Y') from single_col  order by c nulls last
+/*e*/select coalesce() from single_col
+/*e*/select coalesce(c) from single_col
+/*e*/select ifnull() from single_col
+/*e*/select ifnull(c) from single_col
+insert into single_col values('Y')
+insert into single_col values('Z')
+--drop table single_col;
 create table single (c int);
 /*rAVG*/select case avg(c) when max(c) then 'MAX' when min(c) then 'MIN' else 'AVG' end from single;
 insert into single values(1);

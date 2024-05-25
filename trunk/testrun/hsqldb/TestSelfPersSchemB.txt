@@ -1,3 +1,4 @@
+SET AUTOCOMMIT TRUE
 /*s*/DROP USER blaine;
 /*s*/DROP USER debbie;
 /*s*/DROP SCHEMA bschema cascade;

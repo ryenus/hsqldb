@@ -15,7 +15,7 @@ SELECT sa.pk FROM dups sa, dups sb WHERE sa.val=sb.val AND sa.pk!=sb.pk;
 /*c0*/SELECT * FROM dups WHERE null IN (1, 2)
 /*c0*/SELECT * FROM dups WHERE null IN (null, 2)
 /*c0*/SELECT * FROM dups WHERE null IN (null, 2)
-/*E*/SELECT * FROM dups WHERE null IN (null, null)
+/*c0*/SELECT * FROM dups WHERE null IN (null, null)
 /*c0*/SELECT * FROM dups WHERE cast(null AS INT) IN (null, null)
 /*c1*/SELECT * FROM dups WHERE pk IN (null, 1)
 /*c0*/SELECT * FROM dups WHERE pk IN (null, null)
@@ -95,13 +95,13 @@ SELECT sa.pk FROM dups sa, dups sb WHERE sa.val=sb.val AND sa.pk!=sb.pk;
 /*c0*/SELECT a.pk, a.val FROM dups a WHERE a.val
  <= ANY(SELECT CAST(NULL AS CHAR) FROM dups sa) ORDER BY a.pk;
 
-/*E*/SELECT a.pk, a.val FROM dups a WHERE a.val
+/*c0*/SELECT a.pk, a.val FROM dups a WHERE a.val
  <= ANY(SELECT NULL FROM dups sa) ORDER BY a.pk;
 
 /*c0*/SELECT a.pk, a.val FROM dups a WHERE a.val
  <= ANY(SELECT CAST(NULL AS CHAR) FROM dups sa WHERE sa.val ='fourth') ORDER BY a.pk;
 
-/*E*/SELECT a.pk, a.val FROM dups a WHERE a.val
+/*c0*/SELECT a.pk, a.val FROM dups a WHERE a.val
  <= ANY(SELECT NULL FROM dups sa WHERE sa.val ='fourth') ORDER BY a.pk;
 
 -- non-correlated single value

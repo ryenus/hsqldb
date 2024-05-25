@@ -23,6 +23,9 @@
 -- referential integrity row has reference
 /*e*/delete from verein where vcode='opqrstu'
 
+/*r3,12*/ SELECT COUNT(ID), MAX(VALUE) FROM APP2
+/*r3,10*/ SELECT COUNT(ID), MIN(VALUE) FROM APP2
+
 --test identity increment
 INSERT INTO APP2 (VALUE) VALUES(13);
 INSERT INTO APP2 (VALUE) VALUES(14);

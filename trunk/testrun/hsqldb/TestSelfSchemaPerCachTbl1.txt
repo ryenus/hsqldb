@@ -4,7 +4,8 @@
 -- schema-specific persistence tests.
 
 
---                  ******************************       CACH Tables
+SET AUTOCOMMIT TRUE
+--                  ******************************       CACHED Tables
 --DROP TABLE nosuch;
 DROP TABLE ctblt1 IF exists;
 DROP TABLE ctblt2 IF exists;
@@ -37,4 +38,5 @@ ALTER TABLE ctblt1 ADD CONSTRAINT cpk_workaround PRIMARY KEY(i);
 
 
 -- This to test recovery from .log files.
+
 SHUTDOWN IMMEDIATELY;

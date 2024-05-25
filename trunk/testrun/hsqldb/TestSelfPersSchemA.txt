@@ -1,3 +1,4 @@
+SET AUTOCOMMIT TRUE
 /*s*/DROP USER owner1;
 /*s*/DROP ROLE r1;
 /*s*/DROP SCHEMA schema_a;

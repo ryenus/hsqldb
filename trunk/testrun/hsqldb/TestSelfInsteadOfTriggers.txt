@@ -1,4 +1,4 @@
-drop table testtrig12 if exists;
+drop table testtrig12 if exists cascade;
 drop table testtrig13 if exists;
 create cached table testtrig12(id integer, data2 varchar(20), updated date);
 create cached table testtrig13(id integer, data3 varchar(20), op varchar(10));

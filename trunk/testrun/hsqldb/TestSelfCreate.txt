@@ -19,8 +19,11 @@
 create cached table VEREIN
    (
    VCODE CHAR(10) not null,
-   primary key (VCODE)
-   );
+   primary key (VCODE),
+   PS TIMESTAMP GENERATED ALWAYS AS ROW START,
+   PE TIMESTAMP GENERATED ALWAYS AS ROW END,
+   PERIOD FOR SYSTEM_TIME(PS,PE)
+   ) WITH SYSTEM VERSIONING;
 
 -- a no-op
 create unique index VEREIN_PK on VEREIN (VCODE);
@@ -28,8 +31,11 @@ create cached table BEWERB
    (
    VCODE CHAR(10) not null,
    ID SMALLINT not null ,
-   primary key (ID)
-   );
+   primary key (ID),
+   PS TIMESTAMP GENERATED ALWAYS AS ROW START,
+   PE TIMESTAMP GENERATED ALWAYS AS ROW END,
+   PERIOD FOR SYSTEM_TIME(PS,PE)
+   ) WITH SYSTEM VERSIONING;
 
 -- a no-op
 create unique index BEWERB_FK2 on BEWERB(ID);
@@ -159,6 +165,10 @@ insert into tident values (12, default);
  12,2
 */select * from tident order by cola
 -- SHUTDOWN is necessary for test1
+
+/*r
+ 17:20:00
+*/SELECT TEST_TIME FROM TEST_DATE_TABLE LIMIT 1 OFFSET 2
 
 SHUTDOWN IMMEDIATELY;
 
