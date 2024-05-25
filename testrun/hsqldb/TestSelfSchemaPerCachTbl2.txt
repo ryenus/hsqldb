@@ -5,7 +5,8 @@
 CREATE USER otheruser PASSWORD otheruser;
 
 
---                  ******************************       CACH Tables
+--                  ******************************       CACHED Tables
+SET AUTOCOMMIT TRUE
 /*c2*/SELECT * FROM ctblt1;
 /*c1*/SELECT * FROM ctblt1 WHERE i = 0;
 /*c2*/SELECT * FROM ctblt1 WHERE i in (0, 1, 11, 12);

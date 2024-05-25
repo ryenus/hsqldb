@@ -111,7 +111,7 @@ insert into credits values(4,2,200);
  Giro,5303,NULL
  Invoice,7505,NULL
 */select ac.accountname,ac.accountnr, cred.amount from accounts ac
- left outer join credits cred on cred.accountid=ac.id and abs(amount) = 200
+ left outer join credits cred on cred.accountid=ac.id and abs(amount) = 200 order by 1
 
 /*r
  Bank,5101,NULL
@@ -120,7 +120,7 @@ insert into credits values(4,2,200);
  Giro,5303,NULL
  Invoice,7505,NULL
 */select ac.accountname,ac.accountnr, cred.amount from accounts ac
- left outer join credits cred on cred.accountid=ac.id and abs(amount) in( 200, 100)
+ left outer join credits cred on cred.accountid=ac.id and abs(amount) in( 200, 100) order by 1, 3
 
 
 --MULTIPLE OUTER
@@ -172,15 +172,15 @@ insert into CHILD values (1,1)
 /*r
  1,1
  2,NULL
-*/select BASE.ID,CHILD.ID from BASE left join CHILD on CHILD.BASE_ID=BASE.ID
+*/select BASE.ID,CHILD.ID from BASE left join CHILD on CHILD.BASE_ID=BASE.ID order by 1
 /*r
  1,NULL
  2,NULL
-*/select BASE.ID,CHILD.ID from BASE left join CHILD on CHILD.BASE_ID=BASE.ID and CHILD.ID>1
+*/select BASE.ID,CHILD.ID from BASE left join CHILD on CHILD.BASE_ID=BASE.ID and CHILD.ID>1 order by 1
 /*r
  1,NULL
  2,NULL
-*/select BASE.ID,CHILD.ID from BASE left join CHILD on CHILD.BASE_ID=BASE.ID and CHILD.ID<>1
+*/select BASE.ID,CHILD.ID from BASE left join CHILD on CHILD.BASE_ID=BASE.ID and CHILD.ID<>1 order by 1
 
 --bug #736327
 create table empl(company_id varchar(10),id varchar(20),supervisor_id varchar(20), primary key (company_id,id));
@@ -361,32 +361,32 @@ insert into b values('c',15);
 */select * from a right outer join b on (1=1) where a.a1=b.b1 order by a1
 -- should return 3 rows:
 /*r
- NULL,NULL,NULL,13
- NULL,NULL,c,15
+ null,null,null,13
+ null,null,c,15
  a,22,a,14
-*/select * from a right outer join b on a.a1=b.b1 where (1=1) order by a1
+*/select * from a right outer join b on a.a1=b.b1 where (1=1) order by 1,2,3
 /*r
- NULL,NULL,NULL,13
- NULL,NULL,c,15
+ null,null,null,13
+ null,null,c,15
  a,22,a,14
-*/select * from a right outer join b on a.a1=b.b1 order by a1
+*/select * from a right outer join b on a.a1=b.b1 order by 1,2,3
 -- add an index and retest
 create index idxa on a(a2);
 /*r
- NULL,NULL,NULL,13
- NULL,NULL,c,15
+ null,null,null,13
+ null,null,c,15
  a,22,a,14
-*/select * from a right outer join b on a.a1=b.b1 order by a1
+*/select * from a right outer join b on a.a1=b.b1 order by 1,2,3
 /*r
- NULL,NULL
- NULL,NULL
+ null,null
+ null,null
  a,22
-*/select a.* from a right outer join b on a.a1=b.b1 order by a1
+*/select a.* from a right outer join b on a.a1=b.b1 order by 1,2
 /*r
- NULL,13
- c,15
+ null,13
  a,14
-*/select b.* from a right outer join b on a.a1=b.b1 order by a1
+ c,15
+*/select b.* from a right outer join b on a.a1=b.b1 order by 1
 
 ---
 CREATE TABLE names (name VARCHAR(20) PRIMARY KEY);
@@ -524,3 +524,6 @@ EXPLAIN PLAN FOR
  FROM salesorder_row
  LEFT JOIN article ON salesorder_row.article_id = article.id
  WHERE (salesorder_row.salesorder_id = 1234)
+
+-- for conditions moved to subquery
+SELECT * FROM invoice i RIGHT OUTER JOIN (SELECT * FROM customer) c ON c.ID=i.CustomerID and c.id > 3 ORDER BY C.ID

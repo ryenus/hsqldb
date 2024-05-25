@@ -1,6 +1,7 @@
 -- $Id$
 -- Test .log persistence of Sequence rights
 
+SET AUTOCOMMIT TRUE
 CONNECT USER blaine PASSWORD "b";
 -- Following is default, but just to eliminate any ambiguity...
 SET SCHEMA public;

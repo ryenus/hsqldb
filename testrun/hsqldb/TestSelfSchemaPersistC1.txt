@@ -3,6 +3,7 @@
 -- Commands tested:  ALTER INDEX, ALTER SEQUENCE, ALTER TABLE
 
 -- The blaine schema will exist if a previous script created it already.
+SET AUTOCOMMIT TRUE
 /*s*/DROP SCHEMA blaine CASCADE;
 /*u0*/CREATE SCHEMA blaine authorization dba;
 
@@ -369,11 +370,14 @@ CREATE SEQUENCE blaine.bs19;
 -- The only ALTER command for sequences is here.
 INSERT INTO public.mt01 VALUES(0);
 INSERT INTO blaine.bmt01 VALUES(0);
+SET AUTOCOMMIT FALSE
 /*u0*/SET SCHEMA blaine;
 /*r0*/SELECT next value FOR public.s00 FROM public.mt01;
 /*r1*/SELECT next value FOR public.s00 FROM public.mt01;
 /*r0*/SELECT next value FOR public.s04 FROM blaine.bmt01;
 /*r1*/SELECT next value FOR public.s04 FROM blaine.bmt01;
+/*r1*/SELECT current value FOR public.s04 FROM blaine.bmt01;
+SET AUTOCOMMIT TRUE
 /*u0*/SET SCHEMA public;
 /*r0*/SELECT next value FOR public.s01 FROM mt01;
 /*r1*/SELECT next value FOR public.s01 FROM mt01;

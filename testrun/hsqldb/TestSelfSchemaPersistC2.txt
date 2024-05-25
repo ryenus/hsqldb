@@ -1,6 +1,7 @@
 -- Test ALTER commands on objects set up by other script
 
 --                                                          SEQUENCES
+SET AUTOCOMMIT TRUE
 /*r22*/SELECT next value FOR public.s00 FROM public.mt01;
 /*r23*/SELECT next value FOR blaine.bs00 FROM public.mt01;
 /*r24*/SELECT next value FOR blaine.bs01 FROM public.mt01;

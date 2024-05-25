@@ -1,6 +1,7 @@
 -- $Id$
 -- Tests column-specific grants
 
+SET AUTOCOMMIT TRUE
 -- These two users are for sanity tests
 /*u0*/CREATE USER privd PASSWORD "privd";
 /*u0*/CREATE USER unprivd PASSWORD "unprivd";
@@ -63,3 +64,5 @@
 /*u0*/DROP USER unprivd;
 /*u0*/DROP TABLE multicol;
 /*u0*/CHECKPOINT;
+
+SET AUTOCOMMIT FALSE

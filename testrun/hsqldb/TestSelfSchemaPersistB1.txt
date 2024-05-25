@@ -24,6 +24,7 @@
 -- After the objects are created in the correct schema, it makes no difference
 -- whether the "INITIAL" schema was used or not.  Therefore, no need to test
 -- this stuff in scripts *[23].txt.
+SET AUTOCOMMIT TRUE
 DROP TABLE public.pschct1 IF exists;
 DROP TABLE public.pschct2 IF exists;
 DROP TABLE public.pschct3 IF exists;

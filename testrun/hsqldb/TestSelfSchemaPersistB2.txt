@@ -5,6 +5,7 @@
 -- this script purposefully omits).
 
 
+SET AUTOCOMMIT TRUE
 /*u0*/SET SCHEMA blaine;
 CREATE USER otheruser PASSWORD otheruser;
 
