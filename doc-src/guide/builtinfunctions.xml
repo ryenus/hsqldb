@@ -1883,8 +1883,9 @@ C1
       <para><literal>SYSDATE</literal></para>
 
       <para>This no-arg function is similar to <literal>LOCALTIMESTAMP
-      </literal>but it returns the timestamp without fraction of second.
-      (HyperSQL)</para>
+      </literal>but it returns the timestamp of the HyperSQL server as opposed
+      to the current session. The returned timestamp is without fraction of
+      second. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SYSTIMESTAMP function</primary>
@@ -1895,8 +1896,9 @@ C1
       <para><literal>SYSTIMESTAMP</literal></para>
 
       <para>This no-arg function is similar to
-      <literal>CURRENT_TIMESTAMP</literal> and is enabled in ORA syntax mode
-      only. It returns the timestamp when it is called. (HyperSQL)</para>
+      <literal>CURRENT_TIMESTAMP</literal> but it returns the timestamp with
+      time zone of the HyperSQL server as opposed to the current session. The
+      function is enabled in ORA syntax mode only. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TODAY function</primary>

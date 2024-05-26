@@ -4,9 +4,10 @@ June 2024 - version 2.7.3
 -- SQL:2023 updates 
 -- source code refactoring to use Java Generics - no longer compiles with pre 1.8 JDK
 -- added support for CAST with datetime template argument
--- enhancements to TO_CHAR, TO_DATE etc. functions; now using java.time.format.DateTimeFormatter
+-- enhancements to TO_CHAR, TO_DATE, TO_TIMESTAMP functions; now using java.time.format.DateTimeFormatter
 -- added TO_CHAR for numeric values
 -- added JDBC 4.3 support
+-- added alternative Java Trigger method to the interface, maintaining backward compatibility
 -- fixed a number of reported regressions and bugs (see tracker)
 
 March 2023 - version 2.7.2
