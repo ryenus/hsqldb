@@ -46,7 +46,7 @@
  *          name (for auditing and so you can archive it and/or re-use it for
  *          future distribution builds), then copy it to "build.properties"
  *          in this directory.  (If on a good operating system, just sym-link).
- *          This file must set Ant properties "build.label", "build.vendor",
+ *          This file must set Ant properties "build.label",
  *          "dbimage.path".  (See following section about optional properties).
  *          Set property "doc.pubtime" to the current date/time in
  *          format like 2019-01-27 18:55:44.

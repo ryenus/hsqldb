@@ -29,13 +29,6 @@ $Id$
     <fail unless="_label.ok">Ant properties 'build.label' and 'hsqldb.version' must be equal.
 (${build.label}) vs. (${hsqldb.version})
 I suggest setting the value(s) in a "build.properties" file.</fail>
-    <condition property="_vendor.ok">
-      <equals arg1="${hsqldb.vendor}" arg2="${build.vendor}"/>
-    </condition>
-    <fail unless="_vendor.ok">Ant properties 'build.vendor' and 'hsqldb.vendor' must be equal.
-(${build.vendor}) vs. (${hsqldb.vendor})
-I suggest setting the value(s) in an external properties file and using the Ant
-"-propertyfile" switch.</fail>
 
     <copy file="doc-src/readme-template.txt" tofile="tmp/readme-generated.txt"
           overwrite="true">
