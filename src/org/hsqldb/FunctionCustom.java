@@ -2781,7 +2781,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SYSDATE : {
                 TimestampData timestamp = DateTimeType.newSysDateTimestamp();
 
-                return Type.SQL_TIMESTAMP_NO_FRACTION.convertToType(
+                return dataType.convertToType(
                     session,
                     timestamp,
                     Type.SQL_TIMESTAMP);
