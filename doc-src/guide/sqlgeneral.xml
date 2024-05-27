@@ -80,7 +80,7 @@
     no longer allowed. You should avoid using such names as future versions of
     HyperSQL are likely to support the reserved words and may reject your
     table definitions or queries. The full list of SQL reserved words is in
-    the appendix <link endterm="lists-title" xlink:href="#lists-app"/> . You
+    the appendix <link endterm="lists-title" xlink:href="#lists-app"/>. You
     can set a property to disallow the use of reserved keywords for names of
     tables and other database objects. There are several other user-defined
     properties to control the strict application of the SQL Standard in
@@ -532,15 +532,15 @@
 
       <listitem>
         <para>Binary string types are BINARY(L), VARBINARY(L) and BLOB. Do not
-        use BINARY(L) unless you are storing fixed length strings such as
-        UUID. This type pads short binary strings with zero bytes. BINARY
-        without the length L means a single byte. Use VARBINARY(L) for general
-        binary strings, and BLOB for large binary objects. You should apply
-        the same considerations as with the character string types. By
-        default, LONGVARBINARY is a synonym for a long VARBINARY and can be
-        used without specifying the size. You can set LONGVARBINARY to map to
-        BLOB, with the <property>sql.longvar_is_lob</property> connection
-        property or the SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
+        use BINARY(L) unless you are storing fixed length binary strings. This
+        type pads short binary strings with zero bytes. BINARY without the
+        length L means a single byte. Use VARBINARY(L) for general binary
+        strings, and BLOB for large binary objects. You should apply the same
+        considerations as with the character string types. By default,
+        LONGVARBINARY is a synonym for a long VARBINARY and can be used
+        without specifying the size. You can set LONGVARBINARY to map to BLOB,
+        with the <property>sql.longvar_is_lob</property> connection property
+        or the SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
       </listitem>
 
       <listitem>
