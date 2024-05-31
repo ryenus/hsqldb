@@ -18,8 +18,9 @@
  *   PREP:  Before building a public distribution, you must:
  *      1: Run task/targets 'javadoc' watching for JavaDoc
  *         authoring mistakes, and fix them.
- *      2: Run "svn info ../src/org/hsqldb/cmdline/Sql????.java" to determine
- *         the "Last Changed Rev"s of SqlTool.java and SqlFile.java.
+ *      2: Run "svn log ^/base/trunk/src/org/hsqldb/cmdline/SqlTool.java | head" and
+ *         "svn log ^/base/trunk/src/org/hsqldb/cmdline/SqlFile.java | head" to
+ *         determine the "Last Changed Rev"s of SqlTool.java and SqlFile.java.
  *         Update the revision values in file
  *         "../doc-src/util-guide/entities/versions.ent" accordingly.
  *         Except check for real code changes between the *.ent revisions and
