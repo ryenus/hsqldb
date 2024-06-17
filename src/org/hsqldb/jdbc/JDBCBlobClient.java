@@ -49,7 +49,7 @@ import org.hsqldb.types.BlobInputStream;
  * Instances of this class are returned by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since JDK 1.2, HSQLDB 2.0
  */
 public class JDBCBlobClient implements Blob {
@@ -409,6 +409,7 @@ public class JDBCBlobClient implements Blob {
 
         resultSet.preparedStatement.parameterValues[colIndex] = blob;
         resultSet.preparedStatement.parameterSet[colIndex]    = true;
+        resultSet.isRowUpdated = true;
     }
 
     private void checkClosed() throws SQLException {

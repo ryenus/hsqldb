@@ -53,7 +53,7 @@ import org.hsqldb.types.ClobInputStream;
  * Instances of this class are returned by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since HSQLDB 1.9.0
  */
 public class JDBCClobClient implements Clob {
@@ -601,6 +601,7 @@ public class JDBCClobClient implements Clob {
 
         resultSet.preparedStatement.parameterValues[colIndex] = clob;
         resultSet.preparedStatement.parameterSet[colIndex]    = true;
+        resultSet.isRowUpdated = true;
     }
 
     private void checkClosed() throws SQLException {

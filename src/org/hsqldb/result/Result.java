@@ -682,7 +682,7 @@ public class Result {
 
         result.metaData  = ResultMetaData.newUpdateResultMetaData(types);
         result.id        = id;
-        result.valueData = new Object[]{};
+        result.valueData = ValuePool.emptyObjectArray;
 
         return result;
     }
