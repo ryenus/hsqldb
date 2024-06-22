@@ -42,7 +42,7 @@ import org.hsqldb.types.Type;
 
 /*
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.7.4
  * @since 2.2.7
  */
 public interface RowSetNavigatorDataChange extends RangeIterator {
@@ -57,9 +57,9 @@ public interface RowSetNavigatorDataChange extends RangeIterator {
 
     int[] getCurrentChangedColumns();
 
-    void write(RowOutputInterface out, ResultMetaData meta);
+    default void write(RowOutputInterface out, ResultMetaData meta) {}
 
-    void read(RowInputInterface in, ResultMetaData meta);
+    default void read(RowInputInterface in, ResultMetaData meta) {}
 
     void endMainDataSet();
 
@@ -71,6 +71,12 @@ public interface RowSetNavigatorDataChange extends RangeIterator {
             Object[] data,
             Type[] types,
             int[] columnMap);
+
+    default void addUpdatedRow(Row row) {}
+
+    default Row getUpdatedRow() {
+        return null;
+    }
 
     boolean addUpdate(Row row, Object[] data, int[] columnMap);
 

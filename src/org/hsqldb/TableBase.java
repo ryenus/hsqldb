@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
  * The  base of all HSQLDB table implementations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.4
  * @since 1.7.2
  */
 public class TableBase implements Cloneable {
@@ -153,7 +153,7 @@ public class TableBase implements Cloneable {
         tableSpace = id;
     }
 
-    int getId() {
+    long getId() {
         return 0;
     }
 

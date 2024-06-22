@@ -61,7 +61,7 @@ import org.hsqldb.rights.Grantee;
  * than all the existing names.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.4
  * @since 1.7.2
  */
 public final class HsqlNameManager {
@@ -420,12 +420,12 @@ public final class HsqlNameManager {
         public final int type;
 
         //
-        private final long hashCode;
+        private final long serialNumber;
 
         private HsqlName(HsqlNameManager man, int type) {
             manager   = man;
             this.type = type;
-            hashCode  = manager.serialNumber.getAndIncrement();
+            serialNumber = manager.serialNumber.getAndIncrement();
         }
 
         private HsqlName(
@@ -569,7 +569,7 @@ public final class HsqlNameManager {
         public boolean equals(Object other) {
 
             if (other instanceof HsqlName) {
-                return hashCode == ((HsqlName) other).hashCode;
+                return serialNumber == ((HsqlName) other).serialNumber;
             } else if (other instanceof SimpleName) {
                 return super.equals(other);
             }
@@ -581,7 +581,11 @@ public final class HsqlNameManager {
          * hash code for this object is based on its unique serial number.
          */
         public int hashCode() {
-            return (int) (hashCode ^ (hashCode >>> 32));
+            return (int) (serialNumber ^ (serialNumber >>> 32));
+        }
+
+        public long getSerialNumber() {
+            return serialNumber;
         }
 
         /**
@@ -618,7 +622,7 @@ public final class HsqlNameManager {
         public String toString() {
 
             return getClass().getName() + super.hashCode()
-                   + "[this.hashCode()=" + this.hashCode + ", name=" + name
+                   + "[this.hashCode()=" + this.serialNumber + ", name=" + name
                    + ", name.hashCode()=" + name.hashCode() + ", isNameQuoted="
                    + isNameQuoted + "]";
         }

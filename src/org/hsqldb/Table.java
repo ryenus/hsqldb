@@ -63,7 +63,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -855,8 +855,8 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Used to create row id's
      */
-    public int getId() {
-        return tableName.hashCode();
+    public long getId() {
+        return tableName.getSerialNumber();
     }
 
     public String getTableTypeString() {

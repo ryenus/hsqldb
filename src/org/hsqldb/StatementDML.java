@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.9.0
  */
 
@@ -1265,7 +1265,7 @@ public class StatementDML extends StatementDMQL {
 
             if (currentTable.isSystemVersioned()) {
                 Object[] history = row.getData();
-                Row newRow = currentTable.insertSystemVersionHistoryRow(
+                Row historyRow = currentTable.insertSystemVersionHistoryRow(
                     session,
                     store,
                     history);
@@ -1280,6 +1280,8 @@ public class StatementDML extends StatementDMQL {
                 store,
                 data,
                 changedColumns);
+
+            navigator.addUpdatedRow(newRow);
 
             if (generatedNavigator != null) {
                 Object[] generatedValues = getGeneratedColumns(data);

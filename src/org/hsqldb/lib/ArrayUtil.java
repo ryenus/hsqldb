@@ -39,7 +39,7 @@ import java.util.Arrays;
  * Collection of static methods for operations on arrays
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.4
  * @since 1.7.2
  */
 public final class ArrayUtil {
@@ -1752,72 +1752,53 @@ public final class ArrayUtil {
     }
 
     /**
-     *  Copies some elements of row into newRow by using columnMap as
-     *  the list of indexes into row. <p>
+     *  Copies some elements of source into target by using columnMap as
+     *  the list of indexes into source. <p>
      *
-     *  columnMap and newRow are of equal length and are normally
-     *  shorter than row.
+     *  columnMap and target are normally of equal length and
+     *  shorter than source.
      *
-     *  @param row the source array
-     *  @param columnMap the list of indexes into row
-     *  @param newRow the destination array
+     *  @param source the source array
+     *  @param columnMap the list of indexes into source
+     *  @param target the destination array
      */
     public static void projectRow(
-            Object[] row,
+            Object[] source,
             int[] columnMap,
-            Object[] newRow) {
+            Object[] target) {
         for (int i = 0; i < columnMap.length; i++) {
-            newRow[i] = row[columnMap[i]];
+            if (columnMap[i] >= 0) {
+                target[i] = source[columnMap[i]];
+            }
         }
     }
 
-    public static void projectRow(int[] row, int[] columnMap, int[] newRow) {
+    public static void projectRow(int[] source, int[] columnMap, int[] target) {
         for (int i = 0; i < columnMap.length; i++) {
-            newRow[i] = row[columnMap[i]];
+            if (columnMap[i] >= 0) {
+                target[i] = source[columnMap[i]];
+            }
         }
     }
 
     /**
      *  As above but copies in reverse direction.
      *
-     *  @param row the target array
+     *  @param target the target array
      *  @param columnMap the list of indexes into row
-     *  @param newRow the source array
+     *  @param source the source array
      */
     public static void projectRowReverse(
-            Object[] row,
+            Object[] target,
             int[] columnMap,
-            Object[] newRow) {
+            Object[] source) {
         for (int i = 0; i < columnMap.length; i++) {
-            row[columnMap[i]] = newRow[i];
+            if (columnMap[i] >= 0) {
+                target[columnMap[i]] = source[i];
+            }
         }
     }
 
-/*
-    public static void copyColumnValues(int[] row, int[] colindex,
-                                        int[] colobject) {
-
-        for (int i = 0; i < colindex.length; i++) {
-            colobject[i] = row[colindex[i]];
-        }
-    }
-
-    public static void copyColumnValues(boolean[] row, int[] colindex,
-                                        boolean[] colobject) {
-
-        for (int i = 0; i < colindex.length; i++) {
-            colobject[i] = row[colindex[i]];
-        }
-    }
-
-    public static void copyColumnValues(byte[] row, int[] colindex,
-                                        byte[] colobject) {
-
-        for (int i = 0; i < colindex.length; i++) {
-            colobject[i] = row[colindex[i]];
-        }
-    }
-*/
     public static void projectMap(
             int[] mainMap,
             int[] subMap,

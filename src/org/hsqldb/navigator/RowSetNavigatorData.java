@@ -53,7 +53,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class RowSetNavigatorData extends RowSetNavigator
@@ -204,7 +204,14 @@ public class RowSetNavigatorData extends RowSetNavigator
 
     public void update(Object[] oldData, Object[] newData) {
 
-        // noop
+        if (idMap != null) {
+            Long id = (Long) oldData[visibleColumnCount];
+            idMap.remove(id.longValue());
+            id = (Long) newData[visibleColumnCount];
+            idMap.put(id.longValue(), newData);
+        }
+
+        ArrayUtil.copyArray(newData, oldData, newData.length);
     }
 
     void addAdjusted(Object[] data, int[] columnMap) {

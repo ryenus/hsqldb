@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.navigator.RowSetNavigatorDataChange;
 import org.hsqldb.persist.PersistentStore;
@@ -46,7 +47,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for updating result rows.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class StatementResultUpdate extends StatementDML {
@@ -99,11 +100,6 @@ public class StatementResultUpdate extends StatementDML {
             case ResultConstants.UPDATE_CURSOR : {
                 row = getRow(session, args);
 
-                /*
-                 * @todo - in 2PL mode isDeleted() always returns false.
-                 * While write lock prevents delete by other transactions,
-                 * same-transaction deletes are not caught
-                 */
                 if (row == null || row.isDeleted(session, store)) {
                     throw Error.error(ErrorCode.X_24521);
                 }
@@ -133,6 +129,24 @@ public class StatementResultUpdate extends StatementDML {
                     colMap);
                 list.endMainDataSet();
                 update(session, baseTable, list, null);
+
+                Row      newRow        = list.getUpdatedRow();
+                Object[] oldResultData = getData(session, args);
+                Object[] newResultData = (Object[]) ArrayUtil.duplicateArray(
+                    oldResultData);
+
+                ArrayUtil.projectRowReverse(
+                    newResultData,
+                    baseColumnMap,
+                    newRow.getData());
+
+                newResultData[result.metaData.getColumnCount()] =
+                    newRow.getId();
+                newResultData[result.metaData.getColumnCount() + 1] = newRow;
+
+                ((RowSetNavigatorData) result.getNavigator()).update(
+                    oldResultData,
+                    newResultData);
                 break;
             }
 
@@ -166,6 +180,16 @@ public class StatementResultUpdate extends StatementDML {
         return Result.updateOneResult;
     }
 
+    Object[] getData(Session session, Object[] args) {
+
+        int  rowIdIndex = result.metaData.getColumnCount();
+        Long rowId      = (Long) args[rowIdIndex];
+        Object[] data = ((RowSetNavigatorData) result.getNavigator()).getData(
+            rowId.longValue());
+
+        return data;
+    }
+
     Row getRow(Session session, Object[] args) {
 
         int             rowIdIndex = result.metaData.getColumnCount();
@@ -182,12 +206,11 @@ public class StatementResultUpdate extends StatementDML {
                 row = (Row) data[rowIdIndex + 1];
             }
         } else {
-            int id = (int) rowId.longValue();
+            long id = rowId.longValue();
 
+            id  &= 0x000000FF_FFFFFFFFL;
             row = (Row) store.get(id, false);
         }
-
-        this.result = null;
 
         return row;
     }

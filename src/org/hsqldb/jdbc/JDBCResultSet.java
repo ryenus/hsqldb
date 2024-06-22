@@ -7323,25 +7323,23 @@ public class JDBCResultSet implements ResultSet {
      */
     protected Object[] getCurrent() throws SQLException {
 
-        final RowSetNavigator lnavigator = this.navigator;
-
-        if (lnavigator == null) {
+        if (navigator == null) {
             throw JDBCUtil.sqlException(ErrorCode.X_24501);
-        } else if (lnavigator.isEmpty()) {
+        } else if (navigator.isEmpty()) {
             throw JDBCUtil.sqlException(
                 ErrorCode.X_24504,
                 ErrorCode.M_RS_EMPTY);
-        } else if (lnavigator.isBeforeFirst()) {
+        } else if (navigator.isBeforeFirst()) {
             throw JDBCUtil.sqlException(
                 ErrorCode.X_24504,
                 ErrorCode.M_RS_BEFORE_FIRST);
-        } else if (lnavigator.isAfterLast()) {
+        } else if (navigator.isAfterLast()) {
             throw JDBCUtil.sqlException(
                 ErrorCode.X_24504,
                 ErrorCode.M_RS_AFTER_LAST);
         }
 
-        Object[] data = lnavigator.getCurrent();
+        Object[] data = navigator.getCurrent();
 
         if (data == null) {
             throw JDBCUtil.sqlException(ErrorCode.X_24501);
@@ -7558,8 +7556,9 @@ public class JDBCResultSet implements ResultSet {
 
     private void performUpdate() throws SQLException {
 
-        preparedStatement.parameterValues[columnCount] =
-            getCurrent()[columnCount];
+        Object[] rowData = getCurrent();
+
+        preparedStatement.parameterValues[columnCount] = rowData[columnCount];
 
         for (int i = 0; i < columnCount; i++) {
             boolean set = preparedStatement.parameterSet[i];

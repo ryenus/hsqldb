@@ -56,7 +56,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class RangeVariable {
@@ -1296,7 +1296,7 @@ public class RangeVariable {
         }
 
         public long getRowId() {
-            return ((long) rangeVar.rangeTable.getId() << 32) + it.getRowId();
+            return getCurrentRow().getId();
         }
 
         public void removeCurrent() {}

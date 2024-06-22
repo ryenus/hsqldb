@@ -37,9 +37,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedLongKeyHashMap;
-import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.types.Type;
 
 /*
@@ -47,7 +44,7 @@ import org.hsqldb.types.Type;
  * operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class RowSetNavigatorDataChangeMemory
@@ -60,6 +57,7 @@ public class RowSetNavigatorDataChangeMemory
     int                        currentPos = -1;
     OrderedLongKeyHashMap<Row> list;
     Session                    session;
+    Row                        updatedRow;
 
     public RowSetNavigatorDataChangeMemory(Session session) {
         this.session = session;
@@ -113,11 +111,6 @@ public class RowSetNavigatorDataChangeMemory
         return (int[]) list.getThirdValueAt(currentPos);
     }
 
-    // reading and writing
-    public void write(RowOutputInterface out, ResultMetaData meta) {}
-
-    public void read(RowInputInterface in, ResultMetaData meta) {}
-
     public void endMainDataSet() {}
 
     public boolean addRow(Row row) {
@@ -144,6 +137,17 @@ public class RowSetNavigatorDataChangeMemory
 
             return false;
         }
+    }
+
+    /**
+     * for single-row update of scrollable ResultSet
+     */
+    public void addUpdatedRow(Row row) {
+        updatedRow = row;
+    }
+
+    public Row getUpdatedRow() {
+        return updatedRow;
     }
 
     public boolean addUpdate(Row row, Object[] data, int[] columnMap) {
