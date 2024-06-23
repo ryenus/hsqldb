@@ -205,10 +205,10 @@ public class RowSetNavigatorData extends RowSetNavigator
     public void update(Object[] oldData, Object[] newData) {
 
         if (idMap != null) {
-            Long id = (Long) oldData[visibleColumnCount];
-            idMap.remove(id.longValue());
-            id = (Long) newData[visibleColumnCount];
-            idMap.put(id.longValue(), newData);
+            Long oldId = (Long) oldData[visibleColumnCount];
+            Long newId = (Long) newData[visibleColumnCount];
+            idMap.remove(oldId.longValue());
+            idMap.put(newId.longValue(), oldData);
         }
 
         ArrayUtil.copyArray(newData, oldData, newData.length);
