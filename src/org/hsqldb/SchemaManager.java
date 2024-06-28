@@ -1905,8 +1905,8 @@ public class SchemaManager {
             String schemaString;
 
             if (name.type == SchemaObject.SCHEMA) {
-                nameString   = name.schema.name;
-                schemaString = null;
+                nameString   = null;
+                schemaString = name.name;
             } else {
                 nameString   = name.name;
                 schemaString = name.schema.name;
