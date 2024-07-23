@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
 /**
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class ExpressionLogical extends Expression {
@@ -1161,7 +1161,7 @@ public class ExpressionLogical extends Expression {
 
             if (leftType == null) {
                 leftType = nodes[LEFT].nodeDataTypes[i] = rightType;
-            } else if (nodes[RIGHT].dataType == null) {
+            } else if (rightType == null) {
                 rightType = nodes[RIGHT].nodeDataTypes[i] = leftType;
             }
 
