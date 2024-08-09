@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -1560,12 +1560,19 @@ public class FunctionSQL extends Expression {
                 break;
             }
 
-            case FUNC_ABS :
-                if (nodes[0].dataType != null
-                        && nodes[0].dataType.isIntervalType()) {
-                    dataType = nodes[0].dataType;
-                    break;
+            case FUNC_ABS : {
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_DOUBLE;
                 }
+
+                if (!nodes[0].dataType.isNumberType()
+                        && !nodes[0].dataType.isIntervalType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                dataType = nodes[0].dataType;
+                break;
+            }
 
             // fall through
             case FUNC_FLOOR :
