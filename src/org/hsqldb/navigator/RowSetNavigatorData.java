@@ -234,18 +234,7 @@ public class RowSetNavigatorData extends RowSetNavigator
     }
 
     public void updateData(Object[] oldData, Object[] newData) {
-
-        if (idMap != null) {
-            Long oldId =
-                (Long) oldData[visibleColumnCount + ResultMetaData.SysOffsets.rowId];
-            Long newId =
-                (Long) newData[visibleColumnCount + ResultMetaData.SysOffsets.rowId];
-
-            idMap.remove(oldId.longValue());
-            idMap.put(newId.longValue(), oldData);
-        }
-
-        ArrayUtil.copyArray(newData, oldData, newData.length);
+        // no op
     }
 
     void addAdjusted(Object[] data, int[] columnMap) {
