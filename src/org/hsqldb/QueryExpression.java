@@ -56,7 +56,7 @@ import org.hsqldb.types.Types;
  * Implementation of an SQL query expression
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class QueryExpression implements RangeGroup {
@@ -119,6 +119,7 @@ public class QueryExpression implements RangeGroup {
     public Index     fullIndex;
     public Index     orderIndex;
     public Index     idIndex;
+    public Index     rowNumIndex;
 
     //
     TableDerived           recursiveWorkTable;

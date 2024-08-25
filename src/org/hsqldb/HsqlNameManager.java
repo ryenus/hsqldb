@@ -423,8 +423,8 @@ public final class HsqlNameManager {
         private final long serialNumber;
 
         private HsqlName(HsqlNameManager man, int type) {
-            manager   = man;
-            this.type = type;
+            manager      = man;
+            this.type    = type;
             serialNumber = manager.serialNumber.getAndIncrement();
         }
 
@@ -621,8 +621,8 @@ public final class HsqlNameManager {
 
         public String toString() {
 
-            return getClass().getName() + super.hashCode()
-                   + "[this.hashCode()=" + this.serialNumber + ", name=" + name
+            return getClass().getName() + super.hashCode() + "[serialNumber="
+                   + this.serialNumber + ", name=" + name
                    + ", name.hashCode()=" + name.hashCode() + ", isNameQuoted="
                    + isNameQuoted + "]";
         }

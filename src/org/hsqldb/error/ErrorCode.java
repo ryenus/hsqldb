@@ -75,9 +75,11 @@ public interface ErrorCode {
     int M_SERVER_SECURE_VERIFY_3 = 65;             // Certificate Common Name[$$] does not match host name[$$]
 
     //
-    int M_RS_EMPTY        = 70;                    // ResultSet is empty
-    int M_RS_BEFORE_FIRST = 71;                    // ResultSet is positioned before first row
-    int M_RS_AFTER_LAST   = 72;                    // ResultSet is positioned after last row
+    int M_RS_EMPTY         = 70;                   // ResultSet is empty
+    int M_RS_BEFORE_FIRST  = 71;                   // ResultSet is positioned before first row
+    int M_RS_AFTER_LAST    = 72;                   // ResultSet is positioned after last row
+    int M_RS_ON_INSERT_ROW = 73;                   // ResultSet is positioned on insert row
+    int M_RS_ROW_DELETED   = 74;                   // ResultSet is positioned on insert row
 
     //
     int M_INVALID_LIMIT = 81;                      // ; in LIMIT, OFFSET or FETCH

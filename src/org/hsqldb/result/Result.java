@@ -777,9 +777,7 @@ public class Result {
     }
 
     public static Result newResetSessionRequest() {
-        Result result = newResult(ResultConstants.RESETSESSION);
-
-        return result;
+        return newResult(ResultConstants.RESETSESSION);
     }
 
     public static Result newConnectionAttemptRequest(

@@ -57,7 +57,6 @@ public class RowSetNavigatorDataChangeMemory
     int                        currentPos = -1;
     OrderedLongKeyHashMap<Row> list;
     Session                    session;
-    Row                        updatedRow;
 
     public RowSetNavigatorDataChangeMemory(Session session) {
         this.session = session;
@@ -143,11 +142,11 @@ public class RowSetNavigatorDataChangeMemory
      * for single-row update of scrollable ResultSet
      */
     public void addUpdatedRow(Row row) {
-        updatedRow = row;
+        list.setFourthValueAt(currentPos, row);
     }
 
     public Row getUpdatedRow() {
-        return updatedRow;
+        return (Row) list.getFourthValueAt(currentPos);
     }
 
     public boolean addUpdate(Row row, Object[] data, int[] columnMap) {

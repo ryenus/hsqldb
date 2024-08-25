@@ -45,7 +45,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * a server-side row set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class RowSetNavigatorClient extends RowSetNavigator {
@@ -85,8 +85,6 @@ public class RowSetNavigatorClient extends RowSetNavigator {
 
             source.next();
         }
-
-        source.beforeFirst();
     }
 
     /**
@@ -97,8 +95,17 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         this.size  = table.length;
     }
 
-    public void setData(int index, Object[] data) {
-        table[index] = data;
+    public void setData(int pos, Object[] data) {
+
+        if (pos < 0 || pos >= size || pos >= currentOffset + table.length) {
+            return;
+        }
+
+        if (pos < currentOffset) {
+            return;
+        }
+
+        table[pos - currentOffset] = data;
     }
 
     public Object[] getData(int index) {
@@ -106,7 +113,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     }
 
     /**
-     * Returns the current row object. Type of object is implementation defined.
+     * Returns the current row data.
      */
     public Object[] getCurrent() {
 
@@ -114,8 +121,11 @@ public class RowSetNavigatorClient extends RowSetNavigator {
             return null;
         }
 
-        if (currentPos >= currentOffset + table.length) {
-            getBlock(currentOffset + table.length);
+        if (currentPos >= currentOffset + table.length
+                || currentPos < currentOffset) {
+            int newOffset = (currentPos / baseBlockSize) * baseBlockSize;
+
+            getBlock(newOffset);
         }
 
         return table[currentPos - currentOffset];
@@ -262,7 +272,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
             Object[] data = table[i];
 
             out.writeData(
-                meta.getColumnCount(),
+                meta.getExtendedColumnCount(),
                 meta.columnTypes,
                 data,
                 null,
@@ -283,7 +293,9 @@ public class RowSetNavigatorClient extends RowSetNavigator {
 
             table         = source.table;
             currentOffset = source.currentOffset;
-        } catch (HsqlException e) {}
+        } catch (HsqlException e) {
+            throw e;
+        }
     }
 
     private void ensureCapacity() {

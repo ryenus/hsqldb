@@ -49,7 +49,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator using a table as the data store.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class RowSetNavigatorDataTable extends RowSetNavigatorData {
@@ -57,7 +57,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public TableBase       table;
     public PersistentStore store;
     RowIterator            iterator;
-    Row                    currentRow;
+    int                    iteratorPos = -1;
     Object[]               tempRowData;
 
     public RowSetNavigatorDataTable(
@@ -81,6 +81,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         orderIndex         = select.orderIndex;
         groupIndex         = select.groupIndex;
         idIndex            = select.idIndex;
+        rowNumIndex        = select.rowNumIndex;
         tempRowData        = new Object[1];
     }
 
@@ -146,10 +147,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
             mainIndex = orderIndex;
 
-            if (iterator != null) {
-                iterator.release();
-            }
-
             reset();
         }
     }
@@ -204,7 +201,37 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         } catch (HsqlException e) {}
     }
 
-    public void update(Object[] oldData, Object[] newData) {
+    /**
+     * Used when updating results via JDBC ResultSet methods.
+     * The instance iterator is reset as it may become invalid after a row is
+     * removed.
+     */
+    public void updateData(long oldRowId, Object[] newData) {
+
+        tempRowData[0] = oldRowId;
+
+        RowIterator it = idIndex.findFirstRow(
+            (Session) session,
+            store,
+            tempRowData,
+            idIndex.getDefaultColumnMap());
+
+        if (it.next()) {
+            it.removeCurrent();
+            it.release();
+
+            size--;
+
+            add(newData);
+        }
+
+        resetIterator();
+    }
+
+    /**
+     * Used while building grouped results.
+     */
+    public void updateData(Object[] oldData, Object[] newData) {
 
         if (isSimpleAggregate) {
             return;
@@ -226,38 +253,97 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     }
 
     public boolean absolute(int position) {
-        return super.absolute(position);
-    }
 
-    public Object[] getCurrent() {
-        return currentRow.getData();
-    }
+        if (position < 0) {
+            position += size;
+        }
 
-    public Row getCurrentRow() {
-        return currentRow;
-    }
+        if (position < 0) {
+            beforeFirst();
 
-    public boolean next() {
-
-        boolean result = super.next();
-
-        if (!result) {
             return false;
         }
 
-        iterator.next();
+        if (position >= size) {
+            afterLast();
 
-        currentRow = iterator.getCurrentRow();
+            return false;
+        }
+
+        if (size == 0) {
+            return false;
+        }
+
+        currentPos = position;
 
         return true;
     }
 
+    private boolean toCurrentRow() {
+
+        if (rowNumIndex == mainIndex) {
+            tempRowData[0] = (long) currentPos;
+            iterator = rowNumIndex.findFirstRow(
+                (Session) session,
+                store,
+                tempRowData,
+                rowNumIndex.getDefaultColumnMap());
+
+            iterator.next();
+
+            iteratorPos = currentPos;
+        } else {
+            if (iteratorPos > currentPos) {
+                resetIterator();
+            }
+
+            while (iteratorPos < currentPos) {
+                iterator.next();
+
+                iteratorPos++;
+            }
+        }
+
+        return true;
+    }
+
+    public Object[] getCurrent() {
+
+        if (currentPos < 0 || currentPos >= size) {
+            return null;
+        }
+
+        if (currentPos != iteratorPos) {
+            toCurrentRow();
+        }
+
+        return iterator.getCurrent();
+    }
+
+    public Row getCurrentRow() {
+
+        if (currentPos < 0 || currentPos >= size) {
+            return null;
+        }
+
+        if (currentPos != iteratorPos) {
+            toCurrentRow();
+        }
+
+        return iterator.getCurrentRow();
+    }
+
+    public boolean next() {
+        return super.next();
+    }
+
     public void removeCurrent() {
+
+        Row currentRow = getCurrentRow();
 
         if (currentRow != null) {
             iterator.removeCurrent();
-
-            currentRow = null;
+            iterator.next();
 
             currentPos--;
             size--;
@@ -265,14 +351,18 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     }
 
     public void reset() {
-
         super.reset();
+        resetIterator();
+    }
+
+    void resetIterator() {
 
         if (iterator != null) {
             iterator.release();
         }
 
         iterator = mainIndex.firstRow((Session) session, store, null, 0, null);
+        iteratorPos = -1;
     }
 
     public void release() {
@@ -324,7 +414,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         reset();
     }
 
-    public Object[] getData(Long rowId) {
+    public Object[] getData(long rowId) {
 
         tempRowData[0] = rowId;
 

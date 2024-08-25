@@ -67,7 +67,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -1821,10 +1821,16 @@ public class QuerySpecification extends QueryExpression {
             }
 
             for (int i = indexLimitVisible; i < indexLimitRowId; i++) {
-                if (i == indexLimitVisible) {
+                if (i == indexLimitVisible + ResultMetaData.SysOffsets.rowId) {
                     data[i] = Long.valueOf(it.getRowId());
-                } else {
-                    data[i] = it.getCurrentRow();
+                } else if (i == indexLimitVisible
+                           + ResultMetaData.SysOffsets.rowNum) {
+                    data[i] = Long.valueOf(session.sessionContext.rownum - 1);
+                } else if (i == indexLimitVisible
+                           + ResultMetaData.SysOffsets.row) {
+                    if (isSingleMemoryTable) {
+                        data[i] = it.getCurrentRow();
+                    }
                 }
             }
 
@@ -1862,7 +1868,7 @@ public class QuerySpecification extends QueryExpression {
                     currentIndex = 0;
                 }
             } else if (isAggregated) {
-                navigator.update(groupData, data);
+                navigator.updateData(groupData, data);
             }
 
             int rowCount = navigator.getSize();
@@ -1994,7 +2000,7 @@ public class QuerySpecification extends QueryExpression {
                         }
                     }
 
-                    navigator.update(groupData, data);
+                    navigator.updateData(groupData, data);
                 }
             }
         }
@@ -2230,7 +2236,8 @@ public class QuerySpecification extends QueryExpression {
         }
 
         if (isUpdatable && view == null) {
-            int[] idCols = new int[]{ indexLimitVisible };
+            int[] idCols = new int[]{
+                indexLimitVisible + ResultMetaData.SysOffsets.rowId };
 
             idIndex = resultTable.createAndAddIndexStructure(
                 session,
@@ -2241,6 +2248,20 @@ public class QuerySpecification extends QueryExpression {
                 false,
                 false,
                 false);
+
+            int[] rowNumCols = new int[]{
+                indexLimitVisible + ResultMetaData.SysOffsets.rowNum };
+
+            rowNumIndex = resultTable.createAndAddIndexStructure(
+                session,
+                null,
+                rowNumCols,
+                null,
+                null,
+                false,
+                false,
+                false);
+            mainIndex = rowNumIndex;
         }
     }
 
@@ -2273,9 +2294,15 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = indexLimitVisible; i < indexLimitRowId; i++) {
-            if (i == indexLimitVisible) {
+            if (i == indexLimitVisible + ResultMetaData.SysOffsets.rowId) {
                 resultColumnTypes[i] = Type.SQL_BIGINT;
-            } else {
+            } else if (i == indexLimitVisible
+                       + ResultMetaData.SysOffsets.rowStatus) {
+                resultColumnTypes[i] = Type.SQL_INTEGER;
+            } else if (i == indexLimitVisible
+                       + ResultMetaData.SysOffsets.rowNum) {
+                resultColumnTypes[i] = Type.SQL_BIGINT;
+            } else if (i == indexLimitVisible + ResultMetaData.SysOffsets.row) {
                 resultColumnTypes[i] = Type.SQL_ALL_TYPES;
             }
         }
@@ -2724,13 +2751,10 @@ public class QuerySpecification extends QueryExpression {
                 return;
             }
 
-            indexLimitRowId++;
-
-            hasRowID = true;
+            hasRowID        = true;
+            indexLimitRowId += ResultMetaData.SysOffsets.limitWithRow;
 
             if (!baseTable.isFileBased()) {
-                indexLimitRowId++;
-
                 isSingleMemoryTable = true;
             }
 

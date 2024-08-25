@@ -68,7 +68,7 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
 
     public OrderedLongKeyHashMap(
             int initialCapacity,
-            boolean hasThirdValue)
+            boolean hasAdditionalValues)
             throws IllegalArgumentException {
 
         super(
@@ -77,12 +77,12 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
             BaseHashMap.objectKeyOrValue,
             false);
 
-        objectKeyTable   = new Object[objectValueTable.length];
-        isTwoObjectValue = true;
-        isList           = true;
+        objectKeyTable = new Object[objectValueTable.length];
+        isList         = true;
 
-        if (hasThirdValue) {
+        if (hasAdditionalValues) {
             objectValueTable2 = new Object[objectValueTable.length];
+            objectValueTable3 = new Object[objectValueTable.length];
         }
 
         minimizeOnEmpty = true;
@@ -157,6 +157,12 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
         return objectValueTable2[index];
     }
 
+    public Object getFourthValueAt(int index) {
+        checkRange(index);
+
+        return objectValueTable3[index];
+    }
+
     public V setValueAt(int index, V value) {
 
         checkRange(index);
@@ -186,6 +192,17 @@ public class OrderedLongKeyHashMap<V> extends BaseHashMap
         Object oldValue = objectValueTable2[index];
 
         objectValueTable2[index] = value;
+
+        return oldValue;
+    }
+
+    public Object setFourthValueAt(int index, Object value) {
+
+        checkRange(index);
+
+        Object oldValue = objectValueTable3[index];
+
+        objectValueTable3[index] = value;
 
         return oldValue;
     }

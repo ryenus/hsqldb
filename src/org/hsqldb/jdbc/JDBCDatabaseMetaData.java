@@ -207,7 +207,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since JDK 1.1 HSQLDB 1.9.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  */
@@ -4394,8 +4394,8 @@ public class JDBCDatabaseMetaData
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
-     * Updates to ResultSet rows are not visible after moving from the updated
-     * row.
+     * Updates to ResultSet rows are made visible by calling the
+     * {@code ResultSet.updateRow} method.
      * </div>
      * <!-- end release-specific documentation -->
      * @param type the {@code ResultSet} type; one of
@@ -4408,7 +4408,7 @@ public class JDBCDatabaseMetaData
      * @since JDK 1.2
      */
     public boolean ownUpdatesAreVisible(int type) throws SQLException {
-        return false;
+        return true;
     }
 
     /**
@@ -4419,7 +4419,7 @@ public class JDBCDatabaseMetaData
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
      * Rows deleted from the ResultSet are still visible after moving from the
-     * deleted row.
+     * deleted row. All the column values in deleted rows are set to {@code null}.
      * </div>
      * <!-- end release-specific documentation -->
      * @param type the {@code ResultSet} type; one of
@@ -4432,7 +4432,7 @@ public class JDBCDatabaseMetaData
      * @since JDK 1.2
      */
     public boolean ownDeletesAreVisible(int type) throws SQLException {
-        return false;
+        return true;
     }
 
     /**
@@ -4542,8 +4542,9 @@ public class JDBCDatabaseMetaData
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * Updates made to the rows of the ResultSet are not detected by
-     * calling the {@code ResultSet.rowUpdated}.
+     * Updates made to the rows of the ResultSet are detected by
+     * calling {@code ResultSet.rowUpdated}. This is possible after
+     * calling the {@code ResultSet.updateRow} method.
      * </div>
      * <!-- end release-specific documentation -->
      * @param type the {@code ResultSet} type; one of
@@ -4556,7 +4557,7 @@ public class JDBCDatabaseMetaData
      * @since JDK 1.2
      */
     public boolean updatesAreDetected(int type) throws SQLException {
-        return false;
+        return true;
     }
 
     /**
@@ -4569,7 +4570,7 @@ public class JDBCDatabaseMetaData
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * Deletes made to the rows of the ResultSet are not detected by
+     * Deletes made to the rows of the ResultSet are detected by
      * calling the {@code ResultSet.rowDeleted}.
      * </div>
      * <!-- end release-specific documentation -->
@@ -4585,7 +4586,7 @@ public class JDBCDatabaseMetaData
      * @since JDK 1.2
      */
     public boolean deletesAreDetected(int type) throws SQLException {
-        return false;
+        return true;
     }
 
     /**

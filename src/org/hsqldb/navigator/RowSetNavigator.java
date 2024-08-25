@@ -45,7 +45,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * object retrieval.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.4
  * @since 1.9.0
  */
 public abstract class RowSetNavigator implements RangeIterator {
@@ -58,7 +58,6 @@ public abstract class RowSetNavigator implements RangeIterator {
     int              mode;
     int              currentPos = -1;
     int              rangePosition;
-    boolean          hadNext;
     boolean          isClosed;
 
     /**
@@ -123,7 +122,7 @@ public abstract class RowSetNavigator implements RangeIterator {
     public abstract void clear();
 
     /**
-     * Remove any resourses and invalidate
+     * Remove any resources and invalidate
      */
     public abstract void release();
 
@@ -152,14 +151,10 @@ public abstract class RowSetNavigator implements RangeIterator {
         if (hasNext()) {
             currentPos++;
 
-            hadNext = true;
-
             return true;
         } else if (size != 0) {
             currentPos = size;
         }
-
-        hadNext = false;
 
         return false;
     }
@@ -172,8 +167,8 @@ public abstract class RowSetNavigator implements RangeIterator {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 
-    public boolean hadNext() {
-        return hadNext;
+    public Object[] getData(long rowId) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 
     public boolean beforeFirst() {
@@ -256,7 +251,7 @@ public abstract class RowSetNavigator implements RangeIterator {
             beforeFirst();
         }
 
-        // go to the tagget row;
+        // go to the target row;
         while (position > currentPos) {
             next();
         }

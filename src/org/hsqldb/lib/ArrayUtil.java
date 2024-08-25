@@ -1766,6 +1766,7 @@ public final class ArrayUtil {
             Object[] source,
             int[] columnMap,
             Object[] target) {
+
         for (int i = 0; i < columnMap.length; i++) {
             if (columnMap[i] >= 0) {
                 target[i] = source[columnMap[i]];
@@ -1774,6 +1775,7 @@ public final class ArrayUtil {
     }
 
     public static void projectRow(int[] source, int[] columnMap, int[] target) {
+
         for (int i = 0; i < columnMap.length; i++) {
             if (columnMap[i] >= 0) {
                 target[i] = source[columnMap[i]];
@@ -1792,6 +1794,7 @@ public final class ArrayUtil {
             Object[] target,
             int[] columnMap,
             Object[] source) {
+
         for (int i = 0; i < columnMap.length; i++) {
             if (columnMap[i] >= 0) {
                 target[columnMap[i]] = source[i];

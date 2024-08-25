@@ -44,6 +44,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
@@ -79,6 +80,7 @@ public class RowSetNavigatorData extends RowSetNavigator
     Index orderIndex;
     Index groupIndex;
     Index idIndex;
+    Index rowNumIndex;
 
     //
     final SortAndSlice sortAndSlice;
@@ -102,13 +104,14 @@ public class RowSetNavigatorData extends RowSetNavigator
         fullIndex          = select.fullIndex;
         orderIndex         = select.orderIndex;
         sortAndSlice       = select.sortAndSlice;
+        idIndex            = select.idIndex;
 
         if (select.isGrouped) {
             mainIndex = select.groupIndex;
             groupMap  = new TreeMap<>(this);
         }
 
-        if (select.idIndex != null) {
+        if (idIndex != null) {
             idMap = new LongKeyHashMap<>();
         }
     }
@@ -134,6 +137,18 @@ public class RowSetNavigatorData extends RowSetNavigator
 
         while (navigator.next()) {
             add(navigator.getCurrent());
+        }
+    }
+
+    public RowSetNavigatorData(Session session, List<Object[]> list) {
+
+        this.session = session;
+        sortAndSlice = SortAndSlice.noSort;
+
+        setCapacity(list.size());
+
+        for (int i = 0; i < list.size(); i++) {
+            add(list.get(i));
         }
     }
 
@@ -177,7 +192,8 @@ public class RowSetNavigatorData extends RowSetNavigator
         }
 
         if (idMap != null) {
-            Long id = (Long) data[visibleColumnCount];
+            Long id =
+                (Long) data[visibleColumnCount + ResultMetaData.SysOffsets.rowId];
 
             idMap.put(id.longValue(), data);
         }
@@ -202,11 +218,29 @@ public class RowSetNavigatorData extends RowSetNavigator
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorData");
     }
 
-    public void update(Object[] oldData, Object[] newData) {
+    public void updateData(long oldRowId, Object[] newData) {
+
+        if (idMap == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorData");
+        }
+
+        Object[] oldData = idMap.get(oldRowId);
+        long newId =
+            (Long) newData[visibleColumnCount + ResultMetaData.SysOffsets.rowId];
+
+        idMap.remove(oldRowId);
+        idMap.put(newId, oldData);
+        ArrayUtil.copyArray(newData, oldData, newData.length);
+    }
+
+    public void updateData(Object[] oldData, Object[] newData) {
 
         if (idMap != null) {
-            Long oldId = (Long) oldData[visibleColumnCount];
-            Long newId = (Long) newData[visibleColumnCount];
+            Long oldId =
+                (Long) oldData[visibleColumnCount + ResultMetaData.SysOffsets.rowId];
+            Long newId =
+                (Long) newData[visibleColumnCount + ResultMetaData.SysOffsets.rowId];
+
             idMap.remove(oldId.longValue());
             idMap.put(newId.longValue(), oldData);
         }

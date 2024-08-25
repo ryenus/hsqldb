@@ -51,7 +51,7 @@ import org.hsqldb.lib.PrimitiveIterator;
  * Special getOrAddXXX() methods are used for object maps in some subclasses.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.4
  * @since 1.7.2
  */
 public class BaseHashMap {
@@ -94,7 +94,6 @@ public class BaseHashMap {
     protected boolean isLongValue;
     protected boolean isObjectValue;
     protected boolean isMultiValue;
-    protected boolean isTwoObjectValue;
     protected boolean isList;
     protected boolean isAccessCount;
     protected boolean isLastAccessCount;
@@ -117,6 +116,7 @@ public class BaseHashMap {
     protected AtomicInteger accessCount;
     protected int[]         accessTable;
     protected Object[]      objectValueTable2;
+    protected Object[]      objectValueTable3;
 
     //
     protected final float      loadFactor;
@@ -1136,6 +1136,14 @@ public class BaseHashMap {
             System.arraycopy(temp, 0, objectValueTable2, 0, usedLength);
         }
 
+        if (objectValueTable3 != null) {
+            Object[] temp = objectValueTable3;
+
+            objectValueTable3 = new Object[newLength];
+
+            System.arraycopy(temp, 0, objectValueTable3, 0, usedLength);
+        }
+
         if (accessTable != null) {
             int[] temp = accessTable;
 
@@ -1170,6 +1178,10 @@ public class BaseHashMap {
 
         if (objectValueTable2 != null) {
             Arrays.fill(objectValueTable2, from, to, null);
+        }
+
+        if (objectValueTable3 != null) {
+            Arrays.fill(objectValueTable3, from, to, null);
         }
 
         if (accessTable != null) {
@@ -1269,6 +1281,19 @@ public class BaseHashMap {
             objectValueTable2[size - 1] = null;
         }
 
+        if (objectValueTable3 != null) {
+            Object[] array = objectValueTable3;
+
+            System.arraycopy(
+                array,
+                lookup + 1,
+                array,
+                lookup,
+                size - lookup - 1);
+
+            objectValueTable3[size - 1] = null;
+        }
+
         if (accessTable != null) {
             int[] array = accessTable;
 
@@ -1338,6 +1363,14 @@ public class BaseHashMap {
             System.arraycopy(array, lookup, array, lookup + 1, size - lookup);
 
             objectValueTable2[lookup] = null;
+        }
+
+        if (objectValueTable3 != null) {
+            Object[] array = objectValueTable3;
+
+            System.arraycopy(array, lookup, array, lookup + 1, size - lookup);
+
+            objectValueTable3[lookup] = null;
         }
 
         if (accessTable != null) {
@@ -2109,6 +2142,10 @@ public class BaseHashMap {
 
         if (objectValueTable2 != null) {
             copy.objectValueTable2 = objectValueTable2.clone();
+        }
+
+        if (objectValueTable3 != null) {
+            copy.objectValueTable3 = objectValueTable3.clone();
         }
 
         return copy;

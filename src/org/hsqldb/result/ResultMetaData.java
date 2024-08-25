@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
  * Metadata for a result set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.4
  * @since 1.8.0
  */
 public final class ResultMetaData {
@@ -60,6 +60,23 @@ public final class ResultMetaData {
     public static final int PARAM_METADATA           = 4;
     public static final int GENERATED_INDEX_METADATA = 5;
     public static final int GENERATED_NAME_METADATA  = 6;
+
+    public interface SysOffsets {
+
+        int rowId        = 0;
+        int rowStatus    = 1;
+        int rowNum       = 2;
+        int row          = 3;
+        int limitWithRow = 4;
+    }
+
+    public interface RowStatus {
+
+        int noAction = 0;
+        int updated  = 1;
+        int deleted  = 2;
+        int inserted = 4;
+    }
 
     //
     private int type;
@@ -250,10 +267,6 @@ public final class ResultMetaData {
 
     public int getExtendedColumnCount() {
         return extendedColumnCount;
-    }
-
-    public void resetExtendedColumnCount() {
-        extendedColumnCount = columnCount;
     }
 
     public Type[] getParameterTypes() {
