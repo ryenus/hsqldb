@@ -68,7 +68,7 @@ import org.hsqldb.persist.HsqlProperties;
  * against the set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class ServerProperties extends HsqlProperties {
@@ -94,6 +94,7 @@ public class ServerProperties extends HsqlProperties {
     static final String sc_key_web_default_page   = "server.default_page";
     static final String sc_key_web_root           = "server.root";
     static final String sc_key_max_connections    = "server.maxconnections";
+    static final String sc_key_max_wait           = "server.max_wait";
     static final String sc_key_remote_open_db     = "server.remote_open";
     static final String sc_key_max_databases      = "server.maxdatabases";
     static final String sc_key_acl                = "server.acl";
@@ -306,10 +307,11 @@ public class ServerProperties extends HsqlProperties {
         serverMeta.put(sc_key_no_system_exit, newMeta(sc_key_no_system_exit, SERVER_PROPERTY, false));
         serverMeta.put(sc_key_daemon, newMeta(sc_key_daemon, SERVER_PROPERTY, false));
         serverMeta.put(sc_key_address, newMeta(sc_key_address, SERVER_PROPERTY, null));
-        serverMeta.put(sc_key_port, newMeta(sc_key_port, 0, 9001, 0, 65535));
-        serverMeta.put(sc_key_http_port, newMeta(sc_key_http_port, 0, 80, 0, 65535));
-        serverMeta.put(sc_key_max_connections, newMeta(sc_key_max_connections, 0, 100, 1, 10000));
-        serverMeta.put(sc_key_max_databases, newMeta(sc_key_max_databases, 0, 10, 1, 1000));
+        serverMeta.put(sc_key_port, newMeta(sc_key_port, SERVER_PROPERTY, 9001, 0, 65535));
+        serverMeta.put(sc_key_http_port, newMeta(sc_key_http_port, SERVER_PROPERTY, 80, 0, 65535));
+        serverMeta.put(sc_key_max_connections, newMeta(sc_key_max_connections, SERVER_PROPERTY, 100, 1, 10000));
+        serverMeta.put(sc_key_max_wait, newMeta(sc_key_max_wait, SERVER_PROPERTY, 1000, 0, 30000));
+        serverMeta.put(sc_key_max_databases, newMeta(sc_key_max_databases, SERVER_PROPERTY, 10, 1, 1000));
 
         //
         prefixes.add(sc_key_database);

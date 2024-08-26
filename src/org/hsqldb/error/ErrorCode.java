@@ -79,7 +79,7 @@ public interface ErrorCode {
     int M_RS_BEFORE_FIRST  = 71;                   // ResultSet is positioned before first row
     int M_RS_AFTER_LAST    = 72;                   // ResultSet is positioned after last row
     int M_RS_ON_INSERT_ROW = 73;                   // ResultSet is positioned on insert row
-    int M_RS_ROW_DELETED   = 74;                   // ResultSet is positioned on insert row
+    int M_RS_ROW_DELETED   = 74;                   // current row has been deleted
 
     //
     int M_INVALID_LIMIT = 81;                      // ; in LIMIT, OFFSET or FETCH

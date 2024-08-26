@@ -36,7 +36,7 @@ package org.hsqldb.server;
  * HSQLDB servers
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.7.4
  * @since 1.7.2
  */
 public interface ServerConstants {
@@ -68,6 +68,7 @@ public interface ServerConstants {
     boolean SC_DEFAULT_TRACE              = false;
     boolean SC_DEFAULT_REMOTE_OPEN_DB     = false;
     int     SC_DEFAULT_MAX_DATABASES      = 10;
+    int     SC_DEFAULT_MAX_WAIT           = 1000;
 
     // type of server
     int SC_PROTOCOL_HTTP = 0;

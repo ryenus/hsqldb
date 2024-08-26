@@ -237,7 +237,7 @@ import org.hsqldb.types.HsqlDateTime.SystemTimeString;
  * is started as part of a larger framework.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.7.2
  */
 public class Server implements HsqlSocketRequestHandler, Notified {
@@ -269,6 +269,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
 //  Currently unused
     protected int maxConnections;
+    protected int maxWaitForClientData = 1000;
     volatile long actionSequence;
 
 //
@@ -546,6 +547,16 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         return socket == null
                ? -1
                : socket.getLocalPort();
+    }
+
+    /**
+     * Retrieves this server socket's max wait time for connection handshake
+     * in milliseconds.
+     *
+     * @return this server socket's max wait time
+     */
+    public int getMaxWait() {
+        return maxWaitForClientData;
     }
 
     /**
@@ -1010,6 +1021,21 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     }
 
     /**
+     * Sets the max wait time for connection handshake in milliseconds.
+     * The default is 1000 milliseconds.
+     *
+     * @param maxWait an integer between 0 and 30000
+     */
+    public void setMaxWait(int maxWait) {
+
+        serverProperties.setProperty(ServerProperties.sc_key_max_wait, maxWait);
+
+        maxWaitForClientData = maxWait;
+
+        printWithThread("setMaxWait(" + maxWait + ")");
+    }
+
+    /**
      * Sets whether to use secure sockets
      *
      * @param tls true for secure sockets, else false
@@ -1116,6 +1142,9 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         maxConnections = serverProperties.getIntegerProperty(
             ServerProperties.sc_key_max_connections,
             16);
+
+        maxWaitForClientData = serverProperties.getIntegerProperty(
+                ServerProperties.sc_key_max_wait, 1000);
 
         setLogToSystem(isTrace());
 

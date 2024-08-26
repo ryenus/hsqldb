@@ -125,7 +125,7 @@ import org.hsqldb.types.Type;
  *
  * @author Blaine Simpson (unsaved@users dot sourceforge.net
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.4
  * @since 1.6.2
  */
 class ServerConnection implements Runnable {
@@ -1622,7 +1622,6 @@ class ServerConnection implements Runnable {
      * banner.  Can't be too low or we could close a valid but slow
      * client connection.
      */
-    public static long MAX_WAIT_FOR_CLIENT_DATA   = 1000;    // ms.
     public static long CLIENT_DATA_POLLING_PERIOD = 100;     // ms.
 
     /**
@@ -1639,7 +1638,7 @@ class ServerConnection implements Runnable {
     public int handshake() throws IOException {
 
         long clientDataDeadline = new java.util.Date().getTime()
-                                  + MAX_WAIT_FOR_CLIENT_DATA;
+                                  + server.maxWaitForClientData;
 
         if (!(socket instanceof javax.net.ssl.SSLSocket)) {
 
