@@ -160,9 +160,6 @@ public class StatementResultUpdate extends StatementDML {
                     data[baseColumnMap[i]] = args[i];
                 }
 
-                data[result.metaData.getColumnCount() + ResultMetaData.SysOffsets.rowStatus] =
-                    ResultMetaData.RowStatus.inserted;
-
                 return insertSingleRow(session, store, data);
             }
 

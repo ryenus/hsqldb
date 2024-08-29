@@ -214,10 +214,6 @@ public class RowSetNavigatorData extends RowSetNavigator
         currentPos = pos;
     }
 
-    public boolean addRow(Row row) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorData");
-    }
-
     public void updateData(long oldRowId, Object[] newData) {
 
         if (idMap == null) {

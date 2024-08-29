@@ -99,7 +99,6 @@ public class QuerySpecification extends QueryExpression {
     public int                           indexStartAggregates;
     private int                          indexLimitExpressions;
     public int                           indexLimitData;
-    private boolean                      hasRowID;
     private boolean                      isSimpleCount;
     private boolean                      isSingleMemoryTable;
 
@@ -2751,7 +2750,6 @@ public class QuerySpecification extends QueryExpression {
                 return;
             }
 
-            hasRowID        = true;
             indexLimitRowId += ResultMetaData.SysOffsets.limitWithRow;
 
             if (!baseTable.isFileBased()) {

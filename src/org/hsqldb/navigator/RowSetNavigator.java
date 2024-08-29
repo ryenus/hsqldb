@@ -100,11 +100,6 @@ public abstract class RowSetNavigator implements RangeIterator {
     public abstract void add(Object[] data);
 
     /**
-     * Add row to the end
-     */
-    public abstract boolean addRow(Row row);
-
-    /**
      * Remove current row
      */
     public abstract void removeCurrent();

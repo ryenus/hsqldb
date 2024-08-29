@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -75,21 +75,21 @@ public class ParserDML extends ParserDQL {
         boolean         assignsToIdentityOrGenerated = false;
         Token           tableToken;
         boolean         hasColumnList = false;
-        int             isSpecial     = StatementInsert.isNone;
+        int             specialAction     = StatementInsert.isNone;
         Expression      insertExpressions;
         Expression[]    updateExpressions = Expression.emptyArray;
         Expression[]    targets           = null;
 
         if (database.sqlSyntaxMys) {
             if (readIfThis(Tokens.REPLACE)) {
-                isSpecial = StatementInsert.isReplace;
+                specialAction = StatementInsert.isReplace;
             }
 
-            if (isSpecial == StatementInsert.isNone) {
+            if (specialAction == StatementInsert.isNone) {
                 readThis(Tokens.INSERT);
 
                 if (readIfThis(Tokens.IGNORE)) {
-                    isSpecial = StatementInsert.isIgnore;
+                    specialAction = StatementInsert.isIgnore;
                 }
             }
 
@@ -141,7 +141,7 @@ public class ParserDML extends ParserDQL {
                     updateColumnCheckList,
                     updateColumnMap,
                     null,
-                    isSpecial,
+                    specialAction,
                     compileContext);
 
                 return cs;
@@ -323,7 +323,7 @@ public class ParserDML extends ParserDQL {
                 }
 
                 if (database.sqlSyntaxMys
-                        && isSpecial == StatementInsert.isNone
+                        && specialAction == StatementInsert.isNone
                         && readIfThis(Tokens.ON)) {
                     readThis(Tokens.DUPLICATE);
                     readThis(Tokens.KEY);
@@ -340,7 +340,7 @@ public class ParserDML extends ParserDQL {
                         targetRange.getTable(),
                         2);
 
-                    isSpecial = StatementInsert.isUpdate;
+                    specialAction = StatementInsert.isUpdate;
 
                     readOnDuplicateClauseList(
                         rangeVariables,
@@ -389,7 +389,7 @@ public class ParserDML extends ParserDQL {
                     updateColumnCheckList,
                     updateColumnMap,
                     targets,
-                    isSpecial,
+                    specialAction,
                     compileContext);
 
                 return cs;
@@ -458,7 +458,7 @@ public class ParserDML extends ParserDQL {
         }
 
         if (database.sqlSyntaxMys
-                && isSpecial == StatementInsert.isNone
+                && specialAction == StatementInsert.isNone
                 && readIfThis(Tokens.ON)) {
             readThis(Tokens.DUPLICATE);
             readThis(Tokens.KEY);
@@ -472,7 +472,7 @@ public class ParserDML extends ParserDQL {
                 targetRange.getTable(),
                 2);
 
-            isSpecial = StatementInsert.isUpdate;
+            specialAction = StatementInsert.isUpdate;
 
             readOnDuplicateClauseList(
                 rangeVariables,
@@ -517,7 +517,7 @@ public class ParserDML extends ParserDQL {
             updateColumnCheckList,
             updateColumnMap,
             targets,
-            isSpecial,
+            specialAction,
             overrideIndex,
             compileContext);
 
