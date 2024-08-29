@@ -142,7 +142,7 @@ public class IntervalTypeTest extends BaseTestCase {
             }
         } catch (Exception e) {
             if (m_parameters.intervalFailMessage == null) {
-                fail(e + ": " + m_parameters.toString());
+                fail(e + ": " + m_parameters);
             } else {
                 printProgress("test failed as expected:" + m_parameters.intervalFailMessage + " " + e);
                 println(m_parameters);

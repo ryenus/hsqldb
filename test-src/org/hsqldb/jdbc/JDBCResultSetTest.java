@@ -981,7 +981,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                 rsmd.isWritable(i);
             }
         } catch (SQLException ex) {
-            fail("ResultSetMetaData should be valid after ResultSet is closed: " + ex.toString());
+            fail("ResultSetMetaData should be valid after ResultSet is closed: " + ex);
         }
     }
 
@@ -2084,7 +2084,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             assertEquals(false, rs.rowUpdated());
 
             rs.updateObject(1, 1, java.sql.Types.INTEGER);
-
+            rs.updateRow();
             assertEquals(true, rs.rowUpdated());
         } catch (Exception e) {
             fail(e.toString());
@@ -2217,6 +2217,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateNull(1);
 
+            rs.updateRow();
             assertEquals(true, rs.rowUpdated());
         } catch (Exception e) {
             fail(e.toString());
@@ -2863,6 +2864,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         ResultSet rs = newScrollableInsensitiveUpdateableResultSet(
                 getSelectFromAllTypes());
 
+        rs.next();
         rs.updateNull(1);
         rs.close();
         try {

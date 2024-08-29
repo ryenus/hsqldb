@@ -835,7 +835,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             assertEquals("0A", ex.getSQLState().substring(0, 2));
         } else {
             assertEquals("sql state", SqlState.Exception.InvalidCursorState.IdentifiedCursorIsNotOpen.Value, ex.getSQLState());
-            assertEquals("Error code for: " + ex.toString(), getResultSetClosedErrorCode(), ex.getErrorCode());
+            assertEquals("Error code for: " + ex, getResultSetClosedErrorCode(), ex.getErrorCode());
         }
     }
 

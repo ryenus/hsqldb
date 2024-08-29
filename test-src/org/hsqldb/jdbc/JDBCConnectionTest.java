@@ -180,7 +180,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             stmt = conn.prepareStatement(sql);
         } catch (SQLException ex) {
-            sb.append(ex.toString()).append("    ");
+            sb.append(ex).append("    ");
         }
 
         sql = "create table ? (id int, val varchar)";
@@ -718,7 +718,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             Savepoint result = conn.setSavepoint("s2");
         } catch (Exception e) {
-             fail("setSavepoint(name): " + e.toString());
+             fail("setSavepoint(name): " + e);
         }
 
         conn.setAutoCommit(true);
@@ -734,7 +734,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             Savepoint result = conn.setSavepoint();
         } catch (Exception e) {
-             fail("setSavepoint() [no args]: " + e.toString());
+             fail("setSavepoint() [no args]: " + e);
         }
     }
 

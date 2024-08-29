@@ -249,7 +249,7 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
         try {
             ResultSet result = dbmd.getClientInfoProperties();
         } catch (Exception e) {
-            stubTestResult("TODO: " + e.toString());
+            stubTestResult("TODO: " + e);
         }
     }
 

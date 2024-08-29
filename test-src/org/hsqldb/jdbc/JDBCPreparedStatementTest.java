@@ -859,7 +859,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         try {
             stmt.setURL(1, x);
         } catch (SQLException ex) {
-            stubTestResult("TODO: " + ex.toString());
+            stubTestResult("TODO: " + ex);
         }
 
         stmt.executeQuery();
