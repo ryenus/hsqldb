@@ -214,9 +214,7 @@ public final class ServerConfiguration implements ServerConstants {
         p.setProperty(
             ServerProperties.sc_key_no_system_exit,
             SC_DEFAULT_NO_SYSTEM_EXIT);
-        p.setProperty(
-                ServerProperties.sc_key_max_wait,
-                SC_DEFAULT_MAX_WAIT);
+        p.setProperty(ServerProperties.sc_key_max_wait, SC_DEFAULT_MAX_WAIT);
         p.setProperty(
             ServerProperties.sc_key_max_databases,
             SC_DEFAULT_MAX_DATABASES);

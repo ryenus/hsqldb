@@ -1142,9 +1142,9 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         maxConnections = serverProperties.getIntegerProperty(
             ServerProperties.sc_key_max_connections,
             16);
-
         maxWaitForClientData = serverProperties.getIntegerProperty(
-                ServerProperties.sc_key_max_wait, 1000);
+            ServerProperties.sc_key_max_wait,
+            1000);
 
         setLogToSystem(isTrace());
 
