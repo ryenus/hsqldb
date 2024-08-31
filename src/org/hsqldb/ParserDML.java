@@ -75,7 +75,7 @@ public class ParserDML extends ParserDQL {
         boolean         assignsToIdentityOrGenerated = false;
         Token           tableToken;
         boolean         hasColumnList = false;
-        int             specialAction     = StatementInsert.isNone;
+        int             specialAction = StatementInsert.isNone;
         Expression      insertExpressions;
         Expression[]    updateExpressions = Expression.emptyArray;
         Expression[]    targets           = null;

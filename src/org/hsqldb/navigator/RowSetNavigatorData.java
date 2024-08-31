@@ -230,6 +230,7 @@ public class RowSetNavigatorData extends RowSetNavigator
     }
 
     public void updateData(Object[] oldData, Object[] newData) {
+
         // no op
     }
 
@@ -237,12 +238,6 @@ public class RowSetNavigatorData extends RowSetNavigator
         data = projectData(data, columnMap);
 
         add(data);
-    }
-
-    void insertAdjusted(Object[] data, int[] columnMap) {
-        data = projectData(data, columnMap);
-
-        insert(data);
     }
 
     Object[] projectData(Object[] data, int[] columnMap) {
@@ -280,8 +275,16 @@ public class RowSetNavigatorData extends RowSetNavigator
         size++;
     }
 
-    public Object[][] getDataTable() {
-        return dataTable;
+    public Object[][] removeDataTable() {
+
+        Object[][] table = dataTable;
+
+        dataTable = emptyTable;
+        size      = 0;
+
+        reset();
+
+        return table;
     }
 
     public void release() {

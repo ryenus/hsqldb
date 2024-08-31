@@ -92,10 +92,9 @@ public class StatementResultUpdate extends StatementDML {
         session.getTransactionUTC();
         checkAccessRights(session);
 
-        Object[]                args = session.sessionContext.dynamicArguments;
-        Row                     row;
-        PersistentStore         store      = baseTable.getRowStore(session);
-        HsqlArrayList<Object[]> updateList = new HsqlArrayList<>();
+        Object[]        args = session.sessionContext.dynamicArguments;
+        Row             row;
+        PersistentStore store = baseTable.getRowStore(session);
 
         switch (actionType) {
 
@@ -230,12 +229,19 @@ public class StatementResultUpdate extends StatementDML {
             updateList.add(newResultData);
         }
 
-        RowSetNavigatorData updateNavigator = new RowSetNavigatorData(
-            session,
-            updateList);
-        Result updateResult = Result.newDataResult(result.metaData);
+        Result updateResult;
 
-        updateResult.setNavigator(updateNavigator);
+        if (session.isNetwork) {
+            RowSetNavigatorData updateNavigator = new RowSetNavigatorData(
+                session,
+                updateList);
+
+            updateResult = Result.newDataResult(result.metaData);
+
+            updateResult.setNavigator(updateNavigator);
+        } else {
+            updateResult = Result.updateOneResult;
+        }
 
         return updateResult;
     }

@@ -218,13 +218,9 @@ public abstract class RowSetNavigator implements RangeIterator {
     /**
      * Uses similar semantics to java.sql.ResultSet except this is 0 based.
      * When position is 0 or positive, it is from the start; when negative,
-     * it is from end
+     * it means beforeFirst()
      */
     public boolean absolute(int position) {
-
-        if (position < 0) {
-            position += size;
-        }
 
         if (position < 0) {
             beforeFirst();

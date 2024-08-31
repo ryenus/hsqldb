@@ -1910,10 +1910,8 @@ public class QuerySpecification extends QueryExpression {
             session.sessionContext.setGroupSet(groupSet);
 
             Iterator   groupsIterator = groupSet.getIterator();
-            Object[][] baseResult     = navigator.getDataTable();
             int        baseResultSize = navigator.getSize();
-
-            navigator.clear();
+            Object[][] baseResult     = navigator.removeDataTable();
 
             if (groupSet.nullSets != 0) {
                 Object[] data = new Object[indexLimitData];
