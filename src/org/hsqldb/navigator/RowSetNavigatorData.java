@@ -326,12 +326,6 @@ public class RowSetNavigatorData extends RowSetNavigator
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorData");
     }
 
-    public Object[] getNextRowData() {
-        return next()
-               ? getCurrent()
-               : null;
-    }
-
     public boolean next() {
         return super.next();
     }
