@@ -41,7 +41,7 @@ import java.math.RoundingMode;
  * Formats numbers with the given pattern.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 2.7.3
  */
 public class NumberFormat {
@@ -212,7 +212,7 @@ public class NumberFormat {
                             }
                         }
                     } else if (digitCount == skipCount) {
-                        if (isNegative && !signAdded) {
+                        if (!signAdded) {
                             appendSignStart(sb, isNegative);
 
                             signAdded = true;
@@ -235,7 +235,7 @@ public class NumberFormat {
                     break;
 
                 case '0' :
-                    if (isNegative && !signAdded) {
+                    if (!signAdded) {
                         appendSignStart(sb, isNegative);
 
                         signAdded = true;
