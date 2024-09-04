@@ -312,7 +312,7 @@
  PreparedStatement st = c.prepareStatement("SELECT * FROM T WHERE NAME = ?");
  // type of the parameter is VARCHAR(12), which limits length to 12 characters
  st.setString(1, "Eyjafjallajokull"); // string is longer than type, but no exception is raised here
- set.execute(); // executes with no exception and does not find any rows
+ st.execute(); // executes with no exception and does not find any rows
 
  // but if an UPDATE is attempted, an exception is raised
  st = c.prepareStatement("UPDATE T SET NAME = ? WHERE ID = 10");
@@ -2215,6 +2215,11 @@
       &lt;order by clause&gt; ] [ SEPARATOR &lt;separator&gt; ] &lt;right
       paren&gt;</literal></simpara>
 
+      <simpara><literal>&lt;group concat function&gt; ::= STRING_AGG &lt;left
+      paren&gt; [ &lt;set quantifier&gt; ] &lt;value expression&gt; [
+      &lt;order by clause&gt; ] [ SEPARATOR &lt;separator&gt; ] &lt;right
+      paren&gt;</literal></simpara>
+
       <simpara><literal>&lt;separator&gt; ::= &lt;character string
       literal&gt;</literal></simpara>
 
@@ -2317,12 +2322,13 @@
       <literal>&lt;separator&gt;</literal> is used with this
       function.</simpara>
 
-      <simpara>GROUP_CONCAT is a specialised function derived from ARRAY_AGG.
-      This function computes the array in the same way as ARRAY_AGG, removes
-      all the NULL elements, then returns a string that is a concatenation of
-      the elements of the array. If <literal>&lt;separator&gt;</literal> has
-      been specified, it is used to separate the elements of the array.
-      Otherwise the comma is used to separate the elements.</simpara>
+      <simpara>GROUP_CONCAT and STRING_AGG are equivalent specialised
+      functions derived from ARRAY_AGG. These functions compute the array in
+      the same way as ARRAY_AGG, remove all the NULL elements, then return a
+      string that is a concatenation of the elements of the array. If
+      <literal>&lt;separator&gt;</literal> has been specified, it is used to
+      separate the elements of the array. Otherwise the comma is used to
+      separate the elements.</simpara>
 
       <simpara>The example below shows a grouped query with ARRAY_AGG and
       GROUP_CONCAT. The CUSTOMER table that is included for tests in the

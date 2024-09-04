@@ -107,7 +107,7 @@
       cache because the data is represented by Java objects. The <literal>SET
       FILES CACHE SIZE</literal> command of the
       <property>hsqldb.cache_size</property> connection property can be used
-      to alter this amount. </para>
+      to alter this amount.</para>
 
       <para>If memory is limited, the <property>hsqldb.cache_size</property>
       or <property>hsqldb.cache_rows</property> settings can be reduced. In
@@ -900,7 +900,7 @@
     <subtitle>Java Module Dependency and Dependency settings using Gradle,
     Ivy, Maven, Groovy</subtitle>
 
-    <simpara>HyperSQL and SqlTool version 2.7.3 jars are Java Module jars
+    <simpara>HyperSQL and SqlTool version 2.7.4 jars are Java Module jars
     compiled with JDK 11. The module name for HyperSQL is
     <literal>org.hsqldb</literal> and for SqlTool,
     <literal>org.hsqldb.sqltool</literal>. In a modular application, these
@@ -909,7 +909,7 @@
 
     <simpara>For non-modular applications, the jars are simply included the
     the classpath. Jars compiled with JDK8 are also provided and can be used
-    for applications that must run on a JVM older than 11,</simpara>
+    for applications that must run on a JVM older than 11.</simpara>
 
     <simpara>This section is about building applications that have
     dependencies upon HyperSQL, and for executions that use a dependency
@@ -952,7 +952,7 @@
       the suggestions in the appropriate sections below. If you need to
       specify a specific version, follow the instructions in the
       range-versioning section but change the version range specifications to
-      literal versions like <literal>2.7.3</literal>.</para>
+      literal versions like <literal>2.7.4</literal>.</para>
     </section>
 
     <section xml:id="dec_maven_range_version">

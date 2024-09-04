@@ -142,7 +142,8 @@
         </listitem>
 
         <listitem>
-          <para>PostgreSQL functions are generally supported.</para>
+          <para>Many PostgreSQL functions are supported, including
+          STRING_AGG.</para>
         </listitem>
 
         <listitem>

@@ -392,8 +392,8 @@
     <simpara>CodeSwitcher reads the source code of a file, removes comments
     where appropriate and comments out the blocks that are not used for a
     particular version of the file. This operation is done for all files of a
-    defined directory, and all subdirectories. The current version (2.7.3) of
-    HSQLDB does not use the CodeSwitcher.</simpara>
+    defined directory, and all subdirectories. The current version of HSQLDB
+    does not use the CodeSwitcher.</simpara>
 
     <example>
       <title>Example source code before CodeSwitcher is run</title>

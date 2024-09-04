@@ -830,14 +830,16 @@
     numeric value has more significant digits than the template, the hash
     symbol (#) is returned as the result. By default, the result has the minus
     sign at the beginning when the numeric value is negative, or a space when
-    it is positive. The special format element MI can be used at the end of
-    the format template for a minus sign for negative numeric values or a
-    space for positive values. The special format element S can be used at the
-    beginning or end of the template for a plus or minus sign to be included
-    for all numeric values at that position. Alternatively, the format element
-    PR can be used once at the end of the format string for angle brackets
-    around the negative results. Numeric values of type DOUBLE are first
-    converted to DECIMAL with the same scale as indicated in the template.
+    it is positive. The special format element B can be used at the beginning
+    of the format template to return a blank string when the numeric value is
+    zero. The special format element MI can be used at the end of the format
+    template for a minus sign for negative numeric values or a space for
+    positive values. The special format element S can be used at the beginning
+    or end of the template for a plus or minus sign to be included for all
+    numeric values at that position. Alternatively, the format element PR can
+    be used once at the end of the format string for angle brackets around the
+    negative results. Numeric values of type DOUBLE are first converted to
+    DECIMAL with the same scale as indicated in the template.
     (HyperSQL)</para>
 
     <table colsep="1" frame="all" pgwide="0">
@@ -2681,8 +2683,8 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
       <para>The format strings that can be used for TO_DATE and TO_TIMESTAMP
       are more restrictive than those used for TO_CHAR, because the format
       string must contain the elements needed to build a full DATE or
-      TIMESTAMP value. For example, you cannot use the 'WW', 'W', 'HH12'
-      format elements.</para>
+      TIMESTAMP value. For example, you cannot use the 'W', 'HH12' format
+      elements.</para>
 
       <para>The format is internally translated to a
       <classname>java.time.format.DateTimeFormatter</classname> format string.
@@ -3337,7 +3339,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     <para><literal>DATABASE_VERSION ()</literal></para>
 
     <para>Returns the full version string for the database engine. For
-    example, 2.7.3. (JDBC)</para>
+    example, 2.7.4. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>USER function</primary>

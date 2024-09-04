@@ -178,7 +178,7 @@
 
           <simpara>All the files in the zip archive will be extracted to
           underneath a new subdirectory named like
-          <filename>hsqldb-2.7.3/hsqldb</filename>.</simpara>
+          <filename>hsqldb-2.7.4/hsqldb</filename>.</simpara>
         </listitem>
       </varlistentry>
     </variablelist>
@@ -189,7 +189,7 @@
     HyperSQL system is <filename>hsqldb.jar</filename>, which resides in the
     subdirectory <filename>lib</filename>. Depending on who built your
     distribution, your file name may have a version label in it, like
-    <filename>hsqldb-2.7.3.jar</filename>.</simpara>
+    <filename>hsqldb-2.7.4.jar</filename>.</simpara>
 
     <important>
       <simpara>For the purposes of this chapter, I define
@@ -617,12 +617,12 @@
           <simpara>Look at the comment towards the top of the init script
           which lists recommended locations for the configuration file for
           various UNIX platforms. Copy the sample config file <filename
-          xlink:href="#hsqldb.conf-link">sample/hsqldb.conf</filename> to one of
-          the listed locations (your choice). Edit the config file according
-          to the instructions in it. For our example, you will set the value
-          of <varname>URLIDS</varname> to <literal>localhostdb1</literal>,
-          since that is the urlid name that we used in the
-          <filename>sqltool.rc</filename> file.</simpara>
+          xlink:href="#hsqldb.conf-link">sample/hsqldb.conf</filename> to one
+          of the listed locations (your choice). Edit the config file
+          according to the instructions in it. For our example, you will set
+          the value of <varname>URLIDS</varname> to
+          <literal>localhostdb1</literal>, since that is the urlid name that
+          we used in the <filename>sqltool.rc</filename> file.</simpara>
 
           <programlisting><xi:include href="../verbatim/sample/hsqldb.conf"
               parse="text"/></programlisting>
