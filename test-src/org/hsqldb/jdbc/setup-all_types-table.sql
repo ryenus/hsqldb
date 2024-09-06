@@ -25,7 +25,7 @@ create table all_types(
      ,c_clob               clob(16)
      ,c_array              integer array[4]
      ,c_bit_1              bit(1)
-     ,c_bit_8              bit(8)
+     ,c_bit_8              bit varying(8)
 );
 
 insert into all_types(
