@@ -56,12 +56,12 @@ import java.util.Locale;
  * Parses and formats date time objects with the given pattern.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 2.7.3
  */
 public class DateFormat {
 
-    public static final Locale    defaultLocale  = Locale.UK;
+    public static final Locale    defaultLocale  = Locale.US;
     //J-
 
     private static final char[][] dateTokens     = {
