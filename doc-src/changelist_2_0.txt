@@ -1,3 +1,7 @@
+September 2024
+-- improvement to JDBC scrollable and updatable result sets. Updates are now reflected in the ResultSet.
+-- fixed a number of reported regressions and bugs (see tracker)
+
 June 2024 - version 2.7.3 
 -- version 2.7.3 jar requires JRE 11 or later - tested up to Java 21
 -- version 2.7.3 alternative jar requires JRE 8 or later
@@ -11,7 +15,7 @@ June 2024 - version 2.7.3
 -- fixed a number of reported regressions and bugs (see tracker)
 
 March 2023 - version 2.7.2
-== version 2.7.2 is a release with minor enhancements and corrections
+-- version 2.7.2 is a release with minor enhancements and corrections
 
 20 Oct 2022 - version 2.7.1
 -- version 2.7.1 jar requires JRE 11 or later - tested up to Java 17

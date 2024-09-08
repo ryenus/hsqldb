@@ -263,13 +263,6 @@ import org.hsqldb.types.Types;
  * HSQLDB supports both scrollable and forward-only result sets for
  * updatability.<p>
  *
- * From version 2.7.4, support for updatable result sets is extended to make
- * updates and deletes visible. This feature is useful with scrollable result
- * sets. The {@code rowUpdated} method now return {@code true} on an
- * updated row. Calling a {@code getXXX} method returns the updated values for
- * updated rows and {@code null} for deleted rows.
- *
- *
  * <pre class="JavaCodeExample">
  * -- In the SELECT below, columns A and B are updatable, any row can be
  * -- deleted, but it is not insertable-into as column C is not directly from
@@ -280,6 +273,14 @@ import org.hsqldb.types.Types;
  * -- table that do not appear in the SELECT list have a default value.
  * SELECT A, B FROM T WHERE ...
  * </pre>
+ *
+ * From version 2.7.4, support for updatable result sets is extended to make
+ * updates and deletes visible. This feature is useful with scrollable result
+ * sets. After calling {@code updateRow}, the {@code rowUpdated} method now
+ * returns {@code true} on an updated row. After calling {@code deleteRow},
+ * the {@code rowDeleted} method now returns {@code true} on a deleted row.
+ * Calling a {@code getXXX} method returns the updated values for
+ * updated rows and {@code null} for deleted rows.
  *
  * (fredt@users) <br>
  * (campbell-burnet@users)

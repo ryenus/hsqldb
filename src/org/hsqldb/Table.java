@@ -69,13 +69,15 @@ import org.hsqldb.types.Type;
 public class Table extends TableBase implements SchemaObject {
 
     public static final Table[] emptyArray = new Table[]{};
-    protected HsqlName          tableName;
-    protected long              changeTimestamp;
+
+    //
+    protected HsqlName tableName;
+    protected long     changeTimestamp;
 
     //
     public OrderedHashMap<String, ColumnSchema> columnList;
 
-    //    
+    //
     int                     identityColumn;        // -1 means no such column
     NumberSequence          identitySequence;      // next value of identity column
     Constraint[]            constraintList;        // constraint for the table
