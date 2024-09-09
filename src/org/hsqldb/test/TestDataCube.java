@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,16 +46,7 @@ import junit.framework.TestCase;
  * @version 2.5.1
  * @since 2.5.1
  */
-
-public class TestDataCube extends TestCase {
-
-    //------------------------------------------------------------
-    // Class variables
-    //------------------------------------------------------------
-    private static final String databaseDriver   = "org.hsqldb.jdbc.JDBCDriver";
-    private static final String databaseURL      = "jdbc:hsqldb:mem:.";
-    private static final String databaseUser     = "sa";
-    private static final String databasePassword = "";
+public class TestDataCube extends TestBase {
 
     //------------------------------------------------------------
     // Instance variables
@@ -74,14 +65,6 @@ public class TestDataCube extends TestCase {
         super(s);
     }
 
-    //------------------------------------------------------------
-    // Class methods
-    //------------------------------------------------------------
-    protected static Connection getJDBCConnection() throws SQLException {
-        return DriverManager.getConnection(databaseURL, databaseUser,
-                                           databasePassword);
-    }
-
     protected void setUp() throws Exception {
 
         super.setUp();
@@ -90,9 +73,7 @@ public class TestDataCube extends TestCase {
             return;
         }
 
-        Class.forName(databaseDriver);
-
-        conn = getJDBCConnection();
+        conn = super.newConnection();
         stmt = conn.createStatement();
 
         try {
@@ -107,7 +88,7 @@ public class TestDataCube extends TestCase {
         //Channel: Internet
         addRevenueSource("INTERNET", 2009, "GB", "CAMBRIDGE", 10000);
         addRevenueSource("INTERNET", 2009, "GB", "OXFORD", 15000);
-        addRevenueSource("INTERNET", 2009, "US", "STANFORD", 100000);        
+        addRevenueSource("INTERNET", 2009, "US", "STANFORD", 100000);
         addRevenueSource("INTERNET", 2009, "US", "NEW YORK", 175000);
         addRevenueSource("INTERNET", 2010, "GB", "CAMBRIDGE", 20000);
         addRevenueSource("INTERNET", 2010, "GB", "OXFORD", 25000);
@@ -139,23 +120,25 @@ public class TestDataCube extends TestCase {
         stmt.execute("INSERT INTO TEST (SEL, NAME1, NAME2) VALUES (1, 'FOO', 'QUX')");
     }
 
-    protected void tearDown() throws Exception {
+    protected void tearDown() {
 
         try {
             stmt.execute("DROP TABLE REVENUE IF EXISTS;");
         } catch (Exception x) {}
 
-        if (stmt != null) {
-            stmt.close();
+        try {
+            if (stmt != null) {
+                stmt.close();
 
-            stmt = null;
-        }
+                stmt = null;
+            }
 
-        if (conn != null) {
-            conn.close();
+            if (conn != null) {
+                conn.close();
 
-            conn = null;
-        }
+                conn = null;
+            }
+        } catch (Exception x) {}
 
         super.tearDown();
 
