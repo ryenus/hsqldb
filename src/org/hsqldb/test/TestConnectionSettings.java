@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ interface TestConnectionSettings {
 
         public String url() {
             return TestDirectorySettings.fileBaseURL
-                   + "unitestdb;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
+                   + "unitest/unitestdb;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
         }
 
         public String dbPath() {
@@ -130,7 +130,7 @@ interface TestConnectionSettings {
 
         public String dbPath() {
             return TestDirectorySettings.fileBase
-                   + "unitestdb;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
+                   + "unitest/unitestdb;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
         }
 
         public String connType() {

@@ -1,4 +1,4 @@
-September 2024
+September 2024 - version 2.7.4
 -- improvement to JDBC scrollable and updatable result sets. Updates are now reflected in the ResultSet.
 -- fixed a number of reported regressions and bugs (see tracker)
 

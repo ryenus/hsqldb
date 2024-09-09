@@ -92,9 +92,9 @@ import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
-//campbell-burnet@users 20051207 - patch 1.9.0 - initial JDBC 4.0 support work
-//fredt@users    20060431 - patch 1.9.0 rewrite with RowSetNavigator
-//campbell-burnet@users 20060522 - doc   1.9.0 - full synch up to JAVA 1.6 (Mustang) Build 84
+// campbell-burnet@users 20051207 - patch 1.9.0 - initial JDBC 4.0 support work
+// fredt@users    20060431 - patch 1.9.0 rewrite with RowSetNavigator
+// campbell-burnet@users 20060522 - doc   1.9.0 - full synch up to JAVA 1.6 (Mustang) Build 84
 // Revision 1.21  2006/07/12 12:27:25  boucherb
 // - full synch up to JAVA 1.6 (Mustang) b90
 
@@ -232,15 +232,10 @@ import org.hsqldb.types.Types;
  * String ninthRowValue = rs.<b>getString</b>(<span class="JavaNumericLiteral">1</span>);
  * </pre>
  *
- * Note: An HSQLDB {@code ResultSet} object stays open if it is not
- * explicitly closed, even after its
- * connection is closed.  This is regardless of the operational mode of
- * the {@link org.hsqldb.Database Database} from which it came.  That is, they
- * persist whether originating from a {@code Server},
- * {@code WebServer} or in-process mode {@code Database}. A connection
+ * A non-updatable HSQLDB {@code ResultSet} object stays open if it is not
+ * explicitly closed, even after its connection is closed. A connection
  * opened with the property setting {@code close_result=true } closes
- * any remaining open results when the connection is closed.
- * <p>
+ * any remaining open results when the connection is closed. <p>
  *
  * From HSQLDB 2.0, there is full support for updatable result sets.
  * Supported methods
@@ -3964,7 +3959,10 @@ public class JDBCResultSet implements ResultSet {
      *
      * After updating any values in the current row, it is not possible to
      * move the cursor position without calling this method, or alternatively
-     * calling cancelRowUpdates() to abandon the row update.
+     * calling cancelRowUpdates() to abandon the row update. <p>
+     * After calling this method, the {@code getXXX} methods return the
+     * updated values for the updated row.
+     * </p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3992,6 +3990,8 @@ public class JDBCResultSet implements ResultSet {
      * HSQLDB supports this feature. <p>
      *
      * After a successful call to this method, the row is deleted.
+     * All column values returned by {@code getXXX} methods are null for a
+     * row that has been deleted.
      * </div>
      * <!-- end release-specific documentation -->
      *

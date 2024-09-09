@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -207,6 +207,8 @@ public class TestJDBCGeneratedColumns extends TestBase {
         Connection conn            = newConnection();
         boolean    successPrepared = false;
         boolean    successDirect   = false;
+
+        String drop = "DROP TABLE PUBLIC.BEWERTUNG IF EXISTS CASCADE";
         String create = "CREATE TABLE PUBLIC.BEWERTUNG ("
                         + "BEWERTUNGSID INTEGER NOT NULL IDENTITY,"
                         + "TID INTEGER," + "JURORID INTEGER NOT NULL,"
@@ -221,7 +223,9 @@ public class TestJDBCGeneratedColumns extends TestBase {
             + "WHEN NOT MATCHED THEN INSERT (TID,JURORID,RUNDE) "
             + "VALUES (temp.tid,temp.jurorid,temp.runde)";
 
-        conn.createStatement().execute(create);
+        Statement st = conn.createStatement();
+        st.execute(drop);
+        st.execute(create);
         PreparedStatement preparedStatement = conn.prepareStatement(sqlquery,
             Statement.RETURN_GENERATED_KEYS);
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -158,7 +158,7 @@ public class TestSql extends TestBase {
                 ResultSetMetaData rsmd    = rs.getMetaData();
                 String            result0 = "";
 
-                for (; rs.next(); ) {
+                while (rs.next()) {
                     for (int i = 0; i < rsmd.getColumnCount(); i++) {
                         result0 += rs.getString(i + 1) + ":";
                     }
@@ -178,7 +178,7 @@ public class TestSql extends TestBase {
                 ResultSetMetaData rsmd    = rs.getMetaData();
                 String            result0 = "";
 
-                for (; rs.next(); ) {
+                while (rs.next()) {
                     for (int i = 0; i < rsmd.getColumnCount(); i++) {
                         result0 += rs.getString(i + 1) + ":";
                     }
@@ -196,7 +196,7 @@ public class TestSql extends TestBase {
 
                 result1 = "";
 
-                for (; rs.next(); ) {
+                while (rs.next()) {
                     for (int i = 0; i < rsmd.getColumnCount(); i++) {
                         result1 += rs.getString(i + 1) + ":";
                     }
@@ -216,7 +216,7 @@ public class TestSql extends TestBase {
 
                 result2 = "";
 
-                for (; rs.next(); ) {
+                while (rs.next()) {
                     for (int i = 0; i < rsmd.getColumnCount(); i++) {
                         result2 += rs.getString(i + 1) + ":";
                     }
@@ -234,7 +234,7 @@ public class TestSql extends TestBase {
 
                 result3 = "";
 
-                for (; rs.next(); ) {
+                while (rs.next()) {
                     for (int i = 0; i < rsmd.getColumnCount(); i++) {
                         result3 += rs.getString(i + 1) + ":";
                     }
@@ -254,7 +254,7 @@ public class TestSql extends TestBase {
 
                 result4 = "";
 
-                for (; rs.next(); ) {
+                while (rs.next()) {
                     for (int i = 0; i < rsmd.getColumnCount(); i++) {
                         result4 += rs.getString(i + 1) + ":";
                     }
@@ -280,7 +280,7 @@ public class TestSql extends TestBase {
 
                 result5 = "";
 
-                for (; rs.next(); ) {
+                while (rs.next()) {
                     for (int i = 0; i < rsmd.getColumnCount(); i++) {
                         result5 += rsmd.getColumnName(i + 1) + ":"
                                    + rs.getString(i + 1) + ":";
@@ -295,7 +295,7 @@ public class TestSql extends TestBase {
                     "SELECT I, A, B, A \"aliasA\", B \"aliasB\", 1 FROM T;");
                 rsmd = rs.getMetaData();
 
-                for (; rs.next(); ) {
+                while (rs.next()) {
                     for (int i = 0; i < rsmd.getColumnCount(); i++) {
                         result5 += rsmd.getColumnLabel(i + 1) + ":"
                                    + rs.getString(i + 1) + ":";
@@ -798,6 +798,9 @@ public class TestSql extends TestBase {
         try {
 
             // prepared statements
+            sStatement.execute("drop table bintest if exists cascade");
+            sStatement.execute("drop table obj if exists cascade");
+
             String s =
                 "create table bintest(id int primary key, bin varbinary(100))";
 

@@ -46,15 +46,7 @@ import junit.framework.TestCase;
  */
 
 // fredt@users - modified to remove dependecy on DBUnit
-public class TestGroupByHaving extends TestCase {
-
-    //------------------------------------------------------------
-    // Class variables
-    //------------------------------------------------------------
-    private static final String databaseDriver   = "org.hsqldb.jdbc.JDBCDriver";
-    private static final String databaseURL      = "jdbc:hsqldb:mem:.";
-    private static final String databaseUser     = "sa";
-    private static final String databasePassword = "";
+public class TestGroupByHaving extends TestBase {
 
     //------------------------------------------------------------
     // Instance variables
@@ -76,11 +68,6 @@ public class TestGroupByHaving extends TestCase {
     //------------------------------------------------------------
     // Class methods
     //------------------------------------------------------------
-    protected static Connection getJDBCConnection() throws SQLException {
-        return DriverManager.getConnection(databaseURL, databaseUser,
-                                           databasePassword);
-    }
-
     protected void setUp() throws Exception {
 
         super.setUp();
@@ -89,9 +76,7 @@ public class TestGroupByHaving extends TestCase {
             return;
         }
 
-        Class.forName(databaseDriver);
-
-        conn = getJDBCConnection();
+        conn = newConnection();
         stmt = conn.createStatement();
 
         // I decided not the use the "IF EXISTS" clause since it is not a
@@ -124,7 +109,7 @@ public class TestGroupByHaving extends TestCase {
         addEmployee(23, "Barbara", "Hood", 30000, 2);
     }
 
-    protected void tearDown() throws Exception {
+    protected void tearDown() {
 
         // I decided not the use the "IF EXISTS" clause since it is not a
         // SQL standard.
@@ -134,17 +119,13 @@ public class TestGroupByHaving extends TestCase {
             stmt.execute("drop table employee if exists");
         } catch (Exception x) {}
 
-        if (stmt != null) {
-            stmt.close();
+        try {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (Exception x) {}
 
-            stmt = null;
-        }
-
-        if (conn != null) {
-            conn.close();
-
-            conn = null;
-        }
+        conn = null;
 
         super.tearDown();
 
