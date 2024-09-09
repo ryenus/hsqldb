@@ -47,6 +47,8 @@ import org.hsqldb.types.Type;
  */
 public interface RowSetNavigatorDataChange extends RangeIterator {
 
+    int getMainRowCount();
+
     int getSize();
 
     int getRowPosition();

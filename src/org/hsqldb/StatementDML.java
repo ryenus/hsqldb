@@ -1152,7 +1152,7 @@ public class StatementDML extends StatementDMQL {
             RowSetNavigatorDataChange navigator,
             RowSetNavigator generatedNavigator) {
 
-        int           rowCount      = navigator.getSize();
+        int           mainRowCount  = navigator.getSize();
         RangeIterator checkIterator = null;
 
         if (updatableTableCheck != null) {
@@ -1161,7 +1161,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         // set identity column where null and check columns
-        for (int i = 0; i < rowCount; i++) {
+        for (int i = 0; i < mainRowCount; i++) {
             navigator.next();
 
             Object[] data = navigator.getCurrentChangedData();
@@ -1185,7 +1185,7 @@ public class StatementDML extends StatementDMQL {
             HashSet<Constraint> path =
                 session.sessionContext.getConstraintPath();
 
-            for (int i = 0; i < rowCount; i++) {
+            for (int i = 0; i < mainRowCount; i++) {
                 navigator.next();
 
                 Row      row  = navigator.getCurrentRow();
@@ -1240,7 +1240,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         if (table.isView) {
-            return rowCount;
+            return mainRowCount;
         }
 
         navigator.beforeFirst();
@@ -1358,7 +1358,7 @@ public class StatementDML extends StatementDMQL {
             }
         }
 
-        return rowCount;
+        return mainRowCount;
     }
 
     /**
@@ -1483,7 +1483,7 @@ public class StatementDML extends StatementDMQL {
             RowSetNavigatorDataChange navigator,
             RowSetNavigator generatedNavigator) {
 
-        int rowCount = navigator.getSize();
+        int mainRowCount = navigator.getSize();
 
         navigator.beforeFirst();
 
@@ -1492,7 +1492,7 @@ public class StatementDML extends StatementDMQL {
                 session.sessionContext.getConstraintPath();
 
             if (table.cascadingDeletes > 0) {
-                for (int i = 0; i < rowCount; i++) {
+                for (int i = 0; i < mainRowCount; i++) {
                     navigator.next();
 
                     Row row = navigator.getCurrentRow();
@@ -1560,7 +1560,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         if (table.isView) {
-            return rowCount;
+            return mainRowCount;
         }
 
         navigator.beforeFirst();
@@ -1630,7 +1630,7 @@ public class StatementDML extends StatementDMQL {
         boolean hasAfterRowTriggers =
             table.triggerLists[Trigger.DELETE_AFTER_ROW].length > 0;
 
-        if (rowCount != navigator.getSize()) {
+        if (mainRowCount != navigator.getSize()) {
             while (navigator.next()) {
                 Row      row            = navigator.getCurrentRow();
                 Object[] changedData    = navigator.getCurrentChangedData();
@@ -1726,7 +1726,7 @@ public class StatementDML extends StatementDMQL {
             }
         }
 
-        return rowCount;
+        return mainRowCount;
     }
 
     void performIntegrityChecks(

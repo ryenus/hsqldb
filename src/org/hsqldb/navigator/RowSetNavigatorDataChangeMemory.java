@@ -54,6 +54,7 @@ public class RowSetNavigatorDataChangeMemory
         new RowSetNavigatorDataChangeMemory(
             null);
     int                        size;
+    int                        mainRowCount;
     int                        currentPos = -1;
     OrderedLongKeyHashMap<Row> list;
     Session                    session;
@@ -69,6 +70,10 @@ public class RowSetNavigatorDataChangeMemory
         list.clear();
 
         size = 0;
+    }
+
+    public int getMainRowCount() {
+        return mainRowCount;
     }
 
     public int getSize() {
@@ -110,7 +115,9 @@ public class RowSetNavigatorDataChangeMemory
         return (int[]) list.getThirdValueAt(currentPos);
     }
 
-    public void endMainDataSet() {}
+    public void endMainDataSet() {
+        mainRowCount = size;
+    }
 
     public boolean addRow(Row row) {
 
@@ -186,8 +193,8 @@ public class RowSetNavigatorDataChangeMemory
             Object[] currentData = (Object[]) list.getSecondValueAt(lookup);
 
             if (currentData == null) {
-                if (session.database.sqlEnforceTDCD) {
-                    throw Error.error(ErrorCode.X_27000);
+                if (session.database.sqlEnforceTDCD && lookup >= mainRowCount) {
+                        throw Error.error(ErrorCode.X_27000);
                 } else {
                     return null;
                 }
