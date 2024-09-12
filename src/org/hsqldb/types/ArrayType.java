@@ -48,7 +48,7 @@ import org.hsqldb.lib.ArraySort;
  * Class for ARRAY type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.4
  * @since 2.0.0
  */
 public class ArrayType extends Type {
@@ -334,24 +334,34 @@ public class ArrayType extends Type {
         return sb.toString();
     }
 
-    public void convertToJSON(Object a, StringBuilder sb) {
+    public void convertToJSON(Object a, StringBuilder sb, boolean nullOnNull) {
 
         Object[] arra = (Object[]) a;
 
         if (a == null) {
-            sb.append("null");
+            if (nullOnNull) {
+                sb.append("null");
+            }
 
             return;
         }
 
+        boolean added = false;
+
         sb.append('[');
 
         for (int i = 0; i < arra.length; i++) {
-            if (i > 0) {
+            if (arra[i] == null && !nullOnNull) {
+                continue;
+            }
+
+            if (added) {
                 sb.append(',');
             }
 
             dataType.convertToJSON(arra[i], sb);
+
+            added = true;
         }
 
         sb.append(']');

@@ -364,6 +364,17 @@ public abstract class Type implements SchemaObject, Cloneable {
         sb.append(val);
     }
 
+    public void convertToJSON(Object a, StringBuilder sb, boolean nullOnNull) {
+
+        if (a == null && !nullOnNull) {
+            return;
+        }
+
+        String val = convertToString(a);
+
+        sb.append(val);
+    }
+
     public abstract boolean canConvertFrom(Type otherType);
 
     /**

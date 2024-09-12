@@ -194,7 +194,7 @@ public class RowSetNavigatorDataChangeMemory
 
             if (currentData == null) {
                 if (session.database.sqlEnforceTDCD && lookup >= mainRowCount) {
-                        throw Error.error(ErrorCode.X_27000);
+                    throw Error.error(ErrorCode.X_27000);
                 } else {
                     return null;
                 }

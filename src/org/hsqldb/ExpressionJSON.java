@@ -44,7 +44,7 @@ import org.hsqldb.types.Type;
  * JSON functions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.4
  * @since 2.7.0
  */
 public interface ExpressionJSON {
@@ -105,7 +105,7 @@ public interface ExpressionJSON {
             StringBuilder sb     = new StringBuilder();
             Object        values = nodes[LEFT].getValue(session);
 
-            nodes[LEFT].dataType.convertToJSON(values, sb);
+            nodes[LEFT].dataType.convertToJSON(values, sb, nullOnNull);
 
             if (sb.length() > dataType.precision) {
                 throw Error.error(ErrorCode.X_22001);
@@ -157,16 +157,20 @@ public interface ExpressionJSON {
         public Object getValue(Session session) {
 
             StringBuilder sb    = new StringBuilder();
-            int           count = 0;
+            boolean       added = false;
 
             sb.append('[');
 
             for (int i = 0; i < nodes.length; i++) {
-                if (count > 0) {
-                    sb.append(',');
+                Object value = nodes[i].getValue(session);
+
+                if (value == null && !nullOnNull) {
+                    continue;
                 }
 
-                Object value = nodes[i].getValue(session);
+                if (added) {
+                    sb.append(',');
+                }
 
                 if (nodes[i].opType == OpTypes.JSON_FUNCTION) {
                     sb.append((String) value);
@@ -174,7 +178,7 @@ public interface ExpressionJSON {
                     nodes[i].dataType.convertToJSON(value, sb);
                 }
 
-                count++;
+                added = true;
             }
 
             sb.append(']');
@@ -228,7 +232,7 @@ public interface ExpressionJSON {
             if (isValueJSON) {
                 valuesType.convertToJSONsimple(values, sb);
             } else {
-                valuesType.convertToJSON(values, sb);
+                valuesType.convertToJSON(values, sb, nullOnNull);
             }
 
             if (sb.length() > dataType.precision) {
@@ -287,18 +291,14 @@ public interface ExpressionJSON {
         public Object getValue(Session session) {
 
             StringBuilder          sb     = new StringBuilder();
-            int                    count  = 0;
             OrderedHashSet<String> keySet = new OrderedHashSet<>();
 
             sb.append('{');
 
+            boolean added = false;
+
             for (int i = 0; i < exprMap.size(); i++) {
-                int j = i * 2;
-
-                if (count > 0) {
-                    sb.append(',');
-                }
-
+                int    j    = i * 2;
                 Object name = nodes[j].getValue(session);
 
                 if (uniqueKeys) {
@@ -307,6 +307,16 @@ public interface ExpressionJSON {
                     if (!keySet.add(s)) {
                         throw Error.error(ErrorCode.X_23505);
                     }
+                }
+
+                Object value = nodes[j + 1].getValue(session);
+
+                if (value == null && !nullOnNull) {
+                    continue;
+                }
+
+                if (added) {
+                    sb.append(',');
                 }
 
                 if (nodes[j].dataType.isCharacterType()) {
@@ -321,15 +331,13 @@ public interface ExpressionJSON {
 
                 sb.append(':');
 
-                Object value = nodes[j + 1].getValue(session);
-
                 if (nodes[j + 1].opType == OpTypes.JSON_FUNCTION) {
                     sb.append((String) value);
                 } else {
                     nodes[j + 1].dataType.convertToJSON(value, sb);
                 }
 
-                count++;
+                added = true;
             }
 
             sb.append('}');
@@ -389,7 +397,6 @@ public interface ExpressionJSON {
 
         public Object getValue(Session session) {
 
-            int      count     = 0;
             Object[] names     = (Object[]) nodes[LEFT].getValue(session);
             Object[] values    = (Object[]) nodes[RIGHT].getValue(session);
             Type     nameType  = nodes[LEFT].dataType.collectionBaseType();
@@ -403,9 +410,11 @@ public interface ExpressionJSON {
 
             sb.append('{');
 
+            boolean added = false;
+
             for (int i = 0; i < names.length; i++) {
-                String name  = (String) names[i];
-                String value = (String) values[i];
+                String name  = nameType.convertToString(names[i]);
+                String value = valueType.convertToString(values[i]);
 
                 if (name == null) {
                     continue;
@@ -415,7 +424,7 @@ public interface ExpressionJSON {
                     continue;
                 }
 
-                if (count > 0) {
+                if (added) {
                     sb.append(',');
                 }
 
@@ -445,7 +454,7 @@ public interface ExpressionJSON {
                     valueType.convertToJSON(value, sb);
                 }
 
-                count++;
+                added = true;
             }
 
             sb.append('}');

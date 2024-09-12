@@ -66,7 +66,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -3621,6 +3621,7 @@ public class ParserDQL extends ParserBase {
 
         boolean                  nullOnNull = true;
         boolean                  uniqueKeys = false;
+        boolean                  isKey      = false;
         Type                     dataType   = Type.SQL_VARCHAR_LONG;
         Expression               nameExpr;
         Expression               valueExpr;
@@ -3631,6 +3632,10 @@ public class ParserDQL extends ParserBase {
 
         int position = getPosition();
 
+        if (readIfThis(Tokens.KEY)) {
+            isKey = true;
+        }
+
         nameExpr = XreadCharacterValueExpression();
 
         if (nameExpr.opType == OpTypes.JSON_FUNCTION) {
@@ -3639,7 +3644,13 @@ public class ParserDQL extends ParserBase {
             throw unexpectedToken();
         }
 
-        readThis(Tokens.COLON);
+        if (!readIfThis(Tokens.VALUE)) {
+            if (isKey) {
+                throw unexpectedToken();
+            }
+
+            readThis(Tokens.COLON);
+        }
 
         valueExpr  = XreadValueExpression();
         arrayAggName = new ExpressionArrayAggregate(
