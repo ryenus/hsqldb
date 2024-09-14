@@ -32,6 +32,7 @@
 package org.hsqldb.test;
 
 import java.lang.reflect.Constructor;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -122,8 +123,9 @@ public abstract class TestBase extends TestCase {
 
         System.out.println(
             "------------------------------------------------------------------------");
-        System.out.println("***   " + this.getClass().getName() + "  "
-                           + getName() + "   ******");
+        System.out.println(
+            "***   " + this.getClass().getName() + "  " + getName()
+            + "   ******");
 
         if (isNetwork) {
             if (server != null) {
@@ -131,8 +133,9 @@ public abstract class TestBase extends TestCase {
             }
 
             if (!isServlet) {
-                server = isHTTP ? new WebServer()
-                                : new Server();
+                server = isHTTP
+                         ? new WebServer()
+                         : new Server();
 
                 if (isHTTP) {
                     server.setPort(8085);
@@ -170,10 +173,10 @@ public abstract class TestBase extends TestCase {
     public static void runWithResult(Class testCaseClass, String testName) {
 
         try {
-            Constructor ctor = testCaseClass.getConstructor(new Class[]{
-                String.class });
-            TestBase theTest = (TestBase) ctor.newInstance(new Object[]{
-                testName });
+            Constructor ctor = testCaseClass.getConstructor(
+                new Class[]{ String.class });
+            TestBase theTest = (TestBase) ctor.newInstance(
+                new Object[]{ testName });
 
             theTest.runWithResult();
         } catch (Exception ex) {
