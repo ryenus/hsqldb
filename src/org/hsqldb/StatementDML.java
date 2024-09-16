@@ -1161,9 +1161,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         // set identity column where null and check columns
-        for (int i = 0; i < mainRowCount; i++) {
-            navigator.next();
-
+        while (navigator.next()) {
             Object[] data = navigator.getCurrentChangedData();
 
             // for identity using global sequence
@@ -1180,30 +1178,6 @@ public class StatementDML extends StatementDMQL {
         }
 
         navigator.beforeFirst();
-
-        if (table.fkMainConstraints.length > 0) {
-            HashSet<Constraint> path =
-                session.sessionContext.getConstraintPath();
-
-            for (int i = 0; i < mainRowCount; i++) {
-                navigator.next();
-
-                Row      row  = navigator.getCurrentRow();
-                Object[] data = navigator.getCurrentChangedData();
-
-                performReferentialActions(
-                    session,
-                    navigator,
-                    row,
-                    data,
-                    this.updateColumnMap,
-                    path,
-                    false);
-                path.clear();
-            }
-
-            navigator.beforeFirst();
-        }
 
         while (navigator.next()) {
             Row      row            = navigator.getCurrentRow();
@@ -1245,11 +1219,35 @@ public class StatementDML extends StatementDMQL {
 
         navigator.beforeFirst();
 
+        if (table.fkMainConstraints.length > 0) {
+            HashSet<Constraint> path =
+                session.sessionContext.getConstraintPath();
+
+            for (int i = 0; i < mainRowCount; i++) {
+                navigator.next();
+
+                Row      row  = navigator.getCurrentRow();
+                Object[] data = navigator.getCurrentChangedData();
+
+                performReferentialActions(
+                    session,
+                    navigator,
+                    row,
+                    data,
+                    this.updateColumnMap,
+                    path,
+                    false);
+                path.clear();
+            }
+
+            navigator.beforeFirst();
+        }
+
         while (navigator.next()) {
             Row             row          = navigator.getCurrentRow();
             Table           currentTable = ((Table) row.getTable());
-            int[] changedColumns         = navigator.getCurrentChangedColumns();
             PersistentStore store        = currentTable.getRowStore(session);
+            int[] changedColumns         = navigator.getCurrentChangedColumns();
 
             session.addDeleteAction(currentTable, store, row, changedColumns);
         }

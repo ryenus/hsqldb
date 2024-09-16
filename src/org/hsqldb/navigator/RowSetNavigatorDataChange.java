@@ -59,6 +59,8 @@ public interface RowSetNavigatorDataChange extends RangeIterator {
 
     int[] getCurrentChangedColumns();
 
+    default void setCurrentChangedColumns(int[] colMap) {}
+
     default void write(RowOutputInterface out, ResultMetaData meta) {}
 
     default void read(RowInputInterface in, ResultMetaData meta) {}

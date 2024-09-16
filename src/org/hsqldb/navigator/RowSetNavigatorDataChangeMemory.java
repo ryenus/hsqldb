@@ -115,6 +115,10 @@ public class RowSetNavigatorDataChangeMemory
         return (int[]) list.getThirdValueAt(currentPos);
     }
 
+    public void setCurrentChangedColumns(int[] colMap) {
+        list.setThirdValueAt(currentPos, colMap);
+    }
+
     public void endMainDataSet() {
         mainRowCount = size;
     }

@@ -456,6 +456,13 @@ public final class ArrayUtil {
             return false;
         }
 
+        if (arra.length > arrb.length) {
+            int[] temp = arra;
+
+            arra = arrb;
+            arrb = temp;
+        }
+
         for (int i = 0; i < arra.length; i++) {
             int c = arra[i];
 
@@ -533,6 +540,13 @@ public final class ArrayUtil {
     public static int countCommonElements(int[] arra, int[] arrb) {
 
         int k = 0;
+
+        if (arra.length > arrb.length) {
+            int[] temp = arra;
+
+            arra = arrb;
+            arrb = temp;
+        }
 
         for (int i = 0; i < arra.length; i++) {
             for (int j = 0; j < arrb.length; j++) {
@@ -1521,6 +1535,33 @@ public final class ArrayUtil {
             newsize);
 
         copyAdjustArray(source, newarray, addition, colindex, adjust);
+
+        return newarray;
+    }
+
+    /**
+     * Returns an array containing the elements of source except any
+     * element shared with the other.
+     *
+     * @param source int[]
+     * @param other int[]
+     * @return int[]
+     */
+    public static int[] except(int[] source, int[] other) {
+
+        int newsize = source.length - countCommonElements(source, other);
+
+        if (newsize == source.length) {
+            return source;
+        }
+
+        int[] newarray = new int[newsize];
+
+        for (int i = 0, j = 0; i < source.length; i++) {
+            if (find(other, source[i]) < 0) {
+                newarray[j++] = source[i];
+            }
+        }
 
         return newarray;
     }
