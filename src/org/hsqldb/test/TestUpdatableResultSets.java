@@ -35,6 +35,7 @@ import org.hsqldb.jdbc.JDBCBlob;
 import org.hsqldb.jdbc.JDBCClob;
 
 import java.io.Reader;
+
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
@@ -78,10 +79,10 @@ public class TestUpdatableResultSets extends TestBase {
             for (int i = 0; i < 10; i++) {
                 ps.setInt(1, i);
                 ps.setString(2, String.valueOf(i) + " s");
-                ps.setBytes(3, new byte[] {
-                    (byte) i, ' ', (byte) i
-                });
-                ps.setBytes(4, new byte[] {
+                ps.setBytes(3, new byte[]{ (byte) i, ' ', (byte) i });
+                ps.setBytes(
+                    4,
+                    new byte[] {
                     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
                 });
                 ps.setString(5, "123");
@@ -91,9 +92,10 @@ public class TestUpdatableResultSets extends TestBase {
             ps.close();
             connection.setAutoCommit(false);
 
-            ps = connection.prepareStatement(select,
-                                             ResultSet.TYPE_SCROLL_INSENSITIVE,
-                                             ResultSet.CONCUR_UPDATABLE);
+            ps = connection.prepareStatement(
+                select,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_UPDATABLE);
 
             ps.setInt(1, -1);
 
@@ -141,7 +143,8 @@ public class TestUpdatableResultSets extends TestBase {
 
             rs = ps.executeQuery();
 
-            Blob b = new JDBCBlob(new byte[] {
+            Blob b = new JDBCBlob(
+                new byte[] {
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
             });
 
@@ -164,8 +167,8 @@ public class TestUpdatableResultSets extends TestBase {
 
             rs = ps.executeQuery();
 
-            Reader r =
-                new java.io.CharArrayReader("123456789abcdef".toCharArray());
+            Reader r = new java.io.CharArrayReader(
+                "123456789abcdef".toCharArray());
 
             if (rs.next()) {
                 rs.updateClob(5, c);
@@ -226,6 +229,22 @@ public class TestUpdatableResultSets extends TestBase {
                 System.out.println(s);
             }
 
+            rs.first();
+            rs.moveToInsertRow();
+            rs.updateInt(1, 89);;
+
+            try {
+                rs.getString(2);
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
+            }
+
+            rs.updateString(2, "New String");
+
+            int    value1 = rs.getInt(1);
+            String value2 = rs.getString(2);
+
+            rs.insertRow();
             connection.commit();
             connection.close();
         } catch (SQLException e) {

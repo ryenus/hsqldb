@@ -7495,12 +7495,23 @@ public class JDBCResultSet implements ResultSet {
      */
     protected Object getColumnValue(int columnIndex) throws SQLException {
 
-        Object[] rowData = getCurrent();
-        Object   value;
+        Object value;
 
-        checkColumn(columnIndex);
+        if (isOnInsertRow) {
+            checkColumn(columnIndex);
 
-        value = rowData[columnIndex - 1];
+            if (preparedStatement.parameterSet[columnIndex - 1]) {
+                value = preparedStatement.parameterValues[columnIndex - 1];
+            } else {
+                throw JDBCUtil.sqlException(ErrorCode.JDBC_PARAMETER_NOT_SET);
+            }
+        } else {
+            Object[] rowData = getCurrent();
+
+            checkColumn(columnIndex);
+
+            value = rowData[columnIndex - 1];
+        }
 
         trackNull(value);
 
