@@ -97,10 +97,10 @@ public class Types {
     public static final int SQL_VARBINARY         = 61;    // different in JDBC - in SQL post-2003
     public static final int SQL_DATE                      = 91;
     public static final int SQL_TIME                      = 92;
-    public static final int SQL_TIMESTAMP                 = 93;     
+    public static final int SQL_TIMESTAMP                 = 93;
     public static final int SQL_TIME_WITH_TIME_ZONE       = 94;
-    public static final int SQL_TIMESTAMP_WITH_TIME_ZONE  = 95;     
-    public static final int SQL_INTERVAL_YEAR             = 101;    
+    public static final int SQL_TIMESTAMP_WITH_TIME_ZONE  = 95;
+    public static final int SQL_INTERVAL_YEAR             = 101;
     public static final int SQL_INTERVAL_MONTH            = 102;
     public static final int SQL_INTERVAL_DAY              = 103;
     public static final int SQL_INTERVAL_HOUR             = 104;

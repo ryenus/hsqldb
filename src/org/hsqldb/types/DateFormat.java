@@ -60,8 +60,6 @@ import java.util.Locale;
  * @since 2.7.3
  */
 public class DateFormat {
-
-    public static final Locale    defaultLocale  = Locale.US;
     //J-
 
     private static final char[][] dateTokens     = {
@@ -105,16 +103,26 @@ public class DateFormat {
     public static DateTimeFormatter toFormatter(String pattern, boolean parse) {
 
         try {
-            String javaPattern               = toJavaDatePattern(
-                pattern,
-                parse);
+            String MMM         = "MMM";
+            Locale locale      = Locale.UK;
+            String javaPattern = toJavaDatePattern(pattern, parse);
+            int    monthPos    = javaPattern.indexOf(MMM);
+
+            // workaround for JDK 17 and later, Locale.UK uses Sept instead of Sep for September
+            if (monthPos >= 0
+                    && (monthPos + MMM.length() == javaPattern.length()
+                        || javaPattern.charAt(monthPos + MMM.length())
+                           != 'M')) {
+                locale = Locale.US;
+            }
+
             DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
 
             builder.parseCaseInsensitive();
             builder.parseLenient();
             builder.appendPattern(javaPattern);
 
-            DateTimeFormatter dtf = builder.toFormatter(defaultLocale);
+            DateTimeFormatter dtf = builder.toFormatter(locale);
 
             return dtf;
         } catch (Exception e) {
