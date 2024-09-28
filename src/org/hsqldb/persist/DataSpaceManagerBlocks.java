@@ -44,7 +44,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 2.3.0
  */
 public class DataSpaceManagerBlocks implements DataSpaceManager {
@@ -414,9 +414,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         int               maxId = tableIdDefault;
         OrderedIntHashSet list  = new OrderedIntHashSet();
 
-        ba.initialise(false);
-
         try {
+            ba.initialise(false);
+
             for (;;) {
                 boolean result = ba.nextBlock();
 
@@ -1026,10 +1026,10 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             TableSpaceManagerBlocks tableSpace,
             int blockIndex) {
 
-        // get existing file block and initialise
-        ba.initialise(true);
-
         try {
+            // get existing file block and initialise
+            ba.initialise(true);
+
             ba.moveToBlock(blockIndex);
 
             int  freeItems = ba.getFreeBlockValue();
@@ -1046,6 +1046,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             } else {
                 cache.logSevereEvent("space manager error - recovered", null);
             }
+        } catch (Throwable t) {
+            cache.logSevereEvent("space manager error - recovered", null);
         } finally {
             ba.reset();
         }
@@ -1074,6 +1076,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         void initialise(boolean forUpdate) {
             currentKeep = forUpdate;
+            
+            resetVars();
         }
 
         boolean nextBlock() {
@@ -1161,6 +1165,10 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 }
             }
 
+            resetVars();
+        }
+
+        private void resetVars() {
             currentBlockIndex  = -1;
             currentDirIndex    = -1;
             currentBlockOffset = -1;

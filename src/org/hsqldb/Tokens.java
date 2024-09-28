@@ -2280,8 +2280,10 @@ public final class Tokens {
         reservedKeys.put(T_PARTITION, PARTITION);
         reservedKeys.put(T_PERCENTILE_CONT, PERCENTILE_CONT);
         reservedKeys.put(T_PERCENTILE_DISC, PERCENTILE_DISC);
+        reservedKeys.put(T_PERCENT, PERCENT);
         reservedKeys.put(T_PERCENT_RANK, PERCENT_RANK);
         reservedKeys.put(T_PERIOD, PERIOD);
+        reservedKeys.put(T_PORTION, PORTION);
         reservedKeys.put(T_POSITION, POSITION);
         reservedKeys.put(T_POSITION_REGEX, POSITION_REGEX);
         reservedKeys.put(T_POWER, POWER);
@@ -2679,6 +2681,7 @@ public final class Tokens {
         commandSet.put(T_REPEATABLE, REPEATABLE);
         commandSet.put(T_REPLACE, REPLACE);
         commandSet.put(T_RESET, RESET);
+        commandSet.put(T_RESPECT, RESPECT);
         commandSet.put(T_RESTART, RESTART);
         commandSet.put(T_RESTRICT, RESTRICT);
         commandSet.put(T_RETURNING, RETURNING);
