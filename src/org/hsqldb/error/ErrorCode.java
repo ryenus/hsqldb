@@ -35,7 +35,7 @@ package org.hsqldb.error;
  * SQL error codes.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.4
  * @since 1.9.0
  */
 public interface ErrorCode {

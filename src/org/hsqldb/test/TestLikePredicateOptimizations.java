@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -174,11 +174,11 @@ public class TestLikePredicateOptimizations extends TestBase {
 
         rs = pstmt.executeQuery();
 
-        assertEquals(rs.next(), true);
+        assertEquals(true, rs.next());
 
         String actual = rs.getString(1);
 
-        assertEquals(actual, "name0");
+        assertEquals("name0", actual);
 
 // --
 // --

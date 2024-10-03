@@ -39,7 +39,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.7.2
  */
 public final class Tokens {
@@ -447,6 +447,8 @@ public final class Tokens {
     public static final String T_RIGHTBRACKET   = "]";
     static final String        T_SEMICOLON      = ";";
     static final String        T_DOUBLE_COLON   = "::";
+    static final String        T_DOUBLE_PERIOD  = "..";
+    static final String        T_ARG_ASSIGN     = "=>";
 
     // SQL:200n non-reserved words partial set
     static final String        T_A                           = "A";

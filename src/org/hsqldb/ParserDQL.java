@@ -3225,6 +3225,15 @@ public class ParserDQL extends ParserBase {
 
                 break;
 
+            case Tokens.LISTAGG :
+                e = readListAggFunctionOrNull();
+
+                if (e != null) {
+                    return e;
+                }
+
+                break;
+
             case Tokens.NEXT : {
                 e = readSequenceExpressionOrNull(OpTypes.SEQUENCE);
 
@@ -8551,5 +8560,75 @@ public class ParserDQL extends ParserBase {
 
             return set;
         }
+    }
+
+    private Expression readListAggFunctionOrNull() {
+
+        int          position = getPosition();
+        Expression   expr;
+        String       separator = null;
+        SortAndSlice order     = null;
+        boolean      distinct  = false;
+
+        read();
+
+        if (token.tokenType != Tokens.OPENBRACKET) {
+            rewind(position);
+
+            return null;
+        }
+
+        readThis(Tokens.OPENBRACKET);
+
+        if (readIfThis(Tokens.DISTINCT)) {
+            distinct = true;
+        } else {
+            readIfThis(Tokens.ALL);
+        }
+
+        Expression e = XreadValueExpression();
+
+        if (token.tokenType == Tokens.COMMA) {
+            read();
+            checkIsQuotedString();
+
+            separator = (String) token.tokenValue;
+
+            read();
+        }
+
+        if (readIfThis(Tokens.ON)) {
+            readThis(Tokens.OVERFLOW);
+            readThis(Tokens.ERROR);
+        }
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        order = XreadWithinGroup();
+        expr = new ExpressionArrayAggregate(
+            OpTypes.GROUP_CONCAT,
+            distinct,
+            e,
+            order,
+            separator);
+
+        readFilterClause(expr);
+
+        return expr;
+    }
+
+    private SortAndSlice XreadWithinGroup() {
+
+        readThis(Tokens.WITHIN);
+        readThis(Tokens.GROUP);
+        readThis(Tokens.OPENBRACKET);
+        readThis(Tokens.ORDER);
+        readThis(Tokens.BY);
+
+        SortAndSlice order = XreadOrderBy();
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return order;
     }
 }

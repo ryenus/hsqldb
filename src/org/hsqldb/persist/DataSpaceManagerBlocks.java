@@ -1027,9 +1027,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             int blockIndex) {
 
         try {
+
             // get existing file block and initialise
             ba.initialise(true);
-
             ba.moveToBlock(blockIndex);
 
             int  freeItems = ba.getFreeBlockValue();
@@ -1076,7 +1076,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         void initialise(boolean forUpdate) {
             currentKeep = forUpdate;
-            
+
             resetVars();
         }
 
@@ -1169,6 +1169,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
 
         private void resetVars() {
+
             currentBlockIndex  = -1;
             currentDirIndex    = -1;
             currentBlockOffset = -1;
