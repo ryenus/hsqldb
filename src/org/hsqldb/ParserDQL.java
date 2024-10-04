@@ -2563,7 +2563,12 @@ public class ParserDQL extends ParserBase {
                     distinct,
                     e,
                     sort,
-                    separator);
+                    separator,
+                    null,
+                    false,
+                    false,
+                    false,
+                    0);
             }
 
             case OpTypes.STRING_AGG : {
@@ -2586,7 +2591,12 @@ public class ParserDQL extends ParserBase {
                     distinct,
                     e,
                     sort,
-                    separator);
+                    separator,
+                    null,
+                    false,
+                    false,
+                    false,
+                    0);
             }
 
             case OpTypes.MEDIAN : {
@@ -2595,7 +2605,12 @@ public class ParserDQL extends ParserBase {
                     distinct,
                     e,
                     sort,
-                    separator);
+                    separator,
+                    null,
+                    false,
+                    false,
+                    false,
+                    0);
             }
 
             default :
@@ -3522,7 +3537,12 @@ public class ParserDQL extends ParserBase {
             false,
             valueExpr,
             sort,
-            null);
+            null,
+            null,
+            false,
+            false,
+            false,
+            0);
         nullOnNull = readJSONNullClause(nullOnNull);
 
         if (readIfThis(Tokens.RETURNING)) {
@@ -3667,13 +3687,23 @@ public class ParserDQL extends ParserBase {
             false,
             nameExpr,
             null,
-            null);
+            null,
+            null,
+            false,
+            false,
+            false,
+            0);
         arrayAggValue = new ExpressionArrayAggregate(
             OpTypes.ARRAY_AGG,
             false,
             valueExpr,
             null,
-            null);
+            null,
+            null,
+            false,
+            false,
+            false,
+            0);
         nullOnNull = readJSONNullClause(nullOnNull);
         uniqueKeys = readJSONUniqueClause(uniqueKeys);
 
@@ -8564,11 +8594,16 @@ public class ParserDQL extends ParserBase {
 
     private Expression readListAggFunctionOrNull() {
 
-        int          position = getPosition();
         Expression   expr;
-        String       separator = null;
-        SortAndSlice order     = null;
-        boolean      distinct  = false;
+        SortAndSlice order;
+        int          position      = getPosition();
+        boolean      distinct      = false;
+        String       separator     = null;
+        int          maxCount      = 0;
+        boolean      overflowError = false;
+        boolean      overflowTrunc = false;
+        String       filler        = null;
+        boolean      withCount     = false;
 
         read();
 
@@ -8597,9 +8632,36 @@ public class ParserDQL extends ParserBase {
             read();
         }
 
+        if (readIfThis(Tokens.FETCH)) {
+            maxCount = readInteger();
+
+            if (readIfThis(Tokens.ROWS)) {
+                readIfThis(Tokens.ONLY);
+            }
+        }
+
         if (readIfThis(Tokens.ON)) {
             readThis(Tokens.OVERFLOW);
-            readThis(Tokens.ERROR);
+
+            if (readIfThis(Tokens.TRUNCATE)) {
+                overflowTrunc = true;
+
+                if (isQuotedString()) {
+                    filler = readQuotedString();
+                }
+
+                if (readIfThis(Tokens.WITH)) {
+                    withCount = true;
+
+                    readThis(Tokens.COUNT);
+                } else if (readIfThis(Tokens.WITHOUT)) {
+                    readThis(Tokens.COUNT);
+                }
+            } else {
+                overflowError = true;
+
+                readThis(Tokens.ERROR);
+            }
         }
 
         readThis(Tokens.CLOSEBRACKET);
@@ -8610,7 +8672,12 @@ public class ParserDQL extends ParserBase {
             distinct,
             e,
             order,
-            separator);
+            separator,
+            filler,
+            overflowTrunc,
+            overflowError,
+            withCount,
+            maxCount);
 
         readFilterClause(expr);
 

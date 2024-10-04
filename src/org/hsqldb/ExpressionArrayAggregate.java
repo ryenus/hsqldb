@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
@@ -57,6 +57,11 @@ public class ExpressionArrayAggregate extends Expression {
     ArrayType    arrayDataType;
     Type         exprDataType;
     int          exprOpType;    // original opType, may change during resolution
+    String       filler;
+    boolean      overflowError;
+    boolean      overflowTruncate;
+    boolean      withCount;
+    int          maxElements;
     Expression   condition = Expression.EXPR_TRUE;
 
     ExpressionArrayAggregate(
@@ -64,7 +69,12 @@ public class ExpressionArrayAggregate extends Expression {
             boolean distinct,
             Expression e,
             SortAndSlice sort,
-            String separator) {
+            String separator,
+            String filler,
+            boolean overflowTruncate,
+            boolean overflowError,
+            boolean withCount,
+            int maxElements) {
 
         super(type);
 
@@ -89,6 +99,12 @@ public class ExpressionArrayAggregate extends Expression {
 
             sort.prepareExtraColumn(1);
         }
+
+        this.filler           = filler;
+        this.overflowTruncate = overflowTruncate;
+        this.overflowError    = overflowError;
+        this.withCount        = withCount;
+        this.maxElements      = maxElements;
 
         if (isDistinctAggregate) {
             distinctSort = new SortAndSlice();
@@ -258,7 +274,7 @@ public class ExpressionArrayAggregate extends Expression {
                 arrayDataType = new ArrayType(
                     rowDataType,
                     ArrayType.defaultLargeArrayCardinality);
-                dataType = Type.SQL_VARCHAR_DEFAULT;
+                dataType = Type.SQL_VARCHAR_LONG;
                 break;
 
             case OpTypes.MEDIAN :
@@ -398,9 +414,17 @@ public class ExpressionArrayAggregate extends Expression {
             }
 
             case OpTypes.GROUP_CONCAT : {
-                StringBuilder sb = new StringBuilder(16 * array.length);
+                boolean truncated = false;
+                int     limit     = array.length;
 
-                for (int i = 0; i < array.length; i++) {
+                if (maxElements != 0 && maxElements < limit) {
+                    truncated = true;
+                    limit     = maxElements;
+                }
+
+                StringBuilder sb = new StringBuilder(16 * limit);
+
+                for (int i = 0; i < limit; i++) {
                     if (i > 0) {
                         sb.append(separator);
                     }
@@ -413,6 +437,26 @@ public class ExpressionArrayAggregate extends Expression {
                         exprDataType);
 
                     sb.append(string);
+                }
+
+                if (truncated) {
+                    if (overflowError) {
+                        throw Error.error(ErrorCode.X_22001);
+                    } else if (overflowTruncate) {
+                        String fill = filler;
+
+                        if (fill == null) {
+                            fill = "...";
+                        }
+
+                        sb.append(separator).append(fill);
+
+                        if (withCount) {
+                            int count = array.length - maxElements;
+
+                            sb.append('(').append(count).append(')');
+                        }
+                    }
                 }
 
                 return sb.toString();
