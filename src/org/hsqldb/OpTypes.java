@@ -37,7 +37,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Enumerate expression operation types<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since 1.9.0
  */
 public interface OpTypes {
@@ -124,8 +124,7 @@ public interface OpTypes {
         VAR_POP                    = 83,
         VAR_SAMP                   = 84,
         ARRAY_AGG                  = 85,
-        GROUP_CONCAT               = 86,
-        STRING_AGG                 = 87,
+        LISTAGG                    = 87,
         PREFIX                     = 88,
         MEDIAN                     = 89,
         CONCAT_WS                  = 90,
@@ -155,6 +154,7 @@ public interface OpTypes {
         OpTypes.MIN,
         OpTypes.SUM,
         OpTypes.EVERY,
+        OpTypes.ANY_VALUE,
         OpTypes.SOME,
         OpTypes.STDDEV_POP,
         OpTypes.STDDEV_SAMP,
@@ -162,8 +162,7 @@ public interface OpTypes {
         OpTypes.VAR_SAMP,
         OpTypes.ARRAY_AGG,
         OpTypes.USER_AGGREGATE,
-        OpTypes.GROUP_CONCAT,
-        OpTypes.STRING_AGG,
+        OpTypes.LISTAGG,
         OpTypes.MEDIAN,
         OpTypes.VARIANCE,
         OpTypes.STDDEV,

@@ -56,7 +56,7 @@ public class ExpressionArrayAggregate extends Expression {
     String       separator = ",";
     ArrayType    arrayDataType;
     Type         exprDataType;
-    int          exprOpType;    // original opType, may change during resolution
+    int          exprOpType;
     String       filler;
     boolean      overflowError;
     boolean      overflowTruncate;
@@ -134,9 +134,9 @@ public class ExpressionArrayAggregate extends Expression {
                   .append(')');
                 break;
 
-            case OpTypes.GROUP_CONCAT :
+            case OpTypes.LISTAGG :
                 sb.append(' ')
-                  .append(Tokens.T_GROUP_CONCAT)
+                  .append(Tokens.T_LISTAGG)
                   .append('(')
                   .append(left)
                   .append(')');
@@ -175,8 +175,8 @@ public class ExpressionArrayAggregate extends Expression {
                 sb.append(Tokens.T_ARRAY_AGG).append(' ');
                 break;
 
-            case OpTypes.GROUP_CONCAT :
-                sb.append(Tokens.T_GROUP_CONCAT).append(' ');
+            case OpTypes.LISTAGG :
+                sb.append(Tokens.T_LISTAGG).append(' ');
                 break;
 
             case OpTypes.MEDIAN :
@@ -270,7 +270,7 @@ public class ExpressionArrayAggregate extends Expression {
                     ArrayType.defaultArrayCardinality);
                 break;
 
-            case OpTypes.GROUP_CONCAT :
+            case OpTypes.LISTAGG :
                 arrayDataType = new ArrayType(
                     rowDataType,
                     ArrayType.defaultLargeArrayCardinality);
@@ -332,7 +332,7 @@ public class ExpressionArrayAggregate extends Expression {
                 value = data;
                 break;
 
-            case OpTypes.GROUP_CONCAT :
+            case OpTypes.LISTAGG :
                 data = new Object[nodes.length];
 
                 for (int i = 0; i < nodes.length; i++) {
@@ -413,7 +413,7 @@ public class ExpressionArrayAggregate extends Expression {
                 return resultArray;
             }
 
-            case OpTypes.GROUP_CONCAT : {
+            case OpTypes.LISTAGG : {
                 boolean truncated = false;
                 int     limit     = array.length;
 

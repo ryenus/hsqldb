@@ -886,8 +886,8 @@ public class ParserBase {
         expressionTypeMap.put(Tokens.VAR_POP, OpTypes.VAR_POP);
         expressionTypeMap.put(Tokens.VAR_SAMP, OpTypes.VAR_SAMP);
         expressionTypeMap.put(Tokens.ARRAY_AGG, OpTypes.ARRAY_AGG);
-        expressionTypeMap.put(Tokens.GROUP_CONCAT, OpTypes.GROUP_CONCAT);
-        expressionTypeMap.put(Tokens.STRING_AGG, OpTypes.STRING_AGG);
+        expressionTypeMap.put(Tokens.GROUP_CONCAT, OpTypes.LISTAGG);
+        expressionTypeMap.put(Tokens.STRING_AGG, OpTypes.LISTAGG);
         expressionTypeMap.put(Tokens.MEDIAN, OpTypes.MEDIAN);
     }
 

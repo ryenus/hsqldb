@@ -535,7 +535,7 @@ VALUES
 ('T622', 'Trigonometric functions', '', '', 'YES', NULL, ''),
 ('T623', 'General logarithm functions', '', '', 'NO', NULL, ''),
 ('T624', 'Common logarithm functions', '', '', 'YES', NULL, ''),
-('T625', 'LISTAGG', '', '', 'NO', NULL, ''),
+('T625', 'LISTAGG', '', '', 'YES', NULL, ''),
 ('T626', 'ANY_VALUE', '', '', 'YES', NULL, ''),
 ('T627', 'Window framed COUNT DISTINCT', '', '', 'NO', NULL, ''),
 ('T631', 'IN predicate with one list element', '', '', 'YES', NULL, ''),

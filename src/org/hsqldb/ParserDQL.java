@@ -2480,9 +2480,9 @@ public class ParserDQL extends ParserBase {
         return condition;
     }
 
-    private Expression readAggregateExpression(int tokenT) {
+    private Expression readAggregateExpression(int tokenType) {
 
-        int          type      = ParserDQL.getExpressionType(tokenT);
+        final int    opType    = ParserDQL.getExpressionType(tokenType);
         boolean      distinct  = false;
         boolean      all       = false;
         SortAndSlice sort      = null;
@@ -2501,9 +2501,9 @@ public class ParserDQL extends ParserBase {
         int        position = getPosition();
         Expression e        = XreadValueExpression();
 
-        switch (type) {
+        switch (tokenType) {
 
-            case OpTypes.COUNT :
+            case Tokens.COUNT :
                 if (e.getType() == OpTypes.MULTICOLUMN) {
                     if (((ExpressionColumn) e).tableName != null) {
                         throw unexpectedToken();
@@ -2522,14 +2522,22 @@ public class ParserDQL extends ParserBase {
                     }
                 }
 
+            case Tokens.AVG :
+            case Tokens.MAX :
+            case Tokens.MIN :
+            case Tokens.SUM :
+            case Tokens.EVERY :
+            case Tokens.ANY :
+            case Tokens.ANY_VALUE :
+            case Tokens.SOME :
                 break;
 
-            case OpTypes.STDDEV :
-            case OpTypes.STDDEV_POP :
-            case OpTypes.STDDEV_SAMP :
-            case OpTypes.VARIANCE :
-            case OpTypes.VAR_POP :
-            case OpTypes.VAR_SAMP :
+            case Tokens.STDDEV :
+            case Tokens.STDDEV_POP :
+            case Tokens.STDDEV_SAMP :
+            case Tokens.VARIANCE :
+            case Tokens.VAR_SAMP :
+            case Tokens.VAR_POP :
                 if (all || distinct) {
                     throw unexpectedToken(all
                                           ? Tokens.T_ALL
@@ -2538,8 +2546,7 @@ public class ParserDQL extends ParserBase {
 
                 break;
 
-            case OpTypes.ARRAY_AGG :
-            case OpTypes.GROUP_CONCAT : {
+            case Tokens.ARRAY_AGG : {
                 if (token.tokenType == Tokens.ORDER) {
                     read();
                     readThis(Tokens.BY);
@@ -2547,19 +2554,8 @@ public class ParserDQL extends ParserBase {
                     sort = XreadOrderBy();
                 }
 
-                if (type == OpTypes.GROUP_CONCAT) {
-                    if (token.tokenType == Tokens.SEPARATOR) {
-                        read();
-                        checkIsQuotedString();
-
-                        separator = (String) token.tokenValue;
-
-                        read();
-                    }
-                }
-
                 return new ExpressionArrayAggregate(
-                    type,
+                    OpTypes.ARRAY_AGG,
                     distinct,
                     e,
                     sort,
@@ -2571,14 +2567,7 @@ public class ParserDQL extends ParserBase {
                     0);
             }
 
-            case OpTypes.STRING_AGG : {
-                readThis(Tokens.COMMA);
-                checkIsQuotedString();
-
-                separator = (String) token.tokenValue;
-
-                read();
-
+            case Tokens.GROUP_CONCAT : {
                 if (token.tokenType == Tokens.ORDER) {
                     read();
                     readThis(Tokens.BY);
@@ -2586,8 +2575,17 @@ public class ParserDQL extends ParserBase {
                     sort = XreadOrderBy();
                 }
 
+                if (token.tokenType == Tokens.SEPARATOR) {
+                    read();
+                    checkIsQuotedString();
+
+                    separator = (String) token.tokenValue;
+
+                    read();
+                }
+
                 return new ExpressionArrayAggregate(
-                    OpTypes.GROUP_CONCAT,
+                    OpTypes.LISTAGG,
                     distinct,
                     e,
                     sort,
@@ -2599,9 +2597,9 @@ public class ParserDQL extends ParserBase {
                     0);
             }
 
-            case OpTypes.MEDIAN : {
+            case Tokens.MEDIAN : {
                 return new ExpressionArrayAggregate(
-                    type,
+                    OpTypes.MEDIAN,
                     distinct,
                     e,
                     sort,
@@ -2620,7 +2618,7 @@ public class ParserDQL extends ParserBase {
                 }
         }
 
-        Expression aggregateExp = new ExpressionAggregate(type, distinct, e);
+        Expression aggregateExp = new ExpressionAggregate(opType, distinct, e);
 
         return aggregateExp;
     }
@@ -3228,11 +3226,19 @@ public class ParserDQL extends ParserBase {
 
             // non-standard
             case Tokens.GROUP_CONCAT :
-            case Tokens.STRING_AGG :
             case Tokens.MEDIAN :
             case Tokens.STDDEV :
             case Tokens.VARIANCE :
                 e = readAggregateFunctionOrNull();    // general set function
+
+                if (e != null) {
+                    return e;
+                }
+
+                break;
+
+            case Tokens.STRING_AGG :
+                e = readStringAggFunctionOrNull();           // general set function
 
                 if (e != null) {
                     return e;
@@ -8592,6 +8598,76 @@ public class ParserDQL extends ParserBase {
         }
     }
 
+    private Expression readStringAggFunctionOrNull() {
+
+        Expression   expr;
+        SortAndSlice order         = null;
+        int          position      = getPosition();
+        boolean      distinct      = false;
+        String       separator     = null;
+        int          maxCount      = 0;
+        boolean      overflowError = false;
+        boolean      overflowTrunc = false;
+        String       filler        = null;
+        boolean      withCount     = false;
+
+        read();
+
+        if (token.tokenType != Tokens.OPENBRACKET) {
+            rewind(position);
+
+            return null;
+        }
+
+        readThis(Tokens.OPENBRACKET);
+
+        if (readIfThis(Tokens.DISTINCT)) {
+            distinct = true;
+        } else {
+            readIfThis(Tokens.ALL);
+        }
+
+        Expression e = XreadValueExpression();
+
+        if (token.tokenType == Tokens.COMMA) {
+            read();
+            checkIsQuotedString();
+
+            separator = (String) token.tokenValue;
+
+            read();
+        }
+
+        if (token.tokenType == Tokens.ORDER) {
+            read();
+            readThis(Tokens.BY);
+
+            order = XreadOrderBy();
+        }
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        if (order == null && token.tokenType == Tokens.WITHIN) {
+            order = XreadWithinGroup();
+        }
+
+        expr = new ExpressionArrayAggregate(
+            OpTypes.LISTAGG,
+            distinct,
+            e,
+            order,
+            separator,
+            filler,
+            overflowTrunc,
+            overflowError,
+            withCount,
+            maxCount);
+
+        readFilterClause(expr);
+
+        return expr;
+    }
+
     private Expression readListAggFunctionOrNull() {
 
         Expression   expr;
@@ -8668,7 +8744,7 @@ public class ParserDQL extends ParserBase {
 
         order = XreadWithinGroup();
         expr = new ExpressionArrayAggregate(
-            OpTypes.GROUP_CONCAT,
+            OpTypes.LISTAGG,
             distinct,
             e,
             order,
