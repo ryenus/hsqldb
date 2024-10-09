@@ -4756,15 +4756,30 @@ public class JDBCResultSet implements ResultSet {
             Calendar cal)
             throws SQLException {
 
-        TimestampData t = (TimestampData) getColumnInType(
-            columnIndex,
-            Type.SQL_TIMESTAMP);
+        TimestampData tsd;
+        Object        value = getColumnValue(columnIndex);
 
-        if (t == null) {
+        if (value == null) {
             return null;
         }
 
-        return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(session, t, cal);
+        if (resultMetaData.columnTypes[columnIndex - 1].typeCode
+                == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+            tsd = (TimestampData) value;
+
+            Timestamp ts = new Timestamp(tsd.getMillis());
+
+            ts.setNanos(tsd.getNanos());
+
+            return ts;
+        }
+
+        tsd = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP);
+
+        return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(
+            session,
+            tsd,
+            cal);
     }
 
     /**
