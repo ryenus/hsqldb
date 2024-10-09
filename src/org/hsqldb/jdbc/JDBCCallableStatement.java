@@ -196,7 +196,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.4
  * @since JDK 1.1, HSQLDB 1.9.0
  * @see JDBCConnection#prepareCall
  * @see JDBCResultSet
@@ -1292,13 +1292,30 @@ public class JDBCCallableStatement extends JDBCPreparedStatement
             Calendar cal)
             throws SQLException {
 
-        Object t = getColumnValue(parameterIndex);
+        TimestampData tsd;
+        Object        value = getColumnValue(parameterIndex);
 
-        if (t == null) {
+        if (value == null) {
             return null;
         }
 
-        return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(session, t, cal);
+        if (parameterTypes[parameterIndex - 1].typeCode
+                == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+            tsd = (TimestampData) value;
+
+            Timestamp ts = new Timestamp(tsd.getMillis());
+
+            ts.setNanos(tsd.getNanos());
+
+            return ts;
+        }
+
+        tsd = (TimestampData) getColumnInType(parameterIndex, Type.SQL_TIMESTAMP);
+
+        return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(
+                session,
+                tsd,
+                cal);
     }
 
     /**
