@@ -1310,12 +1310,14 @@ public class JDBCCallableStatement extends JDBCPreparedStatement
             return ts;
         }
 
-        tsd = (TimestampData) getColumnInType(parameterIndex, Type.SQL_TIMESTAMP);
+        tsd = (TimestampData) getColumnInType(
+            parameterIndex,
+            Type.SQL_TIMESTAMP);
 
         return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(
-                session,
-                tsd,
-                cal);
+            session,
+            tsd,
+            cal);
     }
 
     /**

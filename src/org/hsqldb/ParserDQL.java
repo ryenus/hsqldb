@@ -2521,7 +2521,6 @@ public class ParserDQL extends ParserBase {
                         e = XreadRowElementList(false);
                     }
                 }
-
             case Tokens.AVG :
             case Tokens.MAX :
             case Tokens.MIN :
@@ -3238,7 +3237,7 @@ public class ParserDQL extends ParserBase {
                 break;
 
             case Tokens.STRING_AGG :
-                e = readStringAggFunctionOrNull();           // general set function
+                e = readStringAggFunctionOrNull();
 
                 if (e != null) {
                     return e;
