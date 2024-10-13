@@ -2210,18 +2210,41 @@
       &lt;left paren&gt; [ &lt;set quantifier&gt; ] &lt;value expression&gt; [
       &lt;order by clause&gt; ] &lt;right paren&gt;</literal></simpara>
 
+      <simpara><literal>&lt;listagg set function&gt; ::= LISTAGG &lt;left
+      paren&gt; [ &lt;set quantifier&gt; ] &lt;value expression&gt;
+      &lt;comma&gt; &lt;separator&gt; [ &lt;fetch first clause&gt; ] [
+      &lt;listagg overflow clause&gt; ] &lt;right paren&gt; &lt;within group
+      specification&gt; </literal></simpara>
+
+      <simpara><literal>&lt;listagg overflow clause&gt; ::= ON OVERFLOW
+      &lt;overflow behavior&gt;</literal></simpara>
+
+      <simpara><literal>&lt;overflow behavior&gt; ::= ERROR | TRUNCATE [
+      &lt;listagg truncation filler&gt; ] [ &lt;listagg count indication&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;listagg truncation filler&gt; ::= &lt;character
+      string literal&gt; </literal></simpara>
+
+      <simpara><literal>&lt;listagg count indication&gt; ::= WITH COUNT |
+      WITHOUT COUNT</literal></simpara>
+
       <simpara><literal>&lt;group concat function&gt; ::= GROUP_CONCAT
       &lt;left paren&gt; [ &lt;set quantifier&gt; ] &lt;value expression&gt; [
       &lt;order by clause&gt; ] [ SEPARATOR &lt;separator&gt; ] &lt;right
       paren&gt;</literal></simpara>
 
-      <simpara><literal>&lt;group concat function&gt; ::= STRING_AGG &lt;left
+      <simpara><literal>&lt;string agg function&gt; ::= STRING_AGG &lt;left
       paren&gt; [ &lt;set quantifier&gt; ] &lt;value expression&gt; [
-      &lt;order by clause&gt; ] [ SEPARATOR &lt;separator&gt; ] &lt;right
-      paren&gt;</literal></simpara>
+      &lt;order by clause&gt; ] [ &lt;comma&gt; &lt;separator&gt; ] &lt;right
+      paren&gt; [ &lt;within group specification&gt; ] </literal></simpara>
 
       <simpara><literal>&lt;separator&gt; ::= &lt;character string
       literal&gt;</literal></simpara>
+
+      <simpara><literal>&lt;within group specification&gt; ::= WITHIN GROUP
+      &lt;left paren&gt; ORDER BY &lt;sort specification list&gt; &lt;right
+      paren&gt;</literal></simpara>
 
       <simpara>Specify a value computed from a collection of rows.</simpara>
 
@@ -2304,35 +2327,44 @@
 </programlisting>
       </informalexample>
 
-      <simpara>ARRAY_AGG is different from all other aggregate functions, as
-      it does not ignore the NULL values. This set function returns an array
-      that contains all the values, for different rows, for the
-      <literal>&lt;value expression&gt;</literal>. For example, if the
-      <literal>&lt;value expression&gt;</literal> is a column reference, the
-      SUM function adds the values for all the row together, while the
-      ARRAY_AGG function adds the value for each row as a separate element of
-      the array. ARRAY_AGG can include an optional <literal>&lt;order by
-      clause&gt;</literal>. If this is used, the elements of the returned
-      array are sorted according to the <literal>&lt;order by
-      clause&gt;</literal>, which can reference all the available columns of
-      the query, not just the <literal>&lt;value expression&gt;</literal> that
-      is used as the ARRAY_AGG argument. The <literal>&lt;order by
-      clause&gt;</literal> can have multiple elements (columns) and each
-      element can include NULLS LAST or DESC qualifiers. No
-      <literal>&lt;separator&gt;</literal> is used with this
-      function.</simpara>
+      <simpara>ARRAY_AGG is different from all other aggregate functions as it
+      does not ignore the NULL values. This set function returns an array that
+      contains all the values, for different rows, of the <literal>&lt;value
+      expression&gt;</literal>. For example, if the <literal>&lt;value
+      expression&gt;</literal> is a column reference, the SUM function adds
+      the values for all the row together, while the ARRAY_AGG function adds
+      the value for each row as a separate element of the array. ARRAY_AGG can
+      include an optional <literal>&lt;order by clause&gt;</literal> which can
+      reference all the available columns of the query, not just the
+      <literal>&lt;value expression&gt;</literal> that is used as the
+      ARRAY_AGG argument. The <literal>&lt;order by clause&gt;</literal> can
+      have multiple elements (columns) and each element can include NULLS LAST
+      or DESC qualifiers. The elements of the returned array are sorted
+      according to the <literal>&lt;order by clause&gt;</literal>,</simpara>
 
-      <simpara>GROUP_CONCAT and STRING_AGG are equivalent specialised
+      <simpara>LISTAGG, GROUP_CONCAT and STRING_AGG are equivalent specialised
       functions derived from ARRAY_AGG. These functions compute the array in
       the same way as ARRAY_AGG, remove all the NULL elements, then return a
       string that is a concatenation of the elements of the array. If
       <literal>&lt;separator&gt;</literal> has been specified, it is used to
-      separate the elements of the array. Otherwise the comma is used to
+      separate the elements of the array, otherwise the comma is used to
       separate the elements.</simpara>
 
-      <simpara>The example below shows a grouped query with ARRAY_AGG and
-      GROUP_CONCAT. The CUSTOMER table that is included for tests in the
-      DatabaseManager GUI app is the source of the data.</simpara>
+      <simpara>LISTAGG is an SQL:2023 function and more flexible than the
+      other two functions. HyperSQL extends the Standard syntax by allowing an
+      optional <literal>&lt;fetch first clause&gt;</literal> to limit the
+      number of elements. The <literal>&lt;within group
+      specification&gt;</literal> determines the sort order. The optional
+      <literal>&lt;listagg overflow clause&gt;</literal> allows an error to be
+      returned or truncates the returned string. The optional
+      <literal>&lt;listagg truncation filler&gt;</literal> is appended to a
+      truncated result. The optional <literal>&lt;listagg count
+      indication&gt;</literal> can specify that the count of truncated
+      elements is appended to a truncated result.</simpara>
+
+      <simpara>The example below shows a grouped query with LISTAGG, ARRAY_AGG
+      and GROUP_CONCAT. The CUSTOMER table that is included in the
+      DatabaseManagerSwing GUI app is the source of the data.</simpara>
 
       <informalexample>
         <programlisting> SELECT LASTNAME, ARRAY_AGG(FIRSTNAME ORDER BY FIRSTNAME) FROM Customer GROUP BY LASTNAME
@@ -2343,6 +2375,15 @@
  King      ARRAY['George','George','James','Julia','Robert','Robert'] 
  Sommer    ARRAY['Janet','Robert']                                    
 
+ SELECT LASTNAME, LISTAGG(DISTINCT FIRSTNAME, '; ' FETCH 3 ROWS ONLY ON OVERFLOW TRUNCATE WITH COUNT)
+    WITHIN GROUP (ORDER BY FIRSTNAME DESC) FROM Customer GROUP BY LASTNAME
+
+ LASTNAME  C2                                                
+ --------- ------------------------------------------------- 
+ Steel     Robert; Laura; John                   
+ King      Robert; Julia; James; ...(1)         
+ Sommer    Robert; Janet
+ 
  SELECT LASTNAME, GROUP_CONCAT(DISTINCT FIRSTNAME ORDER BY FIRSTNAME DESC SEPARATOR ' * ') FROM Customer  GROUP BY LASTNAME
 
  LASTNAME  C2                                                
@@ -3766,6 +3807,9 @@ DIRECT SALES (null) (null)  3778500
       <literal>&lt;value expression&gt;</literal> and so on.</para>
 
       <para><literal>&lt;order by clause&gt; ::= ORDER BY &lt;sort
+      specification list&gt;</literal></para>
+
+      <para><literal>&lt;sort specification list&gt; ::= &lt;sort
       specification&gt; [ { &lt;comma&gt; &lt;sort specification&gt; }...
       ]</literal></para>
 
