@@ -1,5 +1,8 @@
-September 2024 - version 2.7.4
--- improvement to JDBC scrollable and updatable result sets. Updates are now reflected in the ResultSet.
+October 2024 - version 2.7.4
+-- version 2.7.4 jar requires JRE 11 or later - can be used as a java module  - tested up to Java 21
+-- version 2.7.4 alternative jar requires JRE 8 or later
+-- added support for SQL:2023 LISTAGG aggregate function
+-- added support for update and delete visiblility in JDBC scrollable and updatable result sets
 -- fixed a number of reported regressions and bugs (see tracker)
 
 June 2024 - version 2.7.3 
