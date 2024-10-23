@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,8 @@ public class TestCascade extends TestCase {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
             createDatabase();
 
-            con = DriverManager.getConnection("jdbc:hsqldb:testdb/testdb", "sa", "");
+            con = DriverManager.getConnection("jdbc:hsqldb:testdb/testdb",
+                                              "sa", "");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(this + ".setUp() error: " + e.getMessage());
@@ -86,8 +87,7 @@ public class TestCascade extends TestCase {
             insertData(con);
 
             Statement stmt = con.createStatement();
-            ResultSet rs =
-                stmt.executeQuery("SELECT COUNT(EIACODXA) FROM CA");
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(EIACODXA) FROM CA");
 
             rs.next();
 
@@ -106,7 +106,7 @@ public class TestCascade extends TestCase {
             stmt.close();
             assertEquals(9, newCount);
         } catch (SQLException e) {
-            this.assertTrue("SQLException thrown", false);
+            fail("SQLException thrown");
         }
     }
 
@@ -114,8 +114,8 @@ public class TestCascade extends TestCase {
 
         TestUtil.deleteDatabase("testdb/testdb");
 
-        Connection con = DriverManager.getConnection("jdbc:hsqldb:testdb/testdb",
-            "sa", "");
+        Connection con =
+            DriverManager.getConnection("jdbc:hsqldb:testdb/testdb", "sa", "");
         String[] saDDL = {
             "CREATE CACHED TABLE XB (EIACODXA VARCHAR(10) NOT NULL, LSACONXB VARCHAR(18) NOT NULL, ALTLCNXB VARCHAR(2) NOT NULL, LCNTYPXB VARCHAR(1) NOT NULL, LCNINDXB VARCHAR(1), LCNAMEXB VARCHAR(19), UPDT_BY VARCHAR(32), LST_UPDT TIMESTAMP, CONSTRAINT XPKXB PRIMARY KEY (EIACODXA, LSACONXB, ALTLCNXB, LCNTYPXB));",
 

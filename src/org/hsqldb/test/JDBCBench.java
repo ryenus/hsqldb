@@ -2,6 +2,7 @@ package org.hsqldb.test;
 
 // nbazin@users - enhancements to the original code
 // fredt@users - 20050202 - corrected getRandomID(int) to return a randomly distributed value
+
 /*
  *  This is a sample implementation of the Transaction Processing Performance
  *  Council Benchmark B coded in Java and ANSI SQL2.
@@ -12,12 +13,14 @@ package org.hsqldb.test;
  */
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -166,15 +169,18 @@ class JDBCBench {
         System.out.println();
         System.out.println("Scale factor value: " + tps);
         System.out.println("Number of clients: " + n_clients);
-        System.out.println("Number of transactions per client: "
-                           + n_txn_per_client);
+        System.out.println(
+            "Number of transactions per client: " + n_txn_per_client);
         System.out.println();
 
         try {
             Class.forName(DriverName);
 
-            JDBCBench Me = new JDBCBench(DBUrl, DBUser, DBPassword,
-                                         initialize_dataset);
+            JDBCBench Me = new JDBCBench(
+                DBUrl,
+                DBUser,
+                DBPassword,
+                initialize_dataset);
         } catch (Exception E) {
             System.out.println(E.toString());
             E.printStackTrace();
@@ -200,8 +206,8 @@ class JDBCBench {
                                  / 1000D;
 
                 System.out.println("done. in " + seconds + " seconds\n");
-                System.out.println("Complete: "
-                                   + (new java.util.Date()).toString());
+                System.out.println(
+                    "Complete: " + (new java.util.Date()).toString());
             }
 
             System.out.println("* Starting Benchmark Run *");
@@ -212,6 +218,7 @@ class JDBCBench {
             oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
+
 /*
             oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
@@ -252,9 +259,14 @@ class JDBCBench {
         }
     }
 
-    void oneRound(String url, String user, String password,
-                  boolean transactions,
-                  boolean prepared) throws InterruptedException, SQLException {
+    void oneRound(
+            String url,
+            String user,
+            String password,
+            boolean transactions,
+            boolean prepared)
+            throws InterruptedException,
+                   SQLException {
 
         Vector      vClient  = new Vector();
         Thread      Client   = null;
@@ -266,8 +278,12 @@ class JDBCBench {
         start_time         = System.currentTimeMillis();
 
         for (int i = 0; i < n_clients; i++) {
-            Client = new ClientThread(n_txn_per_client, url, user, password,
-                                      Connection.TRANSACTION_READ_COMMITTED);
+            Client = new ClientThread(
+                n_txn_per_client,
+                url,
+                user,
+                password,
+                Connection.TRANSACTION_READ_COMMITTED);
 
             Client.start();
             vClient.addElement(Client);
@@ -300,8 +316,7 @@ class JDBCBench {
                                  / 1000;
 
         if (TabFile != null) {
-            TabFile.print(tps + ";" + n_clients + ";" + n_txn_per_client
-                          + ";");
+            TabFile.print(tps + ";" + n_clients + ";" + n_txn_per_client + ";");
         }
 
         System.out.println("\n* Benchmark Report *");
@@ -336,14 +351,15 @@ class JDBCBench {
         }
 
         System.out.println("\n--------------------");
-        System.out.println("Time to execute " + transaction_count
-                           + " transactions: " + completion_time
-                           + " seconds.");
-        System.out.println("Max/Min memory usage: "
-                           + (MemoryWatcher.max / 1024) + " / "
-                           + (MemoryWatcher.min / 1024) + " kb");
-        System.out.println(failed_transactions + " / " + transaction_count
-                           + " failed to complete.");
+        System.out.println(
+            "Time to execute " + transaction_count + " transactions: "
+            + completion_time + " seconds.");
+        System.out.println(
+            "Max/Min memory usage: " + (MemoryWatcher.max / 1024) + " / "
+            + (MemoryWatcher.min / 1024) + " kb");
+        System.out.println(
+            failed_transactions + " / " + transaction_count
+            + " failed to complete.");
 
         double rate = (transaction_count - failed_transactions)
                       / completion_time;
@@ -351,9 +367,9 @@ class JDBCBench {
         System.out.println("Transaction rate: " + rate + " txn/sec.");
 
         if (TabFile != null) {
-            TabFile.print((MemoryWatcher.max / 1024) + ";"
-                          + (MemoryWatcher.min / 1024) + ";"
-                          + failed_transactions + ";" + rate + "\n");
+            TabFile.print(
+                (MemoryWatcher.max / 1024) + ";" + (MemoryWatcher.min / 1024)
+                + ";" + failed_transactions + ";" + rate + "\n");
         }
 
         transaction_count   = 0;
@@ -370,8 +386,11 @@ class JDBCBench {
         failed_transactions++;
     }
 
-    void createDatabase(String url, String user,
-                        String password) throws Exception {
+    void createDatabase(
+            String url,
+            String user,
+            String password)
+            throws Exception {
 
         Connection Conn = connect(url, user, password);
         String     s    = Conn.getMetaData().getDatabaseProductName();
@@ -548,8 +567,7 @@ class JDBCBench {
                 "Delete elements in table in case Drop didn't work");
         }
 
-        System.out.println(
-            "Delete elements in table in case Drop didn't work");
+        System.out.println("Delete elements in table in case Drop didn't work");
 
         try {
             Statement Stmt = Conn.createStatement();
@@ -661,8 +679,7 @@ class JDBCBench {
             }
 
             if (prepared_stmt) {
-                Query =
-                    "INSERT INTO accounts(Aid,Bid,Abalance) VALUES (?,?,0)";
+                Query = "INSERT INTO accounts(Aid,Bid,Abalance) VALUES (?,?,0)";
                 pstmt = Conn.prepareStatement(Query);
             }
 
@@ -698,8 +715,8 @@ class JDBCBench {
                 Conn.commit();
             }
 
-            System.out.println("\t" + (naccounts * tps)
-                               + "\t records inserted");
+            System.out.println(
+                "\t" + (naccounts * tps) + "\t records inserted");
 
             // for tests
             if (ShutdownCommand.length() > 0) {
@@ -748,11 +765,15 @@ class JDBCBench {
         return getRandomInt(min, max);
     }
 
-    public static Connection connect(String DBUrl, String DBUser,
-                                     String DBPassword) {
+    public static Connection connect(
+            String DBUrl,
+            String DBUser,
+            String DBPassword) {
 
         try {
-            Connection conn = DriverManager.getConnection(DBUrl, DBUser,
+            Connection conn = DriverManager.getConnection(
+                DBUrl,
+                DBUser,
                 DBPassword);
 
             return conn;
@@ -827,15 +848,17 @@ class JDBCBench {
 
             st1 = null;
 
-            if (abalancesum != bbalancesum || bbalancesum != tbalancesum
+            if (abalancesum != bbalancesum
+                    || bbalancesum != tbalancesum
                     || tbalancesum != deltasum) {
                 System.out.println("sums don't match!");
             } else {
                 System.out.println("sums match!");
             }
 
-            System.out.println("A " + abalancesum + " B " + bbalancesum
-                               + " T " + tbalancesum + " H " + deltasum);
+            System.out.println(
+                "A " + abalancesum + " B " + bbalancesum + " T " + tbalancesum
+                + " H " + deltasum);
         } finally {
             if (st1 != null) {
                 st1.close();
@@ -853,8 +876,12 @@ class JDBCBench {
         PreparedStatement pstmt4 = null;
         PreparedStatement pstmt5 = null;
 
-        public ClientThread(int number_of_txns, String url, String user,
-                            String password, int transactionMode) {
+        public ClientThread(
+                int number_of_txns,
+                String url,
+                String user,
+                String password,
+                int transactionMode) {
 
             System.out.println(number_of_txns);
 
@@ -1068,7 +1095,6 @@ class JDBCBench {
         boolean keep_running = true;
 
         public MemoryWatcherThread() {
-
             this.reset();
 
             keep_running = true;

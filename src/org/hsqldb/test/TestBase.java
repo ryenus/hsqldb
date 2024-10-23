@@ -76,7 +76,7 @@ import junit.framework.TestResult;
 public abstract class TestBase extends TestCase {
 
     static TestConnectionSettings settings =
-        new TestConnectionSettings.TestConnectionSettingsMem();
+        new TestConnectionSettings.TestConnectionSettingsServerFile();
     String        serverProps;
     final String  url;
     final String  user     = "sa";

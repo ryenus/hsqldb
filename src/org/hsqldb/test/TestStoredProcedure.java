@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,8 +80,10 @@ public class TestStoredProcedure extends TestBase {
         try {
             statement = conn.createStatement();
 
+            statement.execute("DROP TABLE MYTABLE IF EXISTS CASCADE");
             statement.execute(
                 "CREATE temp TABLE MYTABLE(COL1 INTEGER,COL2 VARCHAR(10));");
+            statement.execute("DROP PROCEDURE PROC1 IF EXISTS CASCADE");
             statement.execute(
                 "CREATE PROCEDURE proc1(IN P1 INT, IN P2 INT, OUT P3 INT) "
                 + "SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.procTest2'");
@@ -93,6 +95,7 @@ public class TestStoredProcedure extends TestBase {
             int value = c.getInt(1);
 
             c.close();
+            statement.execute("DROP FUNCTION FUNC1 IF EXISTS CASCADE");
             statement.execute(
                 "CREATE FUNCTION func1(IN P1 INT, IN P2 INT) "
                 + "RETURNS TABLE(C1 INT, C2 INT) "
@@ -129,7 +132,9 @@ public class TestStoredProcedure extends TestBase {
         try {
             statement = conn.createStatement();
 
+            statement.execute("drop user testusert2 cascade");
             statement.execute("create user testusert2 password 'test'");
+            statement.execute("drop table testtablet2 if exists cascade");
             statement.execute("create table testtablet2(v varchar(20))");
             statement.execute(
                 "insert into testtablet2 values ('tennis'), ('tent'), ('television'), ('radio')");
@@ -143,6 +148,7 @@ public class TestStoredProcedure extends TestBase {
 
             rs.close();
             assertTrue("test result not correct", b);
+            statement.execute("drop function func2 if exists cascade");
             statement.execute(
                 "create function func2(varchar(20)) returns boolean "
                 + "SPECIFIC F2 LANGUAGE JAVA DETERMINISTIC NO SQL CALLED ON NULL INPUT EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.funcTest2'");
@@ -190,6 +196,7 @@ public class TestStoredProcedure extends TestBase {
         Connection conn = newConnection();
         Statement  st   = conn.createStatement();
 
+        st.execute("drop procedure proc_inout_result if exists cascade");
         st.execute("declare varone int default 0;");
         st.execute(
             "create procedure proc_inout_result (inout intp int) "
@@ -216,6 +223,7 @@ public class TestStoredProcedure extends TestBase {
         Statement  st   = conn.createStatement();
 
         st.execute("declare varone int default 0;");
+        st.execute("drop procedure proc_inout_result_two if exists cascade");
         st.execute(
             "create procedure proc_inout_result_two (inout intp int) "
             + " language java reads sql data dynamic result sets 2 external name 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.procWithResultTwo'");
@@ -248,6 +256,7 @@ public class TestStoredProcedure extends TestBase {
 
         Connection conn = newConnection();
         Statement  st   = conn.createStatement();
+        st.execute("drop procedure proc_inout_result_two_params if exists cascade");
 
         st.execute(
             "create procedure proc_inout_result_two_params (inout intp int) "
@@ -292,6 +301,7 @@ public class TestStoredProcedure extends TestBase {
         Connection conn = newConnection();
         Statement  st   = conn.createStatement();
 
+        st.execute("drop function func_table if exists cascade");
         st.execute(
             "create function func_table (in namep varchar(128)) returns table(cola varchar(128), colb varchar(128)) "
             + "return table(select schema_name, schema_owner from information_schema.schemata where schema_owner=namep);");
@@ -335,6 +345,7 @@ public class TestStoredProcedure extends TestBase {
         Connection conn = newConnection();
         Statement  st   = conn.createStatement();
 
+        st.execute("drop procedure get_columns_and_table if exists cascade");
         st.execute(testSixProcedure);
 
         CallableStatement cs = conn.prepareCall(

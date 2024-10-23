@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2024, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,10 @@ public class TestDatabaseMetaData extends TestBase {
         super(name);
     }
 
+    public void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testOne() throws Exception {
 
         Connection        conn = newConnection();
@@ -56,7 +60,7 @@ public class TestDatabaseMetaData extends TestBase {
         int               updateCount;
 
         try {
-            pstmt = conn.prepareStatement("DROP TABLE t1 IF EXISTS");
+            pstmt = conn.prepareStatement("DROP TABLE t1 IF EXISTS CASCADE");
 
             pstmt.executeUpdate();
             pstmt.close();
@@ -66,11 +70,11 @@ public class TestDatabaseMetaData extends TestBase {
                 + "dat DATE DEFAULT CURRENT_DATE, tim TIME DEFAULT CURRENT_TIME, timest TIMESTAMP DEFAULT CURRENT_TIMESTAMP );");
             updateCount = pstmt.executeUpdate();
 
-            assertTrue("expected update count of zero", updateCount == 0);
+            assertEquals("expected update count of zero", 0, updateCount);
 
             pstmt = conn.prepareStatement("CREATE INDEX t1 ON t1 (cha );");
             updateCount = pstmt.executeUpdate();
-            pstmt       = conn.prepareStatement("DROP TABLE t2 IF EXISTS");
+            pstmt       = conn.prepareStatement("DROP TABLE t2 IF EXISTS CASCADE");
             updateCount = pstmt.executeUpdate();
             pstmt = conn.prepareStatement(
                 "CREATE TABLE t2 (cha CHARACTER, dec DECIMAL, doub DOUBLE, lon BIGINT, \"IN\" INTEGER, sma SMALLINT, tin TINYINT, "
@@ -105,8 +109,7 @@ public class TestDatabaseMetaData extends TestBase {
             updateCount = pstmt.executeUpdate();
             rsp         = dbmd.getIndexInfo(null, null, "T2", false, false);
 
-            assertTrue("expected getIndexInfo returns empty resultset",
-                       rsp.next() == false);
+            assertFalse("expected getIndexInfo returns empty resultset", rsp.next());
 
             ResultSet rs = dbmd.getTables(null, null, "T1",
                                           new String[]{ "TABLE" });
@@ -121,11 +124,11 @@ public class TestDatabaseMetaData extends TestBase {
             }
 
             rs.close();
-            assertTrue("expected table t1 count of 1", i == 1);
+            assertEquals("expected table t1 count of 1", 1, i);
 
             Iterator it = tablesarr.iterator();
 
-            for (; it.hasNext(); ) {
+            while (it.hasNext()) {
 
                 // create new ArrayList and HashMap for the table
                 String tablename = ((String) it.next()).trim();
@@ -142,7 +145,7 @@ public class TestDatabaseMetaData extends TestBase {
                 rs.close();
             }
 
-            pstmt = conn.prepareStatement("DROP TABLE t_1 IF EXISTS");
+            pstmt = conn.prepareStatement("DROP TABLE t_1 IF EXISTS CASCADE");
 
             pstmt.executeUpdate();
             pstmt.close();
@@ -152,7 +155,7 @@ public class TestDatabaseMetaData extends TestBase {
                 + "dat DATE DEFAULT CURRENT_DATE, tim TIME DEFAULT CURRENT_TIME, timest TIMESTAMP DEFAULT CURRENT_TIMESTAMP, bool BOOLEAN );");
             updateCount = pstmt.executeUpdate();
 
-            assertTrue("expected update count of zero", updateCount == 0);
+            assertEquals("expected update count of zero", 0, updateCount);
 
             rs = dbmd.getTables(null, null, "T\\_1", new String[]{ "TABLE" });
 
@@ -207,7 +210,7 @@ public class TestDatabaseMetaData extends TestBase {
 
             //
         } catch (Exception e) {
-            assertTrue("unable to prepare or execute DDL", false);
+            fail("unable to prepare or execute DDL");
         } finally {
             conn.close();
         }
@@ -264,7 +267,7 @@ public class TestDatabaseMetaData extends TestBase {
             result = dbmeta.getTablePrivileges(null, "%", "%");
             result = dbmeta.getUDTs(null, "%", "%", new int[]{ Types.DISTINCT });
         } catch (Exception e) {
-            assertTrue("unable to prepare or execute DDL", false);
+            fail("unable to prepare or execute DDL");
         } finally {
             conn.close();
         }
@@ -288,7 +291,7 @@ public class TestDatabaseMetaData extends TestBase {
             String           collation  = ((JDBCDatabaseMetaData) dbmeta).getDatabaseDefaultCollation();
             assertEquals("SQL_TEXT", collation);
         } catch (Exception e) {
-            assertTrue("unable to prepare or execute DDL", false);
+            fail("unable to prepare or execute DDL");
         } finally {
             conn.close();
         }

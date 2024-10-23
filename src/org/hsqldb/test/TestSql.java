@@ -362,7 +362,7 @@ public class TestSql extends TestBase {
         double  value    = 0;
         boolean wasEqual = false;
         String  message  = "DB operation completed";
-        String  ddl1     = "DROP TABLE t1 IF EXISTS;";
+        String  ddl1     = "DROP TABLE t1 IF EXISTS CASCADE";
         String ddl2 =
             "CREATE TABLE t1 ( d DECIMAL, f DOUBLE, l BIGINT, i INTEGER, s SMALLINT, t TINYINT, "
             + "dt DATE DEFAULT CURRENT_DATE, ti TIME DEFAULT CURRENT_TIME, ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP );";
@@ -693,8 +693,8 @@ public class TestSql extends TestBase {
 
         Statement st = connection.createStatement();
 
-        st.execute("DROP TABLE t1 if exists;");
-        st.execute("DROP TABLE t2 if exists;");
+        st.execute("DROP TABLE t1 if exists cascade");
+        st.execute("DROP TABLE t2 if exists cascade");
         st.execute(
             "CREATE TABLE t1 (id int not null, v1 int, v2 int, primary key(id))");
         st.execute(
