@@ -815,6 +815,26 @@ public class JDBCResultSet implements ResultSet {
      * of this {@code ResultSet} object as
      * a {@code java.sql.Timestamp} object in the Java programming language.
      *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <p class="rshead">HSQLDB-Specific Information:</p>
+     *
+     * The JDBC specification for this method is vague. HSQLDB interprets the
+     * specification as follows:
+     *
+     * <ol>
+     * <li>If the SQL type of the column is WITH TIME ZONE, then the UTC value
+     * of the returned java.sql.Timestamp object is the UTC of the SQL value
+     * without modification.
+     * </li>
+     * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the
+     * UTC value of the returned java.sql.Timestamp will represent the correct
+     * timestamp for the time zone (including daylight saving time) of the
+     * SQL session.</li>
+     * </ol>
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
      * @param columnIndex the first column is 1, the second is 2, ...
      * @return the column value; if the value is SQL {@code NULL}, the
      * value returned is {@code null}
@@ -824,13 +844,27 @@ public class JDBCResultSet implements ResultSet {
      */
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
 
-        Object t = getColumnInType(columnIndex, Type.SQL_TIMESTAMP);
-
-        if (t == null) {
+        TimestampData tsd;
+        Object        value = getColumnValue(columnIndex);
+        
+        if (value == null) {
             return null;
         }
 
-        return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(session, t);
+        if (resultMetaData.columnTypes[columnIndex - 1].typeCode
+                == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+            tsd = (TimestampData) value;
+            
+            Timestamp ts = new Timestamp(tsd.getMillis());
+
+			ts.setNanos(tsd.getNanos());
+
+			return ts;
+        }
+
+        tsd = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP);
+        
+        return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(session, tsd);
     }
 
     /**
@@ -1252,6 +1286,26 @@ public class JDBCResultSet implements ResultSet {
      * Retrieves the value of the designated column in the current row
      * of this {@code ResultSet} object as
      * a {@code java.sql.Timestamp} object in the Java programming language.
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <p class="rshead">HSQLDB-Specific Information:</p>
+     *
+     * The JDBC specification for this method is vague. HSQLDB interprets the
+     * specification as follows:
+     *
+     * <ol>
+     * <li>If the SQL type of the column is WITH TIME ZONE, then the UTC value
+     * of the returned java.sql.Timestamp object is the UTC of the SQL value
+     * without modification.
+     * </li>
+     * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the
+     * UTC value of the returned java.sql.Timestamp will represent the correct
+     * timestamp for the time zone (including daylight saving time) of the
+     * SQL session.</li>
+     * </ol>
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @return the column value; if the value is SQL {@code NULL}, the
@@ -4718,6 +4772,7 @@ public class JDBCResultSet implements ResultSet {
      * This method uses the given calendar to construct an appropriate millisecond
      * value for the timestamp if the underlying database does not store
      * timezone information.
+     *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
@@ -4739,6 +4794,7 @@ public class JDBCResultSet implements ResultSet {
      * getTimestamp() methods without the Calendar parameter.</li>
      * </ol>
      * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param cal the {@code java.util.Calendar} object
@@ -4789,6 +4845,7 @@ public class JDBCResultSet implements ResultSet {
      * This method uses the given calendar to construct an appropriate millisecond
      * value for the timestamp if the underlying database does not store
      * timezone information.
+     *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
@@ -4808,6 +4865,7 @@ public class JDBCResultSet implements ResultSet {
      * the same Object as the method without the Calendar parameter.</li>
      * </ol>
      * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param columnLabel the label for the column specified with the SQL AS
      * clause.  If the SQL AS clause was not specified, then the label is the

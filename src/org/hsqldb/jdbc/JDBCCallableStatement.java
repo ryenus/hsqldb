@@ -775,8 +775,19 @@ public class JDBCCallableStatement extends JDBCPreparedStatement
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * HSQLDB supports this feature.
+     * The JDBC specification for this method is vague. HSQLDB interprets the
+     * specification as follows:
      *
+     * <ol>
+     * <li>If the SQL type of the column is WITH TIME ZONE, then the UTC value
+     * of the returned java.sql.Timestamp object is the UTC of the SQL value
+     * without modification.
+     * </li>
+     * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the
+     * UTC value of the returned java.sql.Timestamp will represent the correct
+     * timestamp for the time zone (including daylight saving time) of the
+     * SQL session.</li>
+     * </ol>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -793,15 +804,27 @@ public class JDBCCallableStatement extends JDBCPreparedStatement
             int parameterIndex)
             throws SQLException {
 
-        TimestampData t = (TimestampData) getColumnInType(
-            parameterIndex,
-            Type.SQL_TIMESTAMP);
-
-        if (t == null) {
+        TimestampData tsd;
+        Object        value = getColumnValue(parameterIndex);
+        
+        if (value == null) {
             return null;
         }
 
-        return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(session, t);
+        if (parameterTypes[parameterIndex - 1].typeCode
+                == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+            tsd = (TimestampData) value;
+
+            Timestamp ts = new Timestamp(tsd.getMillis());
+
+			ts.setNanos(tsd.getNanos());
+
+			return ts;
+        }
+
+        tsd = (TimestampData) getColumnInType(parameterIndex, Type.SQL_TIMESTAMP);
+        
+        return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(session, tsd);
     }
 
     //----------------------------------------------------------------------
@@ -1270,8 +1293,22 @@ public class JDBCCallableStatement extends JDBCPreparedStatement
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * HSQLDB supports this feature.
+     * The JDBC specification for this method is vague. HSQLDB interprets the
+     * specification as follows:
      *
+     * <ol>
+     * <li>If the SQL type of the column is WITH TIME ZONE, then the UTC value
+     * of the returned java.sql.Timestamp object is the UTC of the SQL value
+     * without modification. In other words, the Calendar object is not used.
+     * </li>
+     * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the
+     * UTC value of the returned java.sql.Timestamp will represent the correct
+     * timestamp for the time zone (including daylight saving time) of the given
+     * Calendar object. </li>
+     * <li>In this case, if the cal argument is null, then the default Calendar
+     * of the JVM is used, which results in the same Object as one returned by the
+     * getTimestamp() methods without the Calendar parameter.</li>
+     * </ol>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2800,8 +2837,19 @@ public class JDBCCallableStatement extends JDBCPreparedStatement
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * HSQLDB supports this feature.
+     * The JDBC specification for this method is vague. HSQLDB interprets the
+     * specification as follows:
      *
+     * <ol>
+     * <li>If the SQL type of the column is WITH TIME ZONE, then the UTC value
+     * of the returned java.sql.Timestamp object is the UTC of the SQL value
+     * without modification.
+     * </li>
+     * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the
+     * UTC value of the returned java.sql.Timestamp will represent the correct
+     * timestamp for the time zone (including daylight saving time) of the
+     * SQL session.</li>
+     * </ol>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3134,8 +3182,22 @@ public class JDBCCallableStatement extends JDBCPreparedStatement
      * <div class="ReleaseSpecificDocumentation">
      * <p class="rshead">HSQLDB-Specific Information:</p>
      *
-     * HSQLDB supports this feature.
+     * The JDBC specification for this method is vague. HSQLDB interprets the
+     * specification as follows:
      *
+     * <ol>
+     * <li>If the SQL type of the column is WITH TIME ZONE, then the UTC value
+     * of the returned java.sql.Timestamp object is the UTC of the SQL value
+     * without modification. In other words, the Calendar object is not used.
+     * </li>
+     * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the
+     * UTC value of the returned java.sql.Timestamp will represent the correct
+     * timestamp for the time zone (including daylight saving time) of the given
+     * Calendar object. </li>
+     * <li>In this case, if the cal argument is null, then the default Calendar
+     * of the JVM is used, which results in the same Object as one returned by the
+     * getTimestamp() methods without the Calendar parameter.</li>
+     * </ol>
      * </div>
      * <!-- end release-specific documentation -->
      *
