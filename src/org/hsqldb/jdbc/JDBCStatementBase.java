@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.result.ResultConstants;
  * java.sql.PreparedStatement. Contains common members and methods.
  *
  * @author fredt@usrs
- * @version 2.4.0
+ * @version 2.7.5
  * @since HSQLDB 1.9.0
  */
 
@@ -279,7 +279,7 @@ class JDBCStatementBase {
         }
 
         if (generatedResult == null) {
-            generatedResult = Result.emptyGeneratedResult;
+            generatedResult = Result.newEmptyGeneratedResult();
         }
 
         generatedResultSet = new JDBCResultSet(

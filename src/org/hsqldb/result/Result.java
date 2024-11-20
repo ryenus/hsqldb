@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.4
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class Result {
@@ -111,8 +111,6 @@ public class Result {
     private static final ResultMetaData emptyMeta =
         ResultMetaData.newResultMetaData(
             0);
-    public static final Result emptyGeneratedResult = Result.newDataResult(
-        emptyMeta);
     public static final Result updateZeroResult = newUpdateCountResult(0);
     public static final Result updateOneResult  = newUpdateCountResult(1);
 
@@ -1001,6 +999,10 @@ public class Result {
         result.metaData  = md;
 
         return result;
+    }
+
+    public static Result newEmptyGeneratedResult() {
+        return Result.newGeneratedDataResult(emptyMeta);
     }
 
     /**
