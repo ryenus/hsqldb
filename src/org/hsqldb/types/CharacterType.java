@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringUtil;
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.2
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -378,7 +378,7 @@ public class CharacterType extends Type {
         }
 
         if (b instanceof ClobData) {
-            long lobId = ((ClobData) a).getId();
+            long lobId = ((ClobData) b).getId();
 
             return -session.database.lobManager.compare(
                 collation,
