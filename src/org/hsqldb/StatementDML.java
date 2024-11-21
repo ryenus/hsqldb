@@ -1250,6 +1250,7 @@ public class StatementDML extends StatementDMQL {
             PersistentStore store        = currentTable.getRowStore(session);
             int[] changedColumns         = navigator.getCurrentChangedColumns();
 
+/*
             changedColumns = getActualUpdateColumns(
                 session,
                 navigator,
@@ -1257,7 +1258,7 @@ public class StatementDML extends StatementDMQL {
                 mainRowCount,
                 row,
                 changedColumns);
-
+*/
             session.addDeleteAction(currentTable, store, row, changedColumns);
         }
 
@@ -1368,6 +1369,7 @@ public class StatementDML extends StatementDMQL {
         return mainRowCount;
     }
 
+/*
     private static int[] getActualUpdateColumns(
             Session session,
             RowSetNavigatorDataChange navigator,
@@ -1421,6 +1423,7 @@ public class StatementDML extends StatementDMQL {
 
         return ArrayUtil.except(updatedColumns, constraintColumns);
     }
+*/
 
     /**
      * Executes a DELETE statement.
