@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.HsqlProperties;

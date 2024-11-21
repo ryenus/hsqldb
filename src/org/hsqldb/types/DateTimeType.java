@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,19 +43,18 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.StringConverter;
 

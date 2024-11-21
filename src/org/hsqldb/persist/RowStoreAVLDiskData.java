@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@ package org.hsqldb.persist;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.RowAVLDiskData;
@@ -44,6 +43,7 @@ import org.hsqldb.Table;
 import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;

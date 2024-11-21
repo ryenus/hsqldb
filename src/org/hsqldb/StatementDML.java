@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
@@ -1249,6 +1250,14 @@ public class StatementDML extends StatementDMQL {
             PersistentStore store        = currentTable.getRowStore(session);
             int[] changedColumns         = navigator.getCurrentChangedColumns();
 
+            changedColumns = getActualUpdateColumns(
+                session,
+                navigator,
+                currentTable,
+                mainRowCount,
+                row,
+                changedColumns);
+
             session.addDeleteAction(currentTable, store, row, changedColumns);
         }
 
@@ -1357,6 +1366,60 @@ public class StatementDML extends StatementDMQL {
         }
 
         return mainRowCount;
+    }
+
+    private static int[] getActualUpdateColumns(
+            Session session,
+            RowSetNavigatorDataChange navigator,
+            Table currentTable,
+            int mainRowCount,
+            Row row,
+            int[] changedColumns) {
+
+        if (session.database.txManager.isMVCC()
+                && currentTable.fkMainConstraints.length > 0
+                && navigator.getRowPosition() < mainRowCount) {
+            Object[] newData = navigator.getCurrentChangedData();
+
+            if (newData != null) {
+                int[] newChangedColumns = getUpdatedColumns(
+                    session,
+                    row.getData(),
+                    newData,
+                    currentTable.colTypes,
+                    currentTable.getPrimaryKey(),
+                    changedColumns);
+
+                if (changedColumns != newChangedColumns) {
+                    changedColumns = newChangedColumns;
+
+                    navigator.setCurrentChangedColumns(newChangedColumns);
+                }
+            }
+        }
+
+        return changedColumns;
+    }
+
+    private static int[] getUpdatedColumns(
+            Session session,
+            Object[] data,
+            Object[] newData,
+            Type[] colTypes,
+            int[] constraintColumns,
+            int[] updatedColumns) {
+
+        for (int i = 0; i < constraintColumns.length; i++) {
+            int colIndex = constraintColumns[i];
+
+            if (colTypes[colIndex].compare(session,
+                                           data[colIndex],
+                                           newData[colIndex]) != 0) {
+                return updatedColumns;
+            }
+        }
+
+        return ArrayUtil.except(updatedColumns, constraintColumns);
     }
 
     /**

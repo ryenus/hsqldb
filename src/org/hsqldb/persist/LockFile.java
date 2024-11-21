@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,9 +40,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.hsqldb.DatabaseManager;
-import org.hsqldb.HsqlException;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlTimer;
 import org.hsqldb.lib.StringConverter;
@@ -627,7 +627,7 @@ public class LockFile {
      * extension '.lck'. <p>
      *
      * @param path of the lock file, to which will be appended '.lck'
-     * @throws org.hsqldb.HsqlException if the lock condition cannot
+     * @throws org.hsqldb.error.HsqlException if the lock condition cannot
      *      be obtained for any reason.
      * @return a new {@code LockFile} object holding a cooperative lock
      *      condition upon the file with the given path, appended with the

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,9 +62,9 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.types.BinaryData;
@@ -806,7 +806,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement
 
         TimestampData tsd;
         Object        value = getColumnValue(parameterIndex);
-        
+
         if (value == null) {
             return null;
         }
@@ -817,13 +817,15 @@ public class JDBCCallableStatement extends JDBCPreparedStatement
 
             Timestamp ts = new Timestamp(tsd.getMillis());
 
-			ts.setNanos(tsd.getNanos());
+            ts.setNanos(tsd.getNanos());
 
-			return ts;
+            return ts;
         }
 
-        tsd = (TimestampData) getColumnInType(parameterIndex, Type.SQL_TIMESTAMP);
-        
+        tsd = (TimestampData) getColumnInType(
+            parameterIndex,
+            Type.SQL_TIMESTAMP);
+
         return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(session, tsd);
     }
 

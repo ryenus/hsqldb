@@ -38,7 +38,6 @@ import java.io.LineNumberReader;
 import java.io.StringReader;
 
 import org.hsqldb.ColumnBase;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.SessionInterface.AttributePos;
@@ -46,6 +45,7 @@ import org.hsqldb.SqlInvariants;
 import org.hsqldb.Statement;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.lib.List;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,11 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowDiskDataChange;
 import org.hsqldb.Session;
 import org.hsqldb.TableBase;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.rowio.RowInputInterface;
 
 /*

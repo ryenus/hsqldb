@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@ package org.hsqldb.dbinfo;
 import org.hsqldb.ColumnSchema;
 import org.hsqldb.Constraint;
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
@@ -47,6 +46,7 @@ import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.Tokens;
 import org.hsqldb.TypeInvariants;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;

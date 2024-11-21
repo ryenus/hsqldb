@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2024, The HSQL Development Group
+ * Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,11 +84,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.hsqldb.ClientConnection;
 import org.hsqldb.ColumnBase;
 import org.hsqldb.DatabaseManager;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.persist.HsqlDatabaseProperties;

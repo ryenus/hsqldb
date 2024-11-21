@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,9 +65,9 @@ import java.util.Calendar;
 import java.util.Map;
 
 import org.hsqldb.ColumnBase;
-import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
 import org.hsqldb.lib.java.JavaSystem;
@@ -846,7 +846,7 @@ public class JDBCResultSet implements ResultSet {
 
         TimestampData tsd;
         Object        value = getColumnValue(columnIndex);
-        
+
         if (value == null) {
             return null;
         }
@@ -854,16 +854,16 @@ public class JDBCResultSet implements ResultSet {
         if (resultMetaData.columnTypes[columnIndex - 1].typeCode
                 == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
             tsd = (TimestampData) value;
-            
+
             Timestamp ts = new Timestamp(tsd.getMillis());
 
-			ts.setNanos(tsd.getNanos());
+            ts.setNanos(tsd.getNanos());
 
-			return ts;
+            return ts;
         }
 
         tsd = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP);
-        
+
         return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(session, tsd);
     }
 

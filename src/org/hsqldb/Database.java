@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import org.hsqldb.Session.TimeoutManager;
 import org.hsqldb.dbinfo.DatabaseInformation;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlTimer;
@@ -178,7 +179,7 @@ public class Database {
      * @param path is the given path to the database files
      * @param canonicalPath is the canonical path
      * @param props property overrides placed on the connect URL
-     * @exception  HsqlException if the specified name and path
+     * @exception org.hsqldb.error.HsqlException if the specified name and path
      *      combination is illegal or unavailable, or the database files the
      *      name and path resolves to are in use by another process
      */

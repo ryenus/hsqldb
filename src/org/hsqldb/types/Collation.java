@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@ import java.text.Collator;
 
 import java.util.Locale;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
@@ -43,6 +42,7 @@ import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;

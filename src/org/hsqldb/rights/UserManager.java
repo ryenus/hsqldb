@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package org.hsqldb.rights;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Routine;
 import org.hsqldb.Schema;
@@ -42,6 +41,7 @@ import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.List;
 import org.hsqldb.lib.OrderedHashMap;

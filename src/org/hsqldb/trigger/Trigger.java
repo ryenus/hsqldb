@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 
 package org.hsqldb.trigger;
 
-import org.hsqldb.HsqlException;
+import org.hsqldb.error.HsqlException;
 
 // fredt@users 20030727 - signature altered to support update triggers
 // fredt@users 20190327 - moved to own package

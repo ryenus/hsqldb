@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,13 +35,13 @@ import java.io.File;
 import java.io.IOException;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.scriptio.ScriptReaderBase;

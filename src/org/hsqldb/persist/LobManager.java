@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,12 +43,12 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Statement;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.LineGroupReader;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,10 +63,10 @@ import org.hsqldb.ClientConnection;
 import org.hsqldb.ClientConnectionHTTP;
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.SessionInterface.Attributes;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;

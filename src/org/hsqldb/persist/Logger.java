@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -196,7 +196,7 @@ public class Logger implements EventLogInterface {
      *  If the specified Database object is a new database, its database
      *  files are first created.
      *
-     * @throws  org.hsqldb.HsqlException if there is a problem, such as the case when
+     * @throws org.hsqldb.error.HsqlException if there is a problem, such as the case when
      *      the specified files are in use by another process
      */
     public void open() {
@@ -1035,7 +1035,7 @@ public class Logger implements EventLogInterface {
      *  files, in order to ensure as much as possible the ACID properties
      *  of the database.
      *
-     * @throws  org.hsqldb.HsqlException if there is a problem checkpointing the
+     * @throws org.hsqldb.error.HsqlException if there is a problem checkpointing the
      *      database
      */
     public void checkpoint(Session session, boolean defrag, boolean lobs) {

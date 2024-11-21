@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,8 @@ import java.sql.SQLWarning;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.StatementTypes;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;

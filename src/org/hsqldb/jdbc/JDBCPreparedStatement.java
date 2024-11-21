@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,11 +70,11 @@ import java.util.BitSet;
 import java.util.Calendar;
 import java.util.UUID;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;

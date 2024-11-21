@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.ArrayUtil;
