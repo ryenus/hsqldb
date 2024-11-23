@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2024, The HSQL Development Group
+ * Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,8 +84,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
+import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.persist.HsqlProperties;
