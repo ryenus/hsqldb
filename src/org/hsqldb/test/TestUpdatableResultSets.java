@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -613,11 +613,11 @@ public class TestUpdatableResultSets extends TestBase {
     public void testDeletable2() {
 
         try {
-            Connection c = newConnection();
-            String dropSQL = "drop table test if exists cascade";
+            Connection c          = newConnection();
+            String     dropSQL    = "drop table test if exists cascade";
             String createSQL =
                 "create table test (num INTEGER PRIMARY KEY, str VARCHAR(25))";
-            Statement createStmt = c.createStatement();
+            Statement  createStmt = c.createStatement();
 
             createStmt.execute(dropSQL);
             createStmt.execute(createSQL);

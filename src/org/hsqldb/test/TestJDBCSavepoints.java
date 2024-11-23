@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -247,7 +247,7 @@ public class TestJDBCSavepoints extends TestCase {
 
         try {
             conn2.releaseSavepoint(sp2);
-            assertTrue(msg, false);
+            fail(msg);
         } catch (Exception e) {}
 
         //-- test 4 : A JDBC Savepoint shall be invalid if used to roll back to
@@ -259,7 +259,7 @@ public class TestJDBCSavepoints extends TestCase {
             msg = "succesful rollback to savepoint on "
                   + "non-originating connection";
 
-            assertTrue(msg, false);
+            fail(msg);
         } catch (Exception e) {}
 
         //-- test 5 : Direct execution of a <release savepoint> statement shall
@@ -273,7 +273,7 @@ public class TestJDBCSavepoints extends TestCase {
                 "release savepoint \"savepoint2\"");
         } catch (Exception e) {
             try {
-                assertTrue(msg, false);
+                fail(msg);
             } catch (Exception e2) {}
         }
 
@@ -292,7 +292,7 @@ public class TestJDBCSavepoints extends TestCase {
             e.printStackTrace();
 
             try {
-                assertTrue(msg, false);
+                fail(msg);
             } catch (Exception e2) {}
         }
 
@@ -303,7 +303,7 @@ public class TestJDBCSavepoints extends TestCase {
 
         try {
             conn1.releaseSavepoint(sp6);
-            assertTrue(msg, false);
+            fail(msg);
         } catch (Exception e) {}
 
         //-- test 8 : Releasing an SQL-savepoint shall destroy all subsequent SQL-
@@ -312,7 +312,7 @@ public class TestJDBCSavepoints extends TestCase {
 
         try {
             conn1.releaseSavepoint(sp7);
-            assertTrue(msg, false);
+            fail(msg);
         } catch (Exception e) {}
 
         //-- test 9 : Releasing an SQL-savepoint shall not affect preceding
@@ -323,7 +323,7 @@ public class TestJDBCSavepoints extends TestCase {
             conn1.releaseSavepoint(sp5);
         } catch (Exception e) {
             try {
-                assertTrue(msg, false);
+                fail(msg);
             } catch (Exception e2) {}
         }
 
@@ -351,7 +351,7 @@ public class TestJDBCSavepoints extends TestCase {
 
         try {
             conn1.rollback(sp4);
-            assertTrue(msg, false);
+            fail(msg);
         } catch (Exception e) {}
 
         conn1.rollback(sp3);
@@ -378,7 +378,7 @@ public class TestJDBCSavepoints extends TestCase {
 
         try {
             conn1.releaseSavepoint(sp3);
-            assertTrue(msg, false);
+            fail(msg);
         } catch (Exception e) {}
 
         conn1.rollback(sp1);
@@ -391,7 +391,7 @@ public class TestJDBCSavepoints extends TestCase {
 
         try {
             conn1.rollback(sp2);
-            assertTrue(msg, false);
+            fail(msg);
         } catch (Exception e) {}
 
         conn1.rollback();
@@ -404,7 +404,7 @@ public class TestJDBCSavepoints extends TestCase {
 
         try {
             conn1.releaseSavepoint(sp1);
-            assertTrue(msg, false);
+            fail(msg);
         } catch (Exception e) {}
 
         conn1.setAutoCommit(false);
