@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * has been added to differentiate HSQLDB-specific type specializations.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.7.2
  */
 public class Types {
@@ -677,7 +677,9 @@ public class Types {
             }
 
             if (typeCode != Integer.MIN_VALUE) {
-                return Type.getDefaultTypeWithSize(typeCode);
+                Type componentType = Type.getDefaultTypeWithSize(typeCode);
+
+                return new ArrayType(componentType, ArrayType.defaultArrayCardinality);
             }
 
             return null;
