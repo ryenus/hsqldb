@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -553,7 +553,8 @@ public class ExpressionArithmetic extends Expression {
                     nodes[LEFT]  = nodes[RIGHT];
                     nodes[RIGHT] = temp;
                 } else if (nodes[RIGHT].dataType.isNumberType()) {
-                    if (!session.database.sqlSyntaxOra) {
+                    if (!session.database.sqlSyntaxOra
+                            && !session.database.sqlSyntaxPgs) {
                         throw Error.error(ErrorCode.X_42562);
                     }
                 }
