@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -342,7 +342,9 @@ public class BinaryUUIDType extends BinaryType {
             return Tokens.T_NULL;
         }
 
-        return StringConverter.toStringUUID(((BlobData) a).getBytes());
+        String s = StringConverter.toStringUUID(((BlobData) a).getBytes());
+
+        return StringConverter.toQuotedString(s, '\'', false);
     }
 
     public boolean canConvertFrom(Type otherType) {
