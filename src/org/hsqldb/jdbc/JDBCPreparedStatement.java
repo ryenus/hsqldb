@@ -1646,7 +1646,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase
             case Types.SQL_VARCHAR :
                 value = Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX.convertJavaToSQL(
                     session,
-                    x);
+                    x,
+                    cal);
+
                 value = outType.castToType(
                     session,
                     value,
