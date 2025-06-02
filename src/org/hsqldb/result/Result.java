@@ -895,8 +895,13 @@ public class Result {
         int csType = statement.getType();
 
         r.statementReturnType = statement.getStatementReturnType();
-        r.metaData            = statement.getResultMetaData();
         r.parameterMetaData   = statement.getParametersMetaData();
+        r.metaData            = statement.getResultMetaData();
+
+        if (r.metaData.getColumnCount() == 0
+                && statement.generatedResultMetaData().getColumnCount() > 0) {
+            r.metaData = statement.generatedResultMetaData();
+        }
 
         return r;
     }

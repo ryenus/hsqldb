@@ -1402,19 +1402,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase
             checkClosed();
         }
 
-        if (statementRetType != StatementTypes.RETURN_RESULT) {
-            return null;
-        }
+        boolean isUpdatable  = false;
+        boolean isInsertable = false;
 
         if (resultSetMetaData == null) {
-            boolean isUpdatable  = ResultProperties.isUpdatable(rsProperties);
-            boolean isInsertable = isUpdatable;
+            if (statementRetType == StatementTypes.RETURN_RESULT) {
+                isUpdatable  = ResultProperties.isUpdatable(rsProperties);
+                isInsertable = isUpdatable;
 
-            if (isInsertable) {
-                for (int i = 0; i < resultMetaData.colIndexes.length; i++) {
-                    if (resultMetaData.colIndexes[i] < 0) {
-                        isInsertable = false;
-                        break;
+                if (isInsertable) {
+                    for (int i = 0; i < resultMetaData.colIndexes.length; i++) {
+                        if (resultMetaData.colIndexes[i] < 0) {
+                            isInsertable = false;
+                            break;
+                        }
                     }
                 }
             }
@@ -1648,7 +1649,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase
                     session,
                     x,
                     cal);
-
                 value = outType.castToType(
                     session,
                     value,

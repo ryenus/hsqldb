@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,12 @@
 
 package org.hsqldb.test;
 
+import org.hsqldb.result.ResultMetaData;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.sql.SQLException;
 
@@ -115,7 +118,8 @@ public class TestJDBCGeneratedColumns extends TestBase {
                 successDirect = rs.getInt(1) == 33;
             }
 
-            PreparedStatement ps = c.prepareStatement(s,
+            PreparedStatement ps = c.prepareStatement(
+                s,
                 Statement.RETURN_GENERATED_KEYS);
 
             ps.execute();
@@ -159,9 +163,7 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
             ps.close();
 
-            ps = c.prepareStatement(s, new String[] {
-                "I", "C"
-            });
+            ps = c.prepareStatement(s, new String[]{ "I", "C" });
 
             ps.execute();
 
@@ -177,9 +179,7 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
             ps.close();
 
-            ps = c.prepareStatement(s, new String[] {
-                "C", "I"
-            });
+            ps = c.prepareStatement(s, new String[]{ "C", "I" });
 
             ps.execute();
 
@@ -207,8 +207,7 @@ public class TestJDBCGeneratedColumns extends TestBase {
         Connection conn            = newConnection();
         boolean    successPrepared = false;
         boolean    successDirect   = false;
-
-        String drop = "DROP TABLE PUBLIC.BEWERTUNG IF EXISTS CASCADE";
+        String     drop = "DROP TABLE PUBLIC.BEWERTUNG IF EXISTS CASCADE";
         String create = "CREATE TABLE PUBLIC.BEWERTUNG ("
                         + "BEWERTUNGSID INTEGER NOT NULL IDENTITY,"
                         + "TID INTEGER," + "JURORID INTEGER NOT NULL,"
@@ -222,11 +221,13 @@ public class TestJDBCGeneratedColumns extends TestBase {
             + "WHEN MATCHED THEN UPDATE SET RUNDE = 103 "
             + "WHEN NOT MATCHED THEN INSERT (TID,JURORID,RUNDE) "
             + "VALUES (temp.tid,temp.jurorid,temp.runde)";
+        Statement  st              = conn.createStatement();
 
-        Statement st = conn.createStatement();
         st.execute(drop);
         st.execute(create);
-        PreparedStatement preparedStatement = conn.prepareStatement(sqlquery,
+
+        PreparedStatement preparedStatement = conn.prepareStatement(
+            sqlquery,
             Statement.RETURN_GENERATED_KEYS);
 
         preparedStatement.setInt(1, 1);    //TID
@@ -270,7 +271,8 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
             s = "INSERT INTO T (C) VALUES('TEST')";
 
-            PreparedStatement ps = c.prepareStatement(s,
+            PreparedStatement ps = c.prepareStatement(
+                s,
                 Statement.RETURN_GENERATED_KEYS);
 
             ps.addBatch();
@@ -327,9 +329,7 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
             ps.close();
 
-            ps = c.prepareStatement(s, new String[] {
-                "I", "C"
-            });
+            ps = c.prepareStatement(s, new String[]{ "I", "C" });
 
             ps.addBatch();
             ps.addBatch();
@@ -349,9 +349,7 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
             ps.close();
 
-            ps = c.prepareStatement(s, new String[] {
-                "C", "I"
-            });
+            ps = c.prepareStatement(s, new String[]{ "C", "I" });
 
             ps.addBatch();
             ps.addBatch();
@@ -375,5 +373,85 @@ public class TestJDBCGeneratedColumns extends TestBase {
         }
 
         assertTrue(successPrepared);
+    }
+
+    public void testRepeatable() {
+
+        try {
+            Connection c  = newConnection();
+            Statement  st = c.createStatement();
+
+            st.execute("DROP TABLE DUMMY IF EXISTS");
+            st.execute("CREATE TABLE DUMMY (ID BIGINT, C VARCHAR(10))");
+
+            String s = "INSERT INTO DUMMY (ID, C) VALUES(?,?)";
+            PreparedStatement ps = c.prepareStatement(
+                s,
+                Statement.RETURN_GENERATED_KEYS);
+
+            ps.setLong(1, 21);
+            ps.setString(2, "test x");
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                while (rs.next()) {
+                    System.out.println("returned a row");
+                }
+            }
+
+            ps.setLong(1, 22);
+            ps.setString(2, "test x");
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                while (rs.next()) {
+                    System.out.println("returned a row");
+                }
+            }
+        } catch (Exception e) {
+            System.out.print(e);
+        }
+    }
+
+    public void testPSGenerated() {
+
+        try {
+            Connection c  = newConnection();
+            Statement  st = c.createStatement();
+
+            st.execute("DROP TABLE DUMMY IF EXISTS");
+            st.execute(
+                "CREATE TABLE DUMMY (ID BIGINT IDENTITY, C VARCHAR(10))");
+
+            String            s    = "INSERT INTO DUMMY (C) VALUES(?)";
+            PreparedStatement ps = c.prepareStatement(
+                s,
+                Statement.RETURN_GENERATED_KEYS);
+            ResultSetMetaData meta = ps.getMetaData();
+
+            if (meta.getColumnCount() == 0) {
+                System.out.println("bad metadata");
+            }
+
+            ps.setString(1, "test x");
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                while (rs.next()) {
+                    System.out.println("returned a row correctly");
+                }
+            }
+
+            ps.setString(1, "test x");
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                while (rs.next()) {
+                    System.out.println("returned a row correctly");
+                }
+            }
+        } catch (Exception e) {
+            System.out.print(e);
+        }
     }
 }

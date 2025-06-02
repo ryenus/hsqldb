@@ -91,10 +91,8 @@ public class TestRoutines extends TestBase {
         statement.execute(createProc);
         ResultSet rs = statement.executeQuery("CALL testroutinesfunctwo('first:second:third',':')");
         rs.next();
-        String s = rs.getString(1);
         Array arr = rs.getArray(1);
         Object[] strArr = (Object[]) arr.getArray();
         System.out.println(strArr[0]);
     }
-
 }
