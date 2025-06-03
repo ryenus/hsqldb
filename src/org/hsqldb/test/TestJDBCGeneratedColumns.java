@@ -388,6 +388,11 @@ public class TestJDBCGeneratedColumns extends TestBase {
             PreparedStatement ps = c.prepareStatement(
                 s,
                 Statement.RETURN_GENERATED_KEYS);
+            ResultSetMetaData meta = ps.getMetaData();
+
+            if (meta.getColumnCount() != 0) {
+                System.out.println("bad metadata");
+            }
 
             ps.setLong(1, 21);
             ps.setString(2, "test x");
@@ -407,6 +412,16 @@ public class TestJDBCGeneratedColumns extends TestBase {
                 while (rs.next()) {
                     System.out.println("returned a row");
                 }
+            }
+
+            ps.close();
+
+            ps = c.prepareStatement(s);
+
+            meta = ps.getMetaData();
+
+            if (meta.getColumnCount() != 0) {
+                System.out.println("bad metadata");
             }
         } catch (Exception e) {
             System.out.print(e);

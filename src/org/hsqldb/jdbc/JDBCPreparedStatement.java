@@ -1385,6 +1385,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase
      * Since 1.7.2, this feature is supported and is <em>inexpensive</em> as
      * it is backed by underlying DBMS support.  If the statement
      * generates an update count, then null is returned.
+     * <P>
+     * From version 2.7.5, for DML statements that return generated column
+     * values, this method returns the ResultSetMetaData for the generated
+     * columns ResultSet.
+     *
      * </div>
      * <!-- end release-specific documentation -->
      * @return the description of a {@code ResultSet} object's columns or
@@ -2177,7 +2182,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase
      * multi-row insert, update and merge statements. <p>
      *
      * This method returns a result set only if
-     * the executeUpdate methods that was used is one of the three methods that
+     * the PrepareStatement method that was used is one of the three methods that
      * have the extra parameter indicating return of generated keys<p>
      *
      * If the executeUpdate method did not specify the columns which represent

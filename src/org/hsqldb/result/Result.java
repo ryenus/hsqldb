@@ -898,9 +898,11 @@ public class Result {
         r.parameterMetaData   = statement.getParametersMetaData();
         r.metaData            = statement.getResultMetaData();
 
-        if (r.metaData.getColumnCount() == 0
-                && statement.generatedResultMetaData().getColumnCount() > 0) {
-            r.metaData = statement.generatedResultMetaData();
+        ResultMetaData generatedMeta = statement.generatedResultMetaData();
+
+        if (generatedMeta != null && generatedMeta.getColumnCount() > 0
+                && r.metaData.getColumnCount() == 0) {
+            r.metaData = generatedMeta;
         }
 
         return r;
