@@ -900,7 +900,8 @@ public class Result {
 
         ResultMetaData generatedMeta = statement.generatedResultMetaData();
 
-        if (generatedMeta != null && generatedMeta.getColumnCount() > 0
+        if (generatedMeta != null
+                && generatedMeta.getColumnCount() > 0
                 && r.metaData.getColumnCount() == 0) {
             r.metaData = generatedMeta;
         }

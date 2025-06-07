@@ -384,7 +384,7 @@ public class TestJDBCGeneratedColumns extends TestBase {
             st.execute("DROP TABLE DUMMY IF EXISTS");
             st.execute("CREATE TABLE DUMMY (ID BIGINT, C VARCHAR(10))");
 
-            String s = "INSERT INTO DUMMY (ID, C) VALUES(?,?)";
+            String            s    = "INSERT INTO DUMMY (ID, C) VALUES(?,?)";
             PreparedStatement ps = c.prepareStatement(
                 s,
                 Statement.RETURN_GENERATED_KEYS);
@@ -416,8 +416,7 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
             ps.close();
 
-            ps = c.prepareStatement(s);
-
+            ps   = c.prepareStatement(s);
             meta = ps.getMetaData();
 
             if (meta.getColumnCount() != 0) {

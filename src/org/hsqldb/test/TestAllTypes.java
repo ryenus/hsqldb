@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,18 @@
 package org.hsqldb.test;
 
 import java.io.File;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import java.util.Random;
 
 import org.hsqldb.lib.StopWatch;
+
 import java.math.BigDecimal;
 
 /**
@@ -50,7 +53,8 @@ import java.math.BigDecimal;
  */
 public class TestAllTypes {
 
-    protected String url = "jdbc:hsqldb:g:/hsql/testalltypes/test;hsqldb.sqllog=0";
+    protected String url =
+        "jdbc:hsqldb:/hsql/testalltypes/test;hsqldb.sqllog=0";
 
 //    protected String url = "jdbc:hsqldb:hsql://localhost/yourtest";
     boolean    network = false;
@@ -125,18 +129,19 @@ public class TestAllTypes {
         double    value     = 0;
         String ddl1 = "DROP TABLE test IF EXISTS;"
                       + "DROP TABLE zip IF EXISTS;";
-        String ddl2 = "CREATE TABLE zip( zip INT IDENTITY );";
-        String ddl3 = "CREATE " + (cachedTable ? "CACHED "
-                                               : "") + "TABLE test( id INT IDENTITY,"
-                                                   + " firstname VARCHAR(128), "
-                                                   + " lastname VARCHAR(128), "
-                                                   + " zip SMALLINT, "
-                                                   + " longfield BIGINT, "
-                                                   + " doublefield DOUBLE, "
-                                                   + " bigdecimalfield DECIMAL(19), "
-                                                   + " bigdecimal2field DECIMAL(20,4), "
-                                                   + " datefield DATE, "
-                                                   + " filler VARCHAR(128)); ";
+        String    ddl2      = "CREATE TABLE zip( zip INT IDENTITY );";
+        String    ddl3      = "CREATE " + (cachedTable
+                                           ? "CACHED "
+                                           : "") + "TABLE test( id INT IDENTITY,"
+                                               + " firstname VARCHAR(128), "
+                                               + " lastname VARCHAR(128), "
+                                               + " zip SMALLINT, "
+                                               + " longfield BIGINT, "
+                                               + " doublefield DOUBLE, "
+                                               + " bigdecimalfield DECIMAL(19), "
+                                               + " bigdecimal2field DECIMAL(20,4), "
+                                               + " datefield DATE, "
+                                               + " filler VARCHAR(128)); ";
 
         // adding extra index will slow down inserts a bit
         String ddl4 = "CREATE INDEX idx1 ON TEST (lastname);";
@@ -149,9 +154,9 @@ public class TestAllTypes {
 
         // adding this index will slow down  inserts a lot
         String ddl7 = "CREATE INDEX idx4 ON TEST (bigdecimalfield);";
-
         String ddl8 = "CREATE INDEX idx5 ON TEST (bigdecimal2field);";
         String ddl9 = "CREATE INDEX idx6 ON TEST (datefield);";
+
         // referential integrity checks will slow down inserts a bit
         String ddl26 =
             "ALTER TABLE test add constraint c1 FOREIGN KEY (zip) REFERENCES zip(zip);";
@@ -193,7 +198,6 @@ public class TestAllTypes {
             }
 
             //
-
             sStatement.execute(ddl6);
             sStatement.execute(ddl7);
             sStatement.execute(ddl8);
@@ -220,10 +224,11 @@ public class TestAllTypes {
                 ps.setLong(4, randomgen.nextLong());
                 ps.setDouble(5, randomgen.nextDouble());
                 ps.setBigDecimal(6, new BigDecimal(randomgen.nextLong()));
-
                 ps.setBigDecimal(7, new BigDecimal(randomgen.nextDouble()));
-                ps.setDate(8, new java.sql.Date(nextIntRandom(randomgen, 1000)
-                                                * 24L * 3600 * 1000));
+                ps.setDate(
+                    8,
+                    new java.sql.Date(nextIntRandom(randomgen,
+                            1000) * 24L * 3600 * 1000));
 
                 String varfiller = filler.substring(0, randomlength);
 
@@ -231,12 +236,13 @@ public class TestAllTypes {
                 ps.execute();
 
                 if (reportProgress && (i + 1) % 10000 == 0) {
-                    System.out.println("Insert " + (i + 1) + " : "
-                                       + sw.elapsedTime());
+                    System.out.println(
+                        "Insert " + (i + 1) + " : " + sw.elapsedTime());
                 }
 
                 // delete and add 4000 rows to introduce fragmentation
-                if (deleteWhileInsert && i != 0
+                if (deleteWhileInsert
+                        && i != 0
                         && i % deleteWhileInsertInterval == 0) {
                     sStatement.execute("CALL IDENTITY();");
 
@@ -249,10 +255,10 @@ public class TestAllTypes {
                     sStatement.execute(
                         "SELECT * INTO TEMP tempt FROM test WHERE id > "
                         + (lastId - 4000) + " ;");
-                    sStatement.execute("DELETE FROM test WHERE id > "
-                                       + (lastId - 4000) + " ;");
                     sStatement.execute(
-                        "INSERT INTO test SELECT * FROM tempt;");
+                        "DELETE FROM test WHERE id > " + (lastId - 4000)
+                        + " ;");
+                    sStatement.execute("INSERT INTO test SELECT * FROM tempt;");
                     sStatement.execute("DROP TABLE tempt;");
                 }
             }
@@ -261,8 +267,9 @@ public class TestAllTypes {
 //            sStatement.execute("DROP TABLE temptest;");
 //            sStatement.execute(ddl7);
             System.out.println("Total insert: " + i);
-            System.out.println("Insert time: " + sw.elapsedTime() + " rps: "
-                               + (i * 1000 / sw.elapsedTime()));
+            System.out.println(
+                "Insert time: " + sw.elapsedTime() + " rps: "
+                + (i * 1000 / sw.elapsedTime()));
             sw.zero();
 
             if (!network) {
@@ -292,6 +299,7 @@ public class TestAllTypes {
             sStatement = cConnection.createStatement();
 
             sStatement.execute("SET FILES WRITE DELAY " + writeDelay);
+
 //            sStatement.execute("SET DATABASE EVENT LOG SQL LEVEL 3");
 
             // the tests use different indexes
@@ -345,16 +353,16 @@ public class TestAllTypes {
 
                 if (reportProgress && (i + 1) % 10000 == 0
                         || (slow && (i + 1) % 100 == 0)) {
-                    System.out.println("Select " + (i + 1) + " : "
-                                       + sw.elapsedTime() + " rps: "
-                                       + (i * 1000 / sw.elapsedTime()));
+                    System.out.println(
+                        "Select " + (i + 1) + " : " + sw.elapsedTime()
+                        + " rps: " + (i * 1000 / sw.elapsedTime()));
                 }
             }
         } catch (SQLException e) {}
 
-        System.out.println("Select random zip " + i + " rows : "
-                           + sw.elapsedTime() + " rps: "
-                           + (i * 1000 / sw.elapsedTime()));
+        System.out.println(
+            "Select random zip " + i + " rows : " + sw.elapsedTime() + " rps: "
+            + (i * 1000 / sw.elapsedTime()));
         sw.zero();
 
         try {
@@ -367,15 +375,15 @@ public class TestAllTypes {
 
                 if (reportProgress && (i + 1) % 10000 == 0
                         || (slow && (i + 1) % 100 == 0)) {
-                    System.out.println("Select " + (i + 1) + " : "
-                                       + sw.elapsedTime());
+                    System.out.println(
+                        "Select " + (i + 1) + " : " + sw.elapsedTime());
                 }
             }
         } catch (SQLException e) {}
 
-        System.out.println("Select random id " + i + " rows : "
-                           + sw.elapsedTime() + " rps: "
-                           + (i * 1000 / sw.elapsedTime()));
+        System.out.println(
+            "Select random id " + i + " rows : " + sw.elapsedTime() + " rps: "
+            + (i * 1000 / sw.elapsedTime()));
     }
 
     private void checkUpdates() {
@@ -398,16 +406,16 @@ public class TestAllTypes {
                 count += ps.executeUpdate();
 
                 if (reportProgress && count % 10000 < 20) {
-                    System.out.println("Update " + count + " : "
-                                       + sw.elapsedTime());
+                    System.out.println(
+                        "Update " + count + " : " + sw.elapsedTime());
                 }
             }
         } catch (SQLException e) {}
 
-        System.out.println("Update with random zip " + i
-                           + " UPDATE commands, " + count + " rows : "
-                           + sw.elapsedTime() + " rps: "
-                           + (count * 1000 / (sw.elapsedTime() + 1)));
+        System.out.println(
+            "Update with random zip " + i + " UPDATE commands, " + count
+            + " rows : " + sw.elapsedTime() + " rps: "
+            + (count * 1000 / (sw.elapsedTime() + 1)));
         sw.zero();
 
         try {
@@ -421,16 +429,16 @@ public class TestAllTypes {
 
                 if (reportProgress && (i + 1) % 10000 == 0
                         || (slow && (i + 1) % 100 == 0)) {
-                    System.out.println("Update " + (i + 1) + " : "
-                                       + sw.elapsedTime() + " rps: "
-                                       + (i * 1000 / sw.elapsedTime()));
+                    System.out.println(
+                        "Update " + (i + 1) + " : " + sw.elapsedTime()
+                        + " rps: " + (i * 1000 / sw.elapsedTime()));
                 }
             }
         } catch (SQLException e) {}
 
-        System.out.println("Update with random id " + i + " rows : "
-                           + sw.elapsedTime() + " rps: "
-                           + (i * 1000 / (sw.elapsedTime() + 1)));
+        System.out.println(
+            "Update with random id " + i + " rows : " + sw.elapsedTime()
+            + " rps: " + (i * 1000 / (sw.elapsedTime() + 1)));
     }
 
     int nextIntRandom(Random r, int range) {

@@ -561,7 +561,20 @@ public class LobManager {
         usageChanged += lobBlockSize;
     }
 
-    public Result deleteUnusedLobs() {
+    public long getCurrentLimitLobId() {
+
+        writeLock.lock();
+
+        try {
+            long limitLobID = database.sessionManager.resetNewLobIDs();
+
+            return limitLobID;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public Result deleteUnusedLobs(long limitLobID) {
 
         writeLock.lock();
 
@@ -570,8 +583,6 @@ public class LobManager {
                 return Result.updateZeroResult;
             }
 
-            long           limitLobID =
-                database.sessionManager.resetNewLobIDs();
             ResultMetaData meta = deleteUnusedLobs.getParametersMetaData();
             Object[]       params      = new Object[meta.getColumnCount()];
             int            deleteCount = 0;

@@ -1047,18 +1047,19 @@ public class Logger implements EventLogInterface {
         database.lobManager.lock();
 
         try {
-            synchronized (this) {
-                checkpointInternal(session, defrag);
+            long limitLobId = database.lobManager.getCurrentLimitLobId();
 
-                if (lobs) {
-                    Result result = database.lobManager.deleteUnusedLobs();
+            checkpointInternal(session, defrag);
 
-                    if (log != null && result.getUpdateCount() > 0) {
-                        log.synchLog();
-                        logDetailEvent(
-                            "Deleted unused LOBs, count: "
-                            + result.getUpdateCount());
-                    }
+            if (lobs) {
+                Result result = database.lobManager.deleteUnusedLobs(
+                    limitLobId);
+
+                if (log != null && result.getUpdateCount() > 0) {
+                    log.synchLog();
+                    logDetailEvent(
+                        "Deleted unused LOBs, count: "
+                        + result.getUpdateCount());
                 }
             }
         } finally {
@@ -1068,7 +1069,9 @@ public class Logger implements EventLogInterface {
         }
     }
 
-    private void checkpointInternal(Session session, boolean defrag) {
+    private synchronized void checkpointInternal(
+            Session session,
+            boolean defrag) {
 
         if (logsStatements) {
             logInfoEvent("Checkpoint start");
