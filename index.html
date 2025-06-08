@@ -9,13 +9,13 @@
       src="doc-src/images/hypersql_logo.png">
     <h3><br>
     </h3>
-    <h3>HyperSQL version 2.7.4 Distribution<br>
+    <h3>HyperSQL version 2.7.5 Distribution<br>
     </h3>
     <p>HSQLDB (HyperSQL Database) is a relational
-      database management system written in Java. Now in its 24th year,
-      HSQLDB version 2.7.4 is the result of 14 years
+      database management system written in Java. Now in its 25th year,
+      HSQLDB version 2.7.5 is the result of 15 years
       improvements since version 2.0. It offers many features and
-      adheres closely to the latest SQL and JDBC 4.3 standards.</p>
+      adheres closely to the latest SQL:2023 and JDBC 4.3 standards.</p>
     <p>This release should be used in preference to earlier 2.x
       releases, as it fixes a number of bugs and regressions, as well as
       improving functionality and adding new features.</p>
@@ -92,8 +92,9 @@
     <p>The jar needed for running HyperSQL
       and its GUI utilities (hsqldb.jar) has been pre-built in this
       directory. The jar for SqlTool (sqltool.jar) is
-      also in this directory. The jars are
-      compatible with Java version 8 and above. The extra zip file in
+      also in this directory. These jars are
+      compatible with Java version 11 and above. The alternative jars
+	  for JDK 8 are also in this directory. The extra zip file in
       the directory is needed
       only for
       recompiling hsqldb and is not required for deployment.</p>
@@ -108,16 +109,12 @@
     <p>All source code for documentation is in this directory. </p>
     <h4>CHANGES</h4>
     <ul>
-      <li>Versions 2.x have evolved over 14 years since 2010. This
+      <li>Versions 2.x have evolved over 15 years since 2010. This
         version is the most stable version in the 2.x series.</li>
       <li>Compared to earlier versions, there are many new features and
         changes. Most of these do not affect compatibility.</li>
       <li>Differences are detailed in the Guide. Some of the differences in
-        version 2.7.4 are as follows:</li>
-      <li>Transaction management has been improved to allow creation and
-        alteration of database objects such as tables
-        while other transactions are active. This applies to the default
-        LOCKS transaction model.</li>
+        version 2.7.5 are as follows:</li>
       <li>Support for Java 8 java.time package classes has been added to
         JDBC classes. This allows accessing TIME ZONE information in
         timestamps and all INTERVAL values.</li>
