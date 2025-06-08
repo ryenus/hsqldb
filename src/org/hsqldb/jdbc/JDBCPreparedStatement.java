@@ -221,7 +221,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since JDK 1.1, HSQLDB 1.9.0
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
