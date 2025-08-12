@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2025, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import java.nio.charset.StandardCharsets;
  * Handles invariants, runtime and methods
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  */
 public final class JavaSystem {
 
@@ -62,10 +62,19 @@ public final class JavaSystem {
                 version = version.substring(2);
             }
 
+            // If the version has one or more dots, we take the first part.
+            // For example, "11.0.2" becomes "11".
+
+            int dot = version.indexOf('.');
+
+            if (dot > 0) {
+                version = version.substring(0, dot);
+            }
+
             javaVersion = Integer.parseInt(version);
         } catch (Throwable t) {
 
-            // unknow future version - default to last widely used
+            // unknown future version - default to last widely used
             javaVersion = 11;
         }
     }
