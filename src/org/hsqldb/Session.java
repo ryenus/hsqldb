@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1601,9 +1601,9 @@ public class Session implements SessionInterface {
             Object[] pvals = nav.getCurrent();
             Result   in = executeCompiledStatement(cs, pvals, cmd.queryTimeout);
 
-            // On the client side, iterate over the vals and throw
+            // On the client side, iterate over the values and throw
             // a BatchUpdateException if a batch status value of
-            // esultConstants.EXECUTE_FAILED is encountered in the result
+            // ResultConstants.EXECUTE_FAILED is encountered in the result
             if (in.isUpdateCount()) {
                 if (cs.hasGeneratedColumns()) {
                     RowSetNavigator navgen = in.getChainedResult()

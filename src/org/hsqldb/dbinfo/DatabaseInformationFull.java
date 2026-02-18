@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -403,8 +403,6 @@ final class DatabaseInformationFull
     }
 
     /**
-     * SQL:2008 VIEW<p>
-     *
      * Retrieves a {@code Table} object describing the current
      * state of all row caching objects for the accessible
      * tables defined within this database. <p>
@@ -2125,8 +2123,6 @@ final class DatabaseInformationFull
     /**
      * SQL:2008 VIEW<p>
      *
-     *  SYSTEM_AUTHORIZATIONS<p>
-     *
      *  The AUTHORIZATIONS table has one row for each &lt;role name&gt; and
      *  one row for each &lt;authorization identifier &gt; referenced in the
      *  Information Schema. These are the &lt;role name&gt;s and
@@ -2558,8 +2554,6 @@ final class DatabaseInformationFull
     /**
      * SQL:2008 VIEW<p>
      *
-     * COLLATIONS<p>
-     *
      * The COLLATIONS view has one row for each character collation
      * descriptor. <p>
      *
@@ -2673,6 +2667,7 @@ final class DatabaseInformationFull
 
     /**
      * SQL:2008 VIEW<p>
+     *
      * The COLUMN_COLUMN_USAGE view has one row for each column referenced by
      * a GENERATED column.<p>
      *
@@ -2789,6 +2784,7 @@ final class DatabaseInformationFull
 
     /**
      * SQL:2008 VIEW<p>
+     *
      * The COLUMN_DOMAIN_USAGE view has one row for each column defined with a
      * a DOMAIN data type.<p>
      *
@@ -2911,7 +2907,8 @@ final class DatabaseInformationFull
 
     /**
      * SQL:2008 VIEW<p>
-     * The COLUMN_DOMAIN_USAGE view has one row for each column defined with a
+     *
+     * The COLUMN_UDT_USAGE view has one row for each column defined with a
      * a DOMAIN data type.<p>
      *
      * <b>Definition:</b>
@@ -3034,6 +3031,7 @@ final class DatabaseInformationFull
 
     /**
      * SQL:2008 VIEW<p>
+     *
      * The COLUMNS view has one row for each column of each table or view.
      * The column, its data type characteristics, together with its
      * IDENTITY or GENERATED characteristics are reported in this view.

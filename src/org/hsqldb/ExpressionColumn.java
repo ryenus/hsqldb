@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -977,8 +977,9 @@ public class ExpressionColumn extends Expression {
             case OpTypes.COLUMN :
                 sb.append(Tokens.T_COLUMN)
                   .append(": ")
-                  .append(column.getName().getSchemaQualifiedStatementName());
-
+                  .append(column.getName().getSchemaQualifiedStatementName())
+                  .append(" RID = ")
+                  .append(rangeVariable.rangePosition);
                 if (alias != null) {
                     sb.append(" AS ").append(alias.name);
                 }

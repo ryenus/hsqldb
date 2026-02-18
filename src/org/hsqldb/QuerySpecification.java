@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.7.4
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -2473,7 +2473,7 @@ public class QuerySpecification extends QueryExpression {
           .append(isAggregated)
           .append("]\n")
           .append(b)
-          .append("columns=[");
+          .append("columns=[\n");
 
         for (int i = 0; i < indexLimitVisible; i++) {
             int index = i;
@@ -2496,7 +2496,7 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        sb.append("\n").append(b).append("]\n");
+        sb.append(b).append("]\n");
 
         for (int i = 0; i < rangeVariables.length; i++) {
             sb.append(b)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.types.Collation;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.4
+ * @version 2.7.5
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
@@ -93,7 +93,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
      * no class is accessible.<p>
      *
      * A property value that ends with .* is treated as a wild card and allows
-     * access to all classe or method names formed by substitution of the
+     * access to all class or method names formed by substitution of the
      * asterisk.<p>
      *
      * For example, org.mypackage.* means all classes in the given package.<p>

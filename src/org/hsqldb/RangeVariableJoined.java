@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.map.ValuePool;
  * Metadata for range joined variables
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class RangeVariableJoined extends RangeVariable {
@@ -375,21 +375,25 @@ public class RangeVariableJoined extends RangeVariable {
         }
 
         sb.append(b)
-          .append("join type=")
+          .append("RID = ")
+          .append(rangePosition)
+          .append("\n")
+          .append(b)
+          .append("join type = ")
           .append(temp)
           .append("\n")
           .append(b)
-          .append("table=")
+          .append("table = ")
           .append(rangeTable.getName().name)
           .append("\n");
 
         if (tableAlias != null) {
-            sb.append(b).append("alias=").append(tableAlias.name).append("\n");
+            sb.append(b).append("alias = ").append(tableAlias.name).append("\n");
         }
 
         boolean fullScan = !conditionsArray[0].hasIndexCondition();
 
-        sb.append(b).append("access=").append(fullScan
+        sb.append(b).append("access = ").append(fullScan
                 ? "FULL SCAN"
                 : "INDEX PRED").append("\n");
 
