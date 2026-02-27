@@ -100,7 +100,6 @@ public class Logger implements EventLogInterface {
 
     //
     FrameworkLogger fwLogger;
-    FrameworkLogger sqlLogger;
 
     //
     private Database database;
