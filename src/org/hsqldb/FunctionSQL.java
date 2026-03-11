@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.4
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -587,6 +587,10 @@ public class FunctionSQL extends Expression {
 
                 if (nodes.length > 3 && nodes[3] != null) {
                     Object value = nodes[3].getValue(session);
+
+                    if (value == null) {
+                        return null;
+                    }
 
                     offset = ((Number) value).longValue() - 1;
 
@@ -1380,7 +1384,8 @@ public class FunctionSQL extends Expression {
                 }
 
                 if (nodes.length > 3 && nodes[3] != null) {
-                    if (nodes[3].isDynamicParam()) {
+                    if (nodes[3].isDynamicParam()
+                            || nodes[3].dataType == null) {
                         nodes[3].dataType = Type.SQL_BIGINT;
                     }
 
