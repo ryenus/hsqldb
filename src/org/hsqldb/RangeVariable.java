@@ -793,6 +793,18 @@ public class RangeVariable {
             set = dataExpression.collectRangeVariables(rangeVars, set);
         }
 
+        if (joinCondition != null) {
+            set = joinCondition.collectRangeVariables(rangeVars, set);
+        }
+
+        for (int i = 0; i < joinConditions.length; i++) {
+            set = joinConditions[i].collectRangeVariables(rangeVars, set);
+        }
+
+        for (int i = 0; i < whereConditions.length; i++) {
+            set = whereConditions[i].collectRangeVariables(rangeVars, set);
+        }
+
         return set;
     }
 
@@ -2401,6 +2413,46 @@ public class RangeVariable {
                     expressions,
                     resultRangePosition);
             }
+        }
+
+        OrderedHashSet<RangeVariable> collectRangeVariables(
+                RangeVariable[] rangeVariables,
+                OrderedHashSet<RangeVariable> set) {
+
+            if (indexCond != null) {
+                for (int i = 0; i < indexCond.length; i++) {
+                    if (indexCond[i] != null) {
+                        set = indexCond[i].collectRangeVariables(rangeVariables, set);
+                    }
+                }
+            }
+
+            if (indexEndCond != null) {
+                for (int i = 0; i < indexEndCond.length; i++) {
+                    if (indexEndCond[i] != null) {
+                        set = indexEndCond[i].collectRangeVariables(rangeVariables, set);
+                    }
+                }
+            }
+
+            if (indexEndCondition != null) {
+                set = indexEndCondition.collectRangeVariables(rangeVariables, set);
+            }
+
+            if (excludeConditions != null) {
+                set =  excludeConditions.collectRangeVariables(rangeVariables, set);
+            }
+
+            if (nonIndexCondition != null) {
+                set =  nonIndexCondition .collectRangeVariables(rangeVariables, set);
+
+            }
+
+            if (terminalCondition != null) {
+                set =  terminalCondition .collectRangeVariables(rangeVariables, set);
+            }
+
+            return set;
         }
     }
 }
