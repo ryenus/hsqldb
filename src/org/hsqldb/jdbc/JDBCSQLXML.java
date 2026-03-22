@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1254,7 +1254,7 @@ public class JDBCSQLXML implements SQLXML {
     /**
      * closes this object and releases the resources that it holds.
      */
-    protected synchronized void close() {
+    public synchronized void close() {
 
         this.closed = true;
 
