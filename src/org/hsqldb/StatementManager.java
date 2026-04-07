@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ import org.hsqldb.result.ResultMetaData;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.7.2
  */
 public final class StatementManager {
@@ -166,6 +166,7 @@ public final class StatementManager {
 
             newStatement.setCompileTimestamp(
                 database.txManager.getSystemChangeNumber());
+            newStatement.setID(statement.getID());
 
             sw.statement = newStatement;
 
@@ -339,14 +340,28 @@ public final class StatementManager {
 
         if (wrapper != null) {
             if (wrapper.statement.getCompileTimestamp()
-                    >= database.schemaManager.getSchemaChangeTimestamp()) {
-                wrapper.usageCount++;
+                    < database.schemaManager.getSchemaChangeTimestamp()) {
+                long statementID = wrapper.statement.getID();
 
-                return wrapper.statement;
+                try {
+                    wrapper.statement = null;
+                    wrapper.statement = session.compileStatement(
+                        wrapper.sql,
+                        wrapper.cursorProps);
+
+                    wrapper.statement.setID(statementID);
+                    wrapper.statement.setCompileTimestamp(
+                        database.txManager.getSystemChangeNumber());
+                } finally {
+                    if (wrapper.statement == null) {
+                        removeStatement(statementID);
+                    }
+                }
             }
 
-            // old version is invalid
-            removeStatement(wrapper.statement.getID());
+            wrapper.usageCount++;
+
+            return wrapper.statement;
         }
 
         wrapper = newWrapper;
