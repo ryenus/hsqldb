@@ -133,6 +133,9 @@ public class RangeVariable {
     //
     boolean isGenerated;
 
+    /**
+     * special VARIABLE and similar ranges
+     */
     public RangeVariable(
             OrderedHashMap<String, ColumnSchema> variables,
             SimpleName rangeName,
@@ -1189,8 +1192,8 @@ public class RangeVariable {
         }
 
         sb.append("access = ").append(fullScan
-                                    ? "FULL SCAN"
-                                    : "INDEX PRED").append("\n");
+                                      ? "FULL SCAN"
+                                      : "INDEX PRED").append("\n");
 
         for (int i = 0; i < conditions.length; i++) {
             if (i > 0) {
@@ -2422,7 +2425,9 @@ public class RangeVariable {
             if (indexCond != null) {
                 for (int i = 0; i < indexCond.length; i++) {
                     if (indexCond[i] != null) {
-                        set = indexCond[i].collectRangeVariables(rangeVariables, set);
+                        set = indexCond[i].collectRangeVariables(
+                            rangeVariables,
+                            set);
                     }
                 }
             }
@@ -2430,26 +2435,35 @@ public class RangeVariable {
             if (indexEndCond != null) {
                 for (int i = 0; i < indexEndCond.length; i++) {
                     if (indexEndCond[i] != null) {
-                        set = indexEndCond[i].collectRangeVariables(rangeVariables, set);
+                        set = indexEndCond[i].collectRangeVariables(
+                            rangeVariables,
+                            set);
                     }
                 }
             }
 
             if (indexEndCondition != null) {
-                set = indexEndCondition.collectRangeVariables(rangeVariables, set);
+                set = indexEndCondition.collectRangeVariables(
+                    rangeVariables,
+                    set);
             }
 
             if (excludeConditions != null) {
-                set =  excludeConditions.collectRangeVariables(rangeVariables, set);
+                set = excludeConditions.collectRangeVariables(
+                    rangeVariables,
+                    set);
             }
 
             if (nonIndexCondition != null) {
-                set =  nonIndexCondition .collectRangeVariables(rangeVariables, set);
-
+                set = nonIndexCondition.collectRangeVariables(
+                    rangeVariables,
+                    set);
             }
 
             if (terminalCondition != null) {
-                set =  terminalCondition .collectRangeVariables(rangeVariables, set);
+                set = terminalCondition.collectRangeVariables(
+                    rangeVariables,
+                    set);
             }
 
             return set;

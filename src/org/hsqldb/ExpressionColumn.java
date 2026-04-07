@@ -980,6 +980,7 @@ public class ExpressionColumn extends Expression {
                   .append(column.getName().getSchemaQualifiedStatementName())
                   .append(" RID = ")
                   .append(rangeVariable.rangePosition);
+
                 if (alias != null) {
                     sb.append(" AS ").append(alias.name);
                 }

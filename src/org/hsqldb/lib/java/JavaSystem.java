@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,6 @@ public final class JavaSystem {
 
             // If the version has one or more dots, we take the first part.
             // For example, "11.0.2" becomes "11".
-
             int dot = version.indexOf('.');
 
             if (dot > 0) {

@@ -388,7 +388,10 @@ public class RangeVariableJoined extends RangeVariable {
           .append("\n");
 
         if (tableAlias != null) {
-            sb.append(b).append("alias = ").append(tableAlias.name).append("\n");
+            sb.append(b)
+              .append("alias = ")
+              .append(tableAlias.name)
+              .append("\n");
         }
 
         boolean fullScan = !conditionsArray[0].hasIndexCondition();
