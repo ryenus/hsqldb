@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of PersistentStore for TEXT tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class RowStoreAVLDiskData extends RowStoreAVL {
@@ -226,6 +226,8 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
             case RowAction.ACTION_INSERT_DELETE :
 
                 // INSERT + DELETE
+                cache.removePersistence(row);
+
                 if (txModel == TransactionManager.LOCKS) {
                     remove(row);
                 } else {
@@ -257,6 +259,8 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
                 break;
 
             case RowAction.ACTION_INSERT :
+                cache.removePersistence(row);
+
                 if (txModel == TransactionManager.LOCKS) {
                     delete(session, row);
                     remove(row);
@@ -265,6 +269,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :
+                cache.removePersistence(row);
 
                 // INSERT + DELETE
                 if (txModel == TransactionManager.LOCKS) {
