@@ -1,5 +1,5 @@
-June 2025 - version 2.7.5
--- version 2.7.5 jar requires JRE 11 or later - can be used as a java module  - tested up to Java 21
+June 2026 - version 2.7.5
+-- version 2.7.5 jar requires JRE 11 or later - can be used as a java module  - tested up to Java 25
 -- version 2.7.5 alternative jar requires JRE 8 or later
 -- added support for PreparedStatement.getMetaData
 -- fixed a number of reported regressions and bugs (see tracker)
