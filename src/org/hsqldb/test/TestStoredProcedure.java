@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -169,7 +169,7 @@ public class TestStoredProcedure extends TestBase {
 
             int count = rs.getInt(1);
 
-            assertTrue("test result not correct", count == 3);
+            assertEquals("test result not correct", 3, count);
             statement.execute(
                 "grant execute on specific function public.f2 to testusert2");
 
@@ -185,7 +185,7 @@ public class TestStoredProcedure extends TestBase {
 
             assertTrue("test result not correct", b);
         } catch (Exception e) {
-            assertTrue("unable to execute call to procedure", false);
+            fail("unable to execute call to procedure");
         } finally {
             conn.close();
         }
