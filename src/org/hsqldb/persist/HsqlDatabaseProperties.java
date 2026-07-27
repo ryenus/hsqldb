@@ -243,6 +243,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_large_data      = "hsqldb.large_data";
     public static final String hsqldb_files_space     = "hsqldb.files_space";
     public static final String hsqldb_digest          = "hsqldb.digest";
+    public static final String hsqldb_fair_locks      = "hsqldb.fair_locks";
 
     //
     public static final String jdbc_translate_tti_types =
@@ -409,6 +410,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    newMeta(hsqldb_write_delay, DB_PROP, true));
         dbMeta.put(hsqldb_large_data,
                    newMeta(hsqldb_large_data, DB_PROP, false));
+        dbMeta.put(hsqldb_fair_locks,
+                   newMeta(hsqldb_fair_locks, DB_PROP, true));
         dbMeta.put(sql_ref_integrity,
                    newMeta(sql_ref_integrity, SQL_PROP, true));
         dbMeta.put(sql_restrict_exec,

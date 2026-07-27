@@ -55,7 +55,7 @@ import org.hsqldb.result.ResultMetaData;
  * registered Statement objects to become invalidated. This is done by
  * comparing the schema change and compile timestamps. When a session
  * subsequently attempts to use an invalidated Statement via its id, it will
- * recompiles the Statement using its sql statement still held by this class.
+ * recompile the Statement using its sql statement still held by this class.
  * failure to recompile invalidates and removes the Statement.<p>
  *
  * This class keeps count of the number of time each registered compiled

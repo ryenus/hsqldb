@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.hsqldb;
  * Codes based on SQL Standards for different types of statement.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.5
  * @since 1.9.0
  */
 public interface StatementTypes {
@@ -195,7 +195,7 @@ public interface StatementTypes {
     int SET_DATABASE_FILES_EVENT_LOG           = 1016;
     int SET_DATABASE_FILES_LOBS_SCALE          = 1017;
     int SET_DATABASE_FILES_LOBS_COMPRESSED     = 1018;
-    int SET_DATABASE_FILES_UNUSED_TYPE_SETTING = 1019;
+    int SET_DATABASE_FILES_FAIR_LOCKS          = 1019;
     int SET_DATABASE_FILES_LOG                 = 1020;
     int SET_DATABASE_FILES_LOG_SIZE            = 1021;
     int SET_DATABASE_FILES_NIO                 = 1022;

@@ -68,7 +68,8 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
-        lock              = new ReentrantReadWriteLock();
+        lock = new ReentrantReadWriteLock(
+            database.logger.propRowStoreFairLocks);
         readLock          = lock.readLock();
         writeLock         = lock.writeLock();
     }

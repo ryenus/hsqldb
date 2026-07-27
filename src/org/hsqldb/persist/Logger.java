@@ -131,6 +131,7 @@ public class Logger implements EventLogInterface {
     boolean         propCompressLobs;
     int             propScriptFormat = 0;
     boolean         propLargeData;
+    boolean         propRowStoreFairLocks = true;
     long            propFilesTimestamp;
 
     //
@@ -445,6 +446,12 @@ public class Logger implements EventLogInterface {
                                   HsqlDatabaseProperties.hsqldb_digest);
 
         database.granteeManager.setDigestAlgo(temp);
+
+        if (!database.urlProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_fair_locks,
+                true)) {
+            propRowStoreFairLocks = false;
+        }
 
         if (!isNewDatabase) {
             return;
@@ -1247,6 +1254,10 @@ public class Logger implements EventLogInterface {
         propFilesTimestamp = value;
     }
 
+    public void setFairLocks(boolean value) {
+        propRowStoreFairLocks = value;
+    }
+
     public void setLobFileScale(int value) {
 
         if (propLobBlockSize == value * 1024) {
@@ -1744,6 +1755,9 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.hsqldb_write_delay_millis,
             String.valueOf(propWriteDelay));
         map.put(
+            HsqlDatabaseProperties.hsqldb_fair_locks,
+            String.valueOf(propRowStoreFairLocks));
+        map.put(
             HsqlDatabaseProperties.hsqldb_digest,
             database.granteeManager.getDigestAlgo());
 
@@ -2235,6 +2249,14 @@ public class Logger implements EventLogInterface {
         sb.append(propFilesTimestamp);
         list.add(sb.toString());
         sb.setLength(0);
+
+        if (!propRowStoreFairLocks) {
+            sb.append("SET FILES ").append(Tokens.T_FAIR).append(' ');
+            sb.append(Tokens.T_LOCKS).append(' ');
+            sb.append(Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
 
         return list;
     }

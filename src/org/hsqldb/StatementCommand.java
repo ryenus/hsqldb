@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -173,6 +173,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_LOG_SIZE :
             case StatementTypes.SET_DATABASE_FILES_NIO :
             case StatementTypes.SET_DATABASE_FILES_SCRIPT_FORMAT :
+            case StatementTypes.SET_DATABASE_FILES_FAIR_LOCKS :
             case StatementTypes.SET_DATABASE_AUTHENTICATION :
             case StatementTypes.SET_DATABASE_PASSWORD_CHECK :
             case StatementTypes.SET_DATABASE_PASSWORD_DIGEST :
@@ -684,6 +685,20 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
                     session.database.logger.setWriteDelay(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+
+            case StatementTypes.SET_DATABASE_FILES_FAIR_LOCKS : {
+                try {
+                    boolean value = ((Boolean) arguments[0]).booleanValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setFairLocks(value);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for MEMORY tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class RowStoreAVLMemory extends RowStoreAVL {
@@ -62,7 +62,8 @@ public class RowStoreAVLMemory extends RowStoreAVL {
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
-        lock              = new ReentrantReadWriteLock(true);
+        lock = new ReentrantReadWriteLock(
+            database.logger.propRowStoreFairLocks);
         readLock          = lock.readLock();
         writeLock         = lock.writeLock();
     }

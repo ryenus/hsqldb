@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of PersistentStore for CACHED tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class RowStoreAVLDisk extends RowStoreAVL {
@@ -81,12 +81,15 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
         cache.adjustStoreCount(1);
 
-        rowActionMap = new LongKeyHashMap<>(8);
-        largeData    = database.logger.propLargeData;
-        tableSpace   = cache.spaceManager.getTableSpace(table.getSpaceID());
-        lock         = new ReentrantReadWriteLock(true);
-        readLock     = lock.readLock();
-        writeLock    = lock.writeLock();
+        rowActionMap = new LongKeyHashMap<>(
+            8,
+            database.logger.propRowStoreFairLocks);
+        largeData  = database.logger.propLargeData;
+        tableSpace = cache.spaceManager.getTableSpace(table.getSpaceID());
+        lock = new ReentrantReadWriteLock(
+            database.logger.propRowStoreFairLocks);
+        readLock   = lock.readLock();
+        writeLock  = lock.writeLock();
     }
 
     public boolean isMemory() {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class Database {
@@ -158,9 +158,6 @@ public class Database {
     //
     public CheckpointRunner checkpointRunner;
     public TimeoutRunner    timeoutRunner;
-
-    //
-    Result updateZeroResult = Result.updateZeroResult;
 
     //
     public static final int DATABASE_ONLINE       = 1;

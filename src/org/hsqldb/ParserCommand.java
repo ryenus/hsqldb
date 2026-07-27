@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -1948,6 +1948,15 @@ public class ParserCommand extends ParserDDL {
                 }
 
                 type = StatementTypes.SET_DATABASE_FILES_SCRIPT_FORMAT;
+                break;
+            }
+
+            case Tokens.FAIR : {
+                read();
+                readThis(Tokens.LOCKS);
+
+                value = processTrueOrFalse();
+                type  = StatementTypes.SET_DATABASE_FILES_FAIR_LOCKS;
                 break;
             }
 

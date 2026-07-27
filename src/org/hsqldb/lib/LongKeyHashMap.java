@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,14 +40,14 @@ import org.hsqldb.map.BaseHashMap;
  * A Map of long primitives to Object values.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
 
-    ReentrantReadWriteLock           lock = new ReentrantReadWriteLock(true);
-    ReentrantReadWriteLock.ReadLock  readLock  = lock.readLock();
-    ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+    ReentrantReadWriteLock           lock;
+    ReentrantReadWriteLock.ReadLock  readLock;
+    ReentrantReadWriteLock.WriteLock writeLock;
 
     //
     private Set<Long>           keySet;
@@ -55,16 +55,20 @@ public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
     private Set<Entry<Long, V>> entries;
 
     public LongKeyHashMap() {
-        this(16);
+        this(16, true);
     }
 
-    public LongKeyHashMap(int initialCapacity) throws IllegalArgumentException {
+    public LongKeyHashMap(int initialCapacity, boolean fairLock) {
 
         super(
             initialCapacity,
             BaseHashMap.longKeyOrValue,
             BaseHashMap.objectKeyOrValue,
             false);
+
+        lock      = new ReentrantReadWriteLock(fairLock);
+        readLock  = lock.readLock();
+        writeLock = lock.writeLock();
     }
 
     public Lock getReadLock() {
