@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2024 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2026 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -1847,14 +1847,14 @@
       <simpara><emphasis>import DSV statement</emphasis></simpara>
 
       <simpara><literal>&lt;import DSV statement&gt; ::= PERFORM IMPORT DATA
-      INTO &lt;table name&gt; FROM &lt;single-quoted file path&gt; { CONTINUE
-      | STOP | CHECK } ON ERROR</literal></simpara>
+      INTO TABLE &lt;table name&gt; FROM &lt;single-quoted file path&gt; {
+      CONTINUE | STOP | CHECK } ON ERROR</literal></simpara>
 
       <simpara>Imports data from a DSV file into a table. The file to be
       imported may be a file exported with the EXPORT DSV statement listed
       above, or a file from another source. The source is defined as a file
-      path together with optional setting as defined for a TEXT table. See the
-      Text Tables chapter for the properties.</simpara>
+      path together with optional settings as defined for a TEXT table. See
+      the Text Tables chapter for the supported settings.</simpara>
 
       <simpara>The { CONTINUE | STOP | CHECK } ON ERROR clause determines the
       action when an error occurs due to constraint violation. The CHECK
@@ -3411,6 +3411,31 @@
       <para>This is equivalent to the connection properties
       <property>hsqldb.write_delay</property> and
       <property>hsqldb.write_delay_millis</property>.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES FAIR LOCKS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET FILES FAIR LOCKS</emphasis></simpara>
+
+      <simpara><emphasis>set files write fair locks
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set files write locks statement&gt; ::= SET FILES
+      FAIR LOCKS { TRUE | FALSE }</literal></simpara>
+
+      <para>When a table is accessed, a Java ReadWriteLock allows exclusive
+      writes by a single connection and simultaneous reads by many. The lock
+      mode is <literal>fair</literal> by default, which allows predictable
+      multi-threaded performance. It is possible to turn off fairness for
+      better performance in multi-threaded access that includes both reads and
+      writes by different sessions. Changing this setting to FALSE does not
+      immediately affect existing tables and is applied when the database is
+      shut down and reopened. The setting applies to all types of tables,
+      including <literal>mem:</literal> databases.</para>
+
+      <simpara>This is equivalent to the connection property
+      <property>hsqldb.fair_locks</property>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET FILES SCALE</primary>

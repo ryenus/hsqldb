@@ -41,7 +41,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2024 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2026 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -3299,7 +3299,8 @@
 
               <entry><literal>true</literal></entry>
 
-              <entry>write delay performing fsync of log file entries</entry>
+              <entry>write delay performing <literal>fsync</literal> of log
+              file entries</entry>
             </row>
 
             <row>
@@ -3307,10 +3308,10 @@
               the default WRITE DELAY property of the database is used, which
               is 500 milliseconds. If the property is false, the WRITE DELAY
               is set to 0 seconds. The log is written to file regardless of
-              this property. The property controls the fsync that forces the
-              written log to be persisted to disk. The SQL command for this
-              property allows more precise control over the
-              property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
+              this property. The property controls the
+              <literal>fsync</literal> that forces the written log to be
+              persisted to disk. The SQL command for this property allows more
+              precise control over the property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -3342,17 +3343,62 @@
 
               <entry><literal>500</literal></entry>
 
-              <entry>write delay for performing fsync of log file
-              entries</entry>
+              <entry>write delay for performing <literal>fsync</literal> of
+              log file entries</entry>
             </row>
 
             <row>
               <entry nameend="c3" namest="c1"><para>If the property is used,
               the WRITE DELAY property of the database is set the given value
-              in milliseconds. The property controls the fsync that forces the
-              written log to be persisted to disk. The SQL command for this
-              property allows the same level of control over the
-              property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
+              in milliseconds. The property controls the
+              <literal>fsync</literal> that forces the written log to be
+              persisted to disk. The SQL command for this property allows the
+              same level of control over the
+              property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Internal Java locking mode</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.fair_locks</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>internal ReadWriteLock <literal>fair</literal>
+              mode</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>When a table is accessed,
+              a Java ReadWriteLock allows exclusive writes by a single
+              connection and simultaneous reads by many. The lock mode is
+              <literal>fair</literal> by default, which allows predictable
+              multi-threaded performance. It is possible to turn off fairness
+              for better performance in multi-threaded access that includes
+              both reads and writes by different
+              sessions.</para><para><programlisting>SET FILE FAIR LOCKS { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -3764,9 +3810,9 @@
             <entry nameend="c3" namest="c1"><para>Setting this system property
             true allows text table sources and files to be opened on all
             available paths. It also allows pure <glossterm>mem:</glossterm>
-            databases to open such files. By default, only the database
-            directory and its subdirectories are allowed. See the Text Tables
-            chapter.</para></entry>
+            databases to open such files. When the property is false, only the
+            database directory and its subdirectories are allowed. See the
+            Text Tables chapter.</para></entry>
           </row>
         </tbody>
       </tgroup>
