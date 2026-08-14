@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2025, The HSQL Development Group
+ * Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,6 +85,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.Session;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.error.HsqlException;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
@@ -253,6 +255,7 @@ public class Servlet extends HttpServlet {
         try {
             inStream = new DataInputStream(request.getInputStream());
 
+            long           randomID   = inStream.readLong();
             int            databaseID = inStream.readInt();
             long           sessionID  = inStream.readLong();
             int            mode       = inStream.readByte();
@@ -309,9 +312,14 @@ public class Servlet extends HttpServlet {
 
                 session = DatabaseManager.getSession(dbId, sessionId);
 
-                resultIn.readLobResults(session, inStream);
-
-                resultOut = session.execute(resultIn);
+                if (randomID == session.getRandomId()) {
+                    resultIn.readLobResults(session, inStream);
+                    resultOut = session.execute(resultIn);
+                } else {
+                    resultOut = Result.newErrorResult(
+                            Error.error(
+                                    ErrorCode.SERVER_DATABASE_DISCONNECTED));
+                }
             }
 
             HsqlByteArrayOutputStream memStream =

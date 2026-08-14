@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import java.security.SecureRandom;
+
 import java.util.TimeZone;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
@@ -158,6 +160,7 @@ public class Database {
     //
     public CheckpointRunner checkpointRunner;
     public TimeoutRunner    timeoutRunner;
+    public SecureRandom     secureRandomGen = new SecureRandom();
 
     //
     public static final int DATABASE_ONLINE       = 1;

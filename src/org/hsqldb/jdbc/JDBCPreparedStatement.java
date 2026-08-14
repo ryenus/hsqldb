@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -3276,7 +3276,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase
         checkClosed();
 
         String sql      = resultOut.getMainString();
-        int    randomId = connection.sessionProxy.getRandomId();
+        long   randomId = connection.sessionProxy.getRandomId();
         Result request  = Result.newCancelRequest(randomId, -1, sql);
 
         try {

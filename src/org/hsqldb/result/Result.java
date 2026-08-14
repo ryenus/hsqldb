@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,6 +122,9 @@ public class Result {
 
     // session ID
     long sessionID;
+
+    // random ID of session
+    long randomID;
 
     // result id
     private long id;
@@ -428,7 +431,7 @@ public class Result {
                 result.sessionID    = in.readLong();
                 result.databaseName = in.readString();
                 result.mainString   = in.readString();
-                result.generateKeys = in.readInt();
+                result.randomID     = in.readLong();
                 break;
 
             case ResultConstants.UPDATECOUNT :
@@ -483,11 +486,11 @@ public class Result {
             }
 
             case ResultConstants.SQLCANCEL :
-                result.databaseID   = in.readInt();
-                result.sessionID    = in.readLong();
-                result.statementID  = in.readLong();
-                result.generateKeys = in.readInt();
-                result.mainString   = in.readString();
+                result.databaseID  = in.readInt();
+                result.sessionID   = in.readLong();
+                result.statementID = in.readLong();
+                result.randomID    = in.readLong();
+                result.mainString  = in.readString();
                 break;
 
             case ResultConstants.PREPARE_ACK :
@@ -806,7 +809,7 @@ public class Result {
         result.mainString = session.getDatabase()
                                    .getProperties()
                                    .getClientPropertiesAsString();
-        result.generateKeys = session.getRandomId();
+        result.randomID     = session.getRandomId();
 
         return result;
     }
@@ -910,15 +913,15 @@ public class Result {
     }
 
     public static Result newCancelRequest(
-            int randomId,
+            long randomId,
             long statementId,
             String sql) {
 
         Result r = newResult(ResultConstants.SQLCANCEL);
 
-        r.statementID  = statementId;
-        r.mainString   = sql;
-        r.generateKeys = randomId;
+        r.statementID = statementId;
+        r.mainString  = sql;
+        r.randomID    = randomId;
 
         return r;
     }
@@ -1228,7 +1231,7 @@ public class Result {
                 rowOut.writeLong(sessionID);
                 rowOut.writeString(databaseName);
                 rowOut.writeString(mainString);
-                rowOut.writeInt(generateKeys);
+                rowOut.writeLong(randomID);
                 break;
 
             case ResultConstants.UPDATECOUNT :
@@ -1265,7 +1268,7 @@ public class Result {
                 rowOut.writeInt(databaseID);
                 rowOut.writeLong(sessionID);
                 rowOut.writeLong(statementID);
-                rowOut.writeInt(generateKeys);
+                rowOut.writeLong(randomID);
                 rowOut.writeString(mainString);
                 break;
 
@@ -1595,12 +1598,12 @@ public class Result {
         return statementReturnType;
     }
 
-    public void setSessionRandomID(int id) {
-        generateKeys = id;
+    public void setSessionRandomID(long id) {
+        randomID = id;
     }
 
-    public int getSessionRandomID() {
-        return generateKeys;
+    public long getSessionRandomID() {
+        return randomID;
     }
 
     public int getGeneratedResultType() {

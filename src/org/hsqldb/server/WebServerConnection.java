@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  *  (fredt@users)
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.5
  * @since 1.6.2
  */
 class WebServerConnection implements Runnable {
@@ -103,20 +103,23 @@ class WebServerConnection implements Runnable {
     static final int             BUFFER_SIZE        = 256;
     final byte[]                 mainBuffer         = new byte[BUFFER_SIZE];
     private RowOutputBinary      rowOut = new RowOutputBinary(mainBuffer);
-    private RowInputBinary       rowIn  = new RowInputBinary(rowOut);
+    private RowInputBinary       rowIn              = new RowInputBinary(
+        rowOut);
 
     //
     static byte[]       BYTES_GET        = "GET".getBytes(ENCODING);
     static byte[]       BYTES_HEAD       = "HEAD".getBytes(ENCODING);
     static byte[]       BYTES_POST       = "POST".getBytes(ENCODING);
-    static byte[]       BYTES_CONTENT = "Content-Length: ".getBytes(ENCODING);
-    static final byte[] BYTES_WHITESPACE = new byte[] {
-        (byte) ' ', (byte) '\t'
-    };
+    static byte[]       BYTES_CONTENT    = "Content-Length: ".getBytes(
+        ENCODING);
+    static final byte[] BYTES_WHITESPACE = new byte[]{ (byte) ' ',
+        (byte) '\t' };
 
     // default mime type mappings
     private static final int hnd_content_types =
-        ResourceBundleHandler.getBundleHandle("webserver-content-types", null);
+        ResourceBundleHandler.getBundleHandle(
+            "webserver-content-types",
+            null);
 
     /**
      * Creates a new WebServerConnection to the specified WebServer on the
@@ -322,6 +325,7 @@ class WebServerConnection implements Runnable {
 
         try {
             DataInputStream dataIn     = new DataInputStream(inStream);
+            long            randomID   = dataIn.readLong();
             int             databaseID = dataIn.readInt();
             long            sessionID  = dataIn.readLong();
             int             mode       = dataIn.readByte();
@@ -361,12 +365,19 @@ class WebServerConnection implements Runnable {
                         Error.error(ErrorCode.SERVER_DATABASE_DISCONNECTED));
                 } else {
                     resultIn.setSession(session);
-                    resultIn.readLobResults(session, dataIn);
 
                     if (type == ResultConstants.SQLCANCEL) {
                         resultOut = session.cancel(resultIn);
                     } else {
-                        resultOut = session.execute(resultIn);
+                        if (randomID == session.getRandomId()) {
+                            resultIn.readLobResults(session, dataIn);
+
+                            resultOut = session.execute(resultIn);
+                        } else {
+                            resultOut = Result.newErrorResult(
+                                Error.error(
+                                    ErrorCode.SERVER_DATABASE_DISCONNECTED));
+                        }
                     }
                 }
             }

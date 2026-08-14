@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,13 +50,13 @@ import org.hsqldb.result.Result;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.7.2
  */
 public class ClientConnectionHTTP extends ClientConnection {
 
     static final String ENCODING = "ISO-8859-1";
-    static final int    IDLENGTH = 12;    // length of int + long for db and session
+    static final int    IDLENGTH = 20;    // long + int + long (random, db, session)
 
     // IDs
     private HttpURLConnection httpConnection = null;
@@ -169,6 +169,7 @@ public class ClientConnectionHTTP extends ClientConnection {
 
         dataOutput = new DataOutputStream(httpConnection.getOutputStream());
 
+        dataOutput.writeLong(randomID);
         dataOutput.writeInt(r.getDatabaseId());
         dataOutput.writeLong(r.getSessionId());
         memStream.writeTo(dataOutput);

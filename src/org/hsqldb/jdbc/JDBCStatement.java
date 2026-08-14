@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,7 @@ import org.hsqldb.result.ResultProperties;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since HSQLDB 1.9.0
  * @see JDBCConnection#createStatement
  * @see JDBCResultSet
@@ -471,7 +471,7 @@ public class JDBCStatement extends JDBCStatementBase
         checkClosed();
 
         String sql      = resultOut.getMainString();
-        int    randomId = connection.sessionProxy.getRandomId();
+        long   randomId = connection.sessionProxy.getRandomId();
         Result request  = Result.newCancelRequest(randomId, -1, sql);
 
         try {

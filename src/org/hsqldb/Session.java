@@ -77,7 +77,7 @@ import org.hsqldb.types.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -127,6 +127,7 @@ public class Session implements SessionInterface {
     private int                 sessionMaxRows;
     int                         sessionOptimization = 8;
     private final long          sessionId;
+    private final long          randomId;
     private boolean             ignoreCase;
     private final TimestampData connectTimestamp;
 
@@ -181,6 +182,7 @@ public class Session implements SessionInterface {
         this.timeZone               = zone;
         this.currentTimeZone        = zone;
         this.zoneString             = zone.getID();
+        randomId                    = database.secureRandomGen.nextLong();
         rowActionList = new HsqlArrayList<>(new RowAction[128], 0, true);
         waitedSessions              = new OrderedHashSet<>();
         waitingSessions             = new OrderedHashSet<>();
@@ -222,7 +224,7 @@ public class Session implements SessionInterface {
         return sessionId;
     }
 
-    public int getRandomId() {
+    public long getRandomId() {
         return randomId;
     }
 
@@ -2303,11 +2305,9 @@ public class Session implements SessionInterface {
     // services
     TypedComparator  typedComparator = new TypedComparator(this);
     Scanner          secondaryScanner;
-    SimpleDateFormat simpleDateFormat;
     SimpleDateFormat simpleDateFormatGMT;
     Random           randomGenerator = new Random();
     long             seed            = -1;
-    public final int randomId = randomGenerator.nextInt(Integer.MAX_VALUE);
 
     //
     public TypedComparator getComparator() {

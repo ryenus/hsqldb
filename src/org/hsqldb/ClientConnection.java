@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ import org.hsqldb.types.HsqlDateTime;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.7.2
  */
 public class ClientConnection implements SessionInterface, Cloneable {
@@ -102,7 +102,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
     private Result               resultOut;
     private long                 sessionID;
     private long                 lobIDSequence = -1;
-    protected int                randomID;
+    protected long               randomID;
 
     //
     private boolean  isReadOnlyDefault = false;
@@ -556,7 +556,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
         return sessionID;
     }
 
-    public int getRandomId() {
+    public long getRandomId() {
         return randomID;
     }
 
