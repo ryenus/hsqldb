@@ -323,14 +323,18 @@ class WebServerConnection implements Runnable {
      */
     void processQuery(InputStream inStream) {
 
+        DataInputStream  dataIn  = null;
+        DataOutputStream dataOut = null;
+
         try {
-            DataInputStream dataIn     = new DataInputStream(inStream);
-            long            randomID   = dataIn.readLong();
-            int             databaseID = dataIn.readInt();
-            long            sessionID  = dataIn.readLong();
-            int             mode       = dataIn.readByte();
+            dataIn = new DataInputStream(inStream);
+
+            long    randomID   = dataIn.readLong();
+            int     databaseID = dataIn.readInt();
+            long    sessionID  = dataIn.readLong();
+            int     mode       = dataIn.readByte();
             Session session = DatabaseManager.getSession(databaseID, sessionID);
-            Result resultIn = Result.newResult(session, mode, dataIn, rowIn);
+            Result  resultIn   = Result.newResult(session, mode, dataIn, rowIn);
 
             resultIn.setDatabaseId(databaseID);
             resultIn.setSessionId(sessionID);
@@ -385,8 +389,7 @@ class WebServerConnection implements Runnable {
 // patched 2.2.9 by Aart 2012-05-15: Make sure 'Content-length' is correctly set
             if (type == ResultConstants.DISCONNECT
                     || type == ResultConstants.RESETSESSION) {
-                DataOutputStream dataOut = new DataOutputStream(
-                    socket.getOutputStream());
+                dataOut = new DataOutputStream(socket.getOutputStream());
 
                 // Upon DISCONNECT 6 bytes are read by the ClientConnectionHTTP: mode (1 byte), a length (int), and an 'additional results (1 byte)
                 String header = getHead(
@@ -411,8 +414,7 @@ class WebServerConnection implements Runnable {
 
             resultOut.write(session, tempOutput, rowOut);
 
-            DataOutputStream dataOut = new DataOutputStream(
-                socket.getOutputStream());
+            dataOut = new DataOutputStream(socket.getOutputStream());
 
             // Write HTTP response header
             String header = getHead(

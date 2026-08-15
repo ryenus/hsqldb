@@ -518,8 +518,10 @@ public class Result {
                 result.rsProperties = in.readByte();
                 result.queryTimeout = in.readShort();
 
-                Statement statement = session.statementManager.getStatement(
-                    result.statementID);
+                Statement statement = session == null
+                                      ? null
+                                      : session.statementManager.getStatement(
+                                          result.statementID);
 
                 if (statement == null) {
 

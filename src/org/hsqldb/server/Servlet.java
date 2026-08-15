@@ -249,19 +249,19 @@ public class Servlet extends HttpServlet {
             HttpServletResponse response)
             throws IOException {
 
-        DataInputStream  inStream = null;
-        DataOutputStream dataOut  = null;
+        DataInputStream  dataIn  = null;
+        DataOutputStream dataOut = null;
 
         try {
-            inStream = new DataInputStream(request.getInputStream());
+            dataIn = new DataInputStream(request.getInputStream());
 
-            long           randomID   = inStream.readLong();
-            int            databaseID = inStream.readInt();
-            long           sessionID  = inStream.readLong();
-            int            mode       = inStream.readByte();
+            long           randomID   = dataIn.readLong();
+            int            databaseID = dataIn.readInt();
+            long           sessionID  = dataIn.readLong();
+            int            mode       = dataIn.readByte();
             RowInputBinary rowIn      = new RowInputBinary(BUFFER_SIZE);
             Session session = DatabaseManager.getSession(databaseID, sessionID);
-            Result resultIn = Result.newResult(session, mode, inStream, rowIn);
+            Result resultIn = Result.newResult(session, mode, dataIn, rowIn);
 
             resultIn.setDatabaseId(databaseID);
             resultIn.setSessionId(sessionID);
@@ -277,48 +277,53 @@ public class Servlet extends HttpServlet {
                         resultIn.getMainString(),
                         resultIn.getSubString(),
                         new HsqlProperties(),
-                        TimeZone.getDefault());
+                        TimeZone.getTimeZone(resultIn.getZoneString()));
                     resultOut = Result.newConnectionAcknowledgeResponse(
                         session);
                 } catch (HsqlException e) {
                     resultOut = Result.newErrorResult(e);
+                } catch (Throwable e) {
+                    resultOut = Result.newErrorResult(e);
                 }
-            } else if (type == ResultConstants.DISCONNECT
-                       || type == ResultConstants.RESETSESSION) {
-
-                // Upon DISCONNECT 6 bytes are read by the ClientConnectionHTTP: mode (1 byte), a length (int), and an 'additional results (1 byte)
-                response.setHeader("Cache-Control", "no-cache");    // DB-traffic should not be cached by proxies
-                response.setContentType("application/octet-stream");
-                response.setContentLength(6);
-
-                // Only acquire output-stream after headers are set
-                dataOut = new DataOutputStream(response.getOutputStream());
-
-                dataOut.writeByte(ResultConstants.DISCONNECT);    // Mode
-                dataOut.writeInt(4);                              // Length Int of first result is always read! Minvalue is 4: It is the number of bytes of the current result (it includes the length of this Int itself)
-                dataOut.writeByte(ResultConstants.NONE);          // No Additional results
-                dataOut.close();
-
-                return;
-            } else if (type == ResultConstants.SQLCANCEL) {
-                int  dbId      = resultIn.getDatabaseId();
-                long sessionId = resultIn.getSessionId();
-
-                session   = DatabaseManager.getSession(dbId, sessionId);
-                resultOut = session.cancel(resultIn);
             } else {
-                int  dbId      = resultIn.getDatabaseId();
-                long sessionId = resultIn.getSessionId();
-
-                session = DatabaseManager.getSession(dbId, sessionId);
-
-                if (randomID == session.getRandomId()) {
-                    resultIn.readLobResults(session, inStream);
-                    resultOut = session.execute(resultIn);
-                } else {
+                if (session == null) {
                     resultOut = Result.newErrorResult(
-                            Error.error(
+                        Error.error(ErrorCode.SERVER_DATABASE_DISCONNECTED));
+                } else {
+                    resultIn.setSession(session);
+
+                    if (type == ResultConstants.SQLCANCEL) {
+                        resultOut = session.cancel(resultIn);
+                    } else {
+                        if (randomID == session.getRandomId()) {
+                            resultIn.readLobResults(session, dataIn);
+
+                            resultOut = session.execute(resultIn);
+                        } else {
+                            resultOut = Result.newErrorResult(
+                                Error.error(
                                     ErrorCode.SERVER_DATABASE_DISCONNECTED));
+                        }
+                    }
+                }
+
+                if (type == ResultConstants.DISCONNECT
+                        || type == ResultConstants.RESETSESSION) {
+
+                    // Upon DISCONNECT 6 bytes are read by the ClientConnectionHTTP: mode (1 byte), a length (int), and an 'additional results (1 byte)
+                    response.setHeader("Cache-Control", "no-cache");    // DB-traffic should not be cached by proxies
+                    response.setContentType("application/octet-stream");
+                    response.setContentLength(6);
+
+                    // Only acquire output-stream after headers are set
+                    dataOut = new DataOutputStream(response.getOutputStream());
+
+                    dataOut.writeByte(ResultConstants.DISCONNECT);    // Mode
+                    dataOut.writeInt(4);                              // Length Int of first result is always read! Minvalue is 4: It is the number of bytes of the current result (it includes the length of this Int itself)
+                    dataOut.writeByte(ResultConstants.NONE);          // No Additional results
+                    dataOut.close();
+
+                    return;
                 }
             }
 
@@ -328,7 +333,7 @@ public class Servlet extends HttpServlet {
             RowOutputBinary  rowOut     = new RowOutputBinary(BUFFER_SIZE, 1);
 
             resultOut.write(session, tempOutput, rowOut);
-            response.setHeader("Cache-Control", "no-cache");      // DB-traffic should not be cached by proxies
+            response.setHeader("Cache-Control", "no-cache");          // DB-traffic should not be cached by proxies
             response.setContentType("application/octet-stream");
             response.setContentLength(memStream.size());
 
@@ -342,8 +347,8 @@ public class Servlet extends HttpServlet {
                 dataOut.close();
             }
 
-            if (inStream != null) {
-                inStream.close();
+            if (dataIn != null) {
+                dataIn.close();
             }
         }
     }
