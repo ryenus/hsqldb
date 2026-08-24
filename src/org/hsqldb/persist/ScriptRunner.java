@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import org.hsqldb.scriptio.StatementLineTypes;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.7.2
  */
 public class ScriptRunner {
@@ -112,7 +112,6 @@ public class ScriptRunner {
         IntKeyHashMap<Session> sessionMap = new IntKeyHashMap<>();
         Session                current    = null;
         int                    currentId  = 0;
-        String                 statement;
         int                    statementType;
         Statement dummy = new StatementDML(StatementTypes.UPDATE_CURSOR, null);
         String                 databaseFile = database.getCanonicalPath();
@@ -142,23 +141,20 @@ public class ScriptRunner {
                     }
                 }
 
-                Result result = null;
+                Result result;
 
                 statementType = scr.getStatementType();
 
                 switch (statementType) {
 
                     case StatementLineTypes.SET_FILES_CHECK_STATEMENT :
-                        result = null;
-
-                    // fall through
                     case StatementLineTypes.ANY_STATEMENT :
-                        statement = scr.getLoggedStatement();
-
-                        Statement cs;
+                        String sqlStatement = scr.getLoggedStatement();
 
                         try {
-                            cs = current.compileStatement(statement);
+                            Statement cs = current.compileStatement(
+                                sqlStatement);
+
                             result = current.executeCompiledStatement(
                                 cs,
                                 ValuePool.emptyObjectArray,
@@ -167,7 +163,7 @@ public class ScriptRunner {
                             result = Result.newErrorResult(e);
                         }
 
-                        if (result != null && result.isError()) {
+                        if (result.isError()) {
                             if (result.getException() != null) {
                                 throw result.getException();
                             }

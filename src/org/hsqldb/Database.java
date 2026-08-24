@@ -179,7 +179,7 @@ public class Database {
      * @param path is the given path to the database files
      * @param canonicalPath is the canonical path
      * @param props property overrides placed on the connect URL
-     * @exception org.hsqldb.error.HsqlException if the specified name and path
+     * @exception HsqlException if the specified name and path
      *      combination is illegal or unavailable, or the database files the
      *      name and path resolves to are in use by another process
      */

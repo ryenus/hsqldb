@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
+import org.hsqldb.rights.User;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
@@ -52,7 +53,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -1329,6 +1330,7 @@ public class StatementSchema extends Statement {
                 HsqlName name        = (HsqlName) arguments[0];
                 Grantee  owner       = (Grantee) arguments[1];
                 Boolean  ifNotExists = (Boolean) arguments[2];
+                Boolean  hasName     = (Boolean) arguments[3];
 
                 try {
                     session.checkDDLWrite();
@@ -1338,8 +1340,7 @@ public class StatementSchema extends Statement {
                                 && SqlInvariants.PUBLIC_SCHEMA.equals(
                                     name.name)) {}
                         else {
-                            if (ifNotExists != null
-                                    && ifNotExists.booleanValue()) {
+                            if (ifNotExists.booleanValue()) {
                                 return Result.updateZeroResult;
                             }
 
@@ -1350,6 +1351,14 @@ public class StatementSchema extends Statement {
 
                         // always include authorization
                         Schema schema = schemaManager.findSchema(name.name);
+
+                        if (owner instanceof User && name.name.equals(owner.getName().name)) {
+                            User user = (User) owner;
+
+                            if (user.getInitialSchema() == null) {
+                                user.setInitialSchema(schema.getName());
+                            }
+                        }
 
                         this.sql = schema.getSQL();
                     }

@@ -134,7 +134,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  * calls are supported.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.5
  * @since 1.6.2
  */
 public class Servlet extends HttpServlet {

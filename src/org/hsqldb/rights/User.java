@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.lib.StringConverter;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.8.0
  */
 public class User extends Grantee {
@@ -130,15 +130,7 @@ public class User extends Grantee {
             return initialSchema;
         }
 
-        HsqlName schema =
-            granteeManager.database.schemaManager.findSchemaHsqlName(
-                getName().getNameString());
-
-        if (schema == null) {
-            return granteeManager.database.schemaManager.getDefaultSchemaHsqlName();
-        } else {
-            return schema;
-        }
+        return granteeManager.database.schemaManager.getDefaultSchemaHsqlName();
     }
 
     /**

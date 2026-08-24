@@ -1031,18 +1031,14 @@ public class Logger implements EventLogInterface {
     }
 
     /**
-     *  Checkpoints the database. <p>
+     *  Checkpoints the database.<p>
      *
-     *  The most important effect of calling this method is to cause the
-     *  log file to be rewritten in the most efficient form to
-     *  reflect the current state of the database, i.e. only the DDL and
-     *  insert DML required to recreate the database in its present state.
-     *  Other house-keeping duties are performed w.r.t. other database
-     *  files, in order to ensure as much as possible the ACID properties
-     *  of the database.
+     *  At checkpoint, the .log file is reset to empty, changes to the .data
+     *  file are all written to disk and the .script file with latest state
+     *  of the DDL and memory table data is saved to disk.
      *
-     * @throws org.hsqldb.error.HsqlException if there is a problem checkpointing the
-     *      database
+     * @throws org.hsqldb.error.HsqlException if there is a problem during
+     *      execution
      */
     public void checkpoint(Session session, boolean defrag, boolean lobs) {
 

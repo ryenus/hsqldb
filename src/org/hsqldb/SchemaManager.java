@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -156,9 +156,8 @@ public class SchemaManager {
         try {
             SqlInvariants.checkSchemaNameNotSystem(name.name);
 
-            Schema schema = new Schema(name, owner);
-
-            schemaMap.add(name.name, schema);
+            Schema  schema = new Schema(name, owner);
+            boolean added  = schemaMap.add(name.name, schema);
         } finally {
             writeLock.unlock();
         }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2025, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -1640,6 +1640,7 @@ public class ParserDDL extends ParserRoutine {
         HsqlName schemaName       = null;
         String   authorisation    = null;
         HsqlName characterSetName = null;
+        boolean  hasName          = false;
 
         read();
 
@@ -1647,6 +1648,7 @@ public class ParserDDL extends ParserRoutine {
 
         if (token.tokenType != Tokens.AUTHORIZATION) {
             schemaName = readNewSchemaName();
+            hasName    = true;
         }
 
         if (token.tokenType == Tokens.AUTHORIZATION) {
@@ -1722,7 +1724,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         String     sql            = getLastPart();
-        Object[]   args = new Object[]{ schemaName, owner, ifNotExists };
+        Object[] args = new Object[]{ schemaName, owner, ifNotExists, hasName };
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
         StatementSchema cs = new StatementSchema(
             sql,
