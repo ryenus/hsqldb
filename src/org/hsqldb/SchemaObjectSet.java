@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,12 +38,13 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.WrapperIterator;
 
 /**
  * Collection of SQL schema objects of a specific type in a schema
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.9.0
  */
 public class SchemaObjectSet {
@@ -129,7 +130,10 @@ public class SchemaObjectSet {
         switch (type) {
 
             default :
-                return map.values().iterator();
+                SchemaObject[] values = map.valuesToArray(
+                    SchemaObject.emptyArray);
+
+                return new WrapperIterator<>(values);
 
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :

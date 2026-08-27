@@ -1576,25 +1576,17 @@ public class SchemaManager {
 
     public Iterator<Table> databaseTableIterator() {
 
-        readLock.lock();
+        Iterator<SchemaObject> it = databaseObjectIterator(SchemaObject.TABLE);
 
-        try {
-            Iterator<Schema> schemas = schemaMap.values().iterator();
-            Iterator<Table>  tables  = new WrapperIterator<>();
+        return new Iterator<Table>() {
 
-            while (schemas.hasNext()) {
-                Schema          schema   = schemas.next();
-                Iterator<Table> iterator = schema.tableList.values().iterator();
-
-                if (iterator.hasNext()) {
-                    tables = new WrapperIterator<>(tables, iterator);
-                }
+            public boolean hasNext() {
+                return it.hasNext();
             }
-
-            return tables;
-        } finally {
-            readLock.unlock();
-        }
+            public Table next() {
+                return (Table) it.next();
+            }
+        };
     }
 
     public Iterator<Constraint> databaseCheckConstraintIterator() {

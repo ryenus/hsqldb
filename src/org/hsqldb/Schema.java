@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2024, The HSQL Development Group
+/* Copyright (c) 2001-2026, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.7.3
+ * @version 2.7.5
  * @since 1.9.0
 */
 public final class Schema implements SchemaObject {
@@ -385,7 +385,7 @@ public final class Schema implements SchemaObject {
 
     public Iterator<SchemaObject> constraintsIterator() {
 
-        return new Iterator<SchemaObject>() {
+        Iterator<SchemaObject> it = new Iterator() {
 
             Iterator<HsqlName> names = constraintLookup.getNameIterator();
             Constraint         current;
@@ -448,6 +448,13 @@ public final class Schema implements SchemaObject {
                 return false;
             }
         };
+        HsqlArrayList<SchemaObject> list = new HsqlArrayList<>();
+
+        while (it.hasNext()) {
+            list.add(it.next());
+        }
+
+        return list.iterator();
     }
 
     SchemaObject findAnySchemaObjectForSynonym(String name) {

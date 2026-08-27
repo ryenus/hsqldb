@@ -1352,7 +1352,8 @@ public class StatementSchema extends Statement {
                         // always include authorization
                         Schema schema = schemaManager.findSchema(name.name);
 
-                        if (owner instanceof User && name.name.equals(owner.getName().name)) {
+                        if (owner instanceof User
+                                && name.name.equals(owner.getName().name)) {
                             User user = (User) owner;
 
                             if (user.getInitialSchema() == null) {
