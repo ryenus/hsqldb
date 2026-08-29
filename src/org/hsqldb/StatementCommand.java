@@ -1585,11 +1585,16 @@ public class StatementCommand extends Statement {
 
             case StatementTypes.SET_USER_PASSWORD : {
                 try {
-                    User    user     = arguments[0] == null
+                    boolean self     = arguments[0] == null;
+                    User    user     = self
                                        ? session.getUser()
                                        : (User) arguments[0];
                     String  password = (String) arguments[1];
                     boolean isDigest = (Boolean) arguments[2];
+
+                    if (!self) {
+                        session.checkAdmin();
+                    }
 
                     session.checkDDLWrite();
                     session.database.userManager.setPassword(
