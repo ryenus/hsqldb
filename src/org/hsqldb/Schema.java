@@ -85,7 +85,7 @@ public final class Schema implements SchemaObject {
     SchemaObjectSet procedureLookup;
     SchemaObjectSet referenceLookup;
     SchemaObjectSet sequenceLookup;
-    SchemaObjectSet specificRLookup;
+    SchemaObjectSet specificLookup;
     SchemaObjectSet tableLookup;
     SchemaObjectSet triggerLookup;
     SchemaObjectSet typeLookup;
@@ -112,7 +112,7 @@ public final class Schema implements SchemaObject {
         procedureLookup  = new SchemaObjectSet(SchemaObject.PROCEDURE);
         referenceLookup  = new SchemaObjectSet(SchemaObject.REFERENCE);
         sequenceLookup   = new SchemaObjectSet(SchemaObject.SEQUENCE);
-        specificRLookup  = new SchemaObjectSet(SchemaObject.SPECIFIC_ROUTINE);
+        specificLookup   = new SchemaObjectSet(SchemaObject.SPECIFIC_ROUTINE);
         tableLookup      = new SchemaObjectSet(SchemaObject.TABLE);
         triggerLookup    = new SchemaObjectSet(SchemaObject.TRIGGER);
         typeLookup       = new SchemaObjectSet(SchemaObject.TYPE);
@@ -261,7 +261,7 @@ public final class Schema implements SchemaObject {
                && typeLookup.isEmpty()
                && charsetLookup.isEmpty()
                && collationLookup.isEmpty()
-               && specificRLookup.isEmpty();
+               && specificLookup.isEmpty();
     }
 
     private SchemaObjectSet getObjectSet(int type) {
@@ -302,7 +302,7 @@ public final class Schema implements SchemaObject {
                 return sequenceLookup;
 
             case SchemaObject.SPECIFIC_ROUTINE :
-                return specificRLookup;
+                return specificLookup;
 
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
@@ -365,7 +365,7 @@ public final class Schema implements SchemaObject {
                 return sequenceLookup.getIterator();
 
             case SchemaObject.SPECIFIC_ROUTINE :
-                return specificRLookup.getIterator();
+                return specificLookup.getIterator();
 
             case SchemaObject.TRIGGER :
                 return triggerLookup.getIterator();
@@ -599,7 +599,7 @@ public final class Schema implements SchemaObject {
             }
 
             case SchemaObject.SPECIFIC_ROUTINE :
-                return specificRLookup.getObject(name);
+                return specificLookup.getObject(name);
 
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
@@ -710,7 +710,7 @@ public final class Schema implements SchemaObject {
         moduleLookup     = null;
         procedureLookup  = null;
         sequenceLookup   = null;
-        specificRLookup  = null;
+        specificLookup   = null;
         tableLookup      = null;
         triggerLookup    = null;
         typeLookup       = null;

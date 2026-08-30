@@ -2234,7 +2234,7 @@ public class SchemaManager {
                 }
 
                 case SchemaObject.SPECIFIC_ROUTINE : {
-                    set = schema.specificRLookup;
+                    set = schema.specificLookup;
 
                     Routine routine = (Routine) set.getObject(name.name);
 
